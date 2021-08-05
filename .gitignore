@@ -1,0 +1,8 @@
+# Visual Studio
+.vs
+bin
+*.aps
+*.user
+
+# CMake
+build
