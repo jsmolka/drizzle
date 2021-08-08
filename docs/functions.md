@@ -3,12 +3,26 @@
 ## Planned
 Make sure to limit the function argument count (arity). Raise a syntax error if the number of non-default arguments doesn't match the number of passed arguments.
 
-### Standard Syntax
+### Basic Function
 ```
 function add(a, b):
   return a + b
 
 add(1, 2)  # Returns 3
+```
+
+### Anonymous Function
+<!-- Todo: rethink syntax https://nim-lang.org/docs/manual.html#procedures-anonymous-procs -->
+```
+function call(func):
+  return func(10)
+
+call(function (value):
+  return value)
+
+call(function (value):
+  return value
+)
 ```
 
 ### Default Arguments

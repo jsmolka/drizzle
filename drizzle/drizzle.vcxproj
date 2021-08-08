@@ -14,10 +14,17 @@
     <Text Include="CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="template.rc" />
+    <ResourceCompile Include="drizzle.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\chunk.cpp" />
     <ClCompile Include="src\main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\chunk.h" />
+    <ClInclude Include="src\error.h" />
+    <ClInclude Include="src\int.h" />
+    <ClInclude Include="src\value.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
@@ -61,6 +68,7 @@
       <SupportJustMyCode>true</SupportJustMyCode>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <PreprocessorDefinitions>FMT_HEADER_ONLY;</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>SDL2maind.lib;shell32.lib</AdditionalDependencies>
@@ -76,7 +84,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/Ob3</AdditionalOptions>
-      <PreprocessorDefinitions>NDEBUG</PreprocessorDefinitions>
+      <PreprocessorDefinitions>FMT_HEADER_ONLY;NDEBUG</PreprocessorDefinitions>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
     </ClCompile>

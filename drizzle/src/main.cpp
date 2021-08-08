@@ -1,5 +1,6 @@
-#define FMT_HEADER_ONLY
-#include <fmt/core.h>
+#include <fmt/format.h>
+
+#include "chunk.h"
 
 #ifdef _MSC_VER
 
@@ -38,10 +39,16 @@ int main(int argc, char* argv[])
 {
     try
     {
+        Chunk chunk;
+        chunk.write(Opcode::Return);
+        chunk.writeConstant(10);
+        chunk.disassemble();
+
         return 0;
-    } 
+    }
     catch (const std::exception& ex)
     {
+        // Todo: recover and cleanup
         fmt::print(ex.what());
         return 1;
     }
