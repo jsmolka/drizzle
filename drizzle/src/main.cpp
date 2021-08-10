@@ -2,18 +2,21 @@
 #include <shell/main.h>
 
 #include "chunk.h"
+#include "stack.h"
+#include "vm.h"
 
 int main(int argc, char* argv[])
 {
     try
     {
         Chunk chunk;
+        chunk.writeConstant(1, 1);
+        chunk.writeConstant(2, 1);
+        chunk.write(Opcode::Add, 1);
+        chunk.writeConstant(1.5, 1);
+        chunk.write(Opcode::Divide, 1);
         chunk.write(Opcode::Return, 1);
-        chunk.writeConstant(10, 1);
-        chunk.writeConstant(11, 1);
-        chunk.writeConstant(12, 2);
-        chunk.writeConstant(10, 3);
-        chunk.disassemble();
+        vm.interpret(chunk);
 
         return 0;
     }

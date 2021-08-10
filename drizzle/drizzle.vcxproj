@@ -19,12 +19,16 @@
   <ItemGroup>
     <ClCompile Include="src\chunk.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\vm.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\chunk.h" />
     <ClInclude Include="src\error.h" />
     <ClInclude Include="src\int.h" />
+    <ClInclude Include="src\opcode.h" />
+    <ClInclude Include="src\stack.h" />
     <ClInclude Include="src\value.h" />
+    <ClInclude Include="src\vm.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
