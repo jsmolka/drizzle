@@ -16,22 +16,13 @@ for i in range(10):
 ### Class Default Iterators
 Classes can define a default `iterate` iterator.
 ```
-class List:
-  constructor():
-    this.array = [1, 2, 3]
-
+class Counter:
   iterator iterate():
-    for i = 0; i < this.array.len; i++:
-      yield this.array[i]
+    var i = 0
+    while true:
+      yield i
+      i++
 
-  iterator reversed():
-    for i = this.array.len - 1; i > -1; i--:
-      yield this.array[i]
-
-var list = List()
-for i in list:
-  pass
-
-for i in list.reversed():
-  pass
+for i in Counter():
+  noop
 ```

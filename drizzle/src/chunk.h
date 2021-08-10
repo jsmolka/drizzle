@@ -6,9 +6,9 @@
 
 enum class Opcode : u8
 {
-    ConstantByte,  // For byte indices
-    ConstantHalf,  // For halfword indices
-    ConstantWord,  // For word indices
+    ConstantByte,
+    ConstantHalf,
+    ConstantWord,
     Return
 };
 
@@ -24,9 +24,12 @@ public:
     }
 
     template<typename Integral>
-    void write(Integral value)
+    void write(Integral value, std::size_t line)
     {
         static_assert(std::is_integral_v<Integral>);
+
+        if (lines.empty() || line > lines.back().number)
+            lines.push_back({ code.size(), line });
 
         code.push_back(value);
         if constexpr (sizeof(Integral) >= 2) code.push_back(value >> 8);
@@ -38,16 +41,24 @@ public:
         if constexpr (sizeof(Integral) >= 8) code.push_back(value >> 56);
     }
 
-    void write(Opcode opcode);
-    void writeConstant(const Value& value);
+    void write(Opcode opcode, std::size_t line);
+    void writeConstant(const Value& value, std::size_t line);
 
     void disassemble();
+    std::size_t disassembleAt(std::size_t index);
+    std::size_t lineAt(std::size_t index);
 
 private:
-    std::size_t opcode(std::size_t index);
+    struct Line
+    {
+        std::size_t begin;
+        std::size_t number;
+    };
+
     std::size_t opcodeConstant(Opcode opcode, std::size_t index);
     std::size_t opcodePrimitive(std::string_view name, std::size_t index);
 
     Values constants;
     std::vector<u8> code;
+    std::vector<Line> lines;
 };

@@ -1,3 +1,3 @@
-[submodule "drizzle/modules/fmt"]
-    path = drizzle/modules/fmt
-    url = https://github.com/fmtlib/fmt
+[submodule "drizzle/modules/shell"]
+    path = drizzle/modules/shell
+    url = https://github.com/jsmolka/shell

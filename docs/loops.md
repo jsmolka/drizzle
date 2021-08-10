@@ -1,23 +1,45 @@
 # Loops
 
 ## Planned
-All loops support `break` and `continue` statements. They can only exist inside a loop or a syntax error is raised.
+- break
+- continue
 
-## While Loops
+### While Loops
 ```
 while condition:
-  pass
+  noop
 ```
 
-## For Loops
-For loops are compiled into while loops.
+### For Loops
 ```
-for i = 0; i < 10; ++i:
-  pass  # 0 to 9
+iterator range(min, max, step=1):
+  while min < max:
+    yield min
+    min += step
 ```
 
-There is a shorthand notation for the basic loop.
 ```
-for i in 0..10:
-  pass  # 0 to 9
+# Range [0, 9]
+for i in range(0, 10):
+  noop
+```
+
+```
+# Range [0, -9]
+for i in range(0, -10, -1):
+  noop
+```
+
+```
+# Range [0, 9]
+for i in 0 .. 10:
+  noop
+```
+
+## Maybe
+Automatic determination of step in `..`.
+```
+# Range [0, -9]
+for i in 0 .. -10:
+  noop
 ```

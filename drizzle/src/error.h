@@ -3,7 +3,7 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
-#include <fmt/format.h>
+#include <shell/format.h>
 
 class Error : public std::exception
 {

@@ -1,12 +1,12 @@
 #pragma once
 
-#include <cstdint>
+#include <shell/int.h>
 
-using s8  = std::int8_t;
-using s16 = std::int16_t;
-using s32 = std::int32_t;
-using s64 = std::int64_t;
-using u8  = std::uint8_t;
-using u16 = std::uint16_t;
-using u32 = std::uint32_t;
-using u64 = std::uint64_t;
+using s8  = shell::s8;
+using s16 = shell::s16;
+using s32 = shell::s32;
+using s64 = shell::s64;
+using u8  = shell::u8;
+using u16 = shell::u16;
+using u32 = shell::u32;
+using u64 = shell::u64;

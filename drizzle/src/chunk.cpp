@@ -1,31 +1,33 @@
 #include "chunk.h"
 
 #include <limits>
+#include <shell/format.h>
+#include <shell/ranges.h>
 
 #include "error.h"
 
-void Chunk::write(Opcode opcode)
+void Chunk::write(Opcode opcode, std::size_t line)
 {
-    write(static_cast<u8>(opcode));
+    write(static_cast<u8>(opcode), line);
 }
 
-void Chunk::writeConstant(const Value& value)
+void Chunk::writeConstant(const Value& value, std::size_t line)
 {
     auto index = constants.size();
     if (index <= std::numeric_limits<u8>::max())
     {
-        write(Opcode::ConstantByte);
-        write<u8>(index);
+        write(Opcode::ConstantByte, line);
+        write<u8>(index, line);
     }
     else if (index <= std::numeric_limits<u16>::max())
     {
-        write(Opcode::ConstantHalf);
-        write<u16>(index);
+        write(Opcode::ConstantHalf, line);
+        write<u16>(index, line);
     }
     else if (index <= std::numeric_limits<u32>::max())
     {
-        write(Opcode::ConstantWord);
-        write<u32>(index);
+        write(Opcode::ConstantWord, line);
+        write<u32>(index, line);
     }
     else
     {
@@ -38,13 +40,13 @@ void Chunk::disassemble()
 {
     for (std::size_t index = 0; index < code.size(); )
     {
-        index = opcode(index);
+        index = disassembleAt(index);
     }
 }
 
-std::size_t Chunk::opcode(std::size_t index)
+std::size_t Chunk::disassembleAt(std::size_t index)
 {
-    fmt::print("{:08}  ", index);
+    shell::print("{:04}  {:04}  ", index, lineAt(index));
 
     auto opcode = static_cast<Opcode>(read<u8>(index++));
     switch (opcode)
@@ -58,9 +60,19 @@ std::size_t Chunk::opcode(std::size_t index)
         return opcodePrimitive("Opcode::Return", index);
 
     default:
-        fmt::print("Unknown opcode {}\n", opcode);
+        shell::print("Unknown opcode {}\n", opcode);
         return index;
     }
+}
+
+std::size_t Chunk::lineAt(std::size_t index)
+{
+    for (const auto& line : shell::reversed(lines))
+    {
+        if (index >= line.begin)
+            return line.number;
+    }
+    return 0;
 }
 
 std::size_t Chunk::opcodeConstant(Opcode opcode, std::size_t index)
@@ -89,12 +101,12 @@ std::size_t Chunk::opcodeConstant(Opcode opcode, std::size_t index)
         break;
     }
 
-    fmt::print("{} [{}] -> {}\n", name, constant, constants[constant]);
+    shell::print("{} [{}] -> {}\n", name, constant, constants[constant]);
     return index;
 }
 
 std::size_t Chunk::opcodePrimitive(std::string_view name, std::size_t index)
 {
-    fmt::print("{}\n", name);
+    shell::print("{}\n", name);
     return index;
 }
