@@ -1,7 +1,6 @@
 #pragma once
 
-#include <functional>
-#include <shell/punning.h>
+#include <string_view>
 
 #include "chunk.h"
 #include "stack.h"
@@ -9,7 +8,7 @@
 class Vm
 {
 public:
-    void interpret(const Chunk& chunk);
+    void interpret(std::string_view source);
 
 private:
     template<typename Integral>
@@ -24,5 +23,3 @@ private:
     const u8* ip;
     Stack<Value, 512> stack;
 };
-
-inline Vm vm;

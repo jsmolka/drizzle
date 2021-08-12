@@ -7,6 +7,8 @@ template<typename T, std::size_t N>
 class Stack
 {
 public:
+    static_assert(N > 0);
+
     using iterator = T*;
     using const_iterator = const iterator;
 
@@ -36,7 +38,17 @@ public:
 
     std::size_t size() const
     {
-        return top - data;
+        return head - data;
+    }
+
+    bool empty() const
+    {
+        return head == data;
+    }
+
+    void clear()
+    {
+        head = data;
     }
 
     SHELL_FORWARD_ITERATORS(data, head)

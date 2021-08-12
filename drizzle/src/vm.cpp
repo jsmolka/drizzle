@@ -2,15 +2,16 @@
 
 #include <functional>
 #include <shell/format.h>
+#include <shell/punning.h>
+
+#include "compiler.h"
 
 #define TRACE_EXECUTION
 
-void Vm::interpret(const Chunk& chunk)
+void Vm::interpret(std::string_view source)
 {
-    this->chunk = &chunk;
-    this->ip = chunk.code.data();
-
-    run();
+    Compiler compiler;
+    compiler.compile(source);
 }
 
 template<typename Integral>
@@ -39,6 +40,7 @@ void Vm::run()
     // - Computed goto
     // - Direct stack manipulation (Opcode::Negative without push/pop)
     // - Register based bytecode
+    // - Keep IP in CPU register, no member variable
 
     while (true)
     {

@@ -8,9 +8,6 @@
 class Error : public std::exception
 {
 public:
-    Error(std::string_view message)
-        : message(message) {}
-
     template<typename... Args>
     Error(std::string_view format, Args&&... args)
         : message(fmt::format(format, std::forward<Args>(args)...)) {}
@@ -22,4 +19,16 @@ public:
 
 private:
     std::string message;
+};
+
+class SyntaxError : public Error
+{
+public:
+    using Error::Error;
+};
+
+class RuntimeError : public Error
+{
+public:
+    using Error::Error;
 };
