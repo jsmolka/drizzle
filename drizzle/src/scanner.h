@@ -3,8 +3,6 @@
 #include <string_view>
 #include <vector>
 
-#include "stack.h"
-
 struct Token
 {
     enum class Type
@@ -34,35 +32,35 @@ struct Token
     };
 
     Type type;
-    std::string_view lexeme;
     std::size_t line;
+    std::string_view lexeme;
 };
 
 class Scanner
 {
 public:
-    void scan(std::string_view source);
-
-    std::vector<Token> tokens;
+    std::vector<Token> scan(std::string_view source);
 
 private:
-    void skipWhitespace();
-    void skipEmptyLine();
+    bool isFileEnd() const;
+    bool isLineBegin() const;
+
+    void skipEmptyLines();
     void skipComment();
 
-    Token makeToken(Token::Type type) const;
-    Token scanToken();
+    void token(Token::Type type);
+    void scanWhitespace();
+    void scanIndentation();
+    void scanToken();
 
     char next();
     char peek() const;
     char peekNext() const;
-    bool finished() const;
     bool match(char expected);
 
     const char* begin;
     const char* current;
     std::size_t line;
-    bool line_begin;
-    int level;
-    Stack<int, 64> indentation;
+    std::size_t indentation;
+    std::vector<Token> tokens;
 };

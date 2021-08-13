@@ -2,69 +2,102 @@
 
 #include "error.h"
 
-void Scanner::scan(std::string_view source)
+std::vector<Token> Scanner::scan(std::string_view source)
 {
-    indentation.clear();
-    indentation.push(0);
-
-    tokens.clear();
     begin = source.data();
     current = source.data();
     line = 1;
-    level = 0;
-    line_begin = true;
+    indentation = 0;
 
-    while (true)
+    tokens.clear();
+    while (!isFileEnd())
     {
-        tokens.push_back(scanToken());
-        if (tokens.back().type == Token::Type::Eof)
-            return;
+        if (isLineBegin())
+            skipEmptyLines();
+
+        scanWhitespace();
+        scanToken();
+    }
+    return tokens;
+}
+
+bool Scanner::isFileEnd() const
+{
+    return *current == '\0';
+}
+
+bool Scanner::isLineBegin() const
+{
+    return tokens.empty() || tokens.back().type == Token::Type::NewLine;
+}
+
+void Scanner::skipEmptyLines()
+{
+    while (!isFileEnd())
+    {
+        auto previous = current;
+        auto line_end = false;
+
+        while (!isFileEnd() && !line_end)
+        {
+            switch (peek())
+            {
+            case ' ':
+            case '\t':
+            case '\r':
+                next();
+                break;
+
+            case '#':
+                skipComment();
+                break;
+
+            case '\n':
+                line++;
+                line_end = true;
+                next();
+                break;
+
+            default:
+                current = previous;
+                return;
+            }
+        }
     }
 }
 
-void Scanner::skipWhitespace()
+void Scanner::skipComment()
 {
-    constexpr auto kIndentSize = 2;
+    while (!isFileEnd() && peek() != '\n')
+        next();
+}
 
+void Scanner::token(Token::Type type)
+{
+    Token token;
+    token.type = type;
+    token.lexeme = std::string_view(begin, current - begin);
+    token.line = line;
+    tokens.push_back(token);
+
+    begin = current;
+}
+
+void Scanner::scanWhitespace()
+{
     while (true)
     {
         switch (peek())
         {
         case ' ':
-            if (line_begin && level == 0)
-            {
-                int spaces = 0;
-                while (match(' '))
-                    spaces++;
-
-                if (spaces & (kIndentSize - 1))
-                    throw SyntaxError("indentation must be a multiple of {}", kIndentSize);
-
-                int indent = spaces / kIndentSize;
-                if (indent > indentation.peek())
-                {
-                    if ((indent - indentation.peek()) > 1)
-                        throw SyntaxError("Indentation of multiple levels");
-
-                    indentation.push(indent);
-                }
-
-                if (indentation.empty())
-                {
-                    indentation.push(indent);
-                    tokens.push_back(makeToken(Token::Type::Indent));
-                }
-
-                int current = indentation.empty() ? 0 : indentation.peek();
-
-                indentation.push(spaces / 2);
-
-                line_begin = false;
-            }
+            if (isLineBegin())
+                scanIndentation();
+            else
+                next();
             break;
             
         case '\t':
-            throw SyntaxError("tabs are not supported");
+            throw SyntaxError("tabs cannot be used for indentation");
 
         case '\r':
             next();
@@ -76,36 +109,51 @@ void Scanner::skipWhitespace()
 
         case '\n':
             line++;
-            line_begin = true;
             next();
+            token(Token::Type::NewLine);
             break;
 
         default:
+            if (isLineBegin())
+            {
+                while (indentation--)
+                    token(Token::Type::Dedent);
+            }
             return;
         }
     }
 }
 
-void Scanner::skipEmptyLine()
+void Scanner::scanIndentation()
 {
+    constexpr auto kIndentationSize = 2;
+
+    int spaces = 0;
+    while (match(' '))
+        spaces++;
+
+    if (spaces & (kIndentationSize - 1))
+        throw SyntaxError("indentation must be a multiple of {}", kIndentationSize);
+
+    int indent = spaces / kIndentationSize;
+    if (indent > indentation)
+    {
+        if ((indent - indentation) > 1)
+            throw SyntaxError("invalid indentation");
+
+        token(Token::Type::Indent);
+    }
+    else
+    {
+        while (indent < indentation)
+        {
+            token(Token::Type::Dedent);
+            indentation--;
+        }
+    }
 }
 
-void Scanner::skipComment()
-{
-    while (!finished() && peek() != '\n')
-        next();
-}
-
-Token Scanner::makeToken(Token::Type type) const
-{
-    Token token;
-    token.type = type;
-    token.lexeme = std::string_view(begin, current - begin);
-    token.line = line;
-    return token;
-}
-
-Token Scanner::scanToken()
+void Scanner::scanToken()
 {
         //// Literals
         //Float, Identifier, Integer, String,
@@ -121,43 +169,38 @@ Token Scanner::scanToken()
         //// Todo: remove when functions are implemented
         //Print
 
-    if (finished())
-        return makeToken(Token::Type::Eof);
+    if (isFileEnd())
+        return token(Token::Type::Eof);
 
-    auto c = next();
-
-    switch (c)
+    switch (next())
     {
     // Single
-    case '{': return makeToken(Token::Type::BraceLeft);
-    case '}': return makeToken(Token::Type::BraceRight);
-    case '[': return makeToken(Token::Type::BracketLeft);
-    case ']': return makeToken(Token::Type::BracketRight);
-    case '^': return makeToken(Token::Type::Caret);
-    case ':': return makeToken(Token::Type::Colon);
-    case ',': return makeToken(Token::Type::Comma);
-    case '.': return makeToken(Token::Type::Dot);
-    case '-': return makeToken(Token::Type::Minus);
-    case '(': return makeToken(Token::Type::ParenLeft);
-    case ')': return makeToken(Token::Type::ParenRight);
-    case '%': return makeToken(Token::Type::Percent);
-    case '+': return makeToken(Token::Type::Plus);
-    case '/': return makeToken(Token::Type::Slash);
-    case '*': return makeToken(Token::Type::Star);
+    case '{': return token(Token::Type::BraceLeft);
+    case '}': return token(Token::Type::BraceRight);
+    case '[': return token(Token::Type::BracketLeft);
+    case ']': return token(Token::Type::BracketRight);
+    case '^': return token(Token::Type::Caret);
+    case ':': return token(Token::Type::Colon);
+    case ',': return token(Token::Type::Comma);
+    case '.': return token(Token::Type::Dot);
+    case '-': return token(Token::Type::Minus);
+    case '(': return token(Token::Type::ParenLeft);
+    case ')': return token(Token::Type::ParenRight);
+    case '%': return token(Token::Type::Percent);
+    case '+': return token(Token::Type::Plus);
+    case '/': return token(Token::Type::Slash);
+    case '*': return token(Token::Type::Star);
 
     // Single or double
-    case '&': return makeToken(match('&') ? Token::Type::AndAnd : Token::Type::And);
-    case '!': return makeToken(match('=') ? Token::Type::BangEqual: Token::Type::Bang);
-    case '=': return makeToken(match('=') ? Token::Type::EqualEqual: Token::Type::Equal);
-    case '>': return makeToken(match('=') ? Token::Type::GreaterEqual: Token::Type::Greater);
-    case '<': return makeToken(match('=') ? Token::Type::LessEqual: Token::Type::Less);
-    case '|': return makeToken(match('|') ? Token::Type::PipePipe: Token::Type::Pipe);
+    case '&': return token(match('&') ? Token::Type::AndAnd : Token::Type::And);
+    case '!': return token(match('=') ? Token::Type::BangEqual : Token::Type::Bang);
+    case '=': return token(match('=') ? Token::Type::EqualEqual : Token::Type::Equal);
+    case '>': return token(match('=') ? Token::Type::GreaterEqual : Token::Type::Greater);
+    case '<': return token(match('=') ? Token::Type::LessEqual : Token::Type::Less);
+    case '|': return token(match('|') ? Token::Type::PipePipe : Token::Type::Pipe);
     }
 
     // Todo: throw
-
-
-    return Token();
 }
 
 char Scanner::next()
@@ -173,17 +216,12 @@ char Scanner::peek() const
 
 char Scanner::peekNext() const
 {
-    return finished() ? '\0' : current[1];
-}
-
-bool Scanner::finished() const
-{
-    return *current == '\0';
+    return isFileEnd() ? '\0' : current[1];
 }
 
 bool Scanner::match(char expected)
 {
-    if (finished() || *current != expected)
+    if (isFileEnd() || *current != expected)
         return false;
 
     current++;
