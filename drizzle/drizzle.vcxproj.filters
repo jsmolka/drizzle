@@ -55,9 +55,6 @@
     <ClInclude Include="src\vm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\opcode.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\stack.h">
       <Filter>Header Files</Filter>
     </ClInclude>

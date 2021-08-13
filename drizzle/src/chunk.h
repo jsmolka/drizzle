@@ -2,8 +2,19 @@
 
 #include <string_view>
 
-#include "opcode.h"
 #include "value.h"
+
+enum class Opcode : u8
+{
+    Constant,
+    ConstantExt,
+    Add,
+    Subtract,
+    Multiply,
+    Divide,
+    Negate,
+    Return
+};
 
 class Chunk
 {
