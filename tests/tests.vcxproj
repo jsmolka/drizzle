@@ -14,30 +14,15 @@
     <Text Include="CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="drizzle.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="src\chunk.cpp" />
-    <ClCompile Include="src\compiler.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\scanner.cpp" />
-    <ClCompile Include="src\vm.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\chunk.h" />
-    <ClInclude Include="src\compiler.h" />
-    <ClInclude Include="src\error.h" />
-    <ClInclude Include="src\int.h" />
-    <ClInclude Include="src\opcode.h" />
-    <ClInclude Include="src\scanner.h" />
-    <ClInclude Include="src\stack.h" />
-    <ClInclude Include="src\value.h" />
-    <ClInclude Include="src\vm.h" />
+    <None Include="src\scanner\indentation.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{afdf6434-48af-4b0f-aa15-b76b84912ef2}</ProjectGuid>
-    <ProjectName>drizzle</ProjectName>
+    <ProjectGuid>{12a3117e-a013-449b-8b86-86b138c0dbf7}</ProjectGuid>
+    <ProjectName>tests</ProjectName>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -70,15 +55,13 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)modules\shell\include\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)modules\;$(SolutionDir)</AdditionalIncludeDirectories>
       <ObjectFileName>$(IntDir)/%(RelativeDir)/</ObjectFileName>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <SupportJustMyCode>true</SupportJustMyCode>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
-      <PreprocessorDefinitions>
-      </PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>SDL2maind.lib;shell32.lib</AdditionalDependencies>
@@ -89,7 +72,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
-      <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)modules\shell\include\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)modules\;$(SolutionDir)</AdditionalIncludeDirectories>
       <ObjectFileName>$(IntDir)/%(RelativeDir)/</ObjectFileName>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>

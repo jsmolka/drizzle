@@ -4,5 +4,5 @@
 
 void Compiler::compile(std::string_view source)
 {
-    Scanner scanner(source);
+    //Scanner scanner(source);
 }

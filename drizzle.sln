@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.31321.278
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "drizzle", "drizzle\drizzle.vcxproj", "{AFDF6434-48AF-4B0F-AA15-B76B84912EF2}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tests", "tests\tests.vcxproj", "{12A3117E-A013-449B-8B86-86B138C0DBF7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -15,6 +17,10 @@ Global
 		{AFDF6434-48AF-4B0F-AA15-B76B84912EF2}.Debug|x64.Build.0 = Debug|x64
 		{AFDF6434-48AF-4B0F-AA15-B76B84912EF2}.Release|x64.ActiveCfg = Release|x64
 		{AFDF6434-48AF-4B0F-AA15-B76B84912EF2}.Release|x64.Build.0 = Release|x64
+		{12A3117E-A013-449B-8B86-86B138C0DBF7}.Debug|x64.ActiveCfg = Debug|x64
+		{12A3117E-A013-449B-8B86-86B138C0DBF7}.Debug|x64.Build.0 = Debug|x64
+		{12A3117E-A013-449B-8B86-86B138C0DBF7}.Release|x64.ActiveCfg = Release|x64
+		{12A3117E-A013-449B-8B86-86B138C0DBF7}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -12,7 +12,7 @@ public:
     Error(std::string_view format, Args&&... args)
         : message(fmt::format(format, std::forward<Args>(args)...)) {}
 
-    const char* what() const final
+    const char* what() const noexcept final
     {
         return message.c_str();
     }

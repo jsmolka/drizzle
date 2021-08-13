@@ -1,0 +1,25 @@
+name: Test
+
+on: push
+
+jobs:
+  test-linux:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@master
+        with:
+          submodules: recursive
+
+      - name: Setup
+        run: |
+          mkdir tests/build
+
+      - name: Build
+        run: |
+          cd tests/build
+          cmake -DCMAKE_BUILD_TYPE=Debug ..
+          make -j 4
+
+      - name: Run
+        run: ./tests/build/tests
