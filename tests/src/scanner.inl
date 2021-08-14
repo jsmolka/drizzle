@@ -1,4 +1,4 @@
-void require(std::string_view source, const std::vector<Token::Type>& expected)
+void scan(const std::string& source, const std::vector<Token::Type>& expected)
 {
     Scanner scanner;
     const auto tokens = scanner.scan(source);
@@ -7,3 +7,7 @@ void require(std::string_view source, const std::vector<Token::Type>& expected)
     for (auto [token, type] : shell::zip(tokens, expected))
         REQUIRE(token.type == type);
 }
+
+#include "scanner_empty_lines.inl"
+#include "scanner_eof.inl"
+#include "scanner_whitespace.inl"

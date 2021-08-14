@@ -18,11 +18,13 @@
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="src\scanner_common.inl" />
-    <None Include="src\scanner_indentation.inl" />
+    <None Include="src\scanner.inl" />
+    <None Include="src\scanner_empty_lines.inl" />
+    <None Include="src\scanner_eof.inl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\drizzle\src\scanner.h" />
+    <ClInclude Include="src\scanner_whitespace.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

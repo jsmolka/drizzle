@@ -2,7 +2,7 @@
 
 #include "error.h"
 
-std::vector<Token> Scanner::scan(std::string_view source)
+std::vector<Token> Scanner::scan(const std::string& source)
 {
     begin = source.data();
     current = source.data();
@@ -12,12 +12,11 @@ std::vector<Token> Scanner::scan(std::string_view source)
     tokens.clear();
     while (!isFileEnd())
     {
-        if (isLineBegin())
-            skipEmptyLines();
-
         scanWhitespace();
         scanToken();
     }
+    token(Token::Type::Eof);
+
     return tokens;
 }
 
@@ -87,6 +86,9 @@ void Scanner::scanWhitespace()
 {
     while (true)
     {
+        if (isLineBegin())
+            skipEmptyLines();
+
         switch (peek())
         {
         case ' ':
@@ -97,7 +99,11 @@ void Scanner::scanWhitespace()
             break;
             
         case '\t':
-            throw SyntaxError("tabs cannot be used for indentation");
+            if (isLineBegin())
+                throw SyntaxError("tabs cannot be used for indentation");
+            else
+                next();
+            break;
 
         case '\r':
             next();
@@ -114,7 +120,7 @@ void Scanner::scanWhitespace()
             break;
 
         default:
-            if (isLineBegin())
+            if (isLineBegin() && indentation > 0)
             {
                 while (indentation--)
                     token(Token::Type::Dedent);
@@ -168,9 +174,6 @@ void Scanner::scanToken()
 
         //// Todo: remove when functions are implemented
         //Print
-
-    if (isFileEnd())
-        return token(Token::Type::Eof);
 
     switch (next())
     {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <string_view>
+#include <string>
 #include <vector>
 
 struct Token
@@ -39,7 +39,7 @@ struct Token
 class Scanner
 {
 public:
-    std::vector<Token> scan(std::string_view source);
+    std::vector<Token> scan(const std::string& source);
 
 private:
     bool isFileEnd() const;

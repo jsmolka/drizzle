@@ -26,15 +26,21 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="src\scanner_indentation.inl">
+    <None Include="src\scanner.inl">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\scanner_common.inl">
+    <None Include="src\scanner_eof.inl">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="src\scanner_empty_lines.inl">
       <Filter>Header Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\drizzle\src\scanner.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scanner_whitespace.inl">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
