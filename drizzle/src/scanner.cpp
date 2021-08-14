@@ -202,8 +202,6 @@ void Scanner::scanToken()
     case '<': return token(match('=') ? Token::Type::LessEqual : Token::Type::Less);
     case '|': return token(match('|') ? Token::Type::PipePipe : Token::Type::Pipe);
     }
-
-    // Todo: throw
 }
 
 char Scanner::next()

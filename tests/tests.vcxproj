@@ -19,8 +19,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="src\scanner.inl" />
+    <None Include="src\scanner_comments.inl" />
     <None Include="src\scanner_empty_lines.inl" />
     <None Include="src\scanner_eof.inl" />
+    <None Include="src\scanner_tokens_double.inl" />
+    <None Include="src\scanner_tokens_single.inl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\drizzle\src\scanner.h" />

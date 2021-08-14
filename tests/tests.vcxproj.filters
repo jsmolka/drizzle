@@ -35,6 +35,15 @@
     <None Include="src\scanner_empty_lines.inl">
       <Filter>Header Files</Filter>
     </None>
+    <None Include="src\scanner_comments.inl">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="src\scanner_tokens_single.inl">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="src\scanner_tokens_double.inl">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\drizzle\src\scanner.h">
