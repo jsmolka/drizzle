@@ -42,24 +42,22 @@ public:
     std::vector<Token> scan(const std::string& source);
 
 private:
-    bool isFileEnd() const;
-    bool isLineBegin() const;
-
-    void skipEmptyLines();
-    void skipComment();
-
-    void token(Token::Type type);
-    void scanWhitespace();
-    void scanIndentation();
-    void scanToken();
-
     char next();
     char peek() const;
     char peekNext() const;
     bool match(char expected);
 
-    const char* begin;
-    const char* current;
+    void emit(Token::Type type);
+    void doIndentation();
+    void blankLines();
+    void whitespace();
+    void comment();
+    void token();
+
+    bool isFileEnd() const;
+
+    const char* cursor;
+    const char* lexeme;
     std::size_t line;
     std::size_t indentation;
     std::vector<Token> tokens;
