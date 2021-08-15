@@ -42,6 +42,9 @@ public:
     std::vector<Token> scan(const std::string& source);
 
 private:
+    static bool isDigit(char c);
+    static bool isAlpha(char c);
+
     bool isEof() const;
     char next();
     bool next(char expect);
@@ -55,10 +58,12 @@ private:
     void scanComment();
     void scanToken();
     void scanString();
+    void scanNumber();
 
     const char* cursor;
     const char* lexeme;
     std::size_t line;
     std::size_t indentation;
+    std::string_view string;
     std::vector<Token> tokens;
 };

@@ -7,11 +7,13 @@
 #include "error.h"
 #include "vm.h"
 
+std::string source;
+
 int main(int argc, char* argv[])
 {
-    namespace filesystem = shell::filesystem;
+    namespace fs = shell::filesystem;
 
-    if (argc < 2)
+    if (argc != 2)
     {
         shell::print("Usage: drizzle <file>\n");
         return 0;
@@ -19,12 +21,10 @@ int main(int argc, char* argv[])
 
     try
     {
-        auto file = filesystem::u8path(argv[1]);
-        auto [status, source] = filesystem::read<std::string>(file);
-
-        if (status != filesystem::Status::Ok)
+        auto file = fs::u8path(argv[1]);
+        if (fs::read(file, source) != fs::Status::Ok)
         {
-            shell::print("Could not read file '{}'\n", file);
+            shell::print("Cannot read file '{}'", file);
             return 1;
         }
 

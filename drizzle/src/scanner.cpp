@@ -4,6 +4,7 @@
 
 std::vector<Token> Scanner::scan(const std::string& source)
 {
+    string = source;
     cursor = source.data();
     lexeme = source.data();
     line = 1;
@@ -33,6 +34,18 @@ std::vector<Token> Scanner::scan(const std::string& source)
     emit(Token::Type::Eof);
 
     return tokens;
+}
+
+bool Scanner::isDigit(char c)
+{
+    return c >= '0' && c <= '9';
+}
+
+bool Scanner::isAlpha(char c)
+{
+    return (c >= 'a' && c <= 'z')
+        || (c >= 'A' && c <= 'Z')
+        || (c == '_');
 }
 
 bool Scanner::isEof() const
@@ -217,21 +230,20 @@ void Scanner::scanComment()
 
 void Scanner::scanToken()
 {
-        //// Literals
-        //Float, Identifier, Integer, String,
+    //// Literals
+    //Float, Identifier, Integer, String,
 
-        //// Keywords
-        //Break, Class, Continue, Elif, Else, Extends, False, For,
-        //Function, If, In, Iterator, Noop, Null, Return, Super,
-        //This, True, Var, While, Yield,
+    //// Keywords
+    //Break, Class, Continue, Elif, Else, Extends, False, For,
+    //Function, If, In, Iterator, Noop, Null, Return, Super,
+    //This, True, Var, While, Yield,
 
-        //// Special
-        //Eof, Indent,
+    //// Todo: remove when functions are implemented
+    //Print
 
-        //// Todo: remove when functions are implemented
-        //Print
+    char c = next();
 
-    switch (next())
+    switch (c)
     {
     // Single
     case '{': emit(Token::Type::BraceLeft); break;
@@ -279,4 +291,37 @@ void Scanner::scanString()
     next();
 
     emit(Token::Type::String);
+}
+
+void Scanner::scanNumber()
+{
+    auto scan_digits = [this]()
+    {
+        while (isDigit(peek()))
+            next();
+    };
+
+    bool is_bin = std::string_view(cursor - 1, 2) == "0b";
+    bool is_hex = std::string_view(cursor - 1, 2) == "0x";
+    if ((is_bin || is_hex))
+    {
+        if (!isDigit(peekNext()))
+            throw SyntaxError("bad {} literal", is_bin ? "binary" : "hexadecimal");
+
+        next();
+        scan_digits();
+        emit(Token::Type::Integer);
+    }
+    else
+    {
+        bool integer = true;
+        if (peek() == '.' && isDigit(peekNext()))
+        {
+            next();
+            integer = false;
+            scan_digits();
+        }
+
+        emit(integer ? Token::Type::Integer : Token::Type::Float);
+    }
 }

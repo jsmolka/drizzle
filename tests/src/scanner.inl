@@ -8,10 +8,26 @@ void scan(const std::string& source, const std::vector<Token::Type>& expected)
         REQUIRE(token.type == type);
 }
 
+void scanLexeme(const std::string& source, Token::Type type, const std::string& lexeme)
+{
+    Scanner scanner;
+    auto tokens = scanner.scan(source);
+    for (const auto& token : tokens)
+    {
+        if (token.type == type)
+        {
+            REQUIRE(token.lexeme == lexeme);
+            return;
+        }
+    }
+    REQUIRE(false);
+}
+
 #include "scanner_blank_lines.inl"
 #include "scanner_comments.inl"
 #include "scanner_eof.inl"
 #include "scanner_indentation.inl"
+#include "scanner_number.inl"
 #include "scanner_string.inl"
 #include "scanner_tokens_double.inl"
 #include "scanner_tokens_single.inl"

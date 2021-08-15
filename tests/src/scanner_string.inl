@@ -1,30 +1,15 @@
-void scanString(const std::string& source, const std::string& expect)
-{
-    Scanner scanner;
-    auto tokens = scanner.scan(source);
-    for (const auto& token : tokens)
-    {
-        if (token.type == Token::Type::String)
-        {
-            REQUIRE(token.lexeme == expect);
-            return;
-        }
-    }
-    REQUIRE(false);
-}
-
 TEST_CASE("scanner_string")
 {
     constexpr auto kSource = "\"test\"";
 
-    scanString(kSource, "\"test\"");
+    scanLexeme(kSource, Token::Type::String, "\"test\"");
 }
 
 TEST_CASE("scanner_string_1")
 {
     constexpr auto kSource = "|\"test\"|";
 
-    scanString(kSource, "\"test\"");
+    scanLexeme(kSource, Token::Type::String, "\"test\"");
 }
 
 TEST_CASE("scanner_string_2")
@@ -35,7 +20,7 @@ TEST_CASE("scanner_string_2")
 "
 )";
 
-    scanString(kSource, "\"test\n\n\"");
+    scanLexeme(kSource, Token::Type::String, "\"test\n\n\"");
 }
 
 TEST_CASE("scanner_string_3")
@@ -47,7 +32,7 @@ if x == 0:
 "
 )";
 
-    scanString(kSource, "\"test\n\n\"");
+    scanLexeme(kSource, Token::Type::String, "\"test\n\n\"");
 }
 
 TEST_CASE("scanner_string_4")
