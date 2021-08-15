@@ -14,6 +14,7 @@ include_directories(../drizzle/modules/shell/include)
 file(GLOB_RECURSE SOURCE_FILES
   ${PROJECT_SOURCE_DIR}/src/*.h
   ${PROJECT_SOURCE_DIR}/src/*.cpp
+  ../drizzle/src/error.h
   ../drizzle/src/scanner.h
   ../drizzle/src/scanner.cpp
 )

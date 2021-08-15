@@ -4,8 +4,8 @@
 
 std::vector<Token> Scanner::scan(const std::string& source)
 {
-    lexeme = source.data();
     cursor = source.data();
+    lexeme = source.data();
     line = 1;
     indentation = 0;
 
@@ -19,6 +19,13 @@ std::vector<Token> Scanner::scan(const std::string& source)
         token();
         whitespace();
     }
+
+    while (indentation > 0)
+    {
+        emit(Token::Type::Dedent);
+        indentation--;
+    }
+
     emit(Token::Type::Eof);
 
     return tokens;

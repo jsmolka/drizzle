@@ -1,4 +1,4 @@
-TEST_CASE("scanner_empty_lines")
+TEST_CASE("scanner_blank_lines")
 {
     using Type = Token::Type;
 
@@ -12,7 +12,7 @@ TEST_CASE("scanner_empty_lines")
     });
 }
 
-TEST_CASE("scanner_empty_lines_2")
+TEST_CASE("scanner_blank_lines_2")
 {
     using Type = Token::Type;
 
@@ -26,7 +26,7 @@ TEST_CASE("scanner_empty_lines_2")
     });
 }
 
-TEST_CASE("scanner_empty_lines_3")
+TEST_CASE("scanner_blank_lines_3")
 {
     using Type = Token::Type;
 
@@ -40,7 +40,7 @@ TEST_CASE("scanner_empty_lines_3")
     });
 }
 
-TEST_CASE("scanner_empty_lines_4")
+TEST_CASE("scanner_blank_lines_4")
 {
     using Type = Token::Type;
 
@@ -54,7 +54,7 @@ TEST_CASE("scanner_empty_lines_4")
     });
 }
 
-TEST_CASE("scanner_empty_lines_5")
+TEST_CASE("scanner_blank_lines_5")
 {
     using Type = Token::Type;
 
@@ -64,6 +64,19 @@ TEST_CASE("scanner_empty_lines_5")
         Type::Pipe,
         Type::NewLine,
         Type::Pipe,
+        Type::Eof
+    });
+}
+
+TEST_CASE("scanner_blank_lines_6")
+{
+    using Type = Token::Type;
+
+    constexpr auto kSource = "\n\n|\n\n";
+
+    scan(kSource, {
+        Type::Pipe,
+        Type::NewLine,
         Type::Eof
     });
 }

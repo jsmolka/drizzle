@@ -8,8 +8,8 @@ void scan(const std::string& source, const std::vector<Token::Type>& expected)
         REQUIRE(token.type == type);
 }
 
+#include "scanner_blank_lines.inl"
 #include "scanner_comments.inl"
-#include "scanner_empty_lines.inl"
 #include "scanner_eof.inl"
 #include "scanner_indentation.inl"
 #include "scanner_tokens_double.inl"

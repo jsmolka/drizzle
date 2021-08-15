@@ -1,5 +1,6 @@
 #include <shell/ranges.h>
 
+#include "error.h"
 #include "scanner.h"
 
 #define CATCH_CONFIG_MAIN
