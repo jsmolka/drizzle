@@ -12,11 +12,13 @@ std::vector<Token> Scanner::scan(const std::string& source)
 
     scanBlankLines();
     scanIndentation();
+    lexeme = cursor;
 
     while (!isEof())
     {
         scanToken();
         scanWhitespace();
+        lexeme = cursor;
     }
 
     if (indentation > 0)
@@ -164,7 +166,6 @@ void Scanner::scanBlankLines()
             case '\n':
                 next();
                 line++;
-                lexeme = cursor;
                 return true;
 
             default:
@@ -233,28 +234,49 @@ void Scanner::scanToken()
     switch (next())
     {
     // Single
-    case '{': return emit(Token::Type::BraceLeft);
-    case '}': return emit(Token::Type::BraceRight);
-    case '[': return emit(Token::Type::BracketLeft);
-    case ']': return emit(Token::Type::BracketRight);
-    case '^': return emit(Token::Type::Caret);
-    case ':': return emit(Token::Type::Colon);
-    case ',': return emit(Token::Type::Comma);
-    case '.': return emit(Token::Type::Dot);
-    case '-': return emit(Token::Type::Minus);
-    case '(': return emit(Token::Type::ParenLeft);
-    case ')': return emit(Token::Type::ParenRight);
-    case '%': return emit(Token::Type::Percent);
-    case '+': return emit(Token::Type::Plus);
-    case '/': return emit(Token::Type::Slash);
-    case '*': return emit(Token::Type::Star);
+    case '{': emit(Token::Type::BraceLeft); break;
+    case '}': emit(Token::Type::BraceRight); break;
+    case '[': emit(Token::Type::BracketLeft); break;
+    case ']': emit(Token::Type::BracketRight); break;
+    case '^': emit(Token::Type::Caret); break;
+    case ':': emit(Token::Type::Colon); break;
+    case ',': emit(Token::Type::Comma); break;
+    case '.': emit(Token::Type::Dot); break;
+    case '-': emit(Token::Type::Minus); break;
+    case '(': emit(Token::Type::ParenLeft); break;
+    case ')': emit(Token::Type::ParenRight); break;
+    case '%': emit(Token::Type::Percent); break;
+    case '+': emit(Token::Type::Plus); break;
+    case '/': emit(Token::Type::Slash); break;
+    case '*': emit(Token::Type::Star); break;
 
     // Single or double
-    case '&': return emit(next('&') ? Token::Type::AndAnd : Token::Type::And);
-    case '!': return emit(next('=') ? Token::Type::BangEqual : Token::Type::Bang);
-    case '=': return emit(next('=') ? Token::Type::EqualEqual : Token::Type::Equal);
-    case '>': return emit(next('=') ? Token::Type::GreaterEqual : Token::Type::Greater);
-    case '<': return emit(next('=') ? Token::Type::LessEqual : Token::Type::Less);
-    case '|': return emit(next('|') ? Token::Type::PipePipe : Token::Type::Pipe);
+    case '&': emit(next('&') ? Token::Type::AndAnd : Token::Type::And); break;
+    case '!': emit(next('=') ? Token::Type::BangEqual : Token::Type::Bang); break;
+    case '=': emit(next('=') ? Token::Type::EqualEqual : Token::Type::Equal); break;
+    case '>': emit(next('=') ? Token::Type::GreaterEqual : Token::Type::Greater); break;
+    case '<': emit(next('=') ? Token::Type::LessEqual : Token::Type::Less); break;
+    case '|': emit(next('|') ? Token::Type::PipePipe : Token::Type::Pipe); break;
+
+    // Special
+    case '"': scanString(); break;
     }
+}
+
+void Scanner::scanString()
+{
+    while (peek() != '"' && !isEof())
+    {
+        if (peek() == '\n')
+            line++;
+
+        next();
+    }
+
+    if (isEof())
+        throw SyntaxError("unterminated string");
+
+    next();
+
+    emit(Token::Type::String);
 }

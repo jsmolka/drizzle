@@ -47,6 +47,9 @@
     <None Include="src\scanner_indentation.inl">
       <Filter>Header Files</Filter>
     </None>
+    <None Include="src\scanner_string.inl">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\drizzle\src\scanner.h">

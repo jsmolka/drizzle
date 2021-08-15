@@ -54,6 +54,7 @@ private:
     void scanWhitespace();
     void scanComment();
     void scanToken();
+    void scanString();
 
     const char* cursor;
     const char* lexeme;

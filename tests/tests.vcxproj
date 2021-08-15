@@ -23,6 +23,7 @@
     <None Include="src\scanner_blank_lines.inl" />
     <None Include="src\scanner_eof.inl" />
     <None Include="src\scanner_indentation.inl" />
+    <None Include="src\scanner_string.inl" />
     <None Include="src\scanner_tokens_double.inl" />
     <None Include="src\scanner_tokens_single.inl" />
   </ItemGroup>
