@@ -80,3 +80,14 @@ TEST_CASE("scanner_blank_lines_6")
         Type::Eof
     });
 }
+
+TEST_CASE("scanner_blank_lines_7")
+{
+    using Type = Token::Type;
+
+    constexpr auto kSource = "\n\n";
+
+    scan(kSource, {
+        Type::Eof
+    });
+}

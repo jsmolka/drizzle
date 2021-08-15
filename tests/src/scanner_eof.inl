@@ -4,7 +4,9 @@ TEST_CASE("scanner_eof")
 
     constexpr auto kSource = "";
 
-    scan(kSource, { Type::Eof });
+    scan(kSource, {
+        Type::Eof
+    });
 }
 
 TEST_CASE("scanner_eof_2")
@@ -13,7 +15,9 @@ TEST_CASE("scanner_eof_2")
 
     constexpr auto kSource = " ";
 
-    scan(kSource, { Type::Eof });
+    scan(kSource, {
+        Type::Eof
+    });
 }
 
 TEST_CASE("scanner_eof_3")
@@ -22,5 +26,7 @@ TEST_CASE("scanner_eof_3")
 
     constexpr auto kSource = "  ";
 
-    scan(kSource, { Type::Eof });
+    scan(kSource, {
+        Type::Eof
+    });
 }

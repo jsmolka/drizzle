@@ -114,6 +114,7 @@ TEST_CASE("scanner_indentation_5")
     scan(kSource, { 
         Type::Indent,
         Type::Pipe,
+        Type::NewLine,
         Type::Dedent,
         Type::Eof 
     });
@@ -149,21 +150,21 @@ TEST_CASE("scanner_indentation_8")
     CHECK_THROWS_AS(scanner.scan(kSource), SyntaxError);
 }
 
-//TEST_CASE("scanner_indentation_9")
-//{
-//    using Type = Token::Type;
-//
-//    constexpr auto kSource = R"(
-//|
-//  |)";
-//
-//    scan(kSource, { 
-//        Type::Pipe,
-//        Type::NewLine,
-//        Type::Indent,
-//        Type::Pipe,
-//        Type::NewLine,
-//        Type::Dedent,
-//        Type::Eof 
-//    });
-//}
+TEST_CASE("scanner_indentation_9")
+{
+    using Type = Token::Type;
+
+    constexpr auto kSource = R"(
+|
+  |)";
+
+    scan(kSource, { 
+        Type::Pipe,
+        Type::NewLine,
+        Type::Indent,
+        Type::Pipe,
+        Type::NewLine,
+        Type::Dedent,
+        Type::Eof 
+    });
+}

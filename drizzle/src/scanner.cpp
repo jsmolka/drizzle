@@ -8,22 +8,24 @@ std::vector<Token> Scanner::scan(const std::string& source)
     lexeme = source.data();
     line = 1;
     indentation = 0;
-
     tokens.clear();
 
-    blankLines();
-    doIndentation();
+    scanBlankLines();
+    scanIndentation();
 
-    while (!isFileEnd())
+    while (!isEof())
     {
-        token();
-        whitespace();
+        scanToken();
+        scanWhitespace();
     }
 
-    while (indentation > 0)
+    if (indentation > 0)
     {
-        emit(Token::Type::Dedent);
-        indentation--;
+        if (tokens.back().type != Token::Type::NewLine)
+            emit(Token::Type::NewLine);
+
+        while (indentation--)
+            emit(Token::Type::Dedent);
     }
 
     emit(Token::Type::Eof);
@@ -31,10 +33,24 @@ std::vector<Token> Scanner::scan(const std::string& source)
     return tokens;
 }
 
+bool Scanner::isEof() const
+{
+    return *cursor == '\0';
+}
+
 char Scanner::next()
 {
     cursor++;
     return cursor[-1];
+}
+
+bool Scanner::next(char expect)
+{
+    if (isEof() || *cursor != expect)
+        return false;
+
+    cursor++;
+    return true;
 }
 
 char Scanner::peek() const
@@ -44,30 +60,21 @@ char Scanner::peek() const
 
 char Scanner::peekNext() const
 {
-    return isFileEnd() ? '\0' : cursor[1];
-}
-
-bool Scanner::match(char expected)
-{
-    if (isFileEnd() || *cursor != expected)
-        return false;
-
-    cursor++;
-    return true;
+    return isEof() ? '\0' : cursor[1];
 }
 
 void Scanner::emit(Token::Type type)
 {
     Token token;
     token.type = type;
-    token.lexeme = std::string_view(lexeme, cursor - lexeme);
     token.line = line;
-    tokens.push_back(token);
+    token.lexeme = std::string_view(lexeme, cursor - lexeme);
 
     lexeme = cursor;
+    tokens.push_back(token);
 }
 
-void Scanner::doIndentation()
+void Scanner::scanIndentation()
 {
     constexpr auto kSpacesPerIndentation = 2;
 
@@ -135,12 +142,12 @@ void Scanner::doIndentation()
     }
 }
 
-void Scanner::blankLines()
+void Scanner::scanBlankLines()
 {
     auto skip_line = [this]() -> bool
     {
         const char* previous = cursor;
-        while (!isFileEnd())
+        while (!isEof())
         {
             switch (peek())
             {
@@ -151,7 +158,7 @@ void Scanner::blankLines()
                 break;
 
             case '#':
-                comment();
+                scanComment();
                 break;
 
             case '\n':
@@ -171,7 +178,7 @@ void Scanner::blankLines()
     while (skip_line());
 }
 
-void Scanner::whitespace()
+void Scanner::scanWhitespace()
 {
     while (true)
     {
@@ -184,15 +191,15 @@ void Scanner::whitespace()
             break;
 
         case '#':
-            comment();
+            scanComment();
             break;
 
         case '\n':
             next();
-            emit(Token::Type::NewLine);
             line++;
-            blankLines();
-            doIndentation();
+            emit(Token::Type::NewLine);
+            scanBlankLines();
+            scanIndentation();
             return;
 
         default:
@@ -201,18 +208,13 @@ void Scanner::whitespace()
     }
 }
 
-void Scanner::comment()
+void Scanner::scanComment()
 {
-    while (!isFileEnd() && peek() != '\n')
+    while (!isEof() && peek() != '\n')
         next();
 }
 
-bool Scanner::isFileEnd() const
-{
-    return *cursor == '\0';
-}
-
-void Scanner::token()
+void Scanner::scanToken()
 {
         //// Literals
         //Float, Identifier, Integer, String,
@@ -248,11 +250,11 @@ void Scanner::token()
     case '*': return emit(Token::Type::Star);
 
     // Single or double
-    case '&': return emit(match('&') ? Token::Type::AndAnd : Token::Type::And);
-    case '!': return emit(match('=') ? Token::Type::BangEqual : Token::Type::Bang);
-    case '=': return emit(match('=') ? Token::Type::EqualEqual : Token::Type::Equal);
-    case '>': return emit(match('=') ? Token::Type::GreaterEqual : Token::Type::Greater);
-    case '<': return emit(match('=') ? Token::Type::LessEqual : Token::Type::Less);
-    case '|': return emit(match('|') ? Token::Type::PipePipe : Token::Type::Pipe);
+    case '&': return emit(next('&') ? Token::Type::AndAnd : Token::Type::And);
+    case '!': return emit(next('=') ? Token::Type::BangEqual : Token::Type::Bang);
+    case '=': return emit(next('=') ? Token::Type::EqualEqual : Token::Type::Equal);
+    case '>': return emit(next('=') ? Token::Type::GreaterEqual : Token::Type::Greater);
+    case '<': return emit(next('=') ? Token::Type::LessEqual : Token::Type::Less);
+    case '|': return emit(next('|') ? Token::Type::PipePipe : Token::Type::Pipe);
     }
 }
