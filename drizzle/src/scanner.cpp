@@ -58,12 +58,17 @@ char Scanner::next()
     return cursor[-1];
 }
 
-bool Scanner::next(char expect)
+bool Scanner::next(std::string_view match)
 {
-    if (isEof() || *cursor != expect)
-        return false;
-
-    cursor++;
+    const char* iter = cursor;
+    for (char c : match)
+    {
+        if (*iter == '\0' || *iter != c)
+            return false;
+        iter++;
+    }
+    
+    cursor += match.size();
     return true;
 }
 
@@ -72,9 +77,13 @@ char Scanner::peek() const
     return *cursor;
 }
 
-char Scanner::peekNext() const
+char Scanner::peek(std::size_t index) const
 {
-    return isEof() ? '\0' : cursor[1];
+    const char* iter = cursor;
+    while (*iter && index--)
+        iter++;
+
+    return *iter;
 }
 
 void Scanner::emit(Token::Type type)
@@ -262,12 +271,12 @@ void Scanner::scanToken()
     case '*': emit(Token::Type::Star); break;
 
     // Single or double
-    case '&': emit(next('&') ? Token::Type::AndAnd : Token::Type::And); break;
-    case '!': emit(next('=') ? Token::Type::BangEqual : Token::Type::Bang); break;
-    case '=': emit(next('=') ? Token::Type::EqualEqual : Token::Type::Equal); break;
-    case '>': emit(next('=') ? Token::Type::GreaterEqual : Token::Type::Greater); break;
-    case '<': emit(next('=') ? Token::Type::LessEqual : Token::Type::Less); break;
-    case '|': emit(next('|') ? Token::Type::PipePipe : Token::Type::Pipe); break;
+    case '&': emit(next("&") ? Token::Type::AndAnd : Token::Type::And); break;
+    case '!': emit(next("=") ? Token::Type::BangEqual : Token::Type::Bang); break;
+    case '=': emit(next("=") ? Token::Type::EqualEqual : Token::Type::Equal); break;
+    case '>': emit(next("=") ? Token::Type::GreaterEqual : Token::Type::Greater); break;
+    case '<': emit(next("=") ? Token::Type::LessEqual : Token::Type::Less); break;
+    case '|': emit(next("|") ? Token::Type::PipePipe : Token::Type::Pipe); break;
 
     // Special
     case '"': scanString(); break;
@@ -304,7 +313,7 @@ void Scanner::scanNumber()
     bool is_hex = std::string_view(cursor - 1, 2) == "0x";
     if ((is_bin || is_hex))
     {
-        if (!isDigit(peekNext()))
+        if (!isDigit(peek(1)))
             throw SyntaxError("invalid {} literal", is_bin ? "binary" : "hexadecimal");
 
         next();
@@ -314,7 +323,7 @@ void Scanner::scanNumber()
     else
     {
         bool integer = true;
-        if (peek() == '.' && isDigit(peekNext()))
+        if (peek() == '.' && isDigit(peek(1)))
         {
             next();
             integer = false;

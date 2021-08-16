@@ -47,9 +47,9 @@ private:
 
     bool isEof() const;
     char next();
-    bool next(char expect);
+    bool next(std::string_view match);
     char peek() const;
-    char peekNext() const;
+    char peek(std::size_t index) const;
 
     void emit(Token::Type type);
     void scanIndentation();
