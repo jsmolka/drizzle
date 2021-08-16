@@ -64,6 +64,5 @@ private:
     const char* lexeme;
     std::size_t line;
     std::size_t indentation;
-    std::string_view string;
     std::vector<Token> tokens;
 };

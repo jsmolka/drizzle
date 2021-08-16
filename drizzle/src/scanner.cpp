@@ -4,7 +4,6 @@
 
 std::vector<Token> Scanner::scan(const std::string& source)
 {
-    string = source;
     cursor = source.data();
     lexeme = source.data();
     line = 1;
@@ -126,7 +125,7 @@ void Scanner::scanIndentation()
                 break;
 
             case '\t':
-                throw SyntaxError("cannot use tabs for indentation");
+                throw SyntaxError("tab in indent");
 
             default:
                 return spaces;
@@ -136,13 +135,13 @@ void Scanner::scanIndentation()
 
     int spaces = count_spaces();
     if (spaces % kSpacesPerIndentation)
-        throw SyntaxError("indentation spaces must be a multiple of {}", kSpacesPerIndentation);
+        throw SyntaxError("invalid indent");
 
     int indent = spaces / kSpacesPerIndentation;
     if (indent > indentation)
     {
         if ((indent - indentation) > 1)
-            throw SyntaxError("cannot indent {} levels at once", indent - indentation);
+            throw SyntaxError("unpected indent");
 
         emit(Token::Type::Indent);
         indentation++;
@@ -306,7 +305,7 @@ void Scanner::scanNumber()
     if ((is_bin || is_hex))
     {
         if (!isDigit(peekNext()))
-            throw SyntaxError("bad {} literal", is_bin ? "binary" : "hexadecimal");
+            throw SyntaxError("invalid {} literal", is_bin ? "binary" : "hexadecimal");
 
         next();
         scan_digits();
