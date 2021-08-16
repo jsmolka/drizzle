@@ -48,17 +48,16 @@ private:
     bool isEof() const;
     char next();
     bool next(std::string_view match);
-    char peek() const;
-    char peek(std::size_t index) const;
+    char peek(std::size_t ahead = 0) const;
 
     void emit(Token::Type type);
     void scanIndentation();
     void scanBlankLines();
     void scanWhitespace();
     void scanComment();
-    void scanToken();
     void scanString();
     void scanNumber();
+    void scanToken();
 
     const char* cursor;
     const char* lexeme;

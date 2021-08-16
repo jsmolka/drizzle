@@ -72,15 +72,10 @@ bool Scanner::next(std::string_view match)
     return true;
 }
 
-char Scanner::peek() const
-{
-    return *cursor;
-}
-
-char Scanner::peek(std::size_t index) const
+char Scanner::peek(std::size_t ahead) const
 {
     const char* iter = cursor;
-    while (*iter && index--)
+    while (*iter && ahead--)
         iter++;
 
     return *iter;
@@ -236,67 +231,62 @@ void Scanner::scanComment()
         next();
 }
 
-void Scanner::scanToken()
-{
-    //// Literals
-    //Float, Identifier, Integer, String,
-
-    //// Keywords
-    //Break, Class, Continue, Elif, Else, Extends, False, For,
-    //Function, If, In, Iterator, Noop, Null, Return, Super,
-    //This, True, Var, While, Yield,
-
-    //// Todo: remove when functions are implemented
-    //Print
-
-    char c = next();
-
-    switch (c)
-    {
-    // Single
-    case '{': emit(Token::Type::BraceLeft); break;
-    case '}': emit(Token::Type::BraceRight); break;
-    case '[': emit(Token::Type::BracketLeft); break;
-    case ']': emit(Token::Type::BracketRight); break;
-    case '^': emit(Token::Type::Caret); break;
-    case ':': emit(Token::Type::Colon); break;
-    case ',': emit(Token::Type::Comma); break;
-    case '.': emit(Token::Type::Dot); break;
-    case '-': emit(Token::Type::Minus); break;
-    case '(': emit(Token::Type::ParenLeft); break;
-    case ')': emit(Token::Type::ParenRight); break;
-    case '%': emit(Token::Type::Percent); break;
-    case '+': emit(Token::Type::Plus); break;
-    case '/': emit(Token::Type::Slash); break;
-    case '*': emit(Token::Type::Star); break;
-
-    // Single or double
-    case '&': emit(next("&") ? Token::Type::AndAnd : Token::Type::And); break;
-    case '!': emit(next("=") ? Token::Type::BangEqual : Token::Type::Bang); break;
-    case '=': emit(next("=") ? Token::Type::EqualEqual : Token::Type::Equal); break;
-    case '>': emit(next("=") ? Token::Type::GreaterEqual : Token::Type::Greater); break;
-    case '<': emit(next("=") ? Token::Type::LessEqual : Token::Type::Less); break;
-    case '|': emit(next("|") ? Token::Type::PipePipe : Token::Type::Pipe); break;
-
-    // Special
-    case '"': scanString(); break;
-    }
-}
-
 void Scanner::scanString()
 {
-    while (peek() != '"' && !isEof())
-    {
-        if (peek() == '\n')
-            line++;
+    bool terminated = false;
 
-        next();
+    if (next(R"("")"))
+    {
+        while (!isEof())
+        {
+            terminated = next(R"(""")");
+            if (terminated)
+                break;
+
+            if (peek() == '\n')
+                line++;
+
+            next();
+        }
+    }
+    else
+    {
+        while (!isEof())
+        {
+            terminated = next("\"");
+            if (terminated)
+                break;
+
+            switch (next())
+            {
+            case '\n':
+                throw SyntaxError("invalid string");
+
+            case '\\':
+                switch (peek())
+                {
+                case '\\':
+                case '\"':
+                case 'a':
+                case 'b':
+                case 'f':
+                case 'n':
+                case 'r':
+                case 't':
+                case 'v':
+                    next();
+                    break;
+
+                default:
+                    throw SyntaxError("invalid escape sequence");
+                }
+                break;
+            }
+        }
     }
 
-    if (isEof())
+    if (!terminated)
         throw SyntaxError("unterminated string");
-
-    next();
 
     emit(Token::Type::String);
 }
@@ -331,5 +321,52 @@ void Scanner::scanNumber()
         }
 
         emit(integer ? Token::Type::Integer : Token::Type::Float);
+    }
+}
+
+void Scanner::scanToken()
+{
+    //// Literals
+    //Float, Identifier, Integer, String,
+
+    //// Keywords
+    //Break, Class, Continue, Elif, Else, Extends, False, For,
+    //Function, If, In, Iterator, Noop, Null, Return, Super,
+    //This, True, Var, While, Yield,
+
+    //// Todo: remove when functions are implemented
+    //Print
+
+    char c = next();
+
+    switch (c)
+    {
+        // Single
+    case '{': emit(Token::Type::BraceLeft); break;
+    case '}': emit(Token::Type::BraceRight); break;
+    case '[': emit(Token::Type::BracketLeft); break;
+    case ']': emit(Token::Type::BracketRight); break;
+    case '^': emit(Token::Type::Caret); break;
+    case ':': emit(Token::Type::Colon); break;
+    case ',': emit(Token::Type::Comma); break;
+    case '.': emit(Token::Type::Dot); break;
+    case '-': emit(Token::Type::Minus); break;
+    case '(': emit(Token::Type::ParenLeft); break;
+    case ')': emit(Token::Type::ParenRight); break;
+    case '%': emit(Token::Type::Percent); break;
+    case '+': emit(Token::Type::Plus); break;
+    case '/': emit(Token::Type::Slash); break;
+    case '*': emit(Token::Type::Star); break;
+
+        // Single or double
+    case '&': emit(next("&") ? Token::Type::AndAnd : Token::Type::And); break;
+    case '!': emit(next("=") ? Token::Type::BangEqual : Token::Type::Bang); break;
+    case '=': emit(next("=") ? Token::Type::EqualEqual : Token::Type::Equal); break;
+    case '>': emit(next("=") ? Token::Type::GreaterEqual : Token::Type::Greater); break;
+    case '<': emit(next("=") ? Token::Type::LessEqual : Token::Type::Less); break;
+    case '|': emit(next("|") ? Token::Type::PipePipe : Token::Type::Pipe); break;
+
+        // Special
+    case '"': scanString(); break;
     }
 }
