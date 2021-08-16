@@ -5,7 +5,7 @@ The grammar uses the notation proposed in [Crafting Interpreters](http://www.cra
 Expressions produce values. The precedence goes from high/bottom to low/top.
 ```
 expression        → primaryExpr
-primanyExpr       → "true" | "false" | "null" | "this"
+primaryExpr       → "true" | "false" | "null" | "this"
                   | NUMBER | STRING | IDENTIFIER | "(" expression ")" ;
 ```
 
