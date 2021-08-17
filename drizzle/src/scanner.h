@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 #include <vector>
 
 struct Token
@@ -42,13 +43,13 @@ public:
     std::vector<Token> scan(const std::string& source);
 
 private:
+    template<unsigned Base = 10>
     static bool isDigit(char c);
     static bool isAlpha(char c);
 
-    bool isEof() const;
     char next();
     bool next(std::string_view match);
-    char peek(std::size_t ahead = 0) const;
+    char peek() const;
 
     void emit(Token::Type type);
     void scanIndentation();

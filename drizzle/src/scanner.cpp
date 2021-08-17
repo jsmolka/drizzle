@@ -14,7 +14,7 @@ std::vector<Token> Scanner::scan(const std::string& source)
     scanIndentation();
     lexeme = cursor;
 
-    while (!isEof())
+    while (*cursor)
     {
         scanToken();
         scanWhitespace();
@@ -35,9 +35,22 @@ std::vector<Token> Scanner::scan(const std::string& source)
     return tokens;
 }
 
+template<unsigned Base>
 bool Scanner::isDigit(char c)
 {
-    return c >= '0' && c <= '9';
+    static_assert(Base <= 36);
+
+    if constexpr (Base <= 10)
+    {
+        return (c >= '0') && (c < ('0' + Base));
+    }
+    if constexpr (Base <= 36)
+    {
+        return (c >= '0' && c <= '9')
+            || (c >= 'a' && c < ('a' + Base - 10))
+            || (c >= 'A' && c < ('A' + Base - 10));
+    }
+    return false;
 }
 
 bool Scanner::isAlpha(char c)
@@ -45,11 +58,6 @@ bool Scanner::isAlpha(char c)
     return (c >= 'a' && c <= 'z')
         || (c >= 'A' && c <= 'Z')
         || (c == '_');
-}
-
-bool Scanner::isEof() const
-{
-    return *cursor == '\0';
 }
 
 char Scanner::next()
@@ -60,25 +68,22 @@ char Scanner::next()
 
 bool Scanner::next(std::string_view match)
 {
-    const char* iter = cursor;
+    const char* previous = cursor;
     for (char c : match)
     {
-        if (*iter == '\0' || *iter != c)
+        if (!(*cursor && *cursor == c))
+        {
+            cursor = previous;
             return false;
-        iter++;
+        }
+        cursor++;
     }
-    
-    cursor += match.size();
     return true;
 }
 
-char Scanner::peek(std::size_t ahead) const
+char Scanner::peek() const
 {
-    const char* iter = cursor;
-    while (*iter && ahead--)
-        iter++;
-
-    return *iter;
+    return *cursor ? cursor[1] : *cursor;
 }
 
 void Scanner::emit(Token::Type type)
@@ -96,7 +101,7 @@ void Scanner::scanIndentation()
 {
     constexpr auto kSpacesPerIndentation = 2;
 
-    switch (peek())
+    switch (*cursor)
     {
     case ' ':
     case '\r':
@@ -117,7 +122,7 @@ void Scanner::scanIndentation()
         int spaces = 0;
         while (true)
         {
-            switch (peek())
+            switch (*cursor)
             {
             case ' ':
                 spaces++;
@@ -165,9 +170,9 @@ void Scanner::scanBlankLines()
     auto skip_line = [this]() -> bool
     {
         const char* previous = cursor;
-        while (!isEof())
+        while (*cursor)
         {
-            switch (peek())
+            switch (*cursor)
             {
             case ' ':
             case '\r':
@@ -199,7 +204,7 @@ void Scanner::scanWhitespace()
 {
     while (true)
     {
-        switch (peek())
+        switch (*cursor)
         {
         case ' ':
         case '\r':
@@ -227,7 +232,7 @@ void Scanner::scanWhitespace()
 
 void Scanner::scanComment()
 {
-    while (!isEof() && peek() != '\n')
+    while (*cursor && *cursor != '\n')
         next();
 }
 
@@ -237,13 +242,13 @@ void Scanner::scanString()
 
     if (next(R"("")"))
     {
-        while (!isEof())
+        while (*cursor)
         {
             terminated = next(R"(""")");
             if (terminated)
                 break;
 
-            if (peek() == '\n')
+            if (*cursor == '\n')
                 line++;
 
             next();
@@ -251,7 +256,7 @@ void Scanner::scanString()
     }
     else
     {
-        while (!isEof())
+        while (*cursor)
         {
             terminated = next("\"");
             if (terminated)
@@ -263,7 +268,7 @@ void Scanner::scanString()
                 throw SyntaxError("invalid string");
 
             case '\\':
-                switch (peek())
+                switch (*cursor)
                 {
                 case '\\':
                 case '\"':
@@ -293,34 +298,26 @@ void Scanner::scanString()
 
 void Scanner::scanNumber()
 {
-    auto scan_digits = [this]()
+    if (cursor[-1] == '0' && next("b"))
     {
-        while (isDigit(peek()))
+        if (!isDigit<2>(next()))
+            throw SyntaxError("invalid binary integer literal");
+
+        while (isDigit<2>(*cursor))
             next();
-    };
 
-    bool is_bin = std::string_view(cursor - 1, 2) == "0b";
-    bool is_hex = std::string_view(cursor - 1, 2) == "0x";
-    if ((is_bin || is_hex))
-    {
-        if (!isDigit(peek(1)))
-            throw SyntaxError("invalid {} literal", is_bin ? "binary" : "hexadecimal");
-
-        next();
-        scan_digits();
-        emit(Token::Type::Integer);
+        return emit(Token::Type::Integer);
     }
-    else
+    
+    if (cursor[-1] == '0' && next("x"))
     {
-        bool integer = true;
-        if (peek() == '.' && isDigit(peek(1)))
-        {
-            next();
-            integer = false;
-            scan_digits();
-        }
+        if (!isDigit<16>(*cursor))
+            throw SyntaxError("invalid hexadecimal integer literal");
 
-        emit(integer ? Token::Type::Integer : Token::Type::Float);
+        while (isDigit<16>(*cursor))
+            next();
+
+        return emit(Token::Type::Integer);
     }
 }
 
@@ -338,6 +335,12 @@ void Scanner::scanToken()
     //Print
 
     char c = next();
+
+    if (isDigit(c))
+    {
+        scanNumber();
+        return;
+    }
 
     switch (c)
     {
