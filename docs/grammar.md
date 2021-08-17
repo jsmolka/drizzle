@@ -16,7 +16,7 @@ primaryExpr       → "true" | "false" | "null" | "this"
 NUMBER            → FLOAT | INTEGER ;
 FLOAT             → DIGIT+ "." DIGIT+ ;
 INTEGER           → DEC_INTEGER | BIN_INTEGER | HEX_INTEGER ;
-DEC_INTEGER       → "1" ... "9" DIGIT* ;
+DEC_INTEGER       → "0" | ( "1" ... "9" DIGIT* ) ;
 BIN_INTEGER       → "0b" BIN_DIGIT+ ;
 HEX_INTEGER       → "0x" HEX_DIGIT+ ;
 BIN_DIGIT         → "0" | "1" ;
