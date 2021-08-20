@@ -1,5 +1,7 @@
 #include "scanner.h"
 
+#include <shell/format.h>
+
 #include "error.h"
 
 std::vector<Token> Scanner::scan(const std::string& source)
@@ -134,7 +136,7 @@ void Scanner::scanIndentation()
                 break;
 
             case '\t':
-                throw SyntaxError("tab in indent");
+                throw SyntaxError("tab in indent", cursor);
 
             default:
                 return spaces;
@@ -144,13 +146,13 @@ void Scanner::scanIndentation()
 
     int spaces = count_spaces();
     if (spaces % kSpacesPerIndentation)
-        throw SyntaxError("invalid indent");
+        throw SyntaxError("invalid indent", cursor);
 
     int indent = spaces / kSpacesPerIndentation;
     if (indent > indentation)
     {
         if ((indent - indentation) > 1)
-            throw SyntaxError("unpected indent");
+            throw SyntaxError("unexpected indent", cursor);
 
         emit(Token::Type::Indent);
         indentation++;
@@ -265,7 +267,7 @@ void Scanner::scanString()
             switch (next())
             {
             case '\n':
-                throw SyntaxError("invalid string");
+                throw SyntaxError("invalid string", cursor);
 
             case '\\':
                 switch (*cursor)
@@ -283,7 +285,7 @@ void Scanner::scanString()
                     break;
 
                 default:
-                    throw SyntaxError("invalid escape sequence");
+                    throw SyntaxError("invalid escape sequence", cursor);
                 }
                 break;
             }
@@ -291,33 +293,38 @@ void Scanner::scanString()
     }
 
     if (!terminated)
-        throw SyntaxError("unterminated string");
+        throw SyntaxError("unterminated string", cursor);
 
     emit(Token::Type::String);
 }
 
 void Scanner::scanNumber()
 {
+    const auto is_bin = isDigit<2>;
+    const auto is_hex = isDigit<16>;
+
     if (cursor[-1] == '0' && next("b"))
     {
-        if (!isDigit<2>(next()))
-            throw SyntaxError("invalid binary integer literal");
+        if (!is_bin(next()))
+            throw SyntaxError("invalid bin literal", cursor);
 
-        while (isDigit<2>(*cursor))
+        while (is_bin(*cursor))
             next();
 
-        return emit(Token::Type::Integer);
+        emit(Token::Type::Integer);
+        return;
     }
     
     if (cursor[-1] == '0' && next("x"))
     {
-        if (!isDigit<16>(*cursor))
-            throw SyntaxError("invalid hexadecimal integer literal");
+        if (!is_hex(next()))
+            throw SyntaxError("invalid hex literal", cursor);
 
-        while (isDigit<16>(*cursor))
+        while (is_hex(*cursor))
             next();
 
-        return emit(Token::Type::Integer);
+        emit(Token::Type::Integer);
+        return;
     }
 }
 

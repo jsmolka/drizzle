@@ -2,15 +2,12 @@
 
 #include <stdexcept>
 #include <string>
-#include <string_view>
-#include <shell/format.h>
 
 class Error : public std::exception
 {
 public:
-    template<typename... Args>
-    Error(std::string_view format, Args&&... args)
-        : message(fmt::format(format, std::forward<Args>(args)...)) {}
+    Error(const std::string& message)
+        : message(message) {}
 
     const char* what() const noexcept final
     {
@@ -24,7 +21,10 @@ private:
 class SyntaxError : public Error
 {
 public:
-    using Error::Error;
+    SyntaxError(const std::string& message, const char* location)
+        : Error(message), location(location) {}
+
+    const char* location;
 };
 
 class RuntimeError : public Error
