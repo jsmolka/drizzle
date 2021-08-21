@@ -42,7 +42,7 @@ public:
     std::vector<Token> scan(const std::string& source);
 
 private:
-    template<unsigned Base = 10>
+    template<char Base = 10>
     static bool isDigit(char c);
     static bool isAlpha(char c);
 

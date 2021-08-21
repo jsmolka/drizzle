@@ -1,7 +1,5 @@
 #include "scanner.h"
 
-#include <shell/format.h>
-
 #include "error.h"
 
 std::vector<Token> Scanner::scan(const std::string& source)
@@ -22,25 +20,14 @@ std::vector<Token> Scanner::scan(const std::string& source)
         lexeme = cursor;
     }
 
-    if (indentation > 0)
-    {
-        if (tokens.back().type != Token::Type::NewLine)
-            emit(Token::Type::NewLine);
-
-        while (indentation--)
-            emit(Token::Type::Dedent);
-    }
-
     emit(Token::Type::Eof);
 
     return tokens;
 }
 
-template<unsigned Base>
+template<char Base>
 bool Scanner::isDigit(char c)
 {
-    static_assert(Base <= 36);
-
     if constexpr (Base <= 10)
     {
         return (c >= '0') && (c < ('0' + Base));
@@ -101,6 +88,8 @@ void Scanner::scanIndentation()
 {
     constexpr auto kSpacesPerIndentation = 2;
 
+    const char* begin = cursor;
+
     switch (*cursor)
     {
     case ' ':
@@ -117,7 +106,7 @@ void Scanner::scanIndentation()
         return;
     }
 
-    auto count_spaces = [this]() -> int
+    auto count_spaces = [this, begin]() -> int
     {
         int spaces = 0;
         while (true)
@@ -125,8 +114,8 @@ void Scanner::scanIndentation()
             switch (*cursor)
             {
             case ' ':
-                spaces++;
                 next();
+                spaces++;
                 break;
 
             case '\r':
@@ -134,7 +123,7 @@ void Scanner::scanIndentation()
                 break;
 
             case '\t':
-                throw SyntaxError("tab in indent", cursor);
+                throw SyntaxError("tab indent", begin);
 
             default:
                 return spaces;
@@ -144,13 +133,13 @@ void Scanner::scanIndentation()
 
     int spaces = count_spaces();
     if (spaces % kSpacesPerIndentation)
-        throw SyntaxError("invalid indent", cursor);
+        throw SyntaxError("uneven indent", begin);
 
     int indent = spaces / kSpacesPerIndentation;
     if (indent > indentation)
     {
         if ((indent - indentation) > 1)
-            throw SyntaxError("unexpected indent", cursor);
+            throw SyntaxError("unexpected indent", begin);
 
         emit(Token::Type::Indent);
         indentation++;

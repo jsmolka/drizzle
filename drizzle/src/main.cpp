@@ -72,6 +72,8 @@ int main(int argc, char* argv[])
             return 1;
         }
 
+        source.push_back('\n');
+
         Scanner scanner;
         const auto tokens = scanner.scan(source);
 

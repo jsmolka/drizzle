@@ -1,4 +1,4 @@
-TEST_CASE("scanner_indentation")
+TEST_CASE("scanner_indentation_1")
 {
     using Type = Token::Type;
 
@@ -7,7 +7,8 @@ TEST_CASE("scanner_indentation")
   | # 2
     | # 3
   | # 4
-| # 5)";
+| # 5
+)";
 
     scan(kSource, { 
         Type::Pipe,  // 1
@@ -23,6 +24,7 @@ TEST_CASE("scanner_indentation")
         Type::NewLine,
         Type::Dedent,
         Type::Pipe,  // 5
+        Type::NewLine,
         Type::Eof 
     });
 }
@@ -35,7 +37,8 @@ TEST_CASE("scanner_indentation_2")
 | # 1
   | # 2
   | # 3
-| # 4)";
+| # 4
+)";
 
     scan(kSource, { 
         Type::Pipe,  // 1
@@ -47,6 +50,7 @@ TEST_CASE("scanner_indentation_2")
         Type::NewLine,
         Type::Dedent,
         Type::Pipe,  // 4
+        Type::NewLine,
         Type::Eof 
     });
 }
@@ -109,7 +113,7 @@ TEST_CASE("scanner_indentation_5")
 {
     using Type = Token::Type;
 
-    constexpr auto kSource = "\r  |";
+    constexpr auto kSource = "\r  |\n";
 
     scan(kSource, { 
         Type::Indent,
@@ -156,7 +160,8 @@ TEST_CASE("scanner_indentation_9")
 
     constexpr auto kSource = R"(
 |
-  |)";
+  |
+)";
 
     scan(kSource, { 
         Type::Pipe,

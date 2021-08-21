@@ -1,4 +1,4 @@
-TEST_CASE("scanner_eof")
+TEST_CASE("scanner_eof_1")
 {
     using Type = Token::Type;
 

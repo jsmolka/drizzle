@@ -29,6 +29,5 @@ void scanLexeme(const std::string& source, Token::Type type, const std::string& 
 #include "scanner_indentation.inl"
 #include "scanner_number.inl"
 #include "scanner_string.inl"
-#include "scanner_tokens_double.inl"
-#include "scanner_tokens_single.inl"
+#include "scanner_tokens.inl"
 #include "scanner_whitespace.inl"

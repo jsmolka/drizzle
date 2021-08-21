@@ -1,13 +1,14 @@
-TEST_CASE("scanner_blank_lines")
+TEST_CASE("scanner_blank_lines_1")
 {
     using Type = Token::Type;
 
-    constexpr auto kSource = "|\n\n|";
+    constexpr auto kSource = "|\n\n|\n";
 
     scan(kSource, {
         Type::Pipe,
         Type::NewLine,
         Type::Pipe,
+        Type::NewLine,
         Type::Eof
     });
 }
@@ -16,12 +17,13 @@ TEST_CASE("scanner_blank_lines_2")
 {
     using Type = Token::Type;
 
-    constexpr auto kSource = "|\n  \n|";
+    constexpr auto kSource = "|\n  \n|\n";
 
     scan(kSource, {
         Type::Pipe,
         Type::NewLine,
         Type::Pipe,
+        Type::NewLine,
         Type::Eof
     });
 }
@@ -30,12 +32,13 @@ TEST_CASE("scanner_blank_lines_3")
 {
     using Type = Token::Type;
 
-    constexpr auto kSource = "|\n\t\n|";
+    constexpr auto kSource = "|\n\t\n|\n";
 
     scan(kSource, {
         Type::Pipe,
         Type::NewLine,
         Type::Pipe,
+        Type::NewLine,
         Type::Eof
     });
 }
@@ -44,12 +47,13 @@ TEST_CASE("scanner_blank_lines_4")
 {
     using Type = Token::Type;
 
-    constexpr auto kSource = "|\n\r\n|";
+    constexpr auto kSource = "|\n\r\n|\n";
 
     scan(kSource, {
         Type::Pipe,
         Type::NewLine,
         Type::Pipe,
+        Type::NewLine,
         Type::Eof
     });
 }
@@ -58,12 +62,13 @@ TEST_CASE("scanner_blank_lines_5")
 {
     using Type = Token::Type;
 
-    constexpr auto kSource = "|\n# Comment\n|";
+    constexpr auto kSource = "|\n# Comment\n|\n";
 
     scan(kSource, {
         Type::Pipe,
         Type::NewLine,
         Type::Pipe,
+        Type::NewLine,
         Type::Eof
     });
 }

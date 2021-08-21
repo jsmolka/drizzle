@@ -1,4 +1,4 @@
-TEST_CASE("scanner_string")
+TEST_CASE("scanner_string_1")
 {
     constexpr auto kSource = R"("""xxx""")";
 

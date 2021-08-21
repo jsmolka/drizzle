@@ -1,4 +1,4 @@
-TEST_CASE("scanner_number")
+TEST_CASE("scanner_number_1")
 {
     constexpr auto kSource = "0b0";
 

@@ -38,10 +38,7 @@
     <None Include="src\scanner_comments.inl">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\scanner_tokens_single.inl">
-      <Filter>Header Files</Filter>
-    </None>
-    <None Include="src\scanner_tokens_double.inl">
+    <None Include="src\scanner_tokens.inl">
       <Filter>Header Files</Filter>
     </None>
     <None Include="src\scanner_indentation.inl">

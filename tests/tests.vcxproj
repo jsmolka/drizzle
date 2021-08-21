@@ -25,8 +25,7 @@
     <None Include="src\scanner_indentation.inl" />
     <None Include="src\scanner_number.inl" />
     <None Include="src\scanner_string.inl" />
-    <None Include="src\scanner_tokens_double.inl" />
-    <None Include="src\scanner_tokens_single.inl" />
+    <None Include="src\scanner_tokens.inl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\drizzle\src\error.h" />
