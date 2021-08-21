@@ -263,7 +263,7 @@ void Scanner::scanString()
             switch (*cursor)
             {
             case '\n':
-                throw SyntaxError("line break in string", cursor);
+                throw SyntaxError("unexpected line break", cursor);
 
             case '\\':
                 next();
@@ -281,7 +281,7 @@ void Scanner::scanString()
                     break;
 
                 default:
-                    throw SyntaxError("invalid escape sequence", cursor);
+                    throw SyntaxError("unknown escape sequence", cursor);
                 }
                 break;
 
@@ -301,44 +301,52 @@ void Scanner::scanString()
 void Scanner::scanNumber()
 {
     const auto is_bin = isDigit<2>;
+    const auto is_dec = isDigit<10>;
     const auto is_hex = isDigit<16>;
 
-    if (cursor[-1] == '0' && next("b"))
+    if (next("0b"))
     {
         if (!is_bin(next()))
-            throw SyntaxError("invalid bin literal", cursor);
+            throw SyntaxError("expected bin digit", cursor);
 
-        int digits = 1;
         while (is_bin(*cursor))
-        {
             next();
-            digits++;
-        }
-
-        if (digits > 64)
-            throw SyntaxError("too many digits", cursor);
 
         emit(Token::Type::Integer);
         return;
     }
     
-    if (cursor[-1] == '0' && next("x"))
+    if (next("0x"))
     {
         if (!is_hex(next()))
-            throw SyntaxError("invalid hex literal", cursor);
+            throw SyntaxError("expected hex digit", cursor);
 
-        int digits = 1;
         while (is_hex(*cursor))
-        {
             next();
-            digits++;
-        }
-
-        if (digits > 16)
-            throw SyntaxError("too many digits", cursor);
 
         emit(Token::Type::Integer);
         return;
+    }
+
+    if (*cursor == '0' && is_dec(peek()))
+        throw SyntaxError("unexpected zero", cursor + 1);
+
+    while (is_dec(*cursor))
+        next();
+
+    if (next("."))
+    {
+        if (!is_dec(next()))
+            throw SyntaxError("expected digit", cursor);
+
+        while (is_dec(*cursor))
+            next();
+
+        emit(Token::Type::Float);
+    }
+    else
+    {
+        emit(Token::Type::Integer);
     }
 }
 
@@ -355,15 +363,13 @@ void Scanner::scanToken()
     //// Todo: remove when functions are implemented
     //Print
 
-    char c = next();
-
-    if (isDigit(c))
+    if (isDigit(*cursor))
     {
         scanNumber();
         return;
     }
 
-    switch (c)
+    switch (next())
     {
         // Single
     case '{': emit(Token::Type::BraceLeft); break;

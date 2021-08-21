@@ -14,13 +14,11 @@ primaryExpr       → "true" | "false" | "null" | "this"
 ### Numeric Literals
 ```
 NUMBER            → FLOAT | INTEGER ;
-FLOAT             → DIGIT+ "." DIGIT+ ;
-INTEGER           → DEC_INTEGER | BIN_INTEGER | HEX_INTEGER ;
-DEC_INTEGER       → "0" | ( "1" ... "9" DIGIT* ) ;
-BIN_INTEGER       → "0b" BIN_DIGIT+ ;
-HEX_INTEGER       → "0x" HEX_DIGIT+ ;
-BIN_DIGIT         → "0" | "1" ;
-HEX_DIGIT         → "a" ... "f" | "A" ... "F" | DIGIT ;
+FLOAT             → DECIMAL "." DIGIT+ ;
+INTEGER           → DECIMAL | BINARY | HEXADECIMAL ;
+DECIMAL           → "0" | ( "1" ... "9" DIGIT* ) ;
+HEXADECIMAL       → "0x" ( "a" ... "f" | "A" ... "F" | DIGIT)+ ;
+BINARY            → "0b" ( "0" | "1" )+ ;
 ```
 
 ### String Literals

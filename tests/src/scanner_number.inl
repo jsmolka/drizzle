@@ -110,29 +110,93 @@ TEST_CASE("scanner_number_15")
 
 TEST_CASE("scanner_number_16")
 {
-    constexpr auto kSource = "0b0000000000000000000000000000000000000000000000000000000000000000";
+    constexpr auto kSource = "100";
 
     scanLexeme(kSource, Token::Type::Integer, kSource);
 }
 
 TEST_CASE("scanner_number_17")
 {
-    constexpr auto kSource = "0b00000000000000000000000000000000000000000000000000000000000000000";
+    constexpr auto kSource = "  100";
+
+    scanLexeme(kSource, Token::Type::Integer, "100");
+}
+
+TEST_CASE("scanner_number_18")
+{
+    constexpr auto kSource = "  100  ";
+
+    scanLexeme(kSource, Token::Type::Integer, "100");
+}
+
+TEST_CASE("scanner_number_19")
+{
+    constexpr auto kSource = "var x = 100";
+
+    scanLexeme(kSource, Token::Type::Integer, "100");
+}
+
+TEST_CASE("scanner_number_20")
+{
+    constexpr auto kSource = "var x =100";
+
+    scanLexeme(kSource, Token::Type::Integer, "100");
+}
+
+TEST_CASE("scanner_number_21")
+{
+    constexpr auto kSource = "01";
 
     Scanner scanner;
     CHECK_THROWS_AS(scanner.scan(kSource), SyntaxError);
 }
 
-TEST_CASE("scanner_number_18")
+TEST_CASE("scanner_number_22")
 {
-    constexpr auto kSource = "0x1111222233334444";
+    constexpr auto kSource = "1.1";
 
-    scanLexeme(kSource, Token::Type::Integer, kSource);
+    scanLexeme(kSource, Token::Type::Float, kSource);
 }
 
-TEST_CASE("scanner_number_19")
+TEST_CASE("scanner_number_23")
 {
-    constexpr auto kSource = "0x11112222333344445";
+    constexpr auto kSource = "  1.1";
+
+    scanLexeme(kSource, Token::Type::Float, "1.1");
+}
+
+TEST_CASE("scanner_number_24")
+{
+    constexpr auto kSource = "  1.1  ";
+
+    scanLexeme(kSource, Token::Type::Float, "1.1");
+}
+
+TEST_CASE("scanner_number_25")
+{
+    constexpr auto kSource = "var x = 1.1";
+
+    scanLexeme(kSource, Token::Type::Float, "1.1");
+}
+
+TEST_CASE("scanner_number_26")
+{
+    constexpr auto kSource = "var x =1.1";
+
+    scanLexeme(kSource, Token::Type::Float, "1.1");
+}
+
+TEST_CASE("scanner_number_27")
+{
+    constexpr auto kSource = "01.1";
+
+    Scanner scanner;
+    CHECK_THROWS_AS(scanner.scan(kSource), SyntaxError);
+}
+
+TEST_CASE("scanner_number_28")
+{
+    constexpr auto kSource = "01.x1";
 
     Scanner scanner;
     CHECK_THROWS_AS(scanner.scan(kSource), SyntaxError);
