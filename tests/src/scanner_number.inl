@@ -99,9 +99,40 @@ TEST_CASE("scanner_number_14")
     Scanner scanner;
     CHECK_THROWS_AS(scanner.scan(kSource), SyntaxError);
 }
+
 TEST_CASE("scanner_number_15")
 {
     constexpr auto kSource = "0x_";
+
+    Scanner scanner;
+    CHECK_THROWS_AS(scanner.scan(kSource), SyntaxError);
+}
+
+TEST_CASE("scanner_number_16")
+{
+    constexpr auto kSource = "0b0000000000000000000000000000000000000000000000000000000000000000";
+
+    scanLexeme(kSource, Token::Type::Integer, kSource);
+}
+
+TEST_CASE("scanner_number_17")
+{
+    constexpr auto kSource = "0b00000000000000000000000000000000000000000000000000000000000000000";
+
+    Scanner scanner;
+    CHECK_THROWS_AS(scanner.scan(kSource), SyntaxError);
+}
+
+TEST_CASE("scanner_number_18")
+{
+    constexpr auto kSource = "0x1111222233334444";
+
+    scanLexeme(kSource, Token::Type::Integer, kSource);
+}
+
+TEST_CASE("scanner_number_19")
+{
+    constexpr auto kSource = "0x11112222333344445";
 
     Scanner scanner;
     CHECK_THROWS_AS(scanner.scan(kSource), SyntaxError);

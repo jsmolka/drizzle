@@ -267,7 +267,7 @@ void Scanner::scanString()
 
             case '\\':
                 next();
-                switch (*cursor)
+                switch (next())
                 {
                 case '\\':
                 case '\"':
@@ -278,7 +278,6 @@ void Scanner::scanString()
                 case 'r':
                 case 't':
                 case 'v':
-                    next();
                     break;
 
                 default:
@@ -309,8 +308,15 @@ void Scanner::scanNumber()
         if (!is_bin(next()))
             throw SyntaxError("invalid bin literal", cursor);
 
+        int digits = 1;
         while (is_bin(*cursor))
+        {
             next();
+            digits++;
+        }
+
+        if (digits > 64)
+            throw SyntaxError("too many digits", cursor);
 
         emit(Token::Type::Integer);
         return;
@@ -321,8 +327,15 @@ void Scanner::scanNumber()
         if (!is_hex(next()))
             throw SyntaxError("invalid hex literal", cursor);
 
+        int digits = 1;
         while (is_hex(*cursor))
+        {
             next();
+            digits++;
+        }
+
+        if (digits > 16)
+            throw SyntaxError("too many digits", cursor);
 
         emit(Token::Type::Integer);
         return;
