@@ -1,86 +1,68 @@
-#include <string>
 #include <shell/filesystem.h>
 #include <shell/format.h>
 #include <shell/main.h>
 
 #include "error.h"
 #include "scanner.h"
-#include "vm.h"
 
 std::string source;
 
-std::size_t line(const char* location)
+std::size_t lineNumber(const char* location)
 {
-    std::size_t line = 1;
-    for (const auto& c : source)
-    {
-        if (location == &c)
-            break;
+    std::size_t number = 1;
+    for (const char* iter = source.data(); iter != location; ++iter)
+        number += *iter == '\n';
 
-        line += c == '\n';
-    }
-    return line;
+    return number;
 }
 
-std::string_view context(const char* location)
+std::string_view lineContent(const char* location)
 {
-    const char* beg = location;
+    const char* begin = location;
+    while (begin > source.data() && begin[-1] != '\n')
+        begin--;
+
     const char* end = location;
+    while (*end && *end != '\n')
+        end++;
 
-    while (beg > source.data())
-    {
-        if (beg[-1] == '\n')
-            break;
-        else
-            beg--;
-    }
-
-    while (end < source.data() + source.size())
-    {
-        if (*end == '\n')
-            break;
-        else
-            end++;
-    }
-
-    return std::string_view(beg, end - beg);
+    return std::string_view(begin, end - begin);
 }
 
 void syntaxError(const SyntaxError& error)
 {
-    const auto line = shell::format("[line {}] ", ::line(error.location));
-    const auto context = ::context(error.location);
-    const auto position = error.location - context.data();
-
-    shell::print("{}{}\n", line, context);
-    shell::print("{:>{}}\n", "^", position + line.size());
-    shell::print("Syntax Error: {}\n", error.what());
+    const auto number = lineNumber(error.location);
+    const auto content = lineContent(error.location);
+    const auto position = error.location - content.data();
+    const auto context = shell::format("[line {}] ", number);
+    
+    shell::print("{}{}\n", context, content);
+    shell::print("{:>{}}\n", "^", position + context.size());
+    shell::print("SyntaxError: {}\n", error.what());
 }
 
 int main(int argc, char* argv[])
 {
-    namespace fs = shell::filesystem;
-
-    if (argc != 2)
-    {
-        shell::print("Usage: drizzle <file>\n");
-        return 0;
-    }
-
+    using namespace shell::filesystem;
     try
     {
-        const auto file = fs::u8path(argv[1]);
-        if (fs::read(file, source) != fs::Status::Ok)
+        if (argc != 2)
         {
-            shell::print("Cannot read file '{}'", file);
+            shell::print("Usage: drizzle <file>\n");
+            return 0;
+        }
+
+        const auto file = u8path(argv[1]);
+        const auto status = read(file, source);
+
+        if (status != Status::Ok)
+        {
+            shell::print("Cannot read file \"{}\"\n", file);
             return 1;
         }
 
         Scanner scanner;
         const auto tokens = scanner.scan(source);
-
-        Vm vm;
-        vm.interpret(std::string_view(source));
 
         return 0;
     }
@@ -91,7 +73,7 @@ int main(int argc, char* argv[])
     }
     catch (const std::exception& error)
     {
-        shell::print("{}\n", error.what());
+        shell::print("Error: {}\n", error.what());
         return 1;
     }
 }
