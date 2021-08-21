@@ -238,7 +238,7 @@ void Scanner::scanString()
 {
     const char* begin = cursor;
 
-    if (next(R"("")"))
+    if (next(R"(""")"))
     {
         while (*cursor)
         {
@@ -252,6 +252,8 @@ void Scanner::scanString()
     }
     else
     {
+        next();
+
         while (*cursor)
         {
             if (next("\""))
@@ -267,7 +269,7 @@ void Scanner::scanString()
 
             case '\\':
                 next();
-                switch (next())
+                switch (*cursor)
                 {
                 case '\\':
                 case '\"':
@@ -278,6 +280,7 @@ void Scanner::scanString()
                 case 'r':
                 case 't':
                 case 'v':
+                    next();
                     break;
 
                 default:
@@ -306,7 +309,7 @@ void Scanner::scanNumber()
 
     if (next("0b"))
     {
-        if (!is_bin(next()))
+        if (!is_bin(*cursor))
             throw SyntaxError("expected bin digit", cursor);
 
         while (is_bin(*cursor))
@@ -318,7 +321,7 @@ void Scanner::scanNumber()
     
     if (next("0x"))
     {
-        if (!is_hex(next()))
+        if (!is_hex(*cursor))
             throw SyntaxError("expected hex digit", cursor);
 
         while (is_hex(*cursor))
@@ -329,14 +332,14 @@ void Scanner::scanNumber()
     }
 
     if (*cursor == '0' && is_dec(peek()))
-        throw SyntaxError("unexpected zero", cursor + 1);
+        throw SyntaxError("unexpected zero", cursor);
 
     while (is_dec(*cursor))
         next();
 
     if (next("."))
     {
-        if (!is_dec(next()))
+        if (!is_dec(*cursor))
             throw SyntaxError("expected digit", cursor);
 
         while (is_dec(*cursor))
@@ -369,6 +372,12 @@ void Scanner::scanToken()
         return;
     }
 
+    if (*cursor == '"')
+    {
+        scanString();
+        return;
+    }
+
     switch (next())
     {
         // Single
@@ -395,8 +404,5 @@ void Scanner::scanToken()
     case '>': emit(next("=") ? Token::Type::GreaterEqual : Token::Type::Greater); break;
     case '<': emit(next("=") ? Token::Type::LessEqual : Token::Type::Less); break;
     case '|': emit(next("|") ? Token::Type::PipePipe : Token::Type::Pipe); break;
-
-        // Special
-    case '"': scanString(); break;
     }
 }

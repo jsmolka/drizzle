@@ -33,11 +33,22 @@ void syntaxError(const SyntaxError& error)
 {
     const auto number = lineNumber(error.location);
     const auto content = lineContent(error.location);
-    const auto position = error.location - content.data();
     const auto context = shell::format("[line {}] ", number);
-    
+
+    std::string position(context.size(), ' ');
+    for (const auto& c : content)
+    {
+        if (&c == error.location)
+            break;
+
+        if (c == '\t')
+            position.push_back('\t');
+        else if (std::isprint(c))
+            position.push_back(' ');
+    }
+
     shell::print("{}{}\n", context, content);
-    shell::print("{:>{}}\n", "^", position + context.size());
+    shell::print("{}^\n", position);
     shell::print("SyntaxError: {}\n", error.what());
 }
 
