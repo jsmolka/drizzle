@@ -37,7 +37,7 @@ std::string_view context(const char* location)
 
     while (end < source.data() + source.size())
     {
-        if (end[1] == '\n')
+        if (*end == '\n')
             break;
         else
             end++;

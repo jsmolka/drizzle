@@ -8,7 +8,6 @@ std::vector<Token> Scanner::scan(const std::string& source)
 {
     cursor = source.data();
     lexeme = source.data();
-    line = 1;
     indentation = 0;
     tokens.clear();
 
@@ -92,7 +91,6 @@ void Scanner::emit(Token::Type type)
 {
     Token token;
     token.type = type;
-    token.line = line;
     token.lexeme = std::string_view(lexeme, cursor - lexeme);
 
     lexeme = cursor;
@@ -188,7 +186,6 @@ void Scanner::scanBlankLines()
 
             case '\n':
                 next();
-                line++;
                 return true;
 
             default:
@@ -220,7 +217,6 @@ void Scanner::scanWhitespace()
 
         case '\n':
             next();
-            line++;
             emit(Token::Type::NewLine);
             scanBlankLines();
             scanIndentation();
@@ -240,19 +236,17 @@ void Scanner::scanComment()
 
 void Scanner::scanString()
 {
-    bool terminated = false;
+    const char* begin = cursor;
 
     if (next(R"("")"))
     {
         while (*cursor)
         {
-            terminated = next(R"(""")");
-            if (terminated)
+            if (next(R"(""")"))
+            {
+                begin = nullptr;
                 break;
-
-            if (*cursor == '\n')
-                line++;
-
+            }
             next();
         }
     }
@@ -260,16 +254,19 @@ void Scanner::scanString()
     {
         while (*cursor)
         {
-            terminated = next("\"");
-            if (terminated)
+            if (next("\""))
+            {
+                begin = nullptr;
                 break;
+            }
 
-            switch (next())
+            switch (*cursor)
             {
             case '\n':
-                throw SyntaxError("invalid string", cursor);
+                throw SyntaxError("line break in string", cursor);
 
             case '\\':
+                next();
                 switch (*cursor)
                 {
                 case '\\':
@@ -288,12 +285,16 @@ void Scanner::scanString()
                     throw SyntaxError("invalid escape sequence", cursor);
                 }
                 break;
+
+            default:
+                next();
+                break;
             }
         }
     }
 
-    if (!terminated)
-        throw SyntaxError("unterminated string", cursor);
+    if (begin)
+        throw SyntaxError("unterminated string", begin);
 
     emit(Token::Type::String);
 }
