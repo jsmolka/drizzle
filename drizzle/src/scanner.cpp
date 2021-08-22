@@ -4,7 +4,7 @@
 
 #include "error.h"
 
-std::vector<Token> Scanner::scan(const std::string& source)
+Tokens Scanner::scan(const std::string& source)
 {
     cursor = source.data();
     lexeme = source.data();

@@ -1,14 +1,13 @@
 #pragma once
 
-#include <string_view>
-
 #include "chunk.h"
 #include "stack.h"
+#include "token.h"
 
 class Vm
 {
 public:
-    void interpret(std::string_view source);
+    void interpret(const Tokens& tokens);
 
 private:
     template<typename Integral>

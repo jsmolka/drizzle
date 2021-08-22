@@ -1,8 +1,6 @@
 #include "compiler.h"
 
-#include "scanner.h"
-
-void Compiler::compile(std::string_view source)
+void Compiler::compile(const Tokens& tokens, Chunk& chunk)
 {
-    //Scanner scanner(source);
+
 }

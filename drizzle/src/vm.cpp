@@ -8,10 +8,9 @@
 
 #define TRACE_EXECUTION
 
-void Vm::interpret(std::string_view source)
+void Vm::interpret(const Tokens& tokens)
 {
-    Compiler compiler;
-    compiler.compile(source);
+
 }
 
 template<typename Integral>

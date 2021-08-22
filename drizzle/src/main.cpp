@@ -4,6 +4,7 @@
 
 #include "error.h"
 #include "scanner.h"
+#include "vm.h"
 
 std::string source;
 
@@ -76,6 +77,8 @@ int main(int argc, char* argv[])
 
         Scanner scanner;
         const auto tokens = scanner.scan(source);
+        Vm vm;
+        vm.interpret(tokens);
 
         return 0;
     }

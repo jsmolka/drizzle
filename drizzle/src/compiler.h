@@ -1,9 +1,10 @@
 #pragma once
 
-#include <string_view>
+#include "chunk.h"
+#include "token.h"
 
 class Compiler
 {
 public:
-    void compile(std::string_view source);
+    void compile(const Tokens& tokens, Chunk& chunk);
 };
