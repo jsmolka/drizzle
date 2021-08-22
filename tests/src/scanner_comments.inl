@@ -1,31 +1,25 @@
 TEST_CASE("scanner_comments_1")
 {
-    using Type = Token::Type;
-
     constexpr auto kSource = "# Comment";
 
     scan(kSource, {
-        Type::Eof
+        Token::Type::Eof
     });
 }
 
 TEST_CASE("scanner_comments_2")
 {
-    using Type = Token::Type;
-
     constexpr auto kSource = "|# Comment\n";
 
     scan(kSource, {
-        Type::Pipe,
-        Type::NewLine,
-        Type::Eof
+        Token::Type::Pipe,
+        Token::Type::NewLine,
+        Token::Type::Eof
     });
 }
 
 TEST_CASE("scanner_comments_3")
 {
-    using Type = Token::Type;
-
     constexpr auto kSource = R"(
 # Comment
 |  # Comment
@@ -33,10 +27,10 @@ TEST_CASE("scanner_comments_3")
 )";
 
     scan(kSource, {
-        Type::Pipe,
-        Type::NewLine,
-        Type::Pipe,
-        Type::NewLine,
-        Type::Eof
+        Token::Type::Pipe,
+        Token::Type::NewLine,
+        Token::Type::Pipe,
+        Token::Type::NewLine,
+        Token::Type::Eof
     });
 }

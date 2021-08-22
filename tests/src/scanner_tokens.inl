@@ -1,64 +1,100 @@
 TEST_CASE("scanner_tokens_1")
 {
-    using Type = Token::Type;
-
     constexpr auto kSource = "{}[]^:,.-()%+/*\n";
 
     scan(kSource, { 
-        Type::BraceLeft,
-        Type::BraceRight,
-        Type::BracketLeft,
-        Type::BracketRight,
-        Type::Caret,
-        Type::Colon,
-        Type::Comma,
-        Type::Dot,
-        Type::Minus,
-        Type::ParenLeft,
-        Type::ParenRight,
-        Type::Percent,
-        Type::Plus,
-        Type::Slash,
-        Type::Star,
-        Type::NewLine,
-        Type::Eof
+        Token::Type::BraceLeft,
+        Token::Type::BraceRight,
+        Token::Type::BracketLeft,
+        Token::Type::BracketRight,
+        Token::Type::Caret,
+        Token::Type::Colon,
+        Token::Type::Comma,
+        Token::Type::Dot,
+        Token::Type::Minus,
+        Token::Type::ParenLeft,
+        Token::Type::ParenRight,
+        Token::Type::Percent,
+        Token::Type::Plus,
+        Token::Type::Slash,
+        Token::Type::Star,
+        Token::Type::NewLine,
+        Token::Type::Eof
     });
 }
 
 TEST_CASE("scanner_tokens_2")
 {
-    using Type = Token::Type;
-
     constexpr auto kSource = "& && ! != = == > >= < <= | ||\n";
 
     scan(kSource, {
-        Type::And,
-        Type::AndAnd,
-        Type::Bang,
-        Type::BangEqual,
-        Type::Equal,
-        Type::EqualEqual,
-        Type::Greater,
-        Type::GreaterEqual,
-        Type::Less,
-        Type::LessEqual,
-        Type::Pipe,
-        Type::PipePipe,
-        Type::NewLine,
-        Type::Eof
+        Token::Type::And,
+        Token::Type::AndAnd,
+        Token::Type::Bang,
+        Token::Type::BangEqual,
+        Token::Type::Equal,
+        Token::Type::EqualEqual,
+        Token::Type::Greater,
+        Token::Type::GreaterEqual,
+        Token::Type::Less,
+        Token::Type::LessEqual,
+        Token::Type::Pipe,
+        Token::Type::PipePipe,
+        Token::Type::NewLine,
+        Token::Type::Eof
     });
 }
 
 TEST_CASE("scanner_tokens_3")
 {
-    using Type = Token::Type;
-
     constexpr auto kSource = "&&&\n";
 
     scan(kSource, {
-        Type::AndAnd,
-        Type::And,
-        Type::NewLine,
-        Type::Eof
+        Token::Type::AndAnd,
+        Token::Type::And,
+        Token::Type::NewLine,
+        Token::Type::Eof
     });
+}
+
+TEST_CASE("scanner_tokens_4")
+{
+    constexpr auto kSource = "var x = $\n";
+
+    scanThrows(kSource);
+}
+
+TEST_CASE("scanner_tokens_5")
+{
+    constexpr auto kSource = "var x = \\\n";
+
+    scanThrows(kSource);
+}
+
+TEST_CASE("scanner_tokens_6")
+{
+    constexpr auto kSource = "var x = ~\n";
+
+    scanThrows(kSource);
+}
+
+TEST_CASE("scanner_tokens_7")
+{
+    constexpr auto kSource = "var x = ``\n";
+
+    scanThrows(kSource);
+}
+
+TEST_CASE("scanner_tokens_8")
+{
+    constexpr auto kSource = "var x = ?\n";
+
+    scanThrows(kSource);
+}
+
+TEST_CASE("scanner_tokens_9")
+{
+    constexpr auto kSource = "var x = ä\n";
+
+    scanThrows(kSource);
 }

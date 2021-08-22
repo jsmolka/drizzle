@@ -1,7 +1,5 @@
 TEST_CASE("scanner_indentation_1")
 {
-    using Type = Token::Type;
-
     constexpr auto kSource = R"(
 | # 1
   | # 2
@@ -11,28 +9,26 @@ TEST_CASE("scanner_indentation_1")
 )";
 
     scan(kSource, { 
-        Type::Pipe,  // 1
-        Type::NewLine,
-        Type::Indent,
-        Type::Pipe,  // 2
-        Type::NewLine,
-        Type::Indent,
-        Type::Pipe,  // 3
-        Type::NewLine,
-        Type::Dedent,
-        Type::Pipe,  // 4
-        Type::NewLine,
-        Type::Dedent,
-        Type::Pipe,  // 5
-        Type::NewLine,
-        Type::Eof 
+        Token::Type::Pipe,  // 1
+        Token::Type::NewLine,
+        Token::Type::Indent,
+        Token::Type::Pipe,  // 2
+        Token::Type::NewLine,
+        Token::Type::Indent,
+        Token::Type::Pipe,  // 3
+        Token::Type::NewLine,
+        Token::Type::Dedent,
+        Token::Type::Pipe,  // 4
+        Token::Type::NewLine,
+        Token::Type::Dedent,
+        Token::Type::Pipe,  // 5
+        Token::Type::NewLine,
+        Token::Type::Eof 
     });
 }
 
 TEST_CASE("scanner_indentation_2")
 {
-    using Type = Token::Type;
-
     constexpr auto kSource = R"(
 | # 1
   | # 2
@@ -41,24 +37,22 @@ TEST_CASE("scanner_indentation_2")
 )";
 
     scan(kSource, { 
-        Type::Pipe,  // 1
-        Type::NewLine,
-        Type::Indent,
-        Type::Pipe,  // 2
-        Type::NewLine,
-        Type::Pipe,  // 3
-        Type::NewLine,
-        Type::Dedent,
-        Type::Pipe,  // 4
-        Type::NewLine,
-        Type::Eof 
+        Token::Type::Pipe,  // 1
+        Token::Type::NewLine,
+        Token::Type::Indent,
+        Token::Type::Pipe,  // 2
+        Token::Type::NewLine,
+        Token::Type::Pipe,  // 3
+        Token::Type::NewLine,
+        Token::Type::Dedent,
+        Token::Type::Pipe,  // 4
+        Token::Type::NewLine,
+        Token::Type::Eof 
     });
 }
 
 TEST_CASE("scanner_indentation_3")
 {
-    using Type = Token::Type;
-
     constexpr auto kSource = R"(
 | # 1
   | # 2
@@ -66,24 +60,22 @@ TEST_CASE("scanner_indentation_3")
 )";
 
     scan(kSource, { 
-        Type::Pipe,  // 1
-        Type::NewLine,
-        Type::Indent,
-        Type::Pipe,  // 2
-        Type::NewLine,
-        Type::Indent,
-        Type::Pipe,  // 3
-        Type::NewLine,
-        Type::Dedent,
-        Type::Dedent,
-        Type::Eof 
+        Token::Type::Pipe,  // 1
+        Token::Type::NewLine,
+        Token::Type::Indent,
+        Token::Type::Pipe,  // 2
+        Token::Type::NewLine,
+        Token::Type::Indent,
+        Token::Type::Pipe,  // 3
+        Token::Type::NewLine,
+        Token::Type::Dedent,
+        Token::Type::Dedent,
+        Token::Type::Eof 
     });
 }
 
 TEST_CASE("scanner_indentation_4")
 {
-    using Type = Token::Type;
-
     constexpr auto kSource = R"(
 | # 1
   | # 2
@@ -93,83 +85,70 @@ TEST_CASE("scanner_indentation_4")
 )";
 
     scan(kSource, { 
-        Type::Pipe,  // 1
-        Type::NewLine,
-        Type::Indent,
-        Type::Pipe,  // 2
-        Type::NewLine,
-        Type::Indent,
-        Type::Pipe,  // 3
-        Type::NewLine,
-        Type::Pipe,  // 4
-        Type::NewLine,
-        Type::Dedent,
-        Type::Dedent,
-        Type::Eof 
+        Token::Type::Pipe,  // 1
+        Token::Type::NewLine,
+        Token::Type::Indent,
+        Token::Type::Pipe,  // 2
+        Token::Type::NewLine,
+        Token::Type::Indent,
+        Token::Type::Pipe,  // 3
+        Token::Type::NewLine,
+        Token::Type::Pipe,  // 4
+        Token::Type::NewLine,
+        Token::Type::Dedent,
+        Token::Type::Dedent,
+        Token::Type::Eof 
     });
 }
 
 TEST_CASE("scanner_indentation_5")
 {
-    using Type = Token::Type;
-
     constexpr auto kSource = "\r  |\n";
 
     scan(kSource, { 
-        Type::Indent,
-        Type::Pipe,
-        Type::NewLine,
-        Type::Dedent,
-        Type::Eof 
+        Token::Type::Indent,
+        Token::Type::Pipe,
+        Token::Type::NewLine,
+        Token::Type::Dedent,
+        Token::Type::Eof 
     });
 }
 
 TEST_CASE("scanner_indentation_6")
 {
-    using Type = Token::Type;
-
     constexpr auto kSource = " |";
 
-    Scanner scanner;
-    CHECK_THROWS_AS(scanner.scan(kSource), SyntaxError);
+    scanThrows(kSource);
 }
 
 TEST_CASE("scanner_indentation_7")
 {
-    using Type = Token::Type;
-
     constexpr auto kSource = "\t|";
 
-    Scanner scanner;
-    CHECK_THROWS_AS(scanner.scan(kSource), SyntaxError);
+    scanThrows(kSource);
 }
 
 TEST_CASE("scanner_indentation_8")
 {
-    using Type = Token::Type;
-
     constexpr auto kSource = "    |";
 
-    Scanner scanner;
-    CHECK_THROWS_AS(scanner.scan(kSource), SyntaxError);
+    scanThrows(kSource);
 }
 
 TEST_CASE("scanner_indentation_9")
 {
-    using Type = Token::Type;
-
     constexpr auto kSource = R"(
 |
   |
 )";
 
     scan(kSource, { 
-        Type::Pipe,
-        Type::NewLine,
-        Type::Indent,
-        Type::Pipe,
-        Type::NewLine,
-        Type::Dedent,
-        Type::Eof 
+        Token::Type::Pipe,
+        Token::Type::NewLine,
+        Token::Type::Indent,
+        Token::Type::Pipe,
+        Token::Type::NewLine,
+        Token::Type::Dedent,
+        Token::Type::Eof 
     });
 }

@@ -13,13 +13,12 @@ std::vector<Token> Scanner::scan(const std::string& source)
 
     scanBlankLines();
     scanIndentation();
-    lexeme = cursor;
 
     while (*cursor)
     {
+        lexeme = cursor;
         scanToken();
         scanWhitespace();
-        lexeme = cursor;
     }
 
     emit(Token::Type::Eof);
@@ -444,5 +443,8 @@ void Scanner::scanToken()
     case '>': emit(next('=') ? Token::Type::GreaterEqual : Token::Type::Greater); break;
     case '<': emit(next('=') ? Token::Type::LessEqual : Token::Type::Less); break;
     case '|': emit(next('|') ? Token::Type::PipePipe : Token::Type::Pipe); break;
+
+    default:
+        throw SyntaxError("unexpected character", cursor - 1);
     }
 }

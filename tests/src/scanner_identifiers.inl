@@ -147,76 +147,66 @@ TEST_CASE("scanner_identifiers_21")
 
 TEST_CASE("scanner_identifiers_22")
 {
-    using Type = Token::Type;
-
     constexpr auto kSource = "yield|yielding\n";
 
     scan(kSource, {
-        Type::Yield,
-        Type::Pipe,
-        Type::Identifier,
-        Type::NewLine,
-        Type::Eof
+        Token::Type::Yield,
+        Token::Type::Pipe,
+        Token::Type::Identifier,
+        Token::Type::NewLine,
+        Token::Type::Eof
     });
 }
 
 TEST_CASE("scanner_identifiers_23")
 {
-    using Type = Token::Type;
-
     constexpr auto kSource = "0xAyield\n";
 
     scan(kSource, {
-        Type::Integer,
-        Type::Yield,
-        Type::NewLine,
-        Type::Eof
+        Token::Type::Integer,
+        Token::Type::Yield,
+        Token::Type::NewLine,
+        Token::Type::Eof
     });
 }
 
 TEST_CASE("scanner_identifiers_24")
 {
-    using Type = Token::Type;
-
     constexpr auto kSource = "break breaking Breaking\n";
 
     scan(kSource, {
-        Type::Break,
-        Type::Identifier,
-        Type::Identifier,
-        Type::NewLine,
-        Type::Eof
+        Token::Type::Break,
+        Token::Type::Identifier,
+        Token::Type::Identifier,
+        Token::Type::NewLine,
+        Token::Type::Eof
     });
 }
 
 TEST_CASE("scanner_identifiers_25")
 {
-    using Type = Token::Type;
-
     constexpr auto kSource = "var x = \"test\"\n";
 
     scan(kSource, {
-        Type::Var,
-        Type::Identifier,
-        Type::Equal,
-        Type::String,
-        Type::NewLine,
-        Type::Eof
+        Token::Type::Var,
+        Token::Type::Identifier,
+        Token::Type::Equal,
+        Token::Type::String,
+        Token::Type::NewLine,
+        Token::Type::Eof
     });
 }
 
 TEST_CASE("scanner_identifiers_26")
 {
-    using Type = Token::Type;
-
     constexpr auto kSource = "var x=\"test\"\n";
 
     scan(kSource, {
-        Type::Var,
-        Type::Identifier,
-        Type::Equal,
-        Type::String,
-        Type::NewLine,
-        Type::Eof
+        Token::Type::Var,
+        Token::Type::Identifier,
+        Token::Type::Equal,
+        Token::Type::String,
+        Token::Type::NewLine,
+        Token::Type::Eof
     });
 }

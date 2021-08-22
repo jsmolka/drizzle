@@ -23,6 +23,12 @@ void scanLexeme(const std::string& source, Token::Type type, const std::string& 
     REQUIRE(false);
 }
 
+void scanThrows(const std::string& source)
+{
+    Scanner scanner;
+    REQUIRE_THROWS_AS(scanner.scan(source), SyntaxError);
+}
+
 #include "scanner_blank_lines.inl"
 #include "scanner_comments.inl"
 #include "scanner_eof.inl"

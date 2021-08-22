@@ -52,16 +52,14 @@ TEST_CASE("scanner_string_8")
 {
     constexpr auto kSource = R"("""xxx"")";
 
-    Scanner scanner;
-    CHECK_THROWS_AS(scanner.scan(kSource), SyntaxError);
+    scanThrows(kSource);
 }
 
 TEST_CASE("scanner_string_9")
 {
     constexpr auto kSource = R"("""xxx)";
 
-    Scanner scanner;
-    CHECK_THROWS_AS(scanner.scan(kSource), SyntaxError);
+    scanThrows(kSource);
 }
 
 TEST_CASE("scanner_string_10")
@@ -128,24 +126,21 @@ TEST_CASE("scanner_string_18")
 {
     constexpr auto kSource = R"("\x")";
 
-    Scanner scanner;
-    CHECK_THROWS_AS(scanner.scan(kSource), SyntaxError);
+    scanThrows(kSource);
 }
 
 TEST_CASE("scanner_string_19")
 {
     constexpr auto kSource = R"("\y")";
 
-    Scanner scanner;
-    CHECK_THROWS_AS(scanner.scan(kSource), SyntaxError);
+    scanThrows(kSource);
 }
 
 TEST_CASE("scanner_string_20")
 {
     constexpr auto kSource = R"("xxx)";
 
-    Scanner scanner;
-    CHECK_THROWS_AS(scanner.scan(kSource), SyntaxError);
+    scanThrows(kSource);
 }
 
 TEST_CASE("scanner_string_21")
@@ -153,8 +148,7 @@ TEST_CASE("scanner_string_21")
     constexpr auto kSource = R"("
 xxx")";
 
-    Scanner scanner;
-    CHECK_THROWS_AS(scanner.scan(kSource), SyntaxError);
+    scanThrows(kSource);
 }
 
 TEST_CASE("scanner_string_22")

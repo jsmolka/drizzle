@@ -30,23 +30,20 @@ TEST_CASE("scanner_number_5")
 {
     constexpr auto kSource = "0b";
 
-    Scanner scanner;
-    CHECK_THROWS_AS(scanner.scan(kSource), SyntaxError);
+    scanThrows(kSource);
 }
 
 TEST_CASE("scanner_number_6")
 {
     constexpr auto kSource = "0b2";
 
-    Scanner scanner;
-    CHECK_THROWS_AS(scanner.scan(kSource), SyntaxError);
+    scanThrows(kSource);
 }
 TEST_CASE("scanner_number_7")
 {
     constexpr auto kSource = "0b_";
 
-    Scanner scanner;
-    CHECK_THROWS_AS(scanner.scan(kSource), SyntaxError);
+    scanThrows(kSource);
 }
 
 TEST_CASE("scanner_number_8")
@@ -88,24 +85,21 @@ TEST_CASE("scanner_number_13")
 {
     constexpr auto kSource = "0x";
 
-    Scanner scanner;
-    CHECK_THROWS_AS(scanner.scan(kSource), SyntaxError);
+    scanThrows(kSource);
 }
 
 TEST_CASE("scanner_number_14")
 {
     constexpr auto kSource = "0xn";
 
-    Scanner scanner;
-    CHECK_THROWS_AS(scanner.scan(kSource), SyntaxError);
+    scanThrows(kSource);
 }
 
 TEST_CASE("scanner_number_15")
 {
     constexpr auto kSource = "0x_";
 
-    Scanner scanner;
-    CHECK_THROWS_AS(scanner.scan(kSource), SyntaxError);
+    scanThrows(kSource);
 }
 
 TEST_CASE("scanner_number_16")
@@ -147,8 +141,7 @@ TEST_CASE("scanner_number_21")
 {
     constexpr auto kSource = "01";
 
-    Scanner scanner;
-    CHECK_THROWS_AS(scanner.scan(kSource), SyntaxError);
+    scanThrows(kSource);
 }
 
 TEST_CASE("scanner_number_22")
@@ -190,14 +183,12 @@ TEST_CASE("scanner_number_27")
 {
     constexpr auto kSource = "01.1";
 
-    Scanner scanner;
-    CHECK_THROWS_AS(scanner.scan(kSource), SyntaxError);
+    scanThrows(kSource);
 }
 
 TEST_CASE("scanner_number_28")
 {
     constexpr auto kSource = "01.x1";
 
-    Scanner scanner;
-    CHECK_THROWS_AS(scanner.scan(kSource), SyntaxError);
+    scanThrows(kSource);
 }

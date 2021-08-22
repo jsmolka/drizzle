@@ -1,32 +1,26 @@
 TEST_CASE("scanner_eof_1")
 {
-    using Type = Token::Type;
-
     constexpr auto kSource = "";
 
     scan(kSource, {
-        Type::Eof
+        Token::Type::Eof
     });
 }
 
 TEST_CASE("scanner_eof_2")
 {
-    using Type = Token::Type;
-
     constexpr auto kSource = " ";
 
     scan(kSource, {
-        Type::Eof
+        Token::Type::Eof
     });
 }
 
 TEST_CASE("scanner_eof_3")
 {
-    using Type = Token::Type;
-
     constexpr auto kSource = "  ";
 
     scan(kSource, {
-        Type::Eof
+        Token::Type::Eof
     });
 }
