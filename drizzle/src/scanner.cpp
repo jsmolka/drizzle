@@ -54,6 +54,16 @@ char Scanner::next()
     return cursor[-1];
 }
 
+bool Scanner::next(char match)
+{
+    if (*cursor && *cursor == match)
+    {
+        cursor++;
+        return true;
+    }
+    return false;
+}
+
 bool Scanner::next(std::string_view match)
 {
     const char* previous = cursor;
@@ -245,7 +255,7 @@ void Scanner::scanString()
 
         while (*cursor)
         {
-            if (next("\""))
+            if (next('"'))
             {
                 begin = nullptr;
                 break;
@@ -326,7 +336,7 @@ void Scanner::scanNumber()
     while (is_dec(*cursor))
         next();
 
-    if (next("."))
+    if (next('.'))
     {
         if (!is_dec(*cursor))
             throw SyntaxError("expected digit", cursor);
@@ -342,18 +352,59 @@ void Scanner::scanNumber()
     }
 }
 
+void Scanner::scanIdentifier()
+{
+    static constexpr std::tuple<std::string_view, Token::Type> kKeywords[] =
+    {
+        { "assert",   Token::Type::Assert   },
+        { "break",    Token::Type::Break    },
+        { "class",    Token::Type::Class    },
+        { "continue", Token::Type::Continue },
+        { "elif",     Token::Type::Elif     },
+        { "else",     Token::Type::Else     },
+        { "extends",  Token::Type::Extends  },
+        { "false",    Token::Type::False    },
+        { "for",      Token::Type::For      },
+        { "function", Token::Type::Function },
+        { "if",       Token::Type::If       },
+        { "in",       Token::Type::In       },
+        { "iterator", Token::Type::Iterator },
+        { "noop",     Token::Type::Noop     },
+        { "null",     Token::Type::Null     },
+        { "print",    Token::Type::Print    },
+        { "return",   Token::Type::Return   },
+        { "super",    Token::Type::Super    },
+        { "this",     Token::Type::This     },
+        { "true",     Token::Type::True     },
+        { "var",      Token::Type::Var      },
+        { "while",    Token::Type::While    },
+        { "yield",    Token::Type::Yield    }
+    };
+
+    while (isAlpha(*cursor) || isDigit(*cursor))
+        next();
+
+    std::string_view identifier(lexeme, cursor - lexeme);
+
+    for (const auto& [keyword, type] : kKeywords)
+    {
+        if (identifier == keyword)
+        {
+            emit(type);
+            return;
+        }
+    }
+    
+    emit(Token::Type::Identifier);
+}
+
 void Scanner::scanToken()
 {
-    //// Literals
-    //Float, Identifier, Integer, String,
-
-    //// Keywords
-    //Break, Class, Continue, Elif, Else, Extends, False, For,
-    //Function, If, In, Iterator, Noop, Null, Return, Super,
-    //This, True, Var, While, Yield,
-
-    //// Todo: remove when functions are implemented
-    //Print
+    if (isAlpha(*cursor))
+    {
+        scanIdentifier();
+        return;
+    }
 
     if (isDigit(*cursor))
     {
@@ -369,7 +420,6 @@ void Scanner::scanToken()
 
     switch (next())
     {
-        // Single
     case '{': emit(Token::Type::BraceLeft); break;
     case '}': emit(Token::Type::BraceRight); break;
     case '[': emit(Token::Type::BracketLeft); break;
@@ -386,12 +436,11 @@ void Scanner::scanToken()
     case '/': emit(Token::Type::Slash); break;
     case '*': emit(Token::Type::Star); break;
 
-        // Single or double
-    case '&': emit(next("&") ? Token::Type::AndAnd : Token::Type::And); break;
-    case '!': emit(next("=") ? Token::Type::BangEqual : Token::Type::Bang); break;
-    case '=': emit(next("=") ? Token::Type::EqualEqual : Token::Type::Equal); break;
-    case '>': emit(next("=") ? Token::Type::GreaterEqual : Token::Type::Greater); break;
-    case '<': emit(next("=") ? Token::Type::LessEqual : Token::Type::Less); break;
-    case '|': emit(next("|") ? Token::Type::PipePipe : Token::Type::Pipe); break;
+    case '&': emit(next('&') ? Token::Type::AndAnd : Token::Type::And); break;
+    case '!': emit(next('=') ? Token::Type::BangEqual : Token::Type::Bang); break;
+    case '=': emit(next('=') ? Token::Type::EqualEqual : Token::Type::Equal); break;
+    case '>': emit(next('=') ? Token::Type::GreaterEqual : Token::Type::Greater); break;
+    case '<': emit(next('=') ? Token::Type::LessEqual : Token::Type::Less); break;
+    case '|': emit(next('|') ? Token::Type::PipePipe : Token::Type::Pipe); break;
     }
 }

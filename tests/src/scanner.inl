@@ -26,6 +26,7 @@ void scanLexeme(const std::string& source, Token::Type type, const std::string& 
 #include "scanner_blank_lines.inl"
 #include "scanner_comments.inl"
 #include "scanner_eof.inl"
+#include "scanner_identifiers.inl"
 #include "scanner_indentation.inl"
 #include "scanner_number.inl"
 #include "scanner_string.inl"

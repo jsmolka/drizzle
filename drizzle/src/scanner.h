@@ -29,7 +29,7 @@ struct Token
         Eof, Indent, Dedent, NewLine,
 
         // Todo: remove when functions are implemented
-        Print
+        Assert, Print
     };
 
     Type type;
@@ -47,6 +47,7 @@ private:
     static bool isAlpha(char c);
 
     char next();
+    bool next(char match);
     bool next(std::string_view match);
     char peek() const;
 
@@ -57,6 +58,7 @@ private:
     void scanComment();
     void scanString();
     void scanNumber();
+    void scanIdentifier();
     void scanToken();
 
     const char* cursor;

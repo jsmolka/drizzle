@@ -22,6 +22,7 @@
     <None Include="src\scanner_comments.inl" />
     <None Include="src\scanner_blank_lines.inl" />
     <None Include="src\scanner_eof.inl" />
+    <None Include="src\scanner_identifiers.inl" />
     <None Include="src\scanner_indentation.inl" />
     <None Include="src\scanner_number.inl" />
     <None Include="src\scanner_string.inl" />
