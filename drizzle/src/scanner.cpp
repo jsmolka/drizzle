@@ -1,5 +1,7 @@
 #include "scanner.h"
 
+#include <tuple>
+
 #include "error.h"
 
 std::vector<Token> Scanner::scan(const std::string& source)
