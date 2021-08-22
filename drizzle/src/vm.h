@@ -2,7 +2,7 @@
 
 #include "chunk.h"
 #include "stack.h"
-#include "token.h"
+#include "scanner.h"
 
 class Vm
 {

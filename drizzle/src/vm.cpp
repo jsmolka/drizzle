@@ -6,8 +6,6 @@
 
 #include "compiler.h"
 
-#define TRACE_EXECUTION
-
 void Vm::interpret(const Tokens& tokens)
 {
 
@@ -43,12 +41,6 @@ void Vm::run()
 
     while (true)
     {
-        #ifdef TRACE_EXECUTION
-        chunk->disassembleAt(ip - chunk->code.data());
-        for (const auto& value : stack)
-            shell::print("          [{}]\n", value);
-        #endif
-
         auto opcode = static_cast<Opcode>(read<u8>());
         switch (opcode)
         {

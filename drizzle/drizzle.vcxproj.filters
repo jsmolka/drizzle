@@ -21,9 +21,6 @@
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\chunk.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\vm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -31,6 +28,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\scanner.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\chunk.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -62,9 +62,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\scanner.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\token.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
