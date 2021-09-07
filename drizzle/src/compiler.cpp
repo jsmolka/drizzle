@@ -1,8 +1,10 @@
 #include "compiler.h"
 
+#include <array>
 #include <cerrno>
 #include <cstdlib>
 #include <limits>
+#include <shell/array.h>
 #include <shell/macros.h>
 
 #include "error.h"
@@ -17,6 +19,23 @@ void Compiler::compile(const Tokens& tokens, Chunk& chunk)
     expression();
     consume(Token::Type::Eof, "expected file end");
     endCompiler();
+}
+
+const Compiler::ParseRule& Compiler::getRule(Token::Type type)
+{
+    static constexpr auto kRulesCount = static_cast<std::size_t>(Token::Type::Last);
+    static constexpr auto kRules = shell::makeArray<ParseRule, kRulesCount>([](auto type) -> ParseRule
+    {
+        switch (Token::Type(int(type)))
+        {
+        case Token::Type::ParenLeft: return { &Compiler::grouping, nullptr, kPrecedenceNone };
+
+        default:
+            return { nullptr, nullptr, kPrecedenceNone };
+        }
+    });
+
+    return kRules[0];
 }
 
 void Compiler::advance()
@@ -39,7 +58,7 @@ void Compiler::consume(Token::Type type, const char* error)
 
 void Compiler::expression()
 {
-
+    parsePrecedence(kPrecedenceAssignment);
 }
 
 void Compiler::grouping()
@@ -52,7 +71,7 @@ void Compiler::unary()
 {
     auto prefix = parser.previous.type;
 
-    expression();
+    parsePrecedence(kPrecedenceUnary);
 
     switch (prefix)
     {
@@ -62,6 +81,30 @@ void Compiler::unary()
 
     default:
         SHELL_UNREACHABLE;
+        break;
+    }
+}
+
+void Compiler::binary()
+{
+    auto operation_type = parser.previous.type;
+
+    switch (operation_type)
+    {
+    case Token::Type::Plus:
+        emit(Opcode::Add);
+        break;
+
+    case Token::Type::Minus:
+        emit(Opcode::Subtract);
+        break;
+
+    case Token::Type::Star:
+        emit(Opcode::Multiply);
+        break;
+
+    case Token::Type::Slash:
+        emit(Opcode::Divide);
         break;
     }
 }
@@ -76,6 +119,10 @@ void Compiler::number()
         errno = 0;
     }
     emitConstant(value);
+}
+
+void Compiler::parsePrecedence(Precedence precedence)
+{
 }
 
 void Compiler::endCompiler()

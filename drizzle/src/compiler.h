@@ -9,18 +9,46 @@ public:
     void compile(const Tokens& tokens, Chunk& chunk);
 
 private:
+    enum Precedence
+    {
+        kPrecedenceNone,
+        kPrecedenceAssignment,  // =
+        kPrecedenceOr,          // or
+        kPrecedenceAnd,         // and
+        kPrecedenceEquality,    // == !=
+        kPrecedenceComparison,  // < > <= >=
+        kPrecedenceTerm,        // + -
+        kPrecedenceFactor,      // * /
+        kPrecedenceUnary,       // ! -
+        kPrecedenceCall,        // . ()
+        kPrecedencePrimary
+    };
+
     struct Parser
     {
         Token previous;
         Token current;
     } parser;
 
+    using ParseFunction = void(Compiler::*)(void);
+
+    struct ParseRule
+    {
+        ParseFunction prefix;
+        ParseFunction infix;
+        Precedence precedence;
+    };
+
+    static const ParseRule& getRule(Token::Type type);
+
     void advance();
     void consume(Token::Type type, const char* error);
     void expression();
     void grouping();
     void unary();
+    void binary();
     void number();
+    void parsePrecedence(Precedence precedence);
     void endCompiler();
 
     template<typename... Bytes>

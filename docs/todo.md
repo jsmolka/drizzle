@@ -7,3 +7,5 @@
 - `>>>`
 - brace level aware scanning
 - generate AST and then optimize / compile
+- should `0xDEADyield` result in two valid tokens?
+- `CompilerError`

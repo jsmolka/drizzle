@@ -29,7 +29,9 @@ struct Token
         Eof, Indent, Dedent, NewLine,
 
         // Todo: remove when functions are implemented
-        Assert, Print
+        Assert, Print,
+
+        Last
     };
 
     Type type;
