@@ -31,7 +31,7 @@ struct Token
         // Todo: remove when functions are implemented
         Assert, Print,
 
-        Last
+        LastEnumValue
     };
 
     Type type;

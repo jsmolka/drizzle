@@ -41,6 +41,7 @@ private:
 
     static const ParseRule& getRule(Token::Type type);
 
+    void syntaxError(const char* error);
     void advance();
     void consume(Token::Type type, const char* error);
     void expression();

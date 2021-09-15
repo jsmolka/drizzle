@@ -17,25 +17,37 @@ void Compiler::compile(const Tokens& tokens, Chunk& chunk)
 
     advance();
     expression();
+
+    // Todo: remove once statements are implemented
+    while (parser.current.type == Token::Type::NewLine)
+        advance();
+
     consume(Token::Type::Eof, "expected file end");
     endCompiler();
 }
 
 const Compiler::ParseRule& Compiler::getRule(Token::Type type)
 {
-    static constexpr auto kRulesCount = static_cast<std::size_t>(Token::Type::Last);
-    static constexpr auto kRules = shell::makeArray<ParseRule, kRulesCount>([](auto type) -> ParseRule
+    static constexpr auto kRulesSize = static_cast<std::size_t>(Token::Type::LastEnumValue);
+    static constexpr auto kRules = shell::makeArray<ParseRule, kRulesSize>([](std::size_t type) -> ParseRule
     {
-        switch (Token::Type(int(type)))
+        switch (Token::Type(type))
         {
         case Token::Type::ParenLeft: return { &Compiler::grouping, nullptr, kPrecedenceNone };
-
-        default:
-            return { nullptr, nullptr, kPrecedenceNone };
+        case Token::Type::Minus: return { &Compiler::unary, &Compiler::binary, kPrecedenceTerm };
+        case Token::Type::Plus: return { nullptr, &Compiler::binary, kPrecedenceTerm };
+        case Token::Type::Slash: return { nullptr, &Compiler::binary, kPrecedenceFactor };
+        case Token::Type::Star: return { nullptr, &Compiler::binary, kPrecedenceFactor };
+        case Token::Type::Float: return { &Compiler::number, nullptr, kPrecedenceTerm };
         }
+        return { nullptr, nullptr, kPrecedenceNone };
     });
+    return kRules[static_cast<std::size_t>(type)];
+}
 
-    return kRules[0];
+void Compiler::syntaxError(const char* error)
+{
+    throw SyntaxError(error, parser.current.lexeme.data());
 }
 
 void Compiler::advance()
@@ -52,8 +64,7 @@ void Compiler::consume(Token::Type type, const char* error)
         advance();
         return;
     }
-
-    throw SyntaxError(parser.current.lexeme.data(), error);
+    syntaxError(error);
 }
 
 void Compiler::expression()
@@ -87,9 +98,10 @@ void Compiler::unary()
 
 void Compiler::binary()
 {
-    auto operation_type = parser.previous.type;
+    auto type = parser.previous.type;
+    parsePrecedence(Precedence(getRule(type).precedence + 1));
 
-    switch (operation_type)
+    switch (type)
     {
     case Token::Type::Plus:
         emit(Opcode::Add);
@@ -105,6 +117,10 @@ void Compiler::binary()
 
     case Token::Type::Slash:
         emit(Opcode::Divide);
+        break;
+
+    default:
+        SHELL_UNREACHABLE;
         break;
     }
 }
@@ -123,6 +139,22 @@ void Compiler::number()
 
 void Compiler::parsePrecedence(Precedence precedence)
 {
+    advance();
+    auto prefix = getRule(parser.previous.type).prefix;
+    if (!prefix)
+        syntaxError("invalid syntax");
+
+    std::invoke(prefix, this);
+
+    while (precedence <= getRule(parser.current.type).precedence)
+    {
+        advance();
+        auto infix = getRule(parser.previous.type).infix;
+        if (!infix)
+            syntaxError("invalid syntax");
+
+        std::invoke(infix, this);
+    }
 }
 
 void Compiler::endCompiler()

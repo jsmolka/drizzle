@@ -8,7 +8,9 @@
 
 void Vm::interpret(const Tokens& tokens)
 {
-
+    Chunk c;
+    Compiler compiler;
+    compiler.compile(tokens, c);
 }
 
 template<typename Integral>
