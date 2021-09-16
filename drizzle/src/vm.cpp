@@ -18,7 +18,7 @@ void Vm::interpret(const Tokens& tokens)
 
     run();
 
-    stack[0].print();
+    shell::print(stack[0]);
 }
 
 template<typename Integral>
@@ -40,58 +40,31 @@ void Vm::run()
     // - Direct stack manipulation (Opcode::Negative without push/pop)
     // - Register based bytecode
     // - Keep IP in CPU register, no member variable
+    // - add opcodes for frequent numbers -1, 0, 1, 2
 
     while (true)
     {
         auto opcode = static_cast<Opcode>(read<u8>());
         switch (opcode)
         {
-        case Opcode::Constant:
-            stack.push(chunk->constants[read<u8>()]);
-            break;
-
-        case Opcode::ConstantExt:
-            stack.push(chunk->constants[read<u16>()]);
-            break;
-
-        case Opcode::Add:
-            add();
-            break;
-
-        case Opcode::Subtract:
-            subtract();
-            break;
-
-        case Opcode::Multiply:
-            multiply();
-            break;
-
-        case Opcode::Divide:
-            divide();
-            break;
-
-        case Opcode::Negate:
-            negate();
-            break;
-
-        case Opcode::Not:
-            not();
-            break;
-
-        case Opcode::True:
-            stack.push(true);
-            break;
-
-        case Opcode::False:
-            stack.push(false);
-            break;
-
-        case Opcode::Null:
-            stack.push({});
-            break;
-
-        case Opcode::Return:
-            return;
+        case Opcode::Constant: stack.push(chunk->constants[read<u8>()]); break;
+        case Opcode::ConstantExt: stack.push(chunk->constants[read<u16>()]); break;
+        case Opcode::Add: add(); break;
+        case Opcode::Subtract: subtract(); break;
+        case Opcode::Multiply: multiply(); break;
+        case Opcode::Divide: divide(); break;
+        case Opcode::Negate: negate(); break;
+        case Opcode::Not: not(); break;
+        case Opcode::True: stack.push(true); break;
+        case Opcode::False: stack.push(false); break;
+        case Opcode::Null: stack.push({}); break;
+        case Opcode::Equal: equal(); break;
+        case Opcode::NotEqual: notEqual(); break;
+        case Opcode::Less: less(); break;
+        case Opcode::LessEqual: lessEqual(); break;
+        case Opcode::Greater: greater(); break;
+        case Opcode::GreaterEqual: greaterEqual(); break;
+        case Opcode::Return: return;
         }
     }
 }
@@ -122,7 +95,7 @@ void Vm::negate()
 void Vm::not()
 {
     auto& value = stack[0];
-    value.boolean = !value.isTruthy();
+    value.boolean = !static_cast<bool>(value);
     value.type = Value::Type::Boolean;
 }
 
@@ -156,4 +129,52 @@ void Vm::divide()
     auto& lhs = stack[0];
 
     lhs.rational /= rhs.rational;
+}
+
+void Vm::equal()
+{
+    auto  rhs = stack.pop();
+    auto& lhs = stack[0];
+    lhs.boolean = lhs == rhs;
+    lhs.type = Value::Type::Boolean;
+}
+
+void Vm::notEqual()
+{
+    auto  rhs = stack.pop();
+    auto& lhs = stack[0];
+    lhs.boolean = lhs != rhs;
+    lhs.type = Value::Type::Boolean;
+}
+
+void Vm::less()
+{
+    auto  rhs = stack.pop();
+    auto& lhs = stack[0];
+    lhs.boolean = lhs.rational < rhs.rational;
+    lhs.type = Value::Type::Boolean;
+}
+
+void Vm::lessEqual()
+{
+    auto  rhs = stack.pop();
+    auto& lhs = stack[0];
+    lhs.boolean = lhs.rational <= rhs.rational;
+    lhs.type = Value::Type::Boolean;
+}
+
+void Vm::greater()
+{
+    auto  rhs = stack.pop();
+    auto& lhs = stack[0];
+    lhs.boolean = lhs.rational > rhs.rational;
+    lhs.type = Value::Type::Boolean;
+}
+
+void Vm::greaterEqual()
+{
+    auto  rhs = stack.pop();
+    auto& lhs = stack[0];
+    lhs.boolean = lhs.rational >= rhs.rational;
+    lhs.type = Value::Type::Boolean;
 }

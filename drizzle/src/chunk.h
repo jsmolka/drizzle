@@ -15,6 +15,12 @@ enum class Opcode
     True,
     False,
     Null,
+    Equal,
+    NotEqual,
+    Greater,
+    GreaterEqual,
+    Less,
+    LessEqual,
     Return
 };
 

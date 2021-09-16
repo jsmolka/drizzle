@@ -20,6 +20,15 @@ private:
     void subtract();
     void multiply();
     void divide();
+    void equal();
+    void notEqual();
+
+    template<template<typename> typename Comparator>
+    void compare();
+    void less();
+    void lessEqual();
+    void greater();
+    void greaterEqual();
 
     const Chunk* chunk;
     const u8* ip;

@@ -36,13 +36,27 @@ const Compiler::ParseRule& Compiler::getRule(Token::Type type)
         case Token::Type::ParenLeft: return { &Compiler::grouping, nullptr, kPrecedenceNone };
         case Token::Type::Minus: return { &Compiler::unary, &Compiler::binary, kPrecedenceTerm };
         case Token::Type::Plus: return { nullptr, &Compiler::binary, kPrecedenceTerm };
-        case Token::Type::Slash: return { nullptr, &Compiler::binary, kPrecedenceFactor };
-        case Token::Type::Star: return { nullptr, &Compiler::binary, kPrecedenceFactor };
         case Token::Type::Float: return { &Compiler::number, nullptr, kPrecedenceTerm };
-        case Token::Type::True: return { &Compiler::literal, nullptr, kPrecedenceNone };
-        case Token::Type::False: return { &Compiler::literal, nullptr, kPrecedenceNone };
-        case Token::Type::Null: return { &Compiler::literal, nullptr, kPrecedenceNone };
         case Token::Type::Bang: return { &Compiler::unary, nullptr, kPrecedenceTerm };
+
+        case Token::Type::Slash:
+        case Token::Type::Star:
+            return { nullptr, &Compiler::binary, kPrecedenceFactor };
+
+        case Token::Type::True:
+        case Token::Type::False:
+        case Token::Type::Null:
+            return { &Compiler::literal, nullptr, kPrecedenceNone };
+
+        case Token::Type::BangEqual:
+        case Token::Type::EqualEqual:
+            return { nullptr, &Compiler::binary, kPrecedenceEquality };
+
+        case Token::Type::Greater:
+        case Token::Type::GreaterEqual:
+        case Token::Type::Less:
+        case Token::Type::LessEqual:
+            return { nullptr, &Compiler::binary, kPrecedenceEquality };
         }
         return { nullptr, nullptr, kPrecedenceNone };
     });
@@ -111,21 +125,16 @@ void Compiler::binary()
 
     switch (type)
     {
-    case Token::Type::Plus:
-        emit(Opcode::Add);
-        break;
-
-    case Token::Type::Minus:
-        emit(Opcode::Subtract);
-        break;
-
-    case Token::Type::Star:
-        emit(Opcode::Multiply);
-        break;
-
-    case Token::Type::Slash:
-        emit(Opcode::Divide);
-        break;
+    case Token::Type::Plus: emit(Opcode::Add); break;
+    case Token::Type::Minus: emit(Opcode::Subtract); break;
+    case Token::Type::Star: emit(Opcode::Multiply); break;
+    case Token::Type::Slash: emit(Opcode::Divide); break;
+    case Token::Type::BangEqual: emit(Opcode::NotEqual); break;
+    case Token::Type::EqualEqual: emit(Opcode::Equal); break;
+    case Token::Type::Greater: emit(Opcode::Greater); break;
+    case Token::Type::GreaterEqual: emit(Opcode::GreaterEqual); break;
+    case Token::Type::Less: emit(Opcode::Less); break;
+    case Token::Type::LessEqual: emit(Opcode::LessEqual); break;
 
     default:
         SHELL_UNREACHABLE;
