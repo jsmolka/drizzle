@@ -14,9 +14,11 @@ private:
     Integral read();
 
     void run();
-
-    template<typename Operator>
-    void binaryOperation();
+    void negate();
+    void add();
+    void subtract();
+    void multiply();
+    void divide();
 
     const Chunk* chunk;
     const u8* ip;

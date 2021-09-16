@@ -11,6 +11,9 @@ enum class Opcode
     Multiply,
     Divide,
     Negate,
+    True,
+    False,
+    Null,
     Return
 };
 

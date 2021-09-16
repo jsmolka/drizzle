@@ -49,6 +49,7 @@ private:
     void unary();
     void binary();
     void number();
+    void literal();
     void parsePrecedence(Precedence precedence);
     void endCompiler();
 

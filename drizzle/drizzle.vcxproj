@@ -21,6 +21,7 @@
     <ClCompile Include="src\compiler.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\scanner.cpp" />
+    <ClCompile Include="src\value.cpp" />
     <ClCompile Include="src\vm.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -78,7 +79,7 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <PreprocessorDefinitions>
       </PreprocessorDefinitions>
-      <DisableSpecificWarnings>26812</DisableSpecificWarnings>
+      <DisableSpecificWarnings>26812; 26495</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <AdditionalDependencies>shell32.lib</AdditionalDependencies>
@@ -97,7 +98,7 @@
       <PreprocessorDefinitions>NDEBUG</PreprocessorDefinitions>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
-      <DisableSpecificWarnings>26812</DisableSpecificWarnings>
+      <DisableSpecificWarnings>26812; 26495</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

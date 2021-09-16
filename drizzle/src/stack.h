@@ -31,11 +31,6 @@ public:
         return *head;
     }
 
-    T& peek()
-    {
-        return *(head - 1);
-    }
-
     std::size_t size() const
     {
         return head - data;
@@ -49,6 +44,16 @@ public:
     void clear()
     {
         head = data;
+    }
+
+    T& operator[](std::ptrdiff_t pos)
+    {
+        return *(head - pos - 1);
+    }
+
+    const T& operator[](std::ptrdiff_t pos) const
+    {
+        return *(head - pos - 1);
     }
 
     SHELL_FORWARD_ITERATORS(data, head)

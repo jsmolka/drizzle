@@ -32,3 +32,9 @@ class RuntimeError : public Error
 public:
     using Error::Error;
 };
+
+class TypeError : public Error
+{
+public:
+    using Error::Error;
+};

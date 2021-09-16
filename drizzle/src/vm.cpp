@@ -5,12 +5,20 @@
 #include <shell/punning.h>
 
 #include "compiler.h"
+#include "error.h"
 
 void Vm::interpret(const Tokens& tokens)
 {
     Chunk c;
     Compiler compiler;
     compiler.compile(tokens, c);
+
+    chunk = &c;
+    ip = c.code.data();
+
+    run();
+
+    stack[0].print();
 }
 
 template<typename Integral>
@@ -21,14 +29,6 @@ Integral Vm::read()
     auto value = shell::read<Integral>(ip, 0);
     ip += sizeof(Integral);
     return value;
-}
-
-template<typename Operator>
-void Vm::binaryOperation()
-{
-    const auto rhs = stack.pop();
-    const auto lhs = stack.pop();
-    stack.push(Operator()(lhs, rhs));
 }
 
 void Vm::run()
@@ -55,27 +55,94 @@ void Vm::run()
             break;
 
         case Opcode::Add:
-            binaryOperation<std::plus<Value>>();
+            add();
             break;
 
         case Opcode::Subtract:
-            binaryOperation<std::minus<Value>>();
+            subtract();
             break;
 
         case Opcode::Multiply:
-            binaryOperation<std::multiplies<Value>>();
+            multiply();
             break;
 
         case Opcode::Divide:
-            binaryOperation<std::divides<Value>>();
+            divide();
             break;
 
         case Opcode::Negate:
-            stack.push(-stack.pop());
+            negate();
+            break;
+
+        case Opcode::True:
+            stack.push(true);
+            break;
+
+        case Opcode::False:
+            stack.push(false);
+            break;
+
+        case Opcode::Null:
+            stack.push({});
             break;
 
         case Opcode::Return:
             return;
         }
     }
+}
+
+void Vm::negate()
+{
+    auto& value = stack[0];
+    switch (value.type)
+    {
+    case Value::Type::Boolean:
+        value.integer = -static_cast<s64>(value.boolean);
+        value.type = Value::Type::Integer;
+        break;
+
+    case Value::Type::Integer:
+        value.integer = -value.integer;
+        break;
+
+    case Value::Type::Rational:
+        value.rational = -value.rational;
+        break;
+
+    default:
+        throw TypeError("UNARY, Todo: something smart");
+    }
+}
+
+void Vm::add()
+{
+    auto  rhs = stack.pop();
+    auto& lhs = stack[0];
+
+    lhs.rational += rhs.rational;
+}
+
+void Vm::subtract()
+{
+    auto  rhs = stack.pop();
+    auto& lhs = stack[0];
+
+    lhs.rational -= rhs.rational;
+}
+
+void Vm::multiply()
+{
+    auto  rhs = stack.pop();
+    auto& lhs = stack[0];
+
+    lhs.rational *= rhs.rational;
+}
+
+void Vm::divide()
+{
+    auto  rhs = stack.pop();
+    auto& lhs = stack[0];
+
+    lhs.rational /= rhs.rational;
 }

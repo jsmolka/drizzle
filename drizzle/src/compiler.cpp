@@ -39,6 +39,9 @@ const Compiler::ParseRule& Compiler::getRule(Token::Type type)
         case Token::Type::Slash: return { nullptr, &Compiler::binary, kPrecedenceFactor };
         case Token::Type::Star: return { nullptr, &Compiler::binary, kPrecedenceFactor };
         case Token::Type::Float: return { &Compiler::number, nullptr, kPrecedenceTerm };
+        case Token::Type::True: return { &Compiler::literal, nullptr, kPrecedenceNone };
+        case Token::Type::False: return { &Compiler::literal, nullptr, kPrecedenceNone };
+        case Token::Type::Null: return { &Compiler::literal, nullptr, kPrecedenceNone };
         }
         return { nullptr, nullptr, kPrecedenceNone };
     });
@@ -135,6 +138,28 @@ void Compiler::number()
         errno = 0;
     }
     emitConstant(value);
+}
+
+void Compiler::literal()
+{
+    switch (parser.previous.type)
+    {
+    case Token::Type::True:
+        emit(Opcode::True);
+        break;
+
+    case Token::Type::False:
+        emit(Opcode::False);
+        break;
+
+    case Token::Type::Null:
+        emit(Opcode::Null);
+        break;
+
+    default:
+        SHELL_UNREACHABLE;
+        break;
+    }
 }
 
 void Compiler::parsePrecedence(Precedence precedence)
