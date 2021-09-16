@@ -19,19 +19,19 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="src\scanner.inl" />
-    <None Include="src\scanner_comments.inl" />
-    <None Include="src\scanner_blank_lines.inl" />
-    <None Include="src\scanner_eof.inl" />
-    <None Include="src\scanner_identifiers.inl" />
-    <None Include="src\scanner_indentation.inl" />
-    <None Include="src\scanner_number.inl" />
-    <None Include="src\scanner_string.inl" />
-    <None Include="src\scanner_tokens.inl" />
+    <None Include="src\scanner\comments.inl" />
+    <None Include="src\scanner\blank_lines.inl" />
+    <None Include="src\scanner\eof.inl" />
+    <None Include="src\scanner\identifiers.inl" />
+    <None Include="src\scanner\indentation.inl" />
+    <None Include="src\scanner\number.inl" />
+    <None Include="src\scanner\string.inl" />
+    <None Include="src\scanner\tokens.inl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\drizzle\src\error.h" />
     <ClInclude Include="..\drizzle\src\scanner.h" />
-    <ClInclude Include="src\scanner_whitespace.inl" />
+    <ClInclude Include="src\scanner\whitespace.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

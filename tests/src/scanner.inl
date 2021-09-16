@@ -29,12 +29,12 @@ void scanThrows(const std::string& source)
     REQUIRE_THROWS_AS(scanner.scan(source), SyntaxError);
 }
 
-#include "scanner_blank_lines.inl"
-#include "scanner_comments.inl"
-#include "scanner_eof.inl"
-#include "scanner_identifiers.inl"
-#include "scanner_indentation.inl"
-#include "scanner_number.inl"
-#include "scanner_string.inl"
-#include "scanner_tokens.inl"
-#include "scanner_whitespace.inl"
+#include "scanner/blank_lines.inl"
+#include "scanner/comments.inl"
+#include "scanner/eof.inl"
+#include "scanner/identifiers.inl"
+#include "scanner/indentation.inl"
+#include "scanner/number.inl"
+#include "scanner/string.inl"
+#include "scanner/tokens.inl"
+#include "scanner/whitespace.inl"

@@ -29,28 +29,28 @@
     <None Include="src\scanner.inl">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\scanner_eof.inl">
+    <None Include="src\scanner\eof.inl">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\scanner_blank_lines.inl">
+    <None Include="src\scanner\blank_lines.inl">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\scanner_comments.inl">
+    <None Include="src\scanner\comments.inl">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\scanner_tokens.inl">
+    <None Include="src\scanner\tokens.inl">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\scanner_indentation.inl">
+    <None Include="src\scanner\indentation.inl">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\scanner_string.inl">
+    <None Include="src\scanner\string.inl">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\scanner_number.inl">
+    <None Include="src\scanner\number.inl">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\scanner_identifiers.inl">
+    <None Include="src\scanner\identifiers.inl">
       <Filter>Header Files</Filter>
     </None>
   </ItemGroup>
@@ -58,7 +58,7 @@
     <ClInclude Include="..\drizzle\src\scanner.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\scanner_whitespace.inl">
+    <ClInclude Include="src\scanner\whitespace.inl">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\drizzle\src\error.h">
