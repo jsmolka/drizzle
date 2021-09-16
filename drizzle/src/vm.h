@@ -15,6 +15,7 @@ private:
 
     void run();
     void negate();
+    void not();
     void add();
     void subtract();
     void multiply();

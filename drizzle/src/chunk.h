@@ -10,6 +10,7 @@ enum class Opcode
     Subtract,
     Multiply,
     Divide,
+    Not,
     Negate,
     True,
     False,

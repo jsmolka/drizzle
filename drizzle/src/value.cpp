@@ -1,6 +1,7 @@
 #include "value.h"
 
 #include <shell/format.h>
+#include <shell/macros.h>
 
 Value::Value()
     : type(Type::Null) {}
@@ -33,5 +34,27 @@ void Value::print()
     case Type::Rational:
         shell::print(rational);
         break;
+    }
+}
+
+bool Value::isTruthy() const
+{
+    switch (type)
+    {
+    case Type::Null:
+        return false;
+
+    case Type::Boolean:
+        return boolean;
+
+    case Type::Integer:
+        return integer != 0;
+
+    case Type::Rational:
+        return rational != 0;
+
+    default:
+        SHELL_UNREACHABLE;
+        return false;
     }
 }

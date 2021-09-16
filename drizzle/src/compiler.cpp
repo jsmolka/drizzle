@@ -42,6 +42,7 @@ const Compiler::ParseRule& Compiler::getRule(Token::Type type)
         case Token::Type::True: return { &Compiler::literal, nullptr, kPrecedenceNone };
         case Token::Type::False: return { &Compiler::literal, nullptr, kPrecedenceNone };
         case Token::Type::Null: return { &Compiler::literal, nullptr, kPrecedenceNone };
+        case Token::Type::Bang: return { &Compiler::unary, nullptr, kPrecedenceTerm };
         }
         return { nullptr, nullptr, kPrecedenceNone };
     });
@@ -50,7 +51,7 @@ const Compiler::ParseRule& Compiler::getRule(Token::Type type)
 
 void Compiler::syntaxError(const char* error)
 {
-    throw SyntaxError(error, parser.current.lexeme.data());
+    throw SyntaxError(error, parser.previous.lexeme.data());
 }
 
 void Compiler::advance()
@@ -91,6 +92,10 @@ void Compiler::unary()
     {
     case Token::Type::Minus:
         emit(Opcode::Negate);
+        break;
+
+    case Token::Type::Bang:
+        emit(Opcode::Not);
         break;
 
     default:

@@ -27,6 +27,7 @@ struct Value
     };
 
     void print();
+    bool isTruthy() const;
 };
 
 using Values = std::vector<Value>;

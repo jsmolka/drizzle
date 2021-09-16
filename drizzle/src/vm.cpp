@@ -74,6 +74,10 @@ void Vm::run()
             negate();
             break;
 
+        case Opcode::Not:
+            not();
+            break;
+
         case Opcode::True:
             stack.push(true);
             break;
@@ -113,6 +117,13 @@ void Vm::negate()
     default:
         throw TypeError("UNARY, Todo: something smart");
     }
+}
+
+void Vm::not()
+{
+    auto& value = stack[0];
+    value.boolean = !value.isTruthy();
+    value.type = Value::Type::Boolean;
 }
 
 void Vm::add()
