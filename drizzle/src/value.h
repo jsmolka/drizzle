@@ -35,24 +35,22 @@ struct Value
 template<typename T>
 void Value::set(const T& value)
 {
+    static_assert(is_dz_primitive_v<T>);
+
     if constexpr (std::is_same_v<T, dzint>)
     {
         i = value;
         type = Type::Int;
     }
-    else if constexpr (std::is_same_v<T, dzfloat>)
+    if constexpr (std::is_same_v<T, dzfloat>)
     {
         f = value;
         type = Type::Float;
     }
-    else if constexpr (std::is_same_v<T, dzbool>)
+    if constexpr (std::is_same_v<T, dzbool>)
     {
         b = value;
         type = Type::Bool;
-    }
-    else
-    {
-        static_assert(false);
     }
 }
 
