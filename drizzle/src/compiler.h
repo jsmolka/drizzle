@@ -46,9 +46,9 @@ private:
     void consume(Token::Type type, const char* error);
     void expression();
     void grouping();
+    void constant();
     void unary();
     void binary();
-    void number();
     void literal();
     void parsePrecedence(Precedence precedence);
     void endCompiler();

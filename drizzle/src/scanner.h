@@ -4,6 +4,8 @@
 #include <string_view>
 #include <vector>
 
+#include "value.h"
+
 struct Token
 {
     enum class Type
@@ -35,6 +37,7 @@ struct Token
     };
 
     Type type;
+    Value value;
     std::string_view lexeme;
 };
 
@@ -64,6 +67,9 @@ private:
     void scanNumber();
     void scanIdentifier();
     void scanToken();
+
+    void parseInt(int base);
+    void parseFloat();
 
     const char* cursor;
     const char* lexeme;

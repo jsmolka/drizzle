@@ -36,7 +36,8 @@ const Compiler::ParseRule& Compiler::getRule(Token::Type type)
         case Token::Type::ParenLeft: return { &Compiler::grouping, nullptr, kPrecedenceNone };
         case Token::Type::Minus: return { &Compiler::unary, &Compiler::binary, kPrecedenceTerm };
         case Token::Type::Plus: return { nullptr, &Compiler::binary, kPrecedenceTerm };
-        case Token::Type::Float: return { &Compiler::number, nullptr, kPrecedenceTerm };
+        case Token::Type::Float: return { &Compiler::constant, nullptr, kPrecedenceTerm };
+        case Token::Type::Integer: return { &Compiler::constant, nullptr, kPrecedenceTerm };
         case Token::Type::Bang: return { &Compiler::unary, nullptr, kPrecedenceTerm };
 
         case Token::Type::Slash:
@@ -96,6 +97,11 @@ void Compiler::grouping()
     consume(Token::Type::ParenRight, "expected \")\" after expression");
 }
 
+void Compiler::constant()
+{
+    emitConstant(parser.previous.value);
+}
+
 void Compiler::unary()
 {
     auto prefix = parser.previous.type;
@@ -140,18 +146,6 @@ void Compiler::binary()
         SHELL_UNREACHABLE;
         break;
     }
-}
-
-void Compiler::number()
-{
-    // Todo: handle integer
-    double value = std::strtod(parser.previous.lexeme.data(), nullptr);
-    if (errno == ERANGE)
-    {
-        // Todo: throw RuntimeError
-        errno = 0;
-    }
-    emitConstant(value);
 }
 
 void Compiler::literal()

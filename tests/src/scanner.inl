@@ -8,7 +8,7 @@ void scan(const std::string& source, const std::vector<Token::Type>& expected)
         REQUIRE(token.type == type);
 }
 
-void scanLexeme(const std::string& source, Token::Type type, const std::string& lexeme)
+Token scanLexeme(const std::string& source, Token::Type type, const std::string& lexeme)
 {
     Scanner scanner;
     auto tokens = scanner.scan(source);
@@ -17,10 +17,11 @@ void scanLexeme(const std::string& source, Token::Type type, const std::string& 
         if (token.type == type)
         {
             REQUIRE(token.lexeme == lexeme);
-            return;
+            return token;
         }
     }
     REQUIRE(false);
+    return Token();
 }
 
 void scanThrows(const std::string& source)

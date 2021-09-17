@@ -316,6 +316,7 @@ void Scanner::scanNumber()
             next();
 
         emit(Token::Type::Integer);
+        parseInt(2);
         return;
     }
     
@@ -328,6 +329,7 @@ void Scanner::scanNumber()
             next();
 
         emit(Token::Type::Integer);
+        parseInt(16);
         return;
     }
 
@@ -346,10 +348,12 @@ void Scanner::scanNumber()
             next();
 
         emit(Token::Type::Float);
+        parseFloat();
     }
     else
     {
         emit(Token::Type::Integer);
+        parseInt(10);
     }
 }
 
@@ -447,4 +451,35 @@ void Scanner::scanToken()
     default:
         throw SyntaxError("unexpected character", cursor - 1);
     }
+}
+
+void Scanner::parseInt(int base)
+{
+    SHELL_ASSERT(base == 2 || base == 10 || base == 16);
+
+    auto& token = tokens.back();
+    std::string_view lexeme = token.lexeme;
+    if (base == 2 || base == 16)
+        lexeme.remove_prefix(2);
+
+    dzint value = std::strtoll(lexeme.data(), nullptr, base);
+    if (errno == ERANGE)
+    {
+        errno = 0;
+        throw SyntaxError("cannot parse int", token.lexeme.data());
+    }
+    token.value.set(value);
+}
+
+void Scanner::parseFloat()
+{
+    auto& token = tokens.back();
+
+    dzfloat value = std::strtod(token.lexeme.data(), nullptr);
+    if (errno == ERANGE)
+    {
+        errno = 0;
+        throw SyntaxError("cannot parse float", token.lexeme.data());
+    }
+    token.value.set(value);
 }
