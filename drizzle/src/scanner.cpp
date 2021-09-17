@@ -462,7 +462,7 @@ void Scanner::parseInt(int base)
     if (base == 2 || base == 16)
         lexeme.remove_prefix(2);
 
-    dzint value = std::strtoll(lexeme.data(), nullptr, base);
+    dzint value = std::strtoull(lexeme.data(), nullptr, base);
     if (errno == ERANGE)
     {
         errno = 0;
