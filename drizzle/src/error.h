@@ -33,8 +33,14 @@ public:
     using Error::Error;
 };
 
-class TypeError : public Error
+class TypeError : public RuntimeError
 {
 public:
-    using Error::Error;
+    using RuntimeError::RuntimeError;
+};
+
+class DivisionByZeroError : public RuntimeError
+{
+public:
+    using RuntimeError::RuntimeError;
 };

@@ -173,7 +173,11 @@ void Vm::divide()
 {
     auto [lhs, rhs] = binaryOperands();
     requirePrimitive(lhs, rhs, "'/' requires primitive operands");
-    promote(lhs, rhs, [&lhs=lhs](auto a, auto b) { lhs.set(a / b); });
+    promote(lhs, rhs, [&lhs=lhs](auto a, auto b) {
+        if (b == decltype(b)(0))
+            throw DivisionByZeroError("fak");
+        lhs.set(a / b);
+    });
 }
 
 void Vm::equal()
