@@ -1,5 +1,6 @@
 #pragma once
 
+#include "int.h"
 #include "value.h"
 
 enum class Opcode

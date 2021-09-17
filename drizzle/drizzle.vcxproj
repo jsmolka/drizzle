@@ -31,6 +31,7 @@
     <ClInclude Include="src\int.h" />
     <ClInclude Include="src\scanner.h" />
     <ClInclude Include="src\stack.h" />
+    <ClInclude Include="src\types.h" />
     <ClInclude Include="src\value.h" />
     <ClInclude Include="src\vm.h" />
   </ItemGroup>

@@ -1,25 +1,24 @@
 #include "value.h"
 
 Value::Value()
-    : type(Type::Null) {}
+    : type(Type::Null)
+{
 
-Value::Value(bool boolean)
-    : type(Type::Boolean), boolean(boolean) {}
+}
 
-Value::Value(s64 integer)
-    : type(Type::Integer), integer(integer) {}
-
-Value::Value(double rational)
-    : type(Type::Rational), rational(rational) {}
+bool Value::isPrimitive() const
+{
+    return static_cast<int>(type) < static_cast<int>(Type::Null);
+}
 
 Value::operator bool() const
 {
     switch (type)
     {
-    case Type::Null:     return false;
-    case Type::Boolean:  return boolean;
-    case Type::Integer:  return integer != 0;
-    case Type::Rational: return rational != 0;
+    case Type::Int:   return static_cast<bool>(i);
+    case Type::Float: return static_cast<bool>(f);
+    case Type::Bool:  return b;
+    case Type::Null:  return false;
 
     default:
         SHELL_UNREACHABLE;
@@ -34,10 +33,10 @@ bool Value::operator==(const Value& other) const
 
     switch (other.type)
     {
-    case Value::Type::Null:     return true;
-    case Value::Type::Boolean:  return boolean == other.boolean;
-    case Value::Type::Integer:  return integer == other.integer;
-    case Value::Type::Rational: return rational == other.rational;
+    case Value::Type::Int:   return i == other.i;
+    case Value::Type::Float: return f == other.f;
+    case Value::Type::Bool:  return b == other.b;
+    case Value::Type::Null:  return true;
 
     default:
         SHELL_UNREACHABLE;

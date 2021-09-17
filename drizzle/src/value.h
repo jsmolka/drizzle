@@ -4,34 +4,57 @@
 #include <shell/format.h>
 #include <shell/macros.h>
 
-#include "int.h"
+#include "types.h"
 
 struct Value
 {
+    enum class Type { Int, Float, Bool, Null };
+
     Value();
-    Value(bool boolean);
-    Value(s64 integer);
-    Value(double rational);
+    template<typename T>
+    Value(const T& value) { set(value); }
 
-    enum class Type
-    {
-        Null,
-        Boolean,
-        Integer,
-        Rational
-    } type;
+    template<typename T>
+    void set(const T& value);
 
-    union
-    {
-        bool boolean;
-        s64 integer;
-        double rational;
-    };
+    bool isPrimitive() const;
 
     operator bool() const;
     bool operator==(const Value& other) const;
     bool operator!=(const Value& other) const;
+
+    Type type;
+    union
+    {
+        dzint i;
+        dzfloat f;
+        dzbool b;
+    };
 };
+
+template<typename T>
+void Value::set(const T& value)
+{
+    if constexpr (std::is_same_v<T, dzint>)
+    {
+        i = value;
+        type = Type::Int;
+    }
+    else if constexpr (std::is_same_v<T, dzfloat>)
+    {
+        f = value;
+        type = Type::Float;
+    }
+    else if constexpr (std::is_same_v<T, dzbool>)
+    {
+        b = value;
+        type = Type::Bool;
+    }
+    else
+    {
+        static_assert(false);
+    }
+}
 
 template<>
 struct fmt::formatter<Value>
@@ -47,10 +70,10 @@ struct fmt::formatter<Value>
     {
         switch (value.type)
         {
-        case Value::Type::Null:     return fmt::format_to(ctx.out(), "null");
-        case Value::Type::Boolean:  return fmt::format_to(ctx.out(), "{}", value.boolean);
-        case Value::Type::Integer:  return fmt::format_to(ctx.out(), "{}", value.integer);
-        case Value::Type::Rational: return fmt::format_to(ctx.out(), "{}", value.rational);
+        case Value::Type::Int:   return fmt::format_to(ctx.out(), "{}", value.i);
+        case Value::Type::Float: return fmt::format_to(ctx.out(), "{}", value.f);
+        case Value::Type::Bool:  return fmt::format_to(ctx.out(), "{}", value.b);
+        case Value::Type::Null:  return fmt::format_to(ctx.out(), "null");
 
         default:
             SHELL_UNREACHABLE;

@@ -13,6 +13,12 @@ private:
     template<typename Integral>
     Integral read();
 
+    template<typename Callback>
+    auto promote(const Value& op1, const Value& op2, Callback callback);
+
+    std::tuple<Value&, Value> binaryOperands();
+    void requirePrimitive(const Value& lhs, const Value& rhs, const char* error);
+
     void run();
     void negate();
     void not();
@@ -23,8 +29,6 @@ private:
     void equal();
     void notEqual();
 
-    template<template<typename> typename Comparator>
-    void compare();
     void less();
     void lessEqual();
     void greater();
