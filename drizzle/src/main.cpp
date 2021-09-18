@@ -11,7 +11,7 @@ std::string source;
 std::size_t sourceLine(const char* location)
 {
     if (location < source.data() || location >= source.data() + source.size())
-        return 0;
+        return -1;
 
     std::size_t line = 0;
     for (const char* c = source.data(); c != location; ++c)

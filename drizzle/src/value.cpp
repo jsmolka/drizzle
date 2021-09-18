@@ -11,6 +11,20 @@ bool Value::isPrimitive() const
     return static_cast<int>(type) < static_cast<int>(Type::Null);
 }
 
+const char* Value::typeName() const
+{
+    switch (type)
+    {
+    case Type::Int:   return "int";
+    case Type::Float: return "float";
+    case Type::Bool:  return "bool";
+    case Type::Null:  return "null";
+
+    default:
+        return "unknown";
+    }
+}
+
 Value::operator bool() const
 {
     switch (type)

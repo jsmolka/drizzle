@@ -13,13 +13,13 @@ private:
     template<typename Integral>
     Integral read();
 
-    template<typename Error>
-    void raise(const std::string& message);
+    template<typename Error, typename... Args>
+    void raise(const std::string& message, Args&&... args);
 
     template<typename Operation>
-    void binary(Value& lhs, const Value& rhs, Operation op);
+    void primitiveBinary(Value& lhs, const Value& rhs, Operation op);
     std::tuple<Value&, Value> operands();
-    void requirePrimitive(const Value& lhs, const Value& rhs, const char* error);
+    std::tuple<Value&, Value> primitiveOperands(const char* operation);
 
     void add();
     void constant();

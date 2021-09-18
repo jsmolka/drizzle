@@ -1,7 +1,6 @@
 #include "compiler.h"
 
 #include <array>
-#include <cstdlib>
 #include <limits>
 #include <shell/array.h>
 #include <shell/macros.h>

@@ -52,19 +52,19 @@ Integral Vm::read()
     return value;
 }
 
-template<typename Error>
-void Vm::raise(const std::string& message)
+template<typename Error, typename ...Args>
+void Vm::raise(const std::string& message, Args&& ...args)
 {
     static_assert(std::is_base_of_v<RuntimeError, Error>);
 
     std::size_t index = ip - chunk.code.data();
     std::size_t line = chunk.line(index);
 
-    throw Error(message, line);
+    throw Error(shell::format(message, std::forward<Args>(args)...), line);
 }
 
 template<typename Operation>
-void Vm::binary(Value& lhs, const Value& rhs, Operation op)
+void Vm::primitiveBinary(Value& lhs, const Value& rhs, Operation op)
 {
     auto promote = [op](auto a, auto b)
     {
@@ -97,12 +97,6 @@ void Vm::binary(Value& lhs, const Value& rhs, Operation op)
     #undef HASH
 }
 
-void Vm::requirePrimitive(const Value& lhs, const Value& rhs, const char* error)
-{
-    if (!(lhs.isPrimitive() && rhs.isPrimitive()))
-        raise<TypeError>(error);
-}
-
 std::tuple<Value&, Value> Vm::operands()
 {
     auto  rhs = stack.pop();
@@ -111,11 +105,20 @@ std::tuple<Value&, Value> Vm::operands()
     return std::forward_as_tuple(lhs, rhs);
 }
 
-void Vm::add()
+std::tuple<Value&, Value> Vm::primitiveOperands(const char* operation)
 {
     auto [lhs, rhs] = operands();
-    requirePrimitive(lhs, rhs, "'+' requires primitive operands");
-    binary(lhs, rhs, [](auto a, auto b) { return a + b; });
+    
+    if (!(lhs.isPrimitive() && rhs.isPrimitive()))
+        raise<TypeError>("unsupported operand types for '{}': '{}' and '{}'", operation, lhs.typeName(), rhs.typeName());
+
+    return std::forward_as_tuple(lhs, rhs);
+}
+
+void Vm::add()
+{
+    auto [lhs, rhs] = primitiveOperands("+");
+    primitiveBinary(lhs, rhs, [](auto a, auto b) { return a + b; });
 }
 
 void Vm::constant()
@@ -130,13 +133,12 @@ void Vm::constantExt()
 
 void Vm::divide()
 {
-    auto [lhs, rhs] = operands();
-    requirePrimitive(lhs, rhs, "'/' requires primitive operands");
-    binary(lhs, rhs, [](auto a, auto b)
+    auto [lhs, rhs] = primitiveOperands("/");
+    primitiveBinary(lhs, rhs, [this](auto a, auto b)
     {
         using T = decltype(b);
         if (b == static_cast<T>(0))
-            throw ZeroDivsionError("Todo", 0);
+            raise<ZeroDivsionError>("division by zero");
         return a / b;
     });
 }
@@ -149,41 +151,36 @@ void Vm::equal()
 
 void Vm::greater()
 {
-    auto [lhs, rhs] = operands();
-    requirePrimitive(lhs, rhs, "'>' requires primitive operands");
-    binary(lhs, rhs, [](auto a, auto b) { return a > b; });
+    auto [lhs, rhs] = primitiveOperands(">");
+    primitiveBinary(lhs, rhs, [](auto a, auto b) { return a > b; });
 }
 
 void Vm::greaterEqual()
 {
-    auto [lhs, rhs] = operands();
-    requirePrimitive(lhs, rhs, "'>=' requires primitive operands");
-    binary(lhs, rhs, [](auto a, auto b) { return a >= b; });
+    auto [lhs, rhs] = primitiveOperands(">=");
+    primitiveBinary(lhs, rhs, [](auto a, auto b) { return a >= b; });
 }
 
 void Vm::less()
 {
-    auto [lhs, rhs] = operands();
-    requirePrimitive(lhs, rhs, "'<' requires primitive operands");
-    binary(lhs, rhs, [](auto a, auto b) { return a < b; });
+    auto [lhs, rhs] = primitiveOperands("<");
+    primitiveBinary(lhs, rhs, [](auto a, auto b) { return a < b; });
 }
 
 void Vm::lessEqual()
 {
-    auto [lhs, rhs] = operands();
-    requirePrimitive(lhs, rhs, "'<=' requires primitive operands");
-    binary(lhs, rhs, [](auto a, auto b) { return a <= b; });
+    auto [lhs, rhs] = primitiveOperands("<=");
+    primitiveBinary(lhs, rhs, [](auto a, auto b) { return a <= b; });
 }
 
 void Vm::modulo()
 {
-    auto [lhs, rhs] = operands();
-    requirePrimitive(lhs, rhs, "'%' requires primitive operands");
-    binary(lhs, rhs, [](auto a, auto b)
+    auto [lhs, rhs] = primitiveOperands("%");
+    primitiveBinary(lhs, rhs, [this](auto a, auto b)
     {
         using T = decltype(b);
         if (b == static_cast<T>(0))
-            throw ZeroDivsionError("Todo", 0);
+            raise<ZeroDivsionError>("modulo by zero");
         if constexpr (std::is_same_v<T, dzint>)
             return a % b;
         if constexpr (std::is_same_v<T, dzfloat>)
@@ -193,9 +190,8 @@ void Vm::modulo()
 
 void Vm::multiply()
 {
-    auto [lhs, rhs] = operands();
-    requirePrimitive(lhs, rhs, "'*' requires primitive operands");
-    binary(lhs, rhs, [](auto a, auto b) { return a * b; });
+    auto [lhs, rhs] = primitiveOperands("*");
+    primitiveBinary(lhs, rhs, [](auto a, auto b) { return a * b; });
 }
 
 void Vm::negate()
@@ -203,12 +199,13 @@ void Vm::negate()
     auto& value = stack[0];
     switch (value.type)
     {
-    case Value::Type::Bool:  value.set(-static_cast<dzint>(value.b)); break;
     case Value::Type::Int:   value.set(-value.i); break;
     case Value::Type::Float: value.set(-value.f); break;
+    case Value::Type::Bool:  value.set(-static_cast<dzint>(value.b)); break;
 
     default:
-        throw TypeError("'-' requires primitive operand", 0);
+        raise<TypeError>("unsupported operand type for '-': {}", value.typeName());
+        break;
     }
 }
 
@@ -226,9 +223,8 @@ void Vm::notEqual()
 
 void Vm::subtract()
 {
-    auto [lhs, rhs] = operands();
-    requirePrimitive(lhs, rhs, "'-' requires primitive operands");
-    binary(lhs, rhs, [](auto a, auto b) { return a - b; });
+    auto [lhs, rhs] = primitiveOperands("-");
+    primitiveBinary(lhs, rhs, [](auto a, auto b) { return a - b; });
 }
 
 void Vm::valueFalse()

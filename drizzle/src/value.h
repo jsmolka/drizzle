@@ -18,6 +18,7 @@ struct Value
     void set(const T& value);
 
     bool isPrimitive() const;
+    const char* typeName() const;
 
     operator bool() const;
     bool operator==(const Value& other) const;
