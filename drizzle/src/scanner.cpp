@@ -2,12 +2,13 @@
 
 #include <tuple>
 
-#include "error.h"
+#include "errors.h"
 
 Tokens Scanner::scan(const std::string& source)
 {
     cursor = source.data();
     lexeme = source.data();
+    line = 0;
     indentation = 0;
     tokens.clear();
 
@@ -89,6 +90,7 @@ void Scanner::emit(Token::Type type)
 {
     Token token;
     token.type = type;
+    token.line = line;
     token.lexeme = std::string_view(lexeme, cursor - lexeme);
 
     lexeme = cursor;
@@ -186,6 +188,7 @@ void Scanner::scanBlankLines()
 
             case '\n':
                 next();
+                line++;
                 return true;
 
             default:
@@ -218,6 +221,7 @@ void Scanner::scanWhitespace()
         case '\n':
             next();
             emit(Token::Type::NewLine);
+            line++;
             scanBlankLines();
             scanIndentation();
             return;
@@ -247,7 +251,9 @@ void Scanner::scanString()
                 begin = nullptr;
                 break;
             }
-            next();
+            
+            if (next() == '\n')
+                line++;
         }
     }
     else

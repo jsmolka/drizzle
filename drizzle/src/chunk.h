@@ -29,9 +29,10 @@ enum class Opcode
 class Chunk
 {
 public:
-    void write(u8 byte);
-    void write(Opcode opcode);
+    void write(u8 byte, std::size_t line);
+    void write(Opcode opcode, std::size_t line);
 
     Values constants;
     std::vector<u8> code;
+    std::vector<std::size_t> lines;
 };

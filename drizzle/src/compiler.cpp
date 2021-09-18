@@ -1,13 +1,12 @@
 #include "compiler.h"
 
 #include <array>
-#include <cerrno>
 #include <cstdlib>
 #include <limits>
 #include <shell/array.h>
 #include <shell/macros.h>
 
-#include "error.h"
+#include "errors.h"
 
 void Compiler::compile(const Tokens& tokens, Chunk& chunk)
 {
@@ -202,7 +201,7 @@ void Compiler::emit(Bytes... bytes)
 {
     auto& chunk = currentChunk();
 
-    (chunk.write(bytes), ...);
+    (chunk.write(bytes, parser.current.line), ...);
 }
 
 void Compiler::emitReturn()
@@ -216,20 +215,12 @@ void Compiler::emitConstant(Value value)
 
     int index = chunk.constants.size();
     if (index <= std::numeric_limits<u8>::max())
-    {
-        chunk.write(Opcode::Constant);
-        chunk.write(index);
-    }
+        emit(Opcode::Constant, index);
     else if (index <= std::numeric_limits<u16>::max())
-    {
-        chunk.write(Opcode::ConstantExt);
-        chunk.write(index);
-        chunk.write(index >> 8);
-    }
+        emit(Opcode::ConstantExt, index, index >> 8);
     else
-    {
-        throw Error("constant limit exceeded");
-    }
+        throw CompilerError("constant limit exceeded");
+
     chunk.constants.push_back(value);
 }
 

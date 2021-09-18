@@ -2,55 +2,74 @@
 #include <shell/format.h>
 #include <shell/main.h>
 
-#include "error.h"
+#include "errors.h"
 #include "scanner.h"
 #include "vm.h"
 
 std::string source;
 
-std::size_t lineNumber(const char* location)
+std::size_t sourceLine(const char* location)
 {
-    std::size_t number = 1;
-    for (const char* iter = source.data(); iter != location; ++iter)
-        number += *iter == '\n';
+    if (location < source.data() || location >= source.data() + source.size())
+        return 0;
 
-    return number;
+    std::size_t line = 0;
+    for (const char* c = source.data(); c != location; ++c)
+        line += *c == '\n';
+
+    return line;
 }
 
-std::string_view lineContent(const char* location)
+std::string_view sourceView(std::size_t line)
 {
-    const char* begin = location;
-    while (begin > source.data() && begin[-1] != '\n')
-        begin--;
+    static constexpr std::string_view kDummy = "dummy";
 
-    const char* end = location;
-    while (*end && *end != '\n')
-        end++;
+    const char* b = source.data();
+    const char* c = source.data();
 
-    return std::string_view(begin, end - begin);
+    for (; *c; ++c)
+    {
+        if (!(*c == '\n' || *c == '\0'))
+            continue;
+
+        if (line--)
+            b = c + 1;
+        else
+            return std::string_view(b, c - b);
+    }
+    return kDummy;
 }
 
-void syntaxError(const SyntaxError& error)
+void locationError(const LocationError& error)
 {
-    const auto number = lineNumber(error.location);
-    const auto content = lineContent(error.location);
-    const auto context = shell::format("[line {}] ", number);
+    const auto line = sourceLine(error.location);
+    const auto view = sourceView(line);
+    const auto info = shell::format("line {} | ", line + 1);
 
-    std::string position(context.size(), ' ');
-    for (const auto& c : content)
+    std::string whitespace(info.size(), ' ');
+    for (const auto& c : view)
     {
         if (&c == error.location)
             break;
 
         if (c == '\t')
-            position.push_back('\t');
-        else if (std::isprint(c))
-            position.push_back(' ');
+            whitespace.push_back('\t');
+        if (std::isprint(c))
+            whitespace.push_back(' ');
     }
 
-    shell::print("{}{}\n", context, content);
-    shell::print("{}^\n", position);
-    shell::print("SyntaxError: {}\n", error.what());
+    shell::print("{}{}\n", info, view);
+    shell::print("{}^\n", whitespace);
+    shell::print("{}: {}\n", error.name(), error.what());
+}
+
+void lineError(const LineError& error)
+{
+    const auto view = sourceView(error.line);
+    const auto info = shell::format("line {} | ", error.line + 1);
+
+    shell::print("{}{}\n\n", info, view);
+    shell::print("{}: {}\n", error.name(), error.what());
 }
 
 int main(int argc, char* argv[])
@@ -82,14 +101,24 @@ int main(int argc, char* argv[])
 
         return 0;
     }
-    catch (const SyntaxError& error)
+    catch (const LocationError& error)
     {
-        syntaxError(error);
+        locationError(error);
+        return 1;
+    }
+    catch (const LineError& error)
+    {
+        lineError(error);
+        return 1;
+    }
+    catch (const Error& error)
+    {
+        shell::print("{}: {}\n", error.name(), error.what());
         return 1;
     }
     catch (const std::exception& error)
     {
-        shell::print("Error: {}\n", error.what());
+        shell::print("Unknown: {}\n", error.what());
         return 1;
     }
 }

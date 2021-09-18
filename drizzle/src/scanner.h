@@ -38,6 +38,7 @@ struct Token
 
     Type type;
     Value value;
+    std::size_t line;
     std::string_view lexeme;
 };
 
@@ -73,6 +74,7 @@ private:
 
     const char* cursor;
     const char* lexeme;
+    std::size_t line;
     std::size_t indentation;
     Tokens tokens;
 };

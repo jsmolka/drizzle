@@ -52,7 +52,7 @@
     <ClInclude Include="src\value.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\error.h">
+    <ClInclude Include="src\errors.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\vm.h">

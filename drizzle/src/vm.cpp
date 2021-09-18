@@ -5,7 +5,7 @@
 #include <shell/punning.h>
 
 #include "compiler.h"
-#include "error.h"
+#include "errors.h"
 
 void Vm::interpret(const Tokens& tokens)
 {
@@ -68,7 +68,7 @@ void Vm::binary(Value& lhs, const Value& rhs, Operation op)
 void Vm::requirePrimitive(const Value& lhs, const Value& rhs, const char* error)
 {
     if (!(lhs.isPrimitive() && rhs.isPrimitive()))
-        throw TypeError(error);
+        throw TypeError(error, 0);
 }
 
 std::tuple<Value&, Value> Vm::operands()
@@ -133,7 +133,7 @@ void Vm::divide()
     {
         using T = decltype(b);
         if (b == static_cast<T>(0))
-            throw ZeroDivsionError("Todo");
+            throw ZeroDivsionError("Todo", 0);
         return a / b;
     });
 }
@@ -180,7 +180,7 @@ void Vm::modulo()
     {
         using T = decltype(b);
         if (b == static_cast<T>(0))
-            throw ZeroDivsionError("Todo");
+            throw ZeroDivsionError("Todo", 0);
         if constexpr (std::is_same_v<T, dzint>)
             return a % b;
         if constexpr (std::is_same_v<T, dzfloat>)
@@ -205,7 +205,7 @@ void Vm::negate()
     case Value::Type::Float: value.set(-value.f); break;
 
     default:
-        throw TypeError("'-' requires primitive operand");
+        throw TypeError("'-' requires primitive operand", 0);
     }
 }
 
