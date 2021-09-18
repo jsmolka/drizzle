@@ -5,34 +5,45 @@
 
 enum class Opcode
 {
-    Return,
+    Add,
     Constant,
     ConstantExt,
-    Add,
-    Subtract,
-    Multiply,
     Divide,
-    Not,
-    Negate,
-    True,
-    False,
-    Null,
     Equal,
-    NotEqual,
+    False,
     Greater,
     GreaterEqual,
     Less,
     LessEqual,
-    Modulo
+    Modulo,
+    Multiply,
+    Negate,
+    Not,
+    NotEqual,
+    Null,
+    Return,
+    Subtract,
+    True,
 };
 
 class Chunk
 {
 public:
+    Chunk();
+
     void write(u8 byte, std::size_t line);
     void write(Opcode opcode, std::size_t line);
 
+    std::size_t line(std::size_t index);
+
     Values constants;
     std::vector<u8> code;
-    std::vector<std::size_t> lines;
+
+private:
+    struct Line
+    {
+        std::size_t index;
+        std::size_t number;
+    };
+    std::vector<Line> lines;
 };

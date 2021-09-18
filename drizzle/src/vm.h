@@ -13,12 +13,13 @@ private:
     template<typename Integral>
     Integral read();
 
+    template<typename Error>
+    void raise(const std::string& message);
+
     template<typename Operation>
     void binary(Value& lhs, const Value& rhs, Operation op);
     std::tuple<Value&, Value> operands();
     void requirePrimitive(const Value& lhs, const Value& rhs, const char* error);
-
-    void run();
 
     void add();
     void constant();
@@ -39,7 +40,7 @@ private:
     void valueNull();
     void valueTrue();
 
-    const Chunk* chunk;
+    Chunk chunk;
     const u8* ip;
     Stack<Value, 512> stack;
 };

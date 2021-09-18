@@ -1,7 +1,5 @@
 #include "vm.h"
 
-#include <functional>
-#include <shell/format.h>
 #include <shell/punning.h>
 
 #include "compiler.h"
@@ -9,15 +7,38 @@
 
 void Vm::interpret(const Tokens& tokens)
 {
-    Chunk c;
     Compiler compiler;
-    compiler.compile(tokens, c);
+    compiler.compile(tokens, chunk);
 
-    chunk = &c;
-    ip = c.code.data();
+    ip = chunk.code.data();
 
-    run();
+    while (true)
+    {
+        switch (static_cast<Opcode>(read<u8>()))
+        {
+        case Opcode::Add: add(); break;
+        case Opcode::Constant: constant(); break;
+        case Opcode::ConstantExt: constantExt(); break;
+        case Opcode::Divide: divide(); break;
+        case Opcode::Equal: equal(); break;
+        case Opcode::False: valueFalse(); break;
+        case Opcode::Greater: greater(); break;
+        case Opcode::GreaterEqual: greaterEqual(); break;
+        case Opcode::Less: less(); break;
+        case Opcode::LessEqual: lessEqual(); break;
+        case Opcode::Modulo: modulo(); break;
+        case Opcode::Multiply: multiply(); break;
+        case Opcode::Negate: negate(); break;
+        case Opcode::Not: not(); break;
+        case Opcode::NotEqual: notEqual(); break;
+        case Opcode::Null: valueNull(); break;
+        case Opcode::Return: goto end;
+        case Opcode::Subtract: subtract(); break;
+        case Opcode::True: valueTrue(); break;
+        }
+    }
 
+end:
     shell::print(stack[0]);
 }
 
@@ -29,6 +50,17 @@ Integral Vm::read()
     auto value = shell::read<Integral>(ip, 0);
     ip += sizeof(Integral);
     return value;
+}
+
+template<typename Error>
+void Vm::raise(const std::string& message)
+{
+    static_assert(std::is_base_of_v<RuntimeError, Error>);
+
+    std::size_t index = ip - chunk.code.data();
+    std::size_t line = chunk.line(index);
+
+    throw Error(message, line);
 }
 
 template<typename Operation>
@@ -68,7 +100,7 @@ void Vm::binary(Value& lhs, const Value& rhs, Operation op)
 void Vm::requirePrimitive(const Value& lhs, const Value& rhs, const char* error)
 {
     if (!(lhs.isPrimitive() && rhs.isPrimitive()))
-        throw TypeError(error, 0);
+        raise<TypeError>(error);
 }
 
 std::tuple<Value&, Value> Vm::operands()
@@ -77,35 +109,6 @@ std::tuple<Value&, Value> Vm::operands()
     auto& lhs = stack[0];
 
     return std::forward_as_tuple(lhs, rhs);
-}
-
-void Vm::run()
-{
-    while (true)
-    {
-        switch (static_cast<Opcode>(read<u8>()))
-        {
-        case Opcode::Add: add(); break;
-        case Opcode::Constant: constant(); break;
-        case Opcode::ConstantExt: constantExt(); break;
-        case Opcode::Divide: divide(); break;
-        case Opcode::Equal: equal(); break;
-        case Opcode::False: valueFalse(); break;
-        case Opcode::Greater: greater(); break;
-        case Opcode::GreaterEqual: greaterEqual(); break;
-        case Opcode::Less: less(); break;
-        case Opcode::LessEqual: lessEqual(); break;
-        case Opcode::Modulo: modulo(); break;
-        case Opcode::Multiply: multiply(); break;
-        case Opcode::Negate: negate(); break;
-        case Opcode::Not: not(); break;
-        case Opcode::NotEqual: notEqual(); break;
-        case Opcode::Null: valueNull(); break;
-        case Opcode::Return: return;
-        case Opcode::Subtract: subtract(); break;
-        case Opcode::True: valueTrue(); break;
-        }
-    }
 }
 
 void Vm::add()
@@ -117,12 +120,12 @@ void Vm::add()
 
 void Vm::constant()
 {
-    stack.push(chunk->constants[read<u8>()]);
+    stack.push(chunk.constants[read<u8>()]);
 }
 
 void Vm::constantExt()
 {
-    stack.push(chunk->constants[read<u16>()]);
+    stack.push(chunk.constants[read<u16>()]);
 }
 
 void Vm::divide()
