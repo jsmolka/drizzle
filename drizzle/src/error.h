@@ -39,7 +39,7 @@ public:
     using RuntimeError::RuntimeError;
 };
 
-class DivisionByZeroError : public RuntimeError
+class ZeroDivsionError : public RuntimeError
 {
 public:
     using RuntimeError::RuntimeError;

@@ -15,25 +15,29 @@ private:
 
     template<typename Callback>
     auto promote(const Value& op1, const Value& op2, Callback callback);
-
     std::tuple<Value&, Value> binaryOperands();
     void requirePrimitive(const Value& lhs, const Value& rhs, const char* error);
 
     void run();
-    void negate();
-    void not();
+
     void add();
-    void subtract();
-    void multiply();
+    void constant();
+    void constantExt();
     void divide();
     void equal();
-    void notEqual();
-    void modulo();
-
-    void less();
-    void lessEqual();
     void greater();
     void greaterEqual();
+    void less();
+    void lessEqual();
+    void modulo();
+    void multiply();
+    void negate();
+    void not();
+    void notEqual();
+    void subtract();
+    void valueTrue();
+    void valueFalse();
+    void valueNull();
 
     const Chunk* chunk;
     const u8* ip;

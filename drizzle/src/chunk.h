@@ -5,6 +5,7 @@
 
 enum class Opcode
 {
+    Return,
     Constant,
     ConstantExt,
     Add,
@@ -22,8 +23,7 @@ enum class Opcode
     GreaterEqual,
     Less,
     LessEqual,
-    Modulo,
-    Return
+    Modulo
 };
 
 class Chunk
