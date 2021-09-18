@@ -22,6 +22,7 @@ enum class Opcode
     GreaterEqual,
     Less,
     LessEqual,
+    Modulo,
     Return
 };
 

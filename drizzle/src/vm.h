@@ -28,6 +28,7 @@ private:
     void divide();
     void equal();
     void notEqual();
+    void modulo();
 
     void less();
     void lessEqual();

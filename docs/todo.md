@@ -9,3 +9,5 @@
 - generate AST and then optimize / compile
 - should `0xDEADyield` result in two valid tokens?
 - `CompilerError`
+- parse min/max signed 64-bit integer
+- int division //

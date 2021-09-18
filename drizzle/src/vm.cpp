@@ -114,6 +114,7 @@ void Vm::run()
         case Opcode::LessEqual: lessEqual(); break;
         case Opcode::Greater: greater(); break;
         case Opcode::GreaterEqual: greaterEqual(); break;
+        case Opcode::Modulo: modulo(); break;
         case Opcode::Return: return;
         }
     }
@@ -152,28 +153,28 @@ void Vm::add()
 {
     auto [lhs, rhs] = binaryOperands();
     requirePrimitive(lhs, rhs, "'+' requires primitive operands");
-    promote(lhs, rhs, [&lhs=lhs](auto a, auto b) { lhs.set(a + b); });
+    promote(lhs, rhs, [&lhs = lhs](auto a, auto b) { lhs.set(a + b); });
 }
 
 void Vm::subtract()
 {
     auto [lhs, rhs] = binaryOperands();
     requirePrimitive(lhs, rhs, "'-' requires primitive operands");
-    promote(lhs, rhs, [&lhs=lhs](auto a, auto b) { lhs.set(a - b); });
+    promote(lhs, rhs, [&lhs = lhs](auto a, auto b) { lhs.set(a - b); });
 }
 
 void Vm::multiply()
 {
     auto [lhs, rhs] = binaryOperands();
     requirePrimitive(lhs, rhs, "'*' requires primitive operands");
-    promote(lhs, rhs, [&lhs=lhs](auto a, auto b) { lhs.set(a * b); });
+    promote(lhs, rhs, [&lhs = lhs](auto a, auto b) { lhs.set(a * b); });
 }
 
 void Vm::divide()
 {
     auto [lhs, rhs] = binaryOperands();
     requirePrimitive(lhs, rhs, "'/' requires primitive operands");
-    promote(lhs, rhs, [&lhs=lhs](auto a, auto b) {
+    promote(lhs, rhs, [&lhs = lhs](auto a, auto b) {
         if (b == decltype(b)(0))
             throw DivisionByZeroError("fak");
         lhs.set(a / b);
@@ -190,6 +191,20 @@ void Vm::notEqual()
 {
     auto [lhs, rhs] = binaryOperands();
     lhs.set(lhs != rhs);
+}
+
+void Vm::modulo()
+{
+    auto [lhs, rhs] = binaryOperands();
+    requirePrimitive(lhs, rhs, "'%' requires primitive operands");
+    promote(lhs, rhs, [&lhs = lhs](auto a, auto b)
+    {
+        using T = decltype(a);
+        if constexpr (std::is_same_v<T, dzint>)
+            lhs.set(a % b);
+        if constexpr (std::is_same_v<T, dzfloat>)
+            lhs.set(std::fmod(a, b));
+    });
 }
 
 void Vm::less()

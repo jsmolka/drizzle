@@ -18,7 +18,7 @@ private:
         kPrecedenceEquality,    // == !=
         kPrecedenceComparison,  // < > <= >=
         kPrecedenceTerm,        // + -
-        kPrecedenceFactor,      // * /
+        kPrecedenceFactor,      // * / %
         kPrecedenceUnary,       // ! -
         kPrecedenceCall,        // . ()
         kPrecedencePrimary
@@ -57,7 +57,6 @@ private:
     void emit(Bytes... bytes);
     void emitReturn();
     void emitConstant(Value value);
-
 
     Chunk& currentChunk();
 

@@ -439,7 +439,6 @@ void Scanner::scanToken()
     case '%': emit(Token::Type::Percent); break;
     case '+': emit(Token::Type::Plus); break;
     case '/': emit(Token::Type::Slash); break;
-    case '*': emit(Token::Type::Star); break;
 
     case '&': emit(next('&') ? Token::Type::AndAnd : Token::Type::And); break;
     case '!': emit(next('=') ? Token::Type::BangEqual : Token::Type::Bang); break;
@@ -447,6 +446,7 @@ void Scanner::scanToken()
     case '>': emit(next('=') ? Token::Type::GreaterEqual : Token::Type::Greater); break;
     case '<': emit(next('=') ? Token::Type::LessEqual : Token::Type::Less); break;
     case '|': emit(next('|') ? Token::Type::PipePipe : Token::Type::Pipe); break;
+    case '*': emit(Token::Type::Star); break;
 
     default:
         throw SyntaxError("unexpected character", cursor - 1);

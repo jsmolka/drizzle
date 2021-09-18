@@ -42,6 +42,7 @@ const Compiler::ParseRule& Compiler::getRule(Token::Type type)
 
         case Token::Type::Slash:
         case Token::Type::Star:
+        case Token::Type::Percent:
             return { nullptr, &Compiler::binary, kPrecedenceFactor };
 
         case Token::Type::True:
@@ -141,6 +142,7 @@ void Compiler::binary()
     case Token::Type::GreaterEqual: emit(Opcode::GreaterEqual); break;
     case Token::Type::Less: emit(Opcode::Less); break;
     case Token::Type::LessEqual: emit(Opcode::LessEqual); break;
+    case Token::Type::Percent: emit(Opcode::Modulo); break;
 
     default:
         SHELL_UNREACHABLE;
