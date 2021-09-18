@@ -88,7 +88,7 @@ int main(int argc, char* argv[])
 
         if (status != Status::Ok)
         {
-            shell::print("Cannot read file \"{}\"\n", file);
+            shell::print("Cannot read file '{}'\n", file);
             return 1;
         }
 

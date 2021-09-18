@@ -58,16 +58,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\drizzle\src\scanner.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\scanner\whitespace.inl">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\drizzle\src\error.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\drizzle\src\value.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

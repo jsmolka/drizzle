@@ -13,12 +13,12 @@ private:
     {
         kPrecedenceNone,
         kPrecedenceAssignment,  // =
-        kPrecedenceOr,          // or
-        kPrecedenceAnd,         // and
+        kPrecedenceOr,          // ||
+        kPrecedenceAnd,         // &&
         kPrecedenceEquality,    // == !=
         kPrecedenceComparison,  // < > <= >=
         kPrecedenceTerm,        // + -
-        kPrecedenceFactor,      // * / %
+        kPrecedenceFactor,      // * / // %
         kPrecedenceUnary,       // ! -
         kPrecedenceCall,        // . ()
         kPrecedencePrimary
@@ -28,7 +28,7 @@ private:
     {
         Token previous;
         Token current;
-    } parser;
+    };
 
     using ParseFunction = void(Compiler::*)(void);
 
@@ -39,28 +39,27 @@ private:
         Precedence precedence;
     };
 
-    static const ParseRule& getRule(Token::Type type);
-
-    void syntaxError(const char* error);
-    void advance();
-    void consume(Token::Type type, const char* error);
-    void expression();
-    void grouping();
-    void constant();
-    void unary();
-    void binary();
-    void literal();
-    void parsePrecedence(Precedence precedence);
-    void endCompiler();
+    static const ParseRule& rule(Token::Type type);
 
     template<typename... Bytes>
     void emit(Bytes... bytes);
-    void emitReturn();
     void emitConstant(Value value);
 
-    Chunk& currentChunk();
+    template<typename Error>
+    void raise(const std::string& message);
 
-    Token* current_token;
-    Tokens tokens;
-    Chunk* compiling_chunk;
+    void advance();
+    void consume(Token::Type type, const char* error);
+    void parsePrecedence(Precedence precedence);
+
+    void binary();
+    void constant();
+    void expression();
+    void grouping();
+    void literal();
+    void unary();
+
+    Parser parser;
+    Tokens::const_iterator token;
+    Chunk* chunk;
 };

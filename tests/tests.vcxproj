@@ -30,9 +30,6 @@
     <None Include="src\scanner\tokens.inl" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\drizzle\src\error.h" />
-    <ClInclude Include="..\drizzle\src\scanner.h" />
-    <ClInclude Include="..\drizzle\src\value.h" />
     <ClInclude Include="src\scanner\whitespace.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
