@@ -13,9 +13,9 @@ private:
     template<typename Integral>
     Integral read();
 
-    template<typename Callback>
-    auto promote(const Value& op1, const Value& op2, Callback callback);
-    std::tuple<Value&, Value> binaryOperands();
+    template<typename Operation>
+    void binary(Value& lhs, const Value& rhs, Operation op);
+    std::tuple<Value&, Value> operands();
     void requirePrimitive(const Value& lhs, const Value& rhs, const char* error);
 
     void run();
@@ -35,9 +35,9 @@ private:
     void not();
     void notEqual();
     void subtract();
-    void valueTrue();
     void valueFalse();
     void valueNull();
+    void valueTrue();
 
     const Chunk* chunk;
     const u8* ip;

@@ -31,37 +31,35 @@ Integral Vm::read()
     return value;
 }
 
-template<typename Callback>
-auto Vm::promote(const Value& op1, const Value& op2, Callback callback)
+template<typename Operation>
+void Vm::binary(Value& lhs, const Value& rhs, Operation op)
 {
-    SHELL_ASSERT(op1.isPrimitive() && op2.isPrimitive());
-
-    auto promote = [callback](auto a, auto b)
+    auto promote = [op](auto a, auto b)
     {
-        using T = decltype(a);
-        using U = decltype(b);
-        using P = promoted_t<T, U>;
+        using A = decltype(a);
+        using B = decltype(b);
+        using P = promoted_t<A, B>;
 
-        return callback(static_cast<P>(a), static_cast<P>(b));
+        return op(static_cast<P>(a), static_cast<P>(b));
     };
 
-    #define HASH(type1, type2) (int(type1) << 16) | int(type2)
+    #define HASH(a, b) ((int(a) << 16) | int(b))
 
-    switch (HASH(op1.type, op2.type))
+    switch (HASH(lhs.type, rhs.type))
     {
-    case HASH(Value::Type::Int,   Value::Type::Int  ): return promote(op1.i, op2.i);
-    case HASH(Value::Type::Int,   Value::Type::Float): return promote(op1.i, op2.f);
-    case HASH(Value::Type::Int,   Value::Type::Bool ): return promote(op1.i, op2.b);
-    case HASH(Value::Type::Float, Value::Type::Int  ): return promote(op1.f, op2.i);
-    case HASH(Value::Type::Float, Value::Type::Float): return promote(op1.f, op2.f);
-    case HASH(Value::Type::Float, Value::Type::Bool ): return promote(op1.f, op2.b);
-    case HASH(Value::Type::Bool,  Value::Type::Int  ): return promote(op1.b, op2.i);
-    case HASH(Value::Type::Bool,  Value::Type::Float): return promote(op1.b, op2.f);
-    case HASH(Value::Type::Bool,  Value::Type::Bool ): return promote(op1.b, op2.b);
+    case HASH(Value::Type::Int,   Value::Type::Int  ): lhs.set(promote(lhs.i, rhs.i)); break;
+    case HASH(Value::Type::Int,   Value::Type::Float): lhs.set(promote(lhs.i, rhs.f)); break;
+    case HASH(Value::Type::Int,   Value::Type::Bool ): lhs.set(promote(lhs.i, rhs.b)); break;
+    case HASH(Value::Type::Float, Value::Type::Int  ): lhs.set(promote(lhs.f, rhs.i)); break;
+    case HASH(Value::Type::Float, Value::Type::Float): lhs.set(promote(lhs.f, rhs.f)); break;
+    case HASH(Value::Type::Float, Value::Type::Bool ): lhs.set(promote(lhs.f, rhs.b)); break;
+    case HASH(Value::Type::Bool,  Value::Type::Int  ): lhs.set(promote(lhs.b, rhs.i)); break;
+    case HASH(Value::Type::Bool,  Value::Type::Float): lhs.set(promote(lhs.b, rhs.f)); break;
+    case HASH(Value::Type::Bool,  Value::Type::Bool ): lhs.set(promote(lhs.b, rhs.b)); break;
 
     default:
         SHELL_UNREACHABLE;
-        return callback(dzint{}, dzint{});
+        break;
     }
 
     #undef HASH
@@ -73,7 +71,7 @@ void Vm::requirePrimitive(const Value& lhs, const Value& rhs, const char* error)
         throw TypeError(error);
 }
 
-std::tuple<Value&, Value> Vm::binaryOperands()
+std::tuple<Value&, Value> Vm::operands()
 {
     auto  rhs = stack.pop();
     auto& lhs = stack[0];
@@ -112,9 +110,9 @@ void Vm::run()
 
 void Vm::add()
 {
-    auto [lhs, rhs] = binaryOperands();
+    auto [lhs, rhs] = operands();
     requirePrimitive(lhs, rhs, "'+' requires primitive operands");
-    promote(lhs, rhs, [&lhs = lhs](auto a, auto b) { lhs.set(a + b); });
+    binary(lhs, rhs, [](auto a, auto b) { return a + b; });
 }
 
 void Vm::constant()
@@ -129,72 +127,72 @@ void Vm::constantExt()
 
 void Vm::divide()
 {
-    auto [lhs, rhs] = binaryOperands();
+    auto [lhs, rhs] = operands();
     requirePrimitive(lhs, rhs, "'/' requires primitive operands");
-    promote(lhs, rhs, [&lhs = lhs](auto a, auto b)
+    binary(lhs, rhs, [](auto a, auto b)
     {
         using T = decltype(b);
         if (b == static_cast<T>(0))
             throw ZeroDivsionError("Todo");
-        lhs.set(a / b);
+        return a / b;
     });
 }
 
 void Vm::equal()
 {
-    auto [lhs, rhs] = binaryOperands();
+    auto [lhs, rhs] = operands();
     lhs.set(lhs == rhs);
 }
 
 void Vm::greater()
 {
-    auto [lhs, rhs] = binaryOperands();
+    auto [lhs, rhs] = operands();
     requirePrimitive(lhs, rhs, "'>' requires primitive operands");
-    lhs.set(promote(lhs, rhs, [](auto a, auto b) { return a > b; }));
+    binary(lhs, rhs, [](auto a, auto b) { return a > b; });
 }
 
 void Vm::greaterEqual()
 {
-    auto [lhs, rhs] = binaryOperands();
+    auto [lhs, rhs] = operands();
     requirePrimitive(lhs, rhs, "'>=' requires primitive operands");
-    lhs.set(promote(lhs, rhs, [](auto a, auto b) { return a >= b; }));
+    binary(lhs, rhs, [](auto a, auto b) { return a >= b; });
 }
 
 void Vm::less()
 {
-    auto [lhs, rhs] = binaryOperands();
+    auto [lhs, rhs] = operands();
     requirePrimitive(lhs, rhs, "'<' requires primitive operands");
-    lhs.set(promote(lhs, rhs, [](auto a, auto b) { return a < b; }));
+    binary(lhs, rhs, [](auto a, auto b) { return a < b; });
 }
 
 void Vm::lessEqual()
 {
-    auto [lhs, rhs] = binaryOperands();
+    auto [lhs, rhs] = operands();
     requirePrimitive(lhs, rhs, "'<=' requires primitive operands");
-    lhs.set(promote(lhs, rhs, [](auto a, auto b) { return a <= b; }));
+    binary(lhs, rhs, [](auto a, auto b) { return a <= b; });
 }
 
 void Vm::modulo()
 {
-    auto [lhs, rhs] = binaryOperands();
+    auto [lhs, rhs] = operands();
     requirePrimitive(lhs, rhs, "'%' requires primitive operands");
-    promote(lhs, rhs, [&lhs = lhs](auto a, auto b)
+    binary(lhs, rhs, [](auto a, auto b)
     {
         using T = decltype(b);
         if (b == static_cast<T>(0))
             throw ZeroDivsionError("Todo");
         if constexpr (std::is_same_v<T, dzint>)
-            lhs.set(a % b);
+            return a % b;
         if constexpr (std::is_same_v<T, dzfloat>)
-            lhs.set(std::fmod(a, b));
+            return std::fmod(a, b);
     });
 }
 
 void Vm::multiply()
 {
-    auto [lhs, rhs] = binaryOperands();
+    auto [lhs, rhs] = operands();
     requirePrimitive(lhs, rhs, "'*' requires primitive operands");
-    promote(lhs, rhs, [&lhs = lhs](auto a, auto b) { lhs.set(a * b); });
+    binary(lhs, rhs, [](auto a, auto b) { return a * b; });
 }
 
 void Vm::negate()
@@ -219,20 +217,15 @@ void Vm::not()
 
 void Vm::notEqual()
 {
-    auto [lhs, rhs] = binaryOperands();
+    auto [lhs, rhs] = operands();
     lhs.set(lhs != rhs);
 }
 
 void Vm::subtract()
 {
-    auto [lhs, rhs] = binaryOperands();
+    auto [lhs, rhs] = operands();
     requirePrimitive(lhs, rhs, "'-' requires primitive operands");
-    promote(lhs, rhs, [&lhs = lhs](auto a, auto b) { lhs.set(a - b); });
-}
-
-void Vm::valueTrue()
-{
-    stack.push(true);
+    binary(lhs, rhs, [](auto a, auto b) { return a - b; });
 }
 
 void Vm::valueFalse()
@@ -243,4 +236,9 @@ void Vm::valueFalse()
 void Vm::valueNull()
 {
     stack.push({});
+}
+
+void Vm::valueTrue()
+{
+    stack.push(true);
 }
