@@ -39,6 +39,7 @@ const Compiler::ParseRule& Compiler::getRule(Token::Type type)
         case Token::Type::Bang: return { &Compiler::unary, nullptr, kPrecedenceTerm };
 
         case Token::Type::Slash:
+        case Token::Type::SlashSlash:
         case Token::Type::Star:
         case Token::Type::Percent:
             return { nullptr, &Compiler::binary, kPrecedenceFactor };
@@ -134,6 +135,7 @@ void Compiler::binary()
     case Token::Type::Minus: emit(Opcode::Subtract); break;
     case Token::Type::Star: emit(Opcode::Multiply); break;
     case Token::Type::Slash: emit(Opcode::Divide); break;
+    case Token::Type::SlashSlash: emit(Opcode::DivideInt); break;
     case Token::Type::BangEqual: emit(Opcode::NotEqual); break;
     case Token::Type::EqualEqual: emit(Opcode::Equal); break;
     case Token::Type::Greater: emit(Opcode::Greater); break;

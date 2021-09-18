@@ -13,11 +13,12 @@ struct Token
         // Single
         BraceLeft, BraceRight, BracketLeft, BracketRight, Caret,
         Colon, Comma, Dot, Minus, ParenLeft, ParenRight, Percent,
-        Plus, Slash, Star,
+        Plus, Star,
 
         // Single or double
         And, AndAnd, Bang, BangEqual, Equal, EqualEqual, Greater,
-        GreaterEqual, Less, LessEqual, Pipe, PipePipe,
+        GreaterEqual, Less, LessEqual, Pipe, PipePipe, Slash,
+        SlashSlash,
 
         // Literals
         Float, Identifier, Integer, String,

@@ -25,6 +25,7 @@ private:
     void constant();
     void constantExt();
     void divide();
+    void divideInt();
     void equal();
     void greater();
     void greaterEqual();

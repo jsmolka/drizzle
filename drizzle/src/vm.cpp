@@ -20,6 +20,7 @@ void Vm::interpret(const Tokens& tokens)
         case Opcode::Constant: constant(); break;
         case Opcode::ConstantExt: constantExt(); break;
         case Opcode::Divide: divide(); break;
+        case Opcode::DivideInt: divideInt(); break;
         case Opcode::Equal: equal(); break;
         case Opcode::False: valueFalse(); break;
         case Opcode::Greater: greater(); break;
@@ -140,6 +141,21 @@ void Vm::divide()
         if (b == static_cast<T>(0))
             raise<ZeroDivsionError>("division by zero");
         return a / b;
+    });
+}
+
+void Vm::divideInt()
+{
+    auto [lhs, rhs] = primitiveOperands("//");
+    primitiveBinary(lhs, rhs, [this](auto a, auto b)
+    {
+        using T = decltype(b);
+        if (b == static_cast<T>(0))
+            raise<ZeroDivsionError>("integer division by zero");
+        if constexpr (std::is_same_v<T, dzint>)
+            return a / b;
+        if constexpr (std::is_same_v<T, dzfloat>)
+            return std::floor(a / b);
     });
 }
 

@@ -9,6 +9,7 @@ enum class Opcode
     Constant,
     ConstantExt,
     Divide,
+    DivideInt,
     Equal,
     False,
     Greater,
