@@ -1,7 +1,7 @@
 #pragma once
 
 #include "chunk.h"
-#include "scanner.h"
+#include "token.h"
 
 class Compiler
 {
@@ -26,8 +26,8 @@ private:
 
     struct Parser
     {
-        Token previous;
         Token current;
+        Token previous;
     };
 
     using ParseFunction = void(Compiler::*)(void);
