@@ -27,6 +27,7 @@ enum class Opcode
     Not,
     NotEqual,
     Null,
+    Power,
     Subtract,
     True,
 };

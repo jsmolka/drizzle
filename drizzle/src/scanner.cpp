@@ -442,7 +442,6 @@ void Scanner::scanToken()
     case ')': emit(Token::Type::ParenRight); break;
     case '%': emit(Token::Type::Percent); break;
     case '+': emit(Token::Type::Plus); break;
-    case '*': emit(Token::Type::Star); break;
     case '~': emit(Token::Type::Tilde); break;
 
     case '&': emit(next('&') ? Token::Type::And2 : Token::Type::And); break;
@@ -450,6 +449,7 @@ void Scanner::scanToken()
     case '=': emit(next('=') ? Token::Type::Equal2 : Token::Type::Equal); break;
     case '|': emit(next('|') ? Token::Type::Pipe2 : Token::Type::Pipe); break;
     case '/': emit(next('/') ? Token::Type::Slash2 : Token::Type::Slash); break;
+    case '*': emit(next('*') ? Token::Type::Star2 : Token::Type::Star); break;
 
     case '>':
         if (next('>'))

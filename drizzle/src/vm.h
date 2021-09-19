@@ -46,6 +46,7 @@ private:
     void negate();
     void not();
     void notEqual();
+    void power();
     void subtract();
     void valueFalse();
     void valueNull();

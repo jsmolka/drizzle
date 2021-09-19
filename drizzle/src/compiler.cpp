@@ -53,6 +53,7 @@ const Compiler::ParseRule& Compiler::rule(Token::Type type)
         case Token::Type::Slash:        return { nullptr,             &Compiler::binary, kPrecedenceFactor   };
         case Token::Type::Slash2:       return { nullptr,             &Compiler::binary, kPrecedenceFactor   };
         case Token::Type::Star:         return { nullptr,             &Compiler::binary, kPrecedenceFactor   };
+        case Token::Type::Star2:        return { nullptr,             &Compiler::binary, kPrecedenceFactor   };
         case Token::Type::Tilde:        return { &Compiler::unary,    nullptr,           kPrecedenceUnary    };
         case Token::Type::True:         return { &Compiler::literal,  nullptr,           kPrecedenceNone     };
         }
@@ -147,6 +148,7 @@ void Compiler::binary()
     case Token::Type::Slash:        emit(Opcode::Divide); break;
     case Token::Type::Slash2:       emit(Opcode::DivideInt); break;
     case Token::Type::Star:         emit(Opcode::Multiply); break;
+    case Token::Type::Star2:        emit(Opcode::Power); break;
 
     default:
         SHELL_UNREACHABLE;

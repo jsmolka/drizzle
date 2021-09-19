@@ -63,6 +63,7 @@ struct Token
         Slash,
         Slash2,
         Star,
+        Star2,
         String,
         Super,
         This,

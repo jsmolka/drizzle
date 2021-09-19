@@ -1,6 +1,6 @@
 TEST_CASE("scanner_tokens_1")
 {
-    constexpr auto kSource = "& && ! != { } [ ] ^ : , . = == > >> >>> >= < << <= - ( ) % | || + / // * ~\n";
+    constexpr auto kSource = "& && ! != { } [ ] ^ : , . = == > >> >>> >= < << <= - ( ) % | || + / // * ** ~\n";
 
     scan(kSource, { 
         Token::Type::And,
@@ -34,6 +34,7 @@ TEST_CASE("scanner_tokens_1")
         Token::Type::Slash,
         Token::Type::Slash2,
         Token::Type::Star,
+        Token::Type::Star2,
         Token::Type::Tilde,
         Token::Type::NewLine,
         Token::Type::Eof

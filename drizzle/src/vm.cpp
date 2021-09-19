@@ -41,6 +41,7 @@ void Vm::interpret(const Tokens& tokens)
         case Opcode::Not: not(); break;
         case Opcode::NotEqual: notEqual(); break;
         case Opcode::Null: valueNull(); break;
+        case Opcode::Power: power(); break;
         case Opcode::Subtract: subtract(); break;
         case Opcode::True: valueTrue(); break;
 
@@ -347,6 +348,12 @@ void Vm::notEqual()
         primitiveBinary(lhs, rhs, [](auto a, auto b) { return a != b; });
     else
         lhs.set(lhs != rhs);
+}
+
+void Vm::power()
+{
+    auto [lhs, rhs] = primitiveOperands("**");
+    primitiveBinary(lhs, rhs, [](auto a, auto b) { return std::pow(a, b); });
 }
 
 void Vm::subtract()
