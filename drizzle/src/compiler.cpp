@@ -54,6 +54,14 @@ const Compiler::ParseRule& Compiler::rule(Token::Type type)
     return kRules[static_cast<std::size_t>(type)];
 }
 
+template<typename Error, typename ...Args>
+void Compiler::raise(std::string_view message, Args&& ...args)
+{
+    static_assert(std::is_base_of_v<LocationError, Error>);
+
+    throw SyntaxError(parser.previous.lexeme.data(), message, std::forward<Args>(args)...);
+}
+
 template<typename... Bytes>
 void Compiler::emit(Bytes... bytes)
 {
@@ -73,21 +81,13 @@ void Compiler::emitConstant(Value value)
     chunk->constants.push_back(value);
 }
 
-template<typename Error>
-void Compiler::raise(const std::string& message)
-{
-    static_assert(std::is_base_of_v<LocationError, Error>);
-
-    throw Error(message, parser.previous.lexeme.data());
-}
-
 void Compiler::advance()
 {
     parser.previous = parser.current;
     parser.current  = *token++;
 }
 
-void Compiler::consume(Token::Type type, const char* error)
+void Compiler::consume(Token::Type type, std::string_view error)
 {
     if (parser.current.type != type)
         raise<SyntaxError>(error);

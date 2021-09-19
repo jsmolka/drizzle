@@ -14,7 +14,7 @@ private:
     Integral read();
 
     template<typename Error, typename... Args>
-    void raise(const std::string& message, Args&&... args);
+    void raise(std::string_view message, Args&&... args);
 
     template<typename Operation>
     void primitiveBinary(Value& lhs, const Value& rhs, Operation op);

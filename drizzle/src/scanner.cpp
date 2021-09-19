@@ -134,7 +134,7 @@ void Scanner::scanIndentation()
                 break;
 
             case '\t':
-                throw SyntaxError("tab indent", begin);
+                throw SyntaxError(begin, "tabs used for indent");
 
             default:
                 return spaces;
@@ -144,13 +144,13 @@ void Scanner::scanIndentation()
 
     int spaces = count_spaces();
     if (spaces % kSpacesPerIndentation)
-        throw SyntaxError("uneven indent", begin);
+        throw SyntaxError(begin, "indent spaces must be a multiple of {}", kSpacesPerIndentation);
 
     int indent = spaces / kSpacesPerIndentation;
     if (indent > indentation)
     {
         if ((indent - indentation) > 1)
-            throw SyntaxError("unexpected indent", begin);
+            throw SyntaxError(begin, "too many indents at once");
 
         emit(Token::Type::Indent);
         indentation++;
@@ -269,7 +269,7 @@ void Scanner::scanString()
             switch (*cursor)
             {
             case '\n':
-                throw SyntaxError("unexpected line break", cursor);
+                throw SyntaxError(cursor, "unexpected line break");
 
             case '\\':
                 next();
@@ -288,7 +288,7 @@ void Scanner::scanString()
                     break;
 
                 default:
-                    throw SyntaxError("unknown escape sequence", cursor);
+                    throw SyntaxError(cursor, "unknown escape sequence");
                 }
                 break;
 
@@ -300,7 +300,7 @@ void Scanner::scanString()
     }
 
     if (begin)
-        throw SyntaxError("unterminated string", begin);
+        throw SyntaxError(begin, "unterminated string");
 
     emit(Token::Type::String);
 }
@@ -314,7 +314,7 @@ void Scanner::scanNumber()
     if (next("0b"))
     {
         if (!is_bin(*cursor))
-            throw SyntaxError("expected bin digit", cursor);
+            throw SyntaxError(cursor, "expected bin digit");
 
         while (is_bin(*cursor))
             next();
@@ -327,7 +327,7 @@ void Scanner::scanNumber()
     if (next("0x"))
     {
         if (!is_hex(*cursor))
-            throw SyntaxError("expected hex digit", cursor);
+            throw SyntaxError(cursor, "expected hex digit");
 
         while (is_hex(*cursor))
             next();
@@ -338,7 +338,7 @@ void Scanner::scanNumber()
     }
 
     if (*cursor == '0' && is_dec(peek()))
-        throw SyntaxError("unexpected zero", cursor);
+        throw SyntaxError(cursor, "unexpected zero");
 
     while (is_dec(*cursor))
         next();
@@ -346,7 +346,7 @@ void Scanner::scanNumber()
     if (next('.'))
     {
         if (!is_dec(*cursor))
-            throw SyntaxError("expected digit", cursor);
+            throw SyntaxError(cursor, "expected digit");
 
         while (is_dec(*cursor))
             next();
@@ -453,7 +453,7 @@ void Scanner::scanToken()
     case '/': emit(next('/') ? Token::Type::SlashSlash : Token::Type::Slash); break;
 
     default:
-        throw SyntaxError("unexpected character", cursor - 1);
+        throw SyntaxError(cursor - 1, "unexpected character");
     }
 }
 
@@ -470,7 +470,7 @@ void Scanner::parseInt(int base)
     if (errno == ERANGE)
     {
         errno = 0;
-        throw SyntaxError("cannot parse int", token.lexeme.data());
+        throw SyntaxError(token.lexeme.data(), "cannot parse int");
     }
     token.value.set(value);
 }
@@ -483,7 +483,7 @@ void Scanner::parseFloat()
     if (errno == ERANGE)
     {
         errno = 0;
-        throw SyntaxError("cannot parse float", token.lexeme.data());
+        throw SyntaxError(token.lexeme.data(), "cannot parse float");
     }
     token.value.set(value);
 }

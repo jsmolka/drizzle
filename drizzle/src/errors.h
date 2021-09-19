@@ -2,29 +2,23 @@
 
 #include <stdexcept>
 #include <string>
+#include <string_view>
+#include <shell/errors.h>
 
-class Error : public std::exception
+class Error : public shell::Error
 {
 public:
-    Error(const std::string& message)
-        : message(message) {}
+    using shell::Error::Error;
 
-    const char* what() const noexcept final
-    {
-        return message.c_str();
-    }
-
-    virtual const char* name() const noexcept = 0;
-
-private:
-    const std::string message;
+    virtual std::string_view name() const noexcept = 0;
 };
 
 class LocationError : public Error
 {
 public:
-    LocationError(const std::string& message, const char* location)
-        : Error(message), location(location) {}
+    template<typename... Args>
+    LocationError(const char* location, std::string_view message, Args&&... args)
+        : Error(message, std::forward<Args>(args)...), location(location) {}
 
     const char* const location;
 };
@@ -32,8 +26,9 @@ public:
 class LineError : public Error
 {
 public:
-    LineError(const std::string& message, std::size_t line)
-        : Error(message), line(line) {}
+    template<typename... Args>
+    LineError(std::size_t line, std::string_view message, Args&&... args)
+        : Error(message, std::forward<Args>(args)...), line(line) {}
 
     const std::size_t line;
 };
@@ -43,7 +38,7 @@ class CompilerError : public Error
 public:
     using Error::Error;
 
-    virtual const char* name() const noexcept final
+    virtual std::string_view name() const noexcept final
     {
         return "CompilerError";
     }
@@ -52,10 +47,9 @@ public:
 class SyntaxError : public LocationError
 {
 public:
-    SyntaxError(const std::string& message, const char* location)
-        : LocationError(message, location) {}
+    using LocationError::LocationError;
 
-    virtual const char* name() const noexcept final
+    virtual std::string_view name() const noexcept final
     {
         return "SyntaxError";
     }
@@ -72,7 +66,7 @@ class TypeError : public RuntimeError
 public:
     using RuntimeError::RuntimeError;
 
-    virtual const char* name() const noexcept final
+    virtual std::string_view name() const noexcept final
     {
         return "TypeError";
     }
@@ -83,7 +77,7 @@ class ZeroDivsionError : public RuntimeError
 public:
     using RuntimeError::RuntimeError;
 
-    virtual const char* name() const noexcept final
+    virtual std::string_view name() const noexcept final
     {
         return "ZeroDivisionError";
     }

@@ -41,15 +41,15 @@ private:
 
     static const ParseRule& rule(Token::Type type);
 
+    template<typename Error, typename... Args>
+    void raise(std::string_view message, Args&&... args);
+
     template<typename... Bytes>
     void emit(Bytes... bytes);
     void emitConstant(Value value);
 
-    template<typename Error>
-    void raise(const std::string& message);
-
     void advance();
-    void consume(Token::Type type, const char* error);
+    void consume(Token::Type type, std::string_view error);
     void parsePrecedence(Precedence precedence);
 
     void binary();

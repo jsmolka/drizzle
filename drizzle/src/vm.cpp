@@ -54,14 +54,14 @@ Integral Vm::read()
 }
 
 template<typename Error, typename ...Args>
-void Vm::raise(const std::string& message, Args&& ...args)
+void Vm::raise(std::string_view message, Args&& ...args)
 {
     static_assert(std::is_base_of_v<RuntimeError, Error>);
 
     std::size_t index = ip - chunk.code.data();
     std::size_t line = chunk.line(index);
 
-    throw Error(shell::format(message, std::forward<Args>(args)...), line);
+    throw Error(line, message, std::forward<Args>(args)...);
 }
 
 template<typename Operation>
