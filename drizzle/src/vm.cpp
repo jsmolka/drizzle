@@ -22,7 +22,7 @@ void Vm::interpret(const Tokens& tokens)
         case Opcode::Divide: divide(); break;
         case Opcode::DivideInt: divideInt(); break;
         case Opcode::Equal: equal(); break;
-        case Opcode::Exit: goto end;
+        case Opcode::Exit: goto exit;
         case Opcode::False: valueFalse(); break;
         case Opcode::Greater: greater(); break;
         case Opcode::GreaterEqual: greaterEqual(); break;
@@ -39,7 +39,7 @@ void Vm::interpret(const Tokens& tokens)
         }
     }
 
-end:
+exit:
     shell::print(stack[0]);
 }
 
@@ -48,7 +48,7 @@ Integral Vm::read()
 {
     static_assert(std::is_integral_v<Integral>);
 
-    auto value = shell::read<Integral>(ip, 0);
+    const auto value = shell::read<Integral>(ip, 0);
     ip += sizeof(Integral);
     return value;
 }
@@ -65,18 +65,18 @@ void Vm::raise(std::string_view message, Args&& ...args)
 }
 
 template<typename Operation>
-void Vm::primitiveBinary(Value& lhs, const Value& rhs, Operation op)
+void Vm::primitiveBinary(Value& lhs, const Value& rhs, Operation operation)
 {
-    auto promote = [op](auto a, auto b)
+    auto promote = [operation](auto a, auto b)
     {
         using A = decltype(a);
         using B = decltype(b);
         using P = promoted_t<A, B>;
 
-        return op(static_cast<P>(a), static_cast<P>(b));
+        return operation(static_cast<P>(a), static_cast<P>(b));
     };
 
-    #define HASH(a, b) ((int(a) << 16) | int(b))
+    #define HASH(a, b) ((int(a) << 2) | int(b))
 
     switch (HASH(lhs.type, rhs.type))
     {
@@ -220,7 +220,7 @@ void Vm::negate()
     case Value::Type::Bool:  value.set(-static_cast<dzint>(value.b)); break;
 
     default:
-        raise<TypeError>("unsupported operand type for '-': {}", value.typeName());
+        raise<TypeError>("unsupported operand type for '-': '{}'", value.typeName());
         break;
     }
 }

@@ -17,7 +17,7 @@ private:
     void raise(std::string_view message, Args&&... args);
 
     template<typename Operation>
-    void primitiveBinary(Value& lhs, const Value& rhs, Operation op);
+    void primitiveBinary(Value& lhs, const Value& rhs, Operation operation);
     std::tuple<Value&, Value> operands();
     std::tuple<Value&, Value> primitiveOperands(std::string_view operation);
 
