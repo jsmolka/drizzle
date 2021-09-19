@@ -3,8 +3,8 @@
 #include <string>
 #include <string_view>
 
-#include "value.h"
 #include "token.h"
+#include "value.h"
 
 class Scanner
 {

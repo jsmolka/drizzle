@@ -2,7 +2,7 @@
 
 #include "chunk.h"
 #include "stack.h"
-#include "scanner.h"
+#include "token.h"
 
 class Vm
 {
@@ -19,7 +19,7 @@ private:
     template<typename Operation>
     void primitiveBinary(Value& lhs, const Value& rhs, Operation op);
     std::tuple<Value&, Value> operands();
-    std::tuple<Value&, Value> primitiveOperands(const char* operation);
+    std::tuple<Value&, Value> primitiveOperands(std::string_view operation);
 
     void add();
     void constant();

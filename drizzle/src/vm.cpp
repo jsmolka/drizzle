@@ -22,6 +22,7 @@ void Vm::interpret(const Tokens& tokens)
         case Opcode::Divide: divide(); break;
         case Opcode::DivideInt: divideInt(); break;
         case Opcode::Equal: equal(); break;
+        case Opcode::Exit: goto end;
         case Opcode::False: valueFalse(); break;
         case Opcode::Greater: greater(); break;
         case Opcode::GreaterEqual: greaterEqual(); break;
@@ -33,7 +34,6 @@ void Vm::interpret(const Tokens& tokens)
         case Opcode::Not: not(); break;
         case Opcode::NotEqual: notEqual(); break;
         case Opcode::Null: valueNull(); break;
-        case Opcode::Return: goto end;
         case Opcode::Subtract: subtract(); break;
         case Opcode::True: valueTrue(); break;
         }
@@ -106,7 +106,7 @@ std::tuple<Value&, Value> Vm::operands()
     return std::forward_as_tuple(lhs, rhs);
 }
 
-std::tuple<Value&, Value> Vm::primitiveOperands(const char* operation)
+std::tuple<Value&, Value> Vm::primitiveOperands(std::string_view operation)
 {
     auto [lhs, rhs] = operands();
     

@@ -11,7 +11,7 @@ bool Value::isPrimitive() const
     return static_cast<int>(type) < static_cast<int>(Type::Null);
 }
 
-const char* Value::typeName() const
+std::string_view Value::typeName() const
 {
     switch (type)
     {

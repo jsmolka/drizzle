@@ -8,6 +8,7 @@ enum class Opcode
     Divide,
     DivideInt,
     Equal,
+    Exit,
     False,
     Greater,
     GreaterEqual,
@@ -19,7 +20,6 @@ enum class Opcode
     Not,
     NotEqual,
     Null,
-    Return,
     Subtract,
     True,
 };

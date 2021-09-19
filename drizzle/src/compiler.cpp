@@ -19,7 +19,7 @@ void Compiler::compile(const Tokens& tokens, Chunk& chunk)
         advance();
 
     consume(Token::Type::Eof, "expected file end");
-    emit(Opcode::Return);
+    emit(Opcode::Exit);
 }
 
 const Compiler::ParseRule& Compiler::rule(Token::Type type)

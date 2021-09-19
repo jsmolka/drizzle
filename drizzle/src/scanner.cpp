@@ -30,17 +30,15 @@ Tokens Scanner::scan(const std::string& source)
 template<char Base>
 bool Scanner::isDigit(char c)
 {
+    static_assert(Base <= 36);
+
     if constexpr (Base <= 10)
-    {
         return (c >= '0') && (c < ('0' + Base));
-    }
+
     if constexpr (Base <= 36)
-    {
         return (c >= '0' && c <= '9')
             || (c >= 'a' && c < ('a' + Base - 10))
             || (c >= 'A' && c < ('A' + Base - 10));
-    }
-    return false;
 }
 
 bool Scanner::isAlpha(char c)
@@ -397,11 +395,11 @@ void Scanner::scanIdentifier()
 
     std::string_view identifier(lexeme, cursor - lexeme);
 
-    for (const auto& [keyword, type] : kKeywords)
+    for (const auto& [keyword, token] : kKeywords)
     {
         if (identifier == keyword)
         {
-            emit(type);
+            emit(token);
             return;
         }
     }
