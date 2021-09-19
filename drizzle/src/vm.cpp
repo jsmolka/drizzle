@@ -162,7 +162,10 @@ void Vm::divideInt()
 void Vm::equal()
 {
     auto [lhs, rhs] = operands();
-    lhs.set(lhs == rhs);
+    if (lhs.isPrimitive() && rhs.isPrimitive())
+        primitiveBinary(lhs, rhs, [](auto a, auto b) { return a == b; });
+    else
+        lhs.set(lhs == rhs);
 }
 
 void Vm::greater()
@@ -234,7 +237,10 @@ void Vm::not()
 void Vm::notEqual()
 {
     auto [lhs, rhs] = operands();
-    lhs.set(lhs != rhs);
+    if (lhs.isPrimitive() && rhs.isPrimitive())
+        primitiveBinary(lhs, rhs, [](auto a, auto b) { return a != b; });
+    else
+        lhs.set(lhs != rhs);
 }
 
 void Vm::subtract()
