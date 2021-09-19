@@ -445,22 +445,22 @@ void Scanner::scanToken()
     case '*': emit(Token::Type::Star); break;
     case '~': emit(Token::Type::Tilde); break;
 
-    case '&': emit(next('&') ? Token::Type::AndAnd : Token::Type::And); break;
+    case '&': emit(next('&') ? Token::Type::And2 : Token::Type::And); break;
     case '!': emit(next('=') ? Token::Type::BangEqual : Token::Type::Bang); break;
-    case '=': emit(next('=') ? Token::Type::EqualEqual : Token::Type::Equal); break;
-    case '|': emit(next('|') ? Token::Type::PipePipe : Token::Type::Pipe); break;
-    case '/': emit(next('/') ? Token::Type::SlashSlash : Token::Type::Slash); break;
+    case '=': emit(next('=') ? Token::Type::Equal2 : Token::Type::Equal); break;
+    case '|': emit(next('|') ? Token::Type::Pipe2 : Token::Type::Pipe); break;
+    case '/': emit(next('/') ? Token::Type::Slash2 : Token::Type::Slash); break;
 
     case '>':
         if (next('>'))
-            emit(next('>') ? Token::Type::GreaterGreaterGreater : Token::Type::GreaterGreater);
+            emit(next('>') ? Token::Type::Greater3 : Token::Type::Greater2);
         else
             emit(next('=') ? Token::Type::GreaterEqual : Token::Type::Greater);
         break;
 
     case '<': 
         if (next('<'))
-            emit(Token::Type::LessLess);
+            emit(Token::Type::Less2);
         else if (next('='))
             emit(Token::Type::LessEqual);
         else
