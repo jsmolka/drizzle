@@ -17,6 +17,13 @@ void Vm::interpret(const Tokens& tokens)
         switch (static_cast<Opcode>(read<u8>()))
         {
         case Opcode::Add: add(); break;
+        case Opcode::BitAnd: bitAnd(); break;
+        case Opcode::BitAsr: bitAsr(); break;
+        case Opcode::BitComplement: bitComplement(); break;
+        case Opcode::BitLsr: bitLsr(); break;
+        case Opcode::BitLsl: bitLsl(); break;
+        case Opcode::BitOr: bitOr(); break;
+        case Opcode::BitXor: bitXor(); break;
         case Opcode::Constant: constant(); break;
         case Opcode::ConstantExt: constantExt(); break;
         case Opcode::Divide: divide(); break;
@@ -36,6 +43,10 @@ void Vm::interpret(const Tokens& tokens)
         case Opcode::Null: valueNull(); break;
         case Opcode::Subtract: subtract(); break;
         case Opcode::True: valueTrue(); break;
+
+        default:
+            SHELL_UNREACHABLE;
+            break;
         }
     }
 
@@ -62,6 +73,35 @@ void Vm::raise(std::string_view message, Args&& ...args)
     std::size_t line = chunk.line(index);
 
     throw Error(line, message, std::forward<Args>(args)...);
+}
+
+template<typename Operation>
+void Vm::bitwiseBinary(Value& lhs, const Value& rhs, Operation operation)
+{
+    auto promote = [operation](auto a, auto b)
+    {
+        using A = decltype(a);
+        using B = decltype(b);
+        using P = promoted_t<A, B>;
+
+        return operation(static_cast<P>(a), static_cast<P>(b));
+    };
+
+    #define HASH(a, b) ((int(a) << 1) | int(b))
+
+    switch (HASH(lhs.type, rhs.type))
+    {
+    case HASH(Value::Type::Int,   Value::Type::Int ): lhs.set(promote(lhs.i, rhs.i)); break;
+    case HASH(Value::Type::Int,   Value::Type::Bool): lhs.set(promote(lhs.i, rhs.b)); break;
+    case HASH(Value::Type::Bool,  Value::Type::Int ): lhs.set(promote(lhs.b, rhs.i)); break;
+    case HASH(Value::Type::Bool,  Value::Type::Bool): lhs.set(promote(lhs.b, rhs.b)); break;
+
+    default:
+        SHELL_UNREACHABLE;
+        break;
+    }
+
+    #undef HASH
 }
 
 template<typename Operation>
@@ -106,12 +146,22 @@ std::tuple<Value&, Value> Vm::operands()
     return std::forward_as_tuple(lhs, rhs);
 }
 
+std::tuple<Value&, Value> Vm::bitwiseOperands(std::string_view operation)
+{
+    auto [lhs, rhs] = operands();
+
+    if (!(lhs.isBitwise() && rhs.isBitwise()))
+        raise<TypeError>("bad operand types for '{}': '{}' and '{}'", operation, lhs.typeName(), rhs.typeName());
+
+    return std::forward_as_tuple(lhs, rhs);
+}
+
 std::tuple<Value&, Value> Vm::primitiveOperands(std::string_view operation)
 {
     auto [lhs, rhs] = operands();
     
     if (!(lhs.isPrimitive() && rhs.isPrimitive()))
-        raise<TypeError>("unsupported operand types for '{}': '{}' and '{}'", operation, lhs.typeName(), rhs.typeName());
+        raise<TypeError>("bad operand types for '{}': '{}' and '{}'", operation, lhs.typeName(), rhs.typeName());
 
     return std::forward_as_tuple(lhs, rhs);
 }
@@ -120,6 +170,62 @@ void Vm::add()
 {
     auto [lhs, rhs] = primitiveOperands("+");
     primitiveBinary(lhs, rhs, [](auto a, auto b) { return a + b; });
+}
+
+void Vm::bitAnd()
+{
+    auto [lhs, rhs] = bitwiseOperands("&");
+    bitwiseBinary(lhs, rhs, [](auto a, auto b) { return a & b; });
+}
+
+void Vm::bitAsr()
+{
+    auto [lhs, rhs] = bitwiseOperands(">>");
+    bitwiseBinary(lhs, rhs, [](auto a, auto b) { return a >> b; });
+}
+
+void Vm::bitComplement()
+{
+    auto& value = stack[0];
+    switch (value.type)
+    {
+    case Value::Type::Int:  value.set(~value.i); break;
+    case Value::Type::Bool: value.set(~static_cast<dzint>(value.b)); break;
+
+    default:
+        raise<TypeError>("bad operand type for '~': '{}'", value.typeName());
+        break;
+    }
+}
+
+void Vm::bitLsl()
+{
+    auto [lhs, rhs] = bitwiseOperands("<<");
+    bitwiseBinary(lhs, rhs, [](auto a, auto b) { return a << b; });
+}
+
+void Vm::bitLsr()
+{
+    auto [lhs, rhs] = bitwiseOperands(">>>");
+    bitwiseBinary(lhs, rhs, [](auto a, auto b)
+    { 
+        using T = decltype(a);
+        using U = std::make_unsigned_t<T>;
+
+        return static_cast<T>(static_cast<U>(a) >> b);
+    });
+}
+
+void Vm::bitOr()
+{
+    auto [lhs, rhs] = bitwiseOperands("|");
+    bitwiseBinary(lhs, rhs, [](auto a, auto b) { return a | b; });
+}
+
+void Vm::bitXor()
+{
+    auto [lhs, rhs] = bitwiseOperands("^");
+    bitwiseBinary(lhs, rhs, [](auto a, auto b) { return a ^ b; });
 }
 
 void Vm::constant()
@@ -223,7 +329,7 @@ void Vm::negate()
     case Value::Type::Bool:  value.set(-static_cast<dzint>(value.b)); break;
 
     default:
-        raise<TypeError>("unsupported operand type for '-': '{}'", value.typeName());
+        raise<TypeError>("bad operand type for '-': '{}'", value.typeName());
         break;
     }
 }

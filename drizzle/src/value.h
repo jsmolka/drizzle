@@ -8,7 +8,7 @@
 
 struct Value
 {
-    enum class Type { Int, Float, Bool, Null };
+    enum class Type { Int, Bool, Float, Null };
 
     Value();
     template<typename T>
@@ -17,6 +17,7 @@ struct Value
     template<typename T>
     void set(const T& value);
 
+    bool isBitwise() const;
     bool isPrimitive() const;
     std::string_view typeName() const;
 

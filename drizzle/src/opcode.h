@@ -3,6 +3,13 @@
 enum class Opcode
 {
     Add,
+    BitAnd,
+    BitAsr,
+    BitComplement,
+    BitLsl,
+    BitLsr,
+    BitOr,
+    BitXor,
     Constant,
     ConstantExt,
     Divide,

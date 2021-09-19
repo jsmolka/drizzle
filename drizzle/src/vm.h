@@ -17,11 +17,21 @@ private:
     void raise(std::string_view message, Args&&... args);
 
     template<typename Operation>
+    void bitwiseBinary(Value& lhs, const Value& rhs, Operation operation);
+    template<typename Operation>
     void primitiveBinary(Value& lhs, const Value& rhs, Operation operation);
     std::tuple<Value&, Value> operands();
+    std::tuple<Value&, Value> bitwiseOperands(std::string_view operation);
     std::tuple<Value&, Value> primitiveOperands(std::string_view operation);
 
     void add();
+    void bitAnd();
+    void bitAsr();
+    void bitComplement();
+    void bitLsl();
+    void bitLsr();
+    void bitOr();
+    void bitXor();
     void constant();
     void constantExt();
     void divide();

@@ -29,25 +29,32 @@ const Compiler::ParseRule& Compiler::rule(Token::Type type)
     {
         switch (Token::Type(type))
         {
-        case Token::Type::Bang:         return { &Compiler::unary,    nullptr,           kPrecedenceTerm     };
-        case Token::Type::BangEqual:    return { nullptr,             &Compiler::binary, kPrecedenceEquality };
-        case Token::Type::EqualEqual:   return { nullptr,             &Compiler::binary, kPrecedenceEquality };
-        case Token::Type::False:        return { &Compiler::literal,  nullptr,           kPrecedenceNone     };
-        case Token::Type::Float:        return { &Compiler::constant, nullptr,           kPrecedenceTerm     };
-        case Token::Type::Greater:      return { nullptr,             &Compiler::binary, kPrecedenceEquality };
-        case Token::Type::GreaterEqual: return { nullptr,             &Compiler::binary, kPrecedenceEquality };
-        case Token::Type::Integer:      return { &Compiler::constant, nullptr,           kPrecedenceTerm     };
-        case Token::Type::Less:         return { nullptr,             &Compiler::binary, kPrecedenceEquality };
-        case Token::Type::LessEqual:    return { nullptr,             &Compiler::binary, kPrecedenceEquality };
-        case Token::Type::Minus:        return { &Compiler::unary,    &Compiler::binary, kPrecedenceTerm     };
-        case Token::Type::Null:         return { &Compiler::literal,  nullptr,           kPrecedenceNone     };
-        case Token::Type::ParenLeft:    return { &Compiler::grouping, nullptr,           kPrecedenceNone     };
-        case Token::Type::Percent:      return { nullptr,             &Compiler::binary, kPrecedenceFactor   };
-        case Token::Type::Plus:         return { nullptr,             &Compiler::binary, kPrecedenceTerm     };
-        case Token::Type::Slash:        return { nullptr,             &Compiler::binary, kPrecedenceFactor   };
-        case Token::Type::SlashSlash:   return { nullptr,             &Compiler::binary, kPrecedenceFactor   };
-        case Token::Type::Star:         return { nullptr,             &Compiler::binary, kPrecedenceFactor   };
-        case Token::Type::True:         return { &Compiler::literal,  nullptr,           kPrecedenceNone     };
+        case Token::Type::And:                   return { nullptr,             &Compiler::binary, kPrecedenceBitAnd   };
+        case Token::Type::Bang:                  return { &Compiler::unary,    nullptr,           kPrecedenceTerm     };
+        case Token::Type::BangEqual:             return { nullptr,             &Compiler::binary, kPrecedenceEquality };
+        case Token::Type::Caret:                 return { nullptr,             &Compiler::binary, kPrecedenceBitXor   };
+        case Token::Type::EqualEqual:            return { nullptr,             &Compiler::binary, kPrecedenceEquality };
+        case Token::Type::False:                 return { &Compiler::literal,  nullptr,           kPrecedenceNone     };
+        case Token::Type::Float:                 return { &Compiler::constant, nullptr,           kPrecedenceTerm     };
+        case Token::Type::Greater:               return { nullptr,             &Compiler::binary, kPrecedenceEquality };
+        case Token::Type::GreaterGreater:        return { nullptr,             &Compiler::binary, kPrecedenceBitShift };
+        case Token::Type::GreaterGreaterGreater: return { nullptr,             &Compiler::binary, kPrecedenceBitShift };
+        case Token::Type::GreaterEqual:          return { nullptr,             &Compiler::binary, kPrecedenceEquality };
+        case Token::Type::Integer:               return { &Compiler::constant, nullptr,           kPrecedenceTerm     };
+        case Token::Type::Less:                  return { nullptr,             &Compiler::binary, kPrecedenceEquality };
+        case Token::Type::LessLess:              return { nullptr,             &Compiler::binary, kPrecedenceBitShift };
+        case Token::Type::LessEqual:             return { nullptr,             &Compiler::binary, kPrecedenceEquality };
+        case Token::Type::Minus:                 return { &Compiler::unary,    &Compiler::binary, kPrecedenceTerm     };
+        case Token::Type::Null:                  return { &Compiler::literal,  nullptr,           kPrecedenceNone     };
+        case Token::Type::ParenLeft:             return { &Compiler::grouping, nullptr,           kPrecedenceNone     };
+        case Token::Type::Percent:               return { nullptr,             &Compiler::binary, kPrecedenceFactor   };
+        case Token::Type::Pipe:                  return { nullptr,             &Compiler::binary, kPrecedenceBitOr    };
+        case Token::Type::Plus:                  return { nullptr,             &Compiler::binary, kPrecedenceTerm     };
+        case Token::Type::Slash:                 return { nullptr,             &Compiler::binary, kPrecedenceFactor   };
+        case Token::Type::SlashSlash:            return { nullptr,             &Compiler::binary, kPrecedenceFactor   };
+        case Token::Type::Star:                  return { nullptr,             &Compiler::binary, kPrecedenceFactor   };
+        case Token::Type::Tilde:                 return { &Compiler::unary,    nullptr,           kPrecedenceUnary    };
+        case Token::Type::True:                  return { &Compiler::literal,  nullptr,           kPrecedenceNone     };
         }
         return { nullptr, nullptr, kPrecedenceNone };
     });
@@ -122,18 +129,24 @@ void Compiler::binary()
 
     switch (token)
     {
-    case Token::Type::BangEqual:    emit(Opcode::NotEqual); break;
-    case Token::Type::EqualEqual:   emit(Opcode::Equal); break;
-    case Token::Type::Greater:      emit(Opcode::Greater); break;
-    case Token::Type::GreaterEqual: emit(Opcode::GreaterEqual); break;
-    case Token::Type::Less:         emit(Opcode::Less); break;
-    case Token::Type::LessEqual:    emit(Opcode::LessEqual); break;
-    case Token::Type::Minus:        emit(Opcode::Subtract); break;
-    case Token::Type::Plus:         emit(Opcode::Add); break;
-    case Token::Type::Percent:      emit(Opcode::Modulo); break;
-    case Token::Type::Slash:        emit(Opcode::Divide); break;
-    case Token::Type::SlashSlash:   emit(Opcode::DivideInt); break;
-    case Token::Type::Star:         emit(Opcode::Multiply); break;
+    case Token::Type::And:                   emit(Opcode::BitAnd); break;
+    case Token::Type::BangEqual:             emit(Opcode::NotEqual); break;
+    case Token::Type::Caret:                 emit(Opcode::BitXor); break;
+    case Token::Type::EqualEqual:            emit(Opcode::Equal); break;
+    case Token::Type::Greater:               emit(Opcode::Greater); break;
+    case Token::Type::GreaterGreater:        emit(Opcode::BitAsr); break;
+    case Token::Type::GreaterGreaterGreater: emit(Opcode::BitLsr); break;
+    case Token::Type::GreaterEqual:          emit(Opcode::GreaterEqual); break;
+    case Token::Type::Less:                  emit(Opcode::Less); break;
+    case Token::Type::LessLess:              emit(Opcode::BitLsl); break;
+    case Token::Type::LessEqual:             emit(Opcode::LessEqual); break;
+    case Token::Type::Minus:                 emit(Opcode::Subtract); break;
+    case Token::Type::Plus:                  emit(Opcode::Add); break;
+    case Token::Type::Percent:               emit(Opcode::Modulo); break;
+    case Token::Type::Pipe:                  emit(Opcode::BitOr); break;
+    case Token::Type::Slash:                 emit(Opcode::Divide); break;
+    case Token::Type::SlashSlash:            emit(Opcode::DivideInt); break;
+    case Token::Type::Star:                  emit(Opcode::Multiply); break;
 
     default:
         SHELL_UNREACHABLE;
@@ -180,6 +193,7 @@ void Compiler::unary()
     {
     case Token::Type::Bang:  emit(Opcode::Not); break;
     case Token::Type::Minus: emit(Opcode::Negate); break;
+    case Token::Type::Tilde: emit(Opcode::BitComplement); break;
 
     default:
         SHELL_UNREACHABLE;

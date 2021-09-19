@@ -443,14 +443,29 @@ void Scanner::scanToken()
     case '%': emit(Token::Type::Percent); break;
     case '+': emit(Token::Type::Plus); break;
     case '*': emit(Token::Type::Star); break;
+    case '~': emit(Token::Type::Tilde); break;
 
     case '&': emit(next('&') ? Token::Type::AndAnd : Token::Type::And); break;
     case '!': emit(next('=') ? Token::Type::BangEqual : Token::Type::Bang); break;
     case '=': emit(next('=') ? Token::Type::EqualEqual : Token::Type::Equal); break;
-    case '>': emit(next('=') ? Token::Type::GreaterEqual : Token::Type::Greater); break;
-    case '<': emit(next('=') ? Token::Type::LessEqual : Token::Type::Less); break;
     case '|': emit(next('|') ? Token::Type::PipePipe : Token::Type::Pipe); break;
     case '/': emit(next('/') ? Token::Type::SlashSlash : Token::Type::Slash); break;
+
+    case '>':
+        if (next('>'))
+            emit(next('>') ? Token::Type::GreaterGreaterGreater : Token::Type::GreaterGreater);
+        else
+            emit(next('=') ? Token::Type::GreaterEqual : Token::Type::Greater);
+        break;
+
+    case '<': 
+        if (next('<'))
+            emit(Token::Type::LessLess);
+        else if (next('='))
+            emit(Token::Type::LessEqual);
+        else
+            emit(Token::Type::Less);
+        break;
 
     default:
         throw SyntaxError(cursor - 1, "unexpected character");

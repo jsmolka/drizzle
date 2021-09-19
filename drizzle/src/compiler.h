@@ -15,8 +15,12 @@ private:
         kPrecedenceAssignment,  // =
         kPrecedenceOr,          // ||
         kPrecedenceAnd,         // &&
+        kPrecedenceBitOr,       // |
+        kPrecedenceBitXor,      // ^
+        kPrecedenceBitAnd,      // &
         kPrecedenceEquality,    // == !=
         kPrecedenceComparison,  // < > <= >=
+        kPrecedenceBitShift,    // << >> >>>
         kPrecedenceTerm,        // + -
         kPrecedenceFactor,      // * / // %
         kPrecedenceUnary,       // ! -

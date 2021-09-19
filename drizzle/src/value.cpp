@@ -6,6 +6,11 @@ Value::Value()
 
 }
 
+bool Value::isBitwise() const
+{
+    return static_cast<int>(type) < static_cast<int>(Type::Float);
+}
+
 bool Value::isPrimitive() const
 {
     return static_cast<int>(type) < static_cast<int>(Type::Null);
