@@ -20,6 +20,11 @@ struct DzValue
     void set(dzfloat   value);
     void set(DzObject* value);
 
+    bool isBool() const;
+    bool isInt() const;
+    bool isFloat() const;
+    bool isNull() const;
+    bool isString() const;
     bool isBitwise() const;
     bool isPrimitive() const;
     std::string_view typeName() const;
@@ -31,9 +36,9 @@ struct DzValue
     Type type;
     union
     {
+        dzbool b;
         dzint i;
         dzfloat f;
-        dzbool b;
         DzObject* o;
     };
 };

@@ -51,6 +51,31 @@ void DzValue::set(DzObject* value)
     type = Type::Object;
 }
 
+bool DzValue::isBool() const
+{
+    return type == Type::Bool;
+}
+
+bool DzValue::isInt() const
+{
+    return type == Type::Int;
+}
+
+bool DzValue::isFloat() const
+{
+    return type == Type::Float;
+}
+
+bool DzValue::isNull() const
+{
+    return type == Type::Null;
+}
+
+bool DzValue::isString() const
+{
+    return type == Type::Object && o->type == DzObject::Type::String;
+}
+
 bool DzValue::isBitwise() const
 {
     return static_cast<int>(type) <= static_cast<int>(Type::Int);

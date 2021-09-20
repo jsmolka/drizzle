@@ -15,6 +15,8 @@ private:
 
     template<typename Error, typename... Args>
     void raise(std::string_view message, Args&&... args);
+    void raiseTypeError(std::string_view operation, const DzValue& value);
+    void raiseTypeError(std::string_view operation, const DzValue& lhs, const DzValue& rhs);
 
     template<typename Operation>
     void bitwiseBinary(DzValue& lhs, const DzValue& rhs, Operation operation);

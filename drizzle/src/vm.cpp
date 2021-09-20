@@ -3,6 +3,7 @@
 #include <shell/punning.h>
 
 #include "compiler.h"
+#include "dzstring.h"
 #include "errors.h"
 #include "format.h"
 
@@ -140,6 +141,16 @@ void Vm::primitiveBinary(DzValue& lhs, const DzValue& rhs, Operation operation)
     #undef HASH
 }
 
+void Vm::raiseTypeError(std::string_view operation, const DzValue& value)
+{
+    raise<TypeError>("bad operand type for '{}': '{}'", value.typeName());
+}
+
+void Vm::raiseTypeError(std::string_view operation, const DzValue& lhs, const DzValue& rhs)
+{
+    raise<TypeError>("bad operand types for '{}': '{}' and '{}'", operation, lhs.typeName(), rhs.typeName());
+}
+
 std::tuple<DzValue&, DzValue> Vm::operands()
 {
     auto  rhs = stack.pop();
@@ -153,7 +164,7 @@ std::tuple<DzValue&, DzValue> Vm::bitwiseOperands(std::string_view operation)
     auto [lhs, rhs] = operands();
 
     if (!(lhs.isBitwise() && rhs.isBitwise()))
-        raise<TypeError>("bad operand types for '{}': '{}' and '{}'", operation, lhs.typeName(), rhs.typeName());
+        raiseTypeError(operation, lhs, rhs);
 
     return std::forward_as_tuple(lhs, rhs);
 }
@@ -163,15 +174,20 @@ std::tuple<DzValue&, DzValue> Vm::primitiveOperands(std::string_view operation)
     auto [lhs, rhs] = operands();
     
     if (!(lhs.isPrimitive() && rhs.isPrimitive()))
-        raise<TypeError>("bad operand types for '{}': '{}' and '{}'", operation, lhs.typeName(), rhs.typeName());
+        raiseTypeError(operation, lhs, rhs);
 
     return std::forward_as_tuple(lhs, rhs);
 }
 
 void Vm::add()
 {
-    auto [lhs, rhs] = primitiveOperands("+");
-    primitiveBinary(lhs, rhs, [](auto a, auto b) { return a + b; });
+    auto [lhs, rhs] = operands();
+    if (lhs.isPrimitive() && rhs.isPrimitive())
+        primitiveBinary(lhs, rhs, [](auto a, auto b) { return a + b; });
+    else if (lhs.isString() && rhs.isString())
+        static_cast<DzString*>(lhs.o)->data += static_cast<DzString*>(rhs.o)->data;
+    else
+        raiseTypeError("+", lhs, rhs);
 }
 
 void Vm::bitAnd()
@@ -195,7 +211,7 @@ void Vm::bitComplement()
     case DzValue::Type::Bool: value.set(~static_cast<dzint>(value.b)); break;
 
     default:
-        raise<TypeError>("bad operand type for '~': '{}'", value.typeName());
+        raiseTypeError("~", value);
         break;
     }
 }
