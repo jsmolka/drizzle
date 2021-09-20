@@ -244,10 +244,9 @@ void Vm::divide()
     auto [lhs, rhs] = primitiveOperands("/");
     primitiveBinary(lhs, rhs, [this](auto a, auto b)
     {
-        using T = decltype(b);
-        if (b == static_cast<T>(0))
+        if (b == static_cast<dzfloat>(0))
             raise<ZeroDivsionError>("division by zero");
-        return a / b;
+        return static_cast<dzfloat>(a) / static_cast<dzfloat>(b);
     });
 }
 
