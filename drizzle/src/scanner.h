@@ -32,6 +32,7 @@ private:
 
     void parseInt(int base);
     void parseFloat();
+    void parseString();
 
     const char* cursor;
     const char* lexeme;

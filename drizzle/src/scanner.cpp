@@ -1,8 +1,10 @@
 #include "scanner.h"
 
 #include <tuple>
+#include <shell/algorithm.h>
 #include <shell/macros.h>
 
+#include "dzstring.h"
 #include "errors.h"
 
 Tokens Scanner::scan(const std::string& source)
@@ -304,6 +306,8 @@ void Scanner::scanString()
         throw SyntaxError(begin, "unterminated string");
 
     emit(Token::Type::String);
+
+    parseString();
 }
 
 void Scanner::scanNumber()
@@ -502,4 +506,53 @@ void Scanner::parseFloat()
         throw SyntaxError(token.lexeme.data(), "cannot parse float");
     }
     token.value.set(value);
+}
+
+void Scanner::parseString()
+{
+    auto& token = tokens.back();
+
+    std::string_view data = token.lexeme;
+    std::size_t quotes = shell::startsWith(data, R"(""")") ? 3 : 1;
+    data.remove_prefix(quotes);
+    data.remove_suffix(quotes);
+
+    auto* string = new DzString();
+    if (quotes == 1)
+    {
+        string->data.reserve(data.size());
+        for (auto iter = data.begin(); iter != data.end(); ++iter)
+        {
+            switch (*iter)
+            {
+            case '\\':
+                switch (*(++iter))
+                {
+                case '\\': string->data.push_back('\\'); break;
+                case '\"': string->data.push_back('\"'); break;
+                case 'a':  string->data.push_back('\a'); break;
+                case 'b':  string->data.push_back('\b'); break;
+                case 'f':  string->data.push_back('\f'); break;
+                case 'n':  string->data.push_back('\n'); break;
+                case 'r':  string->data.push_back('\r'); break;
+                case 't':  string->data.push_back('\t'); break;
+                case 'v':  string->data.push_back('\v'); break;
+
+                default:
+                    SHELL_UNREACHABLE;
+                    break;
+                }
+                break;
+
+            default:
+                string->data.push_back(*iter);
+                break;
+            }
+        }
+    }
+    else
+    {
+        string->data = data;
+    }
+    token.value.set(string);
 }
