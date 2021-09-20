@@ -17,12 +17,12 @@ private:
     void raise(std::string_view message, Args&&... args);
 
     template<typename Operation>
-    void bitwiseBinary(Value& lhs, const Value& rhs, Operation operation);
+    void bitwiseBinary(DzValue& lhs, const DzValue& rhs, Operation operation);
     template<typename Operation>
-    void primitiveBinary(Value& lhs, const Value& rhs, Operation operation);
-    std::tuple<Value&, Value> operands();
-    std::tuple<Value&, Value> bitwiseOperands(std::string_view operation);
-    std::tuple<Value&, Value> primitiveOperands(std::string_view operation);
+    void primitiveBinary(DzValue& lhs, const DzValue& rhs, Operation operation);
+    std::tuple<DzValue&, DzValue> operands();
+    std::tuple<DzValue&, DzValue> bitwiseOperands(std::string_view operation);
+    std::tuple<DzValue&, DzValue> primitiveOperands(std::string_view operation);
 
     void add();
     void bitAnd();
@@ -54,5 +54,5 @@ private:
 
     Chunk chunk;
     const u8* ip;
-    Stack<Value, 512> stack;
+    Stack<DzValue, 512> stack;
 };

@@ -50,7 +50,7 @@ private:
 
     template<typename... Bytes>
     void emit(Bytes... bytes);
-    void emitConstant(Value value);
+    void emitConstant(DzValue value);
 
     void advance();
     void consume(Token::Type type, std::string_view error);

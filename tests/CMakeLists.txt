@@ -15,7 +15,9 @@ file(GLOB_RECURSE SOURCE_FILES
   ${PROJECT_SOURCE_DIR}/src/*.h
   ${PROJECT_SOURCE_DIR}/src/*.cpp
   ../drizzle/src/scanner.cpp
-  ../drizzle/src/value.cpp
+  ../drizzle/src/dzobject.cpp
+  ../drizzle/src/dzstring.cpp
+  ../drizzle/src/dzvalue.cpp
 )
 
 add_executable(${CMAKE_PROJECT_NAME} ${SOURCE_FILES})

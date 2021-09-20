@@ -1,6 +1,7 @@
 #include "scanner.h"
 
 #include <tuple>
+#include <shell/macros.h>
 
 #include "errors.h"
 

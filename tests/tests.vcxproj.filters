@@ -24,7 +24,13 @@
     <ClCompile Include="..\drizzle\src\scanner.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\drizzle\src\value.cpp">
+    <ClCompile Include="..\drizzle\src\dzobject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\drizzle\src\dzstring.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\drizzle\src\dzvalue.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

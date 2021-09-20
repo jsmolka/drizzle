@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "value.h"
+#include "dzvalue.h"
 
 struct Token
 {
@@ -76,7 +76,7 @@ struct Token
     };
 
     Type type;
-    Value value;
+    DzValue value;
     std::size_t line;
     std::string_view lexeme;
 };

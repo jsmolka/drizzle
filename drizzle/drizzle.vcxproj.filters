@@ -33,7 +33,13 @@
     <ClCompile Include="src\chunk.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\value.cpp">
+    <ClCompile Include="src\dzstring.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dzobject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dzvalue.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -49,7 +55,7 @@
     <ClInclude Include="src\int.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\value.h">
+    <ClInclude Include="src\dzvalue.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\errors.h">
@@ -67,13 +73,22 @@
     <ClInclude Include="src\scanner.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\types.h">
+    <ClInclude Include="src\dztypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\opcode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\token.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dzobject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dzstring.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\format.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

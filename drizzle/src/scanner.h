@@ -4,7 +4,6 @@
 #include <string_view>
 
 #include "token.h"
-#include "value.h"
 
 class Scanner
 {

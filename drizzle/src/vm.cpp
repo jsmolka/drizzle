@@ -4,6 +4,7 @@
 
 #include "compiler.h"
 #include "errors.h"
+#include "format.h"
 
 void Vm::interpret(const Tokens& tokens)
 {
@@ -77,7 +78,7 @@ void Vm::raise(std::string_view message, Args&& ...args)
 }
 
 template<typename Operation>
-void Vm::bitwiseBinary(Value& lhs, const Value& rhs, Operation operation)
+void Vm::bitwiseBinary(DzValue& lhs, const DzValue& rhs, Operation operation)
 {
     auto promote = [operation](auto a, auto b)
     {
@@ -92,10 +93,10 @@ void Vm::bitwiseBinary(Value& lhs, const Value& rhs, Operation operation)
 
     switch (HASH(lhs.type, rhs.type))
     {
-    case HASH(Value::Type::Int,   Value::Type::Int ): lhs.set(promote(lhs.i, rhs.i)); break;
-    case HASH(Value::Type::Int,   Value::Type::Bool): lhs.set(promote(lhs.i, rhs.b)); break;
-    case HASH(Value::Type::Bool,  Value::Type::Int ): lhs.set(promote(lhs.b, rhs.i)); break;
-    case HASH(Value::Type::Bool,  Value::Type::Bool): lhs.set(promote(lhs.b, rhs.b)); break;
+    case HASH(DzValue::Type::Int,   DzValue::Type::Int ): lhs.set(promote(lhs.i, rhs.i)); break;
+    case HASH(DzValue::Type::Int,   DzValue::Type::Bool): lhs.set(promote(lhs.i, rhs.b)); break;
+    case HASH(DzValue::Type::Bool,  DzValue::Type::Int ): lhs.set(promote(lhs.b, rhs.i)); break;
+    case HASH(DzValue::Type::Bool,  DzValue::Type::Bool): lhs.set(promote(lhs.b, rhs.b)); break;
 
     default:
         SHELL_UNREACHABLE;
@@ -106,7 +107,7 @@ void Vm::bitwiseBinary(Value& lhs, const Value& rhs, Operation operation)
 }
 
 template<typename Operation>
-void Vm::primitiveBinary(Value& lhs, const Value& rhs, Operation operation)
+void Vm::primitiveBinary(DzValue& lhs, const DzValue& rhs, Operation operation)
 {
     auto promote = [operation](auto a, auto b)
     {
@@ -121,15 +122,15 @@ void Vm::primitiveBinary(Value& lhs, const Value& rhs, Operation operation)
 
     switch (HASH(lhs.type, rhs.type))
     {
-    case HASH(Value::Type::Int,   Value::Type::Int  ): lhs.set(promote(lhs.i, rhs.i)); break;
-    case HASH(Value::Type::Int,   Value::Type::Float): lhs.set(promote(lhs.i, rhs.f)); break;
-    case HASH(Value::Type::Int,   Value::Type::Bool ): lhs.set(promote(lhs.i, rhs.b)); break;
-    case HASH(Value::Type::Float, Value::Type::Int  ): lhs.set(promote(lhs.f, rhs.i)); break;
-    case HASH(Value::Type::Float, Value::Type::Float): lhs.set(promote(lhs.f, rhs.f)); break;
-    case HASH(Value::Type::Float, Value::Type::Bool ): lhs.set(promote(lhs.f, rhs.b)); break;
-    case HASH(Value::Type::Bool,  Value::Type::Int  ): lhs.set(promote(lhs.b, rhs.i)); break;
-    case HASH(Value::Type::Bool,  Value::Type::Float): lhs.set(promote(lhs.b, rhs.f)); break;
-    case HASH(Value::Type::Bool,  Value::Type::Bool ): lhs.set(promote(lhs.b, rhs.b)); break;
+    case HASH(DzValue::Type::Int,   DzValue::Type::Int  ): lhs.set(promote(lhs.i, rhs.i)); break;
+    case HASH(DzValue::Type::Int,   DzValue::Type::Float): lhs.set(promote(lhs.i, rhs.f)); break;
+    case HASH(DzValue::Type::Int,   DzValue::Type::Bool ): lhs.set(promote(lhs.i, rhs.b)); break;
+    case HASH(DzValue::Type::Float, DzValue::Type::Int  ): lhs.set(promote(lhs.f, rhs.i)); break;
+    case HASH(DzValue::Type::Float, DzValue::Type::Float): lhs.set(promote(lhs.f, rhs.f)); break;
+    case HASH(DzValue::Type::Float, DzValue::Type::Bool ): lhs.set(promote(lhs.f, rhs.b)); break;
+    case HASH(DzValue::Type::Bool,  DzValue::Type::Int  ): lhs.set(promote(lhs.b, rhs.i)); break;
+    case HASH(DzValue::Type::Bool,  DzValue::Type::Float): lhs.set(promote(lhs.b, rhs.f)); break;
+    case HASH(DzValue::Type::Bool,  DzValue::Type::Bool ): lhs.set(promote(lhs.b, rhs.b)); break;
 
     default:
         SHELL_UNREACHABLE;
@@ -139,7 +140,7 @@ void Vm::primitiveBinary(Value& lhs, const Value& rhs, Operation operation)
     #undef HASH
 }
 
-std::tuple<Value&, Value> Vm::operands()
+std::tuple<DzValue&, DzValue> Vm::operands()
 {
     auto  rhs = stack.pop();
     auto& lhs = stack[0];
@@ -147,7 +148,7 @@ std::tuple<Value&, Value> Vm::operands()
     return std::forward_as_tuple(lhs, rhs);
 }
 
-std::tuple<Value&, Value> Vm::bitwiseOperands(std::string_view operation)
+std::tuple<DzValue&, DzValue> Vm::bitwiseOperands(std::string_view operation)
 {
     auto [lhs, rhs] = operands();
 
@@ -157,7 +158,7 @@ std::tuple<Value&, Value> Vm::bitwiseOperands(std::string_view operation)
     return std::forward_as_tuple(lhs, rhs);
 }
 
-std::tuple<Value&, Value> Vm::primitiveOperands(std::string_view operation)
+std::tuple<DzValue&, DzValue> Vm::primitiveOperands(std::string_view operation)
 {
     auto [lhs, rhs] = operands();
     
@@ -190,8 +191,8 @@ void Vm::bitComplement()
     auto& value = stack[0];
     switch (value.type)
     {
-    case Value::Type::Int:  value.set(~value.i); break;
-    case Value::Type::Bool: value.set(~static_cast<dzint>(value.b)); break;
+    case DzValue::Type::Int:  value.set(~value.i); break;
+    case DzValue::Type::Bool: value.set(~static_cast<dzint>(value.b)); break;
 
     default:
         raise<TypeError>("bad operand type for '~': '{}'", value.typeName());
@@ -324,9 +325,9 @@ void Vm::negate()
     auto& value = stack[0];
     switch (value.type)
     {
-    case Value::Type::Int:   value.set(-value.i); break;
-    case Value::Type::Float: value.set(-value.f); break;
-    case Value::Type::Bool:  value.set(-static_cast<dzint>(value.b)); break;
+    case DzValue::Type::Int:   value.set(-value.i); break;
+    case DzValue::Type::Float: value.set(-value.f); break;
+    case DzValue::Type::Bool:  value.set(-static_cast<dzint>(value.b)); break;
 
     default:
         raise<TypeError>("bad operand type for '-': '{}'", value.typeName());

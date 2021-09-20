@@ -1,9 +1,11 @@
 #include "compiler.h"
 
 #include <limits>
+#include <shell/algorithm.h>
 #include <shell/array.h>
 #include <shell/macros.h>
 
+#include "dzstring.h"
 #include "errors.h"
 
 void Compiler::compile(const Tokens& tokens, Chunk& chunk)
@@ -54,6 +56,7 @@ const Compiler::ParseRule& Compiler::rule(Token::Type type)
         case Token::Type::Slash2:       return { nullptr,             &Compiler::binary, kPrecedenceFactor   };
         case Token::Type::Star:         return { nullptr,             &Compiler::binary, kPrecedenceFactor   };
         case Token::Type::Star2:        return { nullptr,             &Compiler::binary, kPrecedenceFactor   };
+        case Token::Type::String:       return { &Compiler::literal,  nullptr,           kPrecedenceNone     };
         case Token::Type::Tilde:        return { &Compiler::unary,    nullptr,           kPrecedenceUnary    };
         case Token::Type::True:         return { &Compiler::literal,  nullptr,           kPrecedenceNone     };
         }
@@ -76,7 +79,7 @@ void Compiler::emit(Bytes... bytes)
     (chunk->write(bytes, parser.current.line), ...);
 }
 
-void Compiler::emitConstant(Value value)
+void Compiler::emitConstant(DzValue value)
 {
     int index = chunk->constants.size();
     if (index <= std::numeric_limits<u8>::max())
@@ -179,6 +182,20 @@ void Compiler::literal()
     case Token::Type::False: emit(Opcode::False); break;
     case Token::Type::Null:  emit(Opcode::Null); break;
     case Token::Type::True:  emit(Opcode::True); break;
+
+    case Token::Type::String:
+    {
+        auto* string = new DzString();
+        std::string_view data = parser.previous.lexeme;
+
+        std::size_t quotes = shell::startsWith(data, R"(""")") ? 3 : 1;
+        data.remove_prefix(quotes);
+        data.remove_suffix(quotes);
+
+        string->data = std::string(data);
+        emitConstant(string);
+        break;
+    }
 
     default:
         SHELL_UNREACHABLE;

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "int.h"
+#include "dzvalue.h"
 #include "opcode.h"
-#include "value.h"
 
 class Chunk
 {
@@ -14,7 +14,7 @@ public:
 
     std::size_t line(std::size_t index);
 
-    Values constants;
+    DzValues constants;
     std::vector<u8> code;
 
 private:
