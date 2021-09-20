@@ -44,7 +44,7 @@ void locationError(const LocationError& error)
 {
     const auto line = sourceLine(error.location);
     const auto view = sourceView(line);
-    const auto info = shell::format("line {} | ", line + 1);
+    const auto info = shell::format("Line {} | ", line + 1);
 
     std::string whitespace(info.size(), ' ');
     for (const auto& c : view)
@@ -66,7 +66,7 @@ void locationError(const LocationError& error)
 void lineError(const LineError& error)
 {
     const auto view = sourceView(error.line);
-    const auto info = shell::format("line {} | ", error.line + 1);
+    const auto info = shell::format("Line {} | ", error.line + 1);
 
     shell::print("{}{}\n\n", info, view);
     shell::print("{}: {}\n", error.name(), error.what());
