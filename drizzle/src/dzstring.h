@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #include "dzobject.h"
 
 class DzString : public DzObject
