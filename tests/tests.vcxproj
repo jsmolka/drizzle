@@ -34,6 +34,7 @@
     <None Include="src\scanner\string.inl" />
     <None Include="src\scanner\tokens.inl" />
     <None Include="src\vm.inl" />
+    <None Include="src\vm\unary.inl" />
     <None Include="src\vm\assertion.inl" />
   </ItemGroup>
   <ItemGroup>

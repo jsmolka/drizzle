@@ -77,6 +77,9 @@
     <None Include="src\vm\assertion.inl">
       <Filter>Header Files</Filter>
     </None>
+    <None Include="src\vm\unary.inl">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\scanner\whitespace.inl">

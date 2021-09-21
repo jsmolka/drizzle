@@ -34,3 +34,4 @@ void vmThrows(std::string_view source)
 }
 
 #include "vm/assertion.inl"
+#include "vm/unary.inl"

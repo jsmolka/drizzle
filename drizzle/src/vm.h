@@ -48,7 +48,7 @@ private:
     void modulo();
     void multiply();
     void negate();
-    void not();
+    void not_();
     void notEqual();
     void power();
     void print();

@@ -42,7 +42,7 @@ void Vm::interpret(const Tokens& tokens)
         case Opcode::Modulo: modulo(); break;
         case Opcode::Multiply: multiply(); break;
         case Opcode::Negate: negate(); break;
-        case Opcode::Not: not(); break;
+        case Opcode::Not: not_(); break;
         case Opcode::NotEqual: notEqual(); break;
         case Opcode::Null: valueNull(); break;
         case Opcode::Power: power(); break;
@@ -143,7 +143,7 @@ void Vm::primitiveBinary(DzValue& lhs, const DzValue& rhs, Operation operation)
 
 void Vm::raiseTypeError(std::string_view operation, const DzValue& value)
 {
-    raise<TypeError>("bad operand type for '{}': '{}'", value.typeName());
+    raise<TypeError>("bad operand type for '{}': '{}'", operation, value.typeName());
 }
 
 void Vm::raiseTypeError(std::string_view operation, const DzValue& lhs, const DzValue& rhs)
@@ -362,7 +362,7 @@ void Vm::negate()
     }
 }
 
-void Vm::not()
+void Vm::not_()
 {
     auto& value = stack[0];
     value.set(!static_cast<bool>(value));
