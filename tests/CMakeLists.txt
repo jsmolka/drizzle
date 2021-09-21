@@ -10,6 +10,7 @@ include_directories(src)
 include_directories(modules)
 include_directories(../drizzle/src)
 include_directories(../drizzle/modules/shell/include)
+include_directories(../drizzle/modules/robin-hood-hashing/src/include)
 
 file(GLOB_RECURSE SOURCE_FILES
   ${PROJECT_SOURCE_DIR}/src/*.h
