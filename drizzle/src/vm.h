@@ -27,6 +27,7 @@ private:
     std::tuple<DzValue&, DzValue> primitiveOperands(std::string_view operation);
 
     void add();
+    void assertion();
     void bitAnd();
     void bitAsr();
     void bitComplement();
@@ -49,6 +50,7 @@ private:
     void not();
     void notEqual();
     void power();
+    void print();
     void subtract();
     void valueFalse();
     void valueNull();

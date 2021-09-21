@@ -3,6 +3,7 @@
 enum class Opcode
 {
     Add,
+    Assert,
     BitAnd,
     BitAsr,
     BitComplement,
@@ -28,6 +29,7 @@ enum class Opcode
     NotEqual,
     Null,
     Power,
+    Print,
     Subtract,
     True,
 };

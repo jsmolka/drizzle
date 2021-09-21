@@ -1,5 +1,7 @@
 #include "chunk.h"
 
+#include <shell/ranges.h>
+
 Chunk::Chunk()
 {
     lines.push_back({ 0, 0 });
@@ -20,9 +22,9 @@ void Chunk::write(Opcode opcode, std::size_t line)
 
 std::size_t Chunk::line(std::size_t index)
 {
-    for (const auto& line : lines)
+    for (const auto& line : shell::reversed(lines))
     {
-        if (index >= line.index)
+        if (line.index <= index)
             return line.number;
     }
     return -1;

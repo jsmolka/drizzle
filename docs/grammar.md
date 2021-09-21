@@ -1,6 +1,25 @@
 # Grammar
 The grammar uses the notation proposed in [Crafting Interpreters](http://www.craftinginterpreters.com/representing-code.html#enhancing-our-notation).
 
+## Declarations
+A program is a series of declarations, which are the statements that bind new identifiers or any of the other statement types.
+```
+declaration       → varDecl
+                  | statement ;
+varDecl           → "var" IDENTIFIER ( "=" expression )? NEWLINE ;
+```
+
+## Statements
+The remaining statement rules produce side effects, but do not introduce bindings.
+```
+statement         → exprStmt
+                  | assertStmt
+                  | printStmt
+exprStmt          → expression NEWLINE ;
+assertStmt        → "assert" expression NEWLINE ;
+printStmt         → "print" expression NEWLINE ;
+```
+
 ## Expressions
 Expressions produce values. The precedence goes from high/bottom to low/top.
 ```

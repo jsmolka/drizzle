@@ -19,6 +19,7 @@ void Vm::interpret(const Tokens& tokens)
         switch (static_cast<Opcode>(read<u8>()))
         {
         case Opcode::Add: add(); break;
+        case Opcode::Assert: assertion(); break;
         case Opcode::BitAnd: bitAnd(); break;
         case Opcode::BitAsr: bitAsr(); break;
         case Opcode::BitComplement: bitComplement(); break;
@@ -31,7 +32,7 @@ void Vm::interpret(const Tokens& tokens)
         case Opcode::Divide: divide(); break;
         case Opcode::DivideInt: divideInt(); break;
         case Opcode::Equal: equal(); break;
-        case Opcode::Exit: goto exit;
+        case Opcode::Exit: return;
         case Opcode::False: valueFalse(); break;
         case Opcode::Greater: greater(); break;
         case Opcode::GreaterEqual: greaterEqual(); break;
@@ -44,6 +45,7 @@ void Vm::interpret(const Tokens& tokens)
         case Opcode::NotEqual: notEqual(); break;
         case Opcode::Null: valueNull(); break;
         case Opcode::Power: power(); break;
+        case Opcode::Print: print(); break;
         case Opcode::Subtract: subtract(); break;
         case Opcode::True: valueTrue(); break;
 
@@ -52,9 +54,6 @@ void Vm::interpret(const Tokens& tokens)
             break;
         }
     }
-
-exit:
-    shell::print(stack[0]);
 }
 
 template<typename Integral>
@@ -188,6 +187,12 @@ void Vm::add()
         static_cast<DzString*>(lhs.o)->data += static_cast<DzString*>(rhs.o)->data;
     else
         raiseTypeError("+", lhs, rhs);
+}
+
+void Vm::assertion()
+{
+    if (!stack.pop())
+        raise<AssertionError>("assertion failed");
 }
 
 void Vm::bitAnd()
@@ -370,6 +375,11 @@ void Vm::power()
 {
     auto [lhs, rhs] = primitiveOperands("**");
     primitiveBinary(lhs, rhs, [](auto a, auto b) { return std::pow(a, b); });
+}
+
+void Vm::print()
+{
+    shell::print("{}\n", stack.pop());
 }
 
 void Vm::subtract()

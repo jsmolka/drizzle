@@ -61,6 +61,17 @@ public:
     using LineError::LineError;
 };
 
+class AssertionError : public RuntimeError
+{
+public:
+    using RuntimeError::RuntimeError;
+
+    virtual std::string_view name() const noexcept final
+    {
+        return "AssertionError";
+    }
+};
+
 class TypeError : public RuntimeError
 {
 public:

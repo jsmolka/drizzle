@@ -13,13 +13,10 @@ void Compiler::compile(const Tokens& tokens, Chunk& chunk)
     this->chunk = &chunk;
 
     advance();
-    expression();
+    
+    while (!match(Token::Type::Eof))
+        declaration();
 
-    // Todo: remove once statements are implemented
-    while (parser.current.type == Token::Type::NewLine)
-        advance();
-
-    consume(Token::Type::Eof, "expected file end");
     emit(Opcode::Exit);
 }
 
@@ -75,7 +72,7 @@ void Compiler::raise(std::string_view message, Args&& ...args)
 template<typename... Bytes>
 void Compiler::emit(Bytes... bytes)
 {
-    (chunk->write(bytes, parser.current.line), ...);
+    (chunk->write(bytes, parser.previous.line), ...);
 }
 
 void Compiler::emitConstant(DzValue value)
@@ -95,6 +92,21 @@ void Compiler::advance()
 {
     parser.previous = parser.current;
     parser.current  = *token++;
+}
+
+bool Compiler::check(Token::Type type) const
+{
+    return parser.current.type == type;
+}
+
+bool Compiler::match(Token::Type type)
+{
+    if (check(type))
+    {
+        advance();
+        return true;
+    }
+    return false;
 }
 
 void Compiler::consume(Token::Type type, std::string_view error)
@@ -123,6 +135,13 @@ void Compiler::parsePrecedence(Precedence precedence)
 
         std::invoke(infix, this);
     }
+}
+
+void Compiler::assertStatement()
+{
+    expression();
+    consume(Token::Type::NewLine, "expected new line");
+    emit(Opcode::Assert);
 }
 
 void Compiler::binary()
@@ -163,6 +182,11 @@ void Compiler::constant()
     emitConstant(parser.previous.value);
 }
 
+void Compiler::declaration()
+{
+    statement();
+}
+
 void Compiler::expression()
 {
     parsePrecedence(kPrecedenceAssignment);
@@ -186,6 +210,21 @@ void Compiler::literal()
         SHELL_UNREACHABLE;
         break;
     }
+}
+
+void Compiler::printStatement()
+{
+    expression();
+    consume(Token::Type::NewLine, "expected new line");
+    emit(Opcode::Print);
+}
+
+void Compiler::statement()
+{
+    if (match(Token::Type::Assert))
+        assertStatement();
+    else if (match(Token::Type::Print))
+        printStatement();
 }
 
 void Compiler::unary()

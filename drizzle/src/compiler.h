@@ -53,14 +53,20 @@ private:
     void emitConstant(DzValue value);
 
     void advance();
+    bool check(Token::Type type) const;
+    bool match(Token::Type type);
     void consume(Token::Type type, std::string_view error);
     void parsePrecedence(Precedence precedence);
 
+    void assertStatement();
     void binary();
     void constant();
+    void declaration();
     void expression();
     void grouping();
     void literal();
+    void printStatement();
+    void statement();
     void unary();
 
     Parser parser;
