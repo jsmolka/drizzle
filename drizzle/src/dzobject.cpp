@@ -4,6 +4,12 @@
 
 #include "dzstring.h"
 
+DzObject::DzObject(DzObject::Type type)
+    : type(type)
+{
+
+}
+
 std::string_view DzObject::typeName() const
 {
     switch (type)

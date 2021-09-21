@@ -7,13 +7,15 @@ class DzObject
 public:
     enum class Type { String };
 
+    DzObject(Type type);
+
     std::string_view typeName() const;
 
     operator bool() const;
     bool operator==(const DzObject& other);
     bool operator!=(const DzObject& other);
 
-    Type type;
+    const Type type;
 
 private:
     template<typename T>

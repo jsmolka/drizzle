@@ -185,7 +185,8 @@ void Vm::add()
     if (lhs.isPrimitive() && rhs.isPrimitive())
         primitiveBinary(lhs, rhs, [](auto a, auto b) { return a + b; });
     else if (lhs.isString() && rhs.isString())
-        static_cast<DzString*>(lhs.o)->data += static_cast<DzString*>(rhs.o)->data;
+        void(0);
+        //static_cast<DzString*>(lhs.o)->data += static_cast<DzString*>(rhs.o)->data;
     else
         raiseTypeError("+", lhs, rhs);
 }

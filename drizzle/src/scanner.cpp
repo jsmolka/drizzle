@@ -517,10 +517,10 @@ void Scanner::parseString()
     data.remove_prefix(quotes);
     data.remove_suffix(quotes);
 
-    auto* string = new DzString();
+    std::string string;
     if (quotes == 1)
     {
-        string->data.reserve(data.size());
+        string.reserve(data.size());
         for (auto iter = data.begin(); iter != data.end(); ++iter)
         {
             switch (*iter)
@@ -528,15 +528,15 @@ void Scanner::parseString()
             case '\\':
                 switch (*(++iter))
                 {
-                case '\\': string->data.push_back('\\'); break;
-                case '\"': string->data.push_back('\"'); break;
-                case 'a':  string->data.push_back('\a'); break;
-                case 'b':  string->data.push_back('\b'); break;
-                case 'f':  string->data.push_back('\f'); break;
-                case 'n':  string->data.push_back('\n'); break;
-                case 'r':  string->data.push_back('\r'); break;
-                case 't':  string->data.push_back('\t'); break;
-                case 'v':  string->data.push_back('\v'); break;
+                case '\\': string.push_back('\\'); break;
+                case '\"': string.push_back('\"'); break;
+                case 'a':  string.push_back('\a'); break;
+                case 'b':  string.push_back('\b'); break;
+                case 'f':  string.push_back('\f'); break;
+                case 'n':  string.push_back('\n'); break;
+                case 'r':  string.push_back('\r'); break;
+                case 't':  string.push_back('\t'); break;
+                case 'v':  string.push_back('\v'); break;
 
                 default:
                     SHELL_UNREACHABLE;
@@ -545,14 +545,14 @@ void Scanner::parseString()
                 break;
 
             default:
-                string->data.push_back(*iter);
+                string.push_back(*iter);
                 break;
             }
         }
     }
     else
     {
-        string->data = data;
+        string = data;
     }
-    token.value.set(string);
+    token.value.set(new DzString(std::move(string)));
 }
