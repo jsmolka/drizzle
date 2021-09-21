@@ -29,6 +29,7 @@ void Vm::interpret(const Tokens& tokens)
         case Opcode::BitXor: bitXor(); break;
         case Opcode::Constant: constant(); break;
         case Opcode::ConstantExt: constantExt(); break;
+        case Opcode::Discard: discard(); break;
         case Opcode::Divide: divide(); break;
         case Opcode::DivideInt: divideInt(); break;
         case Opcode::Equal: equal(); break;
@@ -259,6 +260,11 @@ void Vm::constant()
 void Vm::constantExt()
 {
     stack.push(chunk.constants[read<u16>()]);
+}
+
+void Vm::discard()
+{
+    stack.pop();
 }
 
 void Vm::divide()

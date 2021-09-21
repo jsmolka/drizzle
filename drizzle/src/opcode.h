@@ -13,6 +13,7 @@ enum class Opcode
     BitXor,
     Constant,
     ConstantExt,
+    Discard,
     Divide,
     DivideInt,
     Equal,

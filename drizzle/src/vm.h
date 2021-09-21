@@ -37,6 +37,7 @@ private:
     void bitXor();
     void constant();
     void constantExt();
+    void discard();
     void divide();
     void divideInt();
     void equal();

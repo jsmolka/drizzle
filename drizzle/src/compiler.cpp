@@ -137,13 +137,6 @@ void Compiler::parsePrecedence(Precedence precedence)
     }
 }
 
-void Compiler::assertStatement()
-{
-    expression();
-    consume(Token::Type::NewLine, "expected new line");
-    emit(Opcode::Assert);
-}
-
 void Compiler::binary()
 {
     auto token = parser.previous.type;
@@ -212,19 +205,33 @@ void Compiler::literal()
     }
 }
 
-void Compiler::printStatement()
+void Compiler::statement()
+{
+    if (match(Token::Type::Assert))
+        statementAssert();
+    else if (match(Token::Type::Print))
+        statementPrint();
+}
+
+void Compiler::statementAssert()
+{
+    expression();
+    consume(Token::Type::NewLine, "expected new line");
+    emit(Opcode::Assert);
+}
+
+void Compiler::statementExpression()
+{
+    expression();
+    consume(Token::Type::NewLine, "expected new line");
+    emit(Opcode::Discard);
+}
+
+void Compiler::statementPrint()
 {
     expression();
     consume(Token::Type::NewLine, "expected new line");
     emit(Opcode::Print);
-}
-
-void Compiler::statement()
-{
-    if (match(Token::Type::Assert))
-        assertStatement();
-    else if (match(Token::Type::Print))
-        printStatement();
 }
 
 void Compiler::unary()

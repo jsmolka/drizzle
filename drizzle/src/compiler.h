@@ -58,15 +58,16 @@ private:
     void consume(Token::Type type, std::string_view error);
     void parsePrecedence(Precedence precedence);
 
-    void assertStatement();
     void binary();
     void constant();
     void declaration();
     void expression();
     void grouping();
     void literal();
-    void printStatement();
     void statement();
+    void statementAssert();
+    void statementExpression();
+    void statementPrint();
     void unary();
 
     Parser parser;
