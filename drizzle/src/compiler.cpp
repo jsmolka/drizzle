@@ -117,6 +117,11 @@ void Compiler::consume(Token::Type type, std::string_view error)
     advance();
 }
 
+void Compiler::consumeNewLine()
+{
+    consume(Token::Type::NewLine, "expected new line");
+}
+
 void Compiler::parsePrecedence(Precedence precedence)
 {
     advance();
@@ -177,7 +182,20 @@ void Compiler::constant()
 
 void Compiler::declaration()
 {
-    statement();
+    if (match(Token::Type::Var))
+        declarationVar();
+    else
+        statement();
+}
+
+void Compiler::declarationVar()
+{
+    if (match(Token::Type::Equal))
+        expression();
+    else
+        emit(Opcode::Null);
+
+    consumeNewLine();
 }
 
 void Compiler::expression()
@@ -211,26 +229,28 @@ void Compiler::statement()
         statementAssert();
     else if (match(Token::Type::Print))
         statementPrint();
+    else
+        statementExpression();
 }
 
 void Compiler::statementAssert()
 {
     expression();
-    consume(Token::Type::NewLine, "expected new line");
+    consumeNewLine();
     emit(Opcode::Assert);
 }
 
 void Compiler::statementExpression()
 {
     expression();
-    consume(Token::Type::NewLine, "expected new line");
+    consumeNewLine();
     emit(Opcode::Discard);
 }
 
 void Compiler::statementPrint()
 {
     expression();
-    consume(Token::Type::NewLine, "expected new line");
+    consumeNewLine();
     emit(Opcode::Print);
 }
 

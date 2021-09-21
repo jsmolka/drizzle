@@ -14,10 +14,13 @@
     <Text Include="CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\drizzle\src\chunk.cpp" />
+    <ClCompile Include="..\drizzle\src\compiler.cpp" />
     <ClCompile Include="..\drizzle\src\dzobject.cpp" />
     <ClCompile Include="..\drizzle\src\dzstring.cpp" />
     <ClCompile Include="..\drizzle\src\dzvalue.cpp" />
     <ClCompile Include="..\drizzle\src\scanner.cpp" />
+    <ClCompile Include="..\drizzle\src\vm.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -30,6 +33,8 @@
     <None Include="src\scanner\number.inl" />
     <None Include="src\scanner\string.inl" />
     <None Include="src\scanner\tokens.inl" />
+    <None Include="src\vm.inl" />
+    <None Include="src\vm\assertion.inl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\scanner\whitespace.inl" />

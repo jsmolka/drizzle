@@ -33,6 +33,15 @@
     <ClCompile Include="..\drizzle\src\dzvalue.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\drizzle\src\chunk.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\drizzle\src\compiler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\drizzle\src\vm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\scanner.inl">
@@ -60,6 +69,12 @@
       <Filter>Header Files</Filter>
     </None>
     <None Include="src\scanner\identifiers.inl">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="src\vm.inl">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="src\vm\assertion.inl">
       <Filter>Header Files</Filter>
     </None>
   </ItemGroup>

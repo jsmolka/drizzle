@@ -14,10 +14,13 @@ include_directories(../drizzle/modules/shell/include)
 file(GLOB_RECURSE SOURCE_FILES
   ${PROJECT_SOURCE_DIR}/src/*.h
   ${PROJECT_SOURCE_DIR}/src/*.cpp
-  ../drizzle/src/scanner.cpp
+  ../drizzle/src/chunk.cpp
+  ../drizzle/src/compiler.cpp
   ../drizzle/src/dzobject.cpp
   ../drizzle/src/dzstring.cpp
   ../drizzle/src/dzvalue.cpp
+  ../drizzle/src/scanner.cpp
+  ../drizzle/src/vm.cpp
 )
 
 add_executable(${CMAKE_PROJECT_NAME} ${SOURCE_FILES})

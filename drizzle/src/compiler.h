@@ -56,11 +56,13 @@ private:
     bool check(Token::Type type) const;
     bool match(Token::Type type);
     void consume(Token::Type type, std::string_view error);
+    void consumeNewLine();
     void parsePrecedence(Precedence precedence);
 
     void binary();
     void constant();
     void declaration();
+    void declarationVar();
     void expression();
     void grouping();
     void literal();
