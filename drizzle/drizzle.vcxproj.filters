@@ -97,5 +97,8 @@
     <ClInclude Include="src\interning.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\dztable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

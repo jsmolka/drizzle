@@ -29,6 +29,8 @@ void Vm::interpret(const Tokens& tokens)
         case Opcode::BitXor: bitXor(); break;
         case Opcode::Constant: constant(); break;
         case Opcode::ConstantExt: constantExt(); break;
+        case Opcode::DefineGlobalVar: defineGlobalVar(); break;
+        case Opcode::DefineGlobalVarExt: defineGlobalVarExt(); break;
         case Opcode::Discard: discard(); break;
         case Opcode::Divide: divide(); break;
         case Opcode::DivideInt: divideInt(); break;
@@ -268,6 +270,18 @@ void Vm::constant()
 void Vm::constantExt()
 {
     stack.push(chunk.constants[read<u16>()]);
+}
+
+void Vm::defineGlobalVar()
+{
+    auto string = static_cast<DzString*>(chunk.constants[read<u8>()].o);
+    globals.insert({ string->hash, stack.pop() });
+}
+
+void Vm::defineGlobalVarExt()
+{
+    auto string = static_cast<DzString*>(chunk.constants[read<u16>()].o);
+    globals.insert({ string->hash, stack.pop() });
 }
 
 void Vm::discard()

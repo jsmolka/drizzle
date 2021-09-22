@@ -83,7 +83,7 @@ void Compiler::emit(Bytes... bytes)
 
 void Compiler::emitConstant(DzValue value)
 {
-    int index = chunk->constants.size();
+    std::size_t index = chunk->constants.size();
     if (index <= std::numeric_limits<u8>::max())
         emit(Opcode::Constant, index);
     else if (index <= std::numeric_limits<u16>::max())
@@ -92,6 +92,19 @@ void Compiler::emitConstant(DzValue value)
         throw CompilerError("constant limit exceeded");
 
     chunk->constants.push_back(value);
+}
+
+void Compiler::emitGlobalVar(DzString* identifier)
+{
+    std::size_t index = chunk->constants.size();
+    if (index <= std::numeric_limits<u8>::max())
+        emit(Opcode::DefineGlobalVar, index);
+    else if (index <= std::numeric_limits<u16>::max())
+        emit(Opcode::DefineGlobalVarExt, index, index >> 8);
+    else
+        throw CompilerError("constant limit exceeded");
+
+    chunk->constants.push_back(identifier);
 }
 
 void Compiler::advance()
@@ -208,10 +221,15 @@ void Compiler::declaration()
 
 void Compiler::declarationVar()
 {
+    consume(Token::Type::Identifier, "expected identifier");
+    std::string identifier(parser.previous.lexeme);
+
     if (match(Token::Type::Equal))
         expression();
     else
         emit(Opcode::Null);
+
+    emitGlobalVar(interning.make(std::move(identifier)));
 
     consumeNewLine();
 }

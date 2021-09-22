@@ -13,6 +13,8 @@ enum class Opcode
     BitXor,
     Constant,
     ConstantExt,
+    DefineGlobalVar,
+    DefineGlobalVarExt,
     Discard,
     Divide,
     DivideInt,

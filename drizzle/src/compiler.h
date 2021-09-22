@@ -54,6 +54,7 @@ private:
     template<typename... Bytes>
     void emit(Bytes... bytes);
     void emitConstant(DzValue value);
+    void emitGlobalVar(DzString* identifier);
 
     void advance();
     bool check(Token::Type type) const;
