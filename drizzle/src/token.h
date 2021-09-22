@@ -1,11 +1,14 @@
 #pragma once
 
+#include <string>
+#include <variant>
 #include <vector>
 
-#include "dzvalue.h"
+#include "dztypes.h"
 
-struct Token
+class Token
 {
+public:
     enum class Type
     {
         And,
@@ -76,9 +79,9 @@ struct Token
     };
 
     Type type;
-    DzValue value;
     std::size_t line;
     std::string_view lexeme;
+    std::variant<dzint, dzfloat, std::string> value;
 };
 
 using Tokens = std::vector<Token>;

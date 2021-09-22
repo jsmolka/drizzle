@@ -177,7 +177,15 @@ void Compiler::binary()
 
 void Compiler::constant()
 {
-    emitConstant(parser.previous.value);
+    DzValue value;
+    switch (parser.previous.value.index())
+    {
+    case 0: value.set(std::get<0>(parser.previous.value)); break;
+    case 1: value.set(std::get<1>(parser.previous.value)); break;
+    case 2: value.set(new DzString(std::get<2>(parser.previous.value))); break;
+    }
+
+    emitConstant(value);
 }
 
 void Compiler::declaration()

@@ -492,7 +492,7 @@ void Scanner::parseInt(int base)
         errno = 0;
         throw SyntaxError(token.lexeme.data(), "cannot parse int");
     }
-    token.value.set(value);
+    token.value = value;
 }
 
 void Scanner::parseFloat()
@@ -505,7 +505,7 @@ void Scanner::parseFloat()
         errno = 0;
         throw SyntaxError(token.lexeme.data(), "cannot parse float");
     }
-    token.value.set(value);
+    token.value = value;
 }
 
 void Scanner::parseString()
@@ -554,5 +554,5 @@ void Scanner::parseString()
     {
         string = data;
     }
-    token.value.set(new DzString(std::move(string)));
+    token.value = std::move(string);
 }
