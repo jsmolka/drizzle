@@ -8,6 +8,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -flto")
 
 include_directories(src)
 include_directories(modules/shell/include)
+include_directories(modules/robin-hood-hashing/src/include)
 
 file(GLOB_RECURSE SOURCE_FILES
   ${PROJECT_SOURCE_DIR}/src/*.h
