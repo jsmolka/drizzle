@@ -1,17 +1,9 @@
 #include "dzstring.h"
 
-DzString::DzString(const std::string& data)
+DzString::DzString(std::string&& data, std::size_t hash)
     : DzObject(Type::String)
-    , data(data)
-    , hash(robin_hood::hash<std::string>()(data))
-{
-
-}
-
-DzString::DzString(std::string&& data)
-    : DzObject(Type::String)
-    , data(data)
-    , hash(robin_hood::hash<std::string>()(data))
+    , data(std::move(data))
+    , hash(hash)
 {
 
 }
@@ -24,14 +16,4 @@ std::string_view DzString::typeName() const
 DzString::operator bool() const
 {
     return data.size() > 0;
-}
-
-bool DzString::operator==(const DzString& other)
-{
-    return data == other.data;
-}
-
-bool DzString::operator!=(const DzString& other)
-{
-    return data != other.data;
 }

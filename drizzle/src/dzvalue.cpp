@@ -128,7 +128,7 @@ bool DzValue::operator==(const DzValue& other) const
     case DzValue::Type::Int:    return i == other.i;
     case DzValue::Type::Float:  return f == other.f;
     case DzValue::Type::Null:   return true;
-    case DzValue::Type::Object: return *o == *other.o;
+    case DzValue::Type::Object: return o == other.o;
 
     default:
         SHELL_UNREACHABLE;

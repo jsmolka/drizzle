@@ -12,8 +12,6 @@ public:
     std::string_view typeName() const;
 
     operator bool() const;
-    bool operator==(const DzObject& other);
-    bool operator!=(const DzObject& other);
 
     const Type type;
 

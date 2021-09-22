@@ -22,6 +22,7 @@
     <ClCompile Include="src\dzobject.cpp" />
     <ClCompile Include="src\dzstring.cpp" />
     <ClCompile Include="src\dzvalue.cpp" />
+    <ClCompile Include="src\interning.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\scanner.cpp" />
     <ClCompile Include="src\vm.cpp" />
@@ -34,6 +35,7 @@
     <ClInclude Include="src\errors.h" />
     <ClInclude Include="src\format.h" />
     <ClInclude Include="src\int.h" />
+    <ClInclude Include="src\interning.h" />
     <ClInclude Include="src\opcode.h" />
     <ClInclude Include="src\scanner.h" />
     <ClInclude Include="src\stack.h" />

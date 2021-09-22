@@ -1,11 +1,14 @@
 #pragma once
 
 #include "chunk.h"
+#include "interning.h"
 #include "token.h"
 
 class Compiler
 {
 public:
+    Compiler(Interning& interning);
+
     void compile(const Tokens& tokens, Chunk& chunk);
 
 private:
@@ -75,4 +78,5 @@ private:
     Parser parser;
     Tokens::const_iterator token;
     Chunk* chunk;
+    Interning& interning;
 };

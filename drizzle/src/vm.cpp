@@ -9,7 +9,7 @@
 
 void Vm::interpret(const Tokens& tokens)
 {
-    Compiler compiler;
+    Compiler compiler(interning);
     compiler.compile(tokens, chunk);
 
     ip = chunk.code.data();
@@ -185,8 +185,15 @@ void Vm::add()
     if (lhs.isPrimitive() && rhs.isPrimitive())
         primitiveBinary(lhs, rhs, [](auto a, auto b) { return a + b; });
     else if (lhs.isString() && rhs.isString())
-        void(0);
-        //static_cast<DzString*>(lhs.o)->data += static_cast<DzString*>(rhs.o)->data;
+    {
+        std::string str;
+        str.reserve(
+            static_cast<DzString*>(lhs.o)->data.size() +
+            static_cast<DzString*>(rhs.o)->data.size());
+        str.append(static_cast<DzString*>(lhs.o)->data);
+        str.append(static_cast<DzString*>(rhs.o)->data);
+        lhs.set(interning.make(std::move(str)));
+    }
     else
         raiseTypeError("+", lhs, rhs);
 }

@@ -7,6 +7,12 @@
 #include "dzstring.h"
 #include "errors.h"
 
+Compiler::Compiler(Interning& interning)
+    : interning(interning)
+{
+
+}
+
 void Compiler::compile(const Tokens& tokens, Chunk& chunk)
 {
     this->token = tokens.begin();
@@ -182,7 +188,11 @@ void Compiler::constant()
     {
     case 0: value.set(std::get<0>(parser.previous.value)); break;
     case 1: value.set(std::get<1>(parser.previous.value)); break;
-    case 2: value.set(new DzString(std::get<2>(parser.previous.value))); break;
+    case 2: value.set(interning.make(std::move(std::get<2>(parser.previous.value)))); break;
+
+    default:
+        SHELL_UNREACHABLE;
+        break;
     }
 
     emitConstant(value);

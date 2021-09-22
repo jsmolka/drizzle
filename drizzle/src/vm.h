@@ -1,6 +1,7 @@
 #pragma once
 
 #include "chunk.h"
+#include "interning.h"
 #include "stack.h"
 #include "token.h"
 
@@ -60,4 +61,5 @@ private:
     Chunk chunk;
     const u8* ip;
     Stack<DzValue, 512> stack;
+    Interning interning;
 };

@@ -19,6 +19,7 @@
     <ClCompile Include="..\drizzle\src\dzobject.cpp" />
     <ClCompile Include="..\drizzle\src\dzstring.cpp" />
     <ClCompile Include="..\drizzle\src\dzvalue.cpp" />
+    <ClCompile Include="..\drizzle\src\interning.cpp" />
     <ClCompile Include="..\drizzle\src\scanner.cpp" />
     <ClCompile Include="..\drizzle\src\vm.cpp" />
     <ClCompile Include="src\main.cpp" />

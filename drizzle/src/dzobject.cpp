@@ -36,27 +36,6 @@ DzObject::operator bool() const
     }
 }
 
-bool DzObject::operator==(const DzObject& other)
-{
-    if (type != other.type)
-        return false;
-
-    switch (type)
-    {
-    case Type::String:
-        return as<DzString>() == other.as<DzString>();
-
-    default:
-        SHELL_UNREACHABLE;
-        return false;
-    }
-}
-
-bool DzObject::operator!=(const DzObject& other)
-{
-    return !(*this == other);
-}
-
 template<typename T>
 const T& DzObject::as() const
 {

@@ -20,6 +20,7 @@ file(GLOB_RECURSE SOURCE_FILES
   ../drizzle/src/dzobject.cpp
   ../drizzle/src/dzstring.cpp
   ../drizzle/src/dzvalue.cpp
+  ../drizzle/src/interning.cpp
   ../drizzle/src/scanner.cpp
   ../drizzle/src/vm.cpp
 )
