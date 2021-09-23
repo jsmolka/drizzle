@@ -41,6 +41,8 @@ void Vm::interpret(const Tokens& tokens)
         case Opcode::GreaterEqual: greaterEqual(); break;
         case Opcode::Less: less(); break;
         case Opcode::LessEqual: lessEqual(); break;
+        case Opcode::LoadGLobalVar: loadGlobalVar(); break;
+        case Opcode::LoadGlobalVarExt: loadGlobalVarExt(); break;
         case Opcode::Modulo: modulo(); break;
         case Opcode::Multiply: multiply(); break;
         case Opcode::Negate: negate(); break;
@@ -346,6 +348,26 @@ void Vm::lessEqual()
 {
     auto [lhs, rhs] = primitiveOperands("<=");
     primitiveBinary(lhs, rhs, [](auto a, auto b) { return a <= b; });
+}
+
+void Vm::loadGlobalVar()
+{
+    auto string = static_cast<DzString*>(chunk.constants[read<u8>()].o);
+    auto iter = globals.find(string->hash);
+    if (iter == globals.end())
+        raise<RuntimeError>("undefined variable '{}'", string->data);
+
+    stack.push(iter->second);
+}
+
+void Vm::loadGlobalVarExt()
+{
+    auto string = static_cast<DzString*>(chunk.constants[read<u16>()].o);
+    auto iter = globals.find(string->hash);
+    if (iter == globals.end())
+        raise<RuntimeError>("undefined variable '{}'", string->data);
+
+    stack.push(iter->second);
 }
 
 void Vm::modulo()

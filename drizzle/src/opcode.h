@@ -25,6 +25,8 @@ enum class Opcode
     GreaterEqual,
     Less,
     LessEqual,
+    LoadGLobalVar,
+    LoadGlobalVarExt,
     Modulo,
     Multiply,
     Negate,

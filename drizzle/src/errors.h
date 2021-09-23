@@ -33,7 +33,7 @@ public:
     const std::size_t line;
 };
 
-class CompilerError : public Error
+class CompilerError final : public Error
 {
 public:
     using Error::Error;
@@ -44,7 +44,7 @@ public:
     }
 };
 
-class SyntaxError : public LocationError
+class SyntaxError final : public LocationError
 {
 public:
     using LocationError::LocationError;
@@ -59,9 +59,14 @@ class RuntimeError : public LineError
 {
 public:
     using LineError::LineError;
+
+    virtual std::string_view name() const noexcept
+    {
+        return "RuntimeError";
+    }
 };
 
-class AssertionError : public RuntimeError
+class AssertionError final : public RuntimeError
 {
 public:
     using RuntimeError::RuntimeError;
@@ -72,7 +77,7 @@ public:
     }
 };
 
-class TypeError : public RuntimeError
+class TypeError final : public RuntimeError
 {
 public:
     using RuntimeError::RuntimeError;
@@ -83,7 +88,7 @@ public:
     }
 };
 
-class ZeroDivsionError : public RuntimeError
+class ZeroDivsionError final : public RuntimeError
 {
 public:
     using RuntimeError::RuntimeError;

@@ -44,6 +44,7 @@ const Compiler::ParseRule& Compiler::rule(Token::Type type)
         case Token::Type::Greater2:     return { nullptr,             &Compiler::binary, kPrecedenceBitShift };
         case Token::Type::Greater3:     return { nullptr,             &Compiler::binary, kPrecedenceBitShift };
         case Token::Type::GreaterEqual: return { nullptr,             &Compiler::binary, kPrecedenceEquality };
+        case Token::Type::Identifier:   return { &Compiler::variable, nullptr,           kPrecedenceNone     };
         case Token::Type::Integer:      return { &Compiler::constant, nullptr,           kPrecedenceTerm     };
         case Token::Type::Less:         return { nullptr,             &Compiler::binary, kPrecedenceEquality };
         case Token::Type::Less2:        return { nullptr,             &Compiler::binary, kPrecedenceBitShift };
@@ -81,30 +82,17 @@ void Compiler::emit(Bytes... bytes)
     (chunk->write(bytes, parser.previous.line), ...);
 }
 
-void Compiler::emitConstant(DzValue value)
+void Compiler::emitValue(DzValue value, Opcode opcode, Opcode opcode_ext)
 {
     std::size_t index = chunk->constants.size();
     if (index <= std::numeric_limits<u8>::max())
-        emit(Opcode::Constant, index);
+        emit(opcode, index);
     else if (index <= std::numeric_limits<u16>::max())
-        emit(Opcode::ConstantExt, index, index >> 8);
+        emit(opcode_ext, index, index >> 8);
     else
         throw CompilerError("constant limit exceeded");
 
     chunk->constants.push_back(value);
-}
-
-void Compiler::emitGlobalVar(DzString* identifier)
-{
-    std::size_t index = chunk->constants.size();
-    if (index <= std::numeric_limits<u8>::max())
-        emit(Opcode::DefineGlobalVar, index);
-    else if (index <= std::numeric_limits<u16>::max())
-        emit(Opcode::DefineGlobalVarExt, index, index >> 8);
-    else
-        throw CompilerError("constant limit exceeded");
-
-    chunk->constants.push_back(identifier);
 }
 
 void Compiler::advance()
@@ -208,7 +196,7 @@ void Compiler::constant()
         break;
     }
 
-    emitConstant(value);
+    emitValue(value, Opcode::Constant, Opcode::ConstantExt);
 }
 
 void Compiler::declaration()
@@ -229,7 +217,8 @@ void Compiler::declarationVar()
     else
         emit(Opcode::Null);
 
-    emitGlobalVar(interning.make(std::move(identifier)));
+    auto value = interning.make(std::move(identifier));
+    emitValue(value, Opcode::DefineGlobalVar, Opcode::DefineGlobalVarExt);
 
     consumeNewLine();
 }
@@ -305,4 +294,11 @@ void Compiler::unary()
         SHELL_UNREACHABLE;
         break;
     }
+}
+
+void Compiler::variable()
+{
+    std::string identifier(parser.previous.lexeme);
+    auto value = interning.make(std::move(identifier));
+    emitValue(value, Opcode::LoadGLobalVar, Opcode::LoadGlobalVarExt);
 }

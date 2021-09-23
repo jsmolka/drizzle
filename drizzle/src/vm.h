@@ -48,6 +48,8 @@ private:
     void greaterEqual();
     void less();
     void lessEqual();
+    void loadGlobalVar();
+    void loadGlobalVarExt();
     void modulo();
     void multiply();
     void negate();

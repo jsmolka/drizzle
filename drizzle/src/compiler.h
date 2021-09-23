@@ -53,8 +53,7 @@ private:
 
     template<typename... Bytes>
     void emit(Bytes... bytes);
-    void emitConstant(DzValue value);
-    void emitGlobalVar(DzString* identifier);
+    void emitValue(DzValue value, Opcode small, Opcode large);
 
     void advance();
     bool check(Token::Type type) const;
@@ -75,6 +74,7 @@ private:
     void statementExpression();
     void statementPrint();
     void unary();
+    void variable();
 
     Parser parser;
     Tokens::const_iterator token;
