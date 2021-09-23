@@ -37,6 +37,8 @@ void Vm::interpret(const Tokens& tokens)
         case Opcode::False: valueFalse(); break;
         case Opcode::Greater: greater(); break;
         case Opcode::GreaterEqual: greaterEqual(); break;
+        case Opcode::Jump: jump(); break;
+        case Opcode::JumpFalsy: jumpFalsy(); break;
         case Opcode::Less: less(); break;
         case Opcode::LessEqual: lessEqual(); break;
         case Opcode::LoadVariable: loadVariable(); break;
@@ -324,6 +326,18 @@ void Vm::greaterEqual()
 {
     auto [lhs, rhs] = primitiveOperands(">=");
     primitiveBinary(lhs, rhs, [](auto a, auto b) { return a >= b; });
+}
+
+void Vm::jump()
+{
+    ip += read<u16>();
+}
+
+void Vm::jumpFalsy()
+{
+    auto offset = read<u16>();
+    if (!stack.peek(0))
+        ip += offset;
 }
 
 void Vm::less()

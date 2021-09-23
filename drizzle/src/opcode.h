@@ -21,6 +21,8 @@ enum class Opcode
     False,
     Greater,
     GreaterEqual,
+    Jump,
+    JumpFalsy,
     Less,
     LessEqual,
     LoadVariable,

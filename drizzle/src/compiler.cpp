@@ -108,6 +108,22 @@ void Compiler::emitVariable(std::size_t index, Opcode opcode, Opcode opcode_ext)
         throw CompilerError("variable limit exceeded");
 }
 
+std::size_t Compiler::emitJump(Opcode opcode)
+{
+    emit(opcode, 0xFF, 0xFF);
+    return chunk->code.size() - 2;
+}
+
+void Compiler::patchJump(std::size_t offset)
+{
+    auto jump = chunk->code.size() - offset - 2;
+    if (jump > std::numeric_limits<u16>::max())
+        throw CompilerError("jump too long '{}'", jump);
+
+    chunk->code[offset + 0] = jump;
+    chunk->code[offset + 1] = jump >> 8;
+}
+
 void Compiler::advance()
 {
     parser.previous = parser.current;
@@ -309,6 +325,8 @@ void Compiler::statement()
         statementPrint();
     else if (match(Token::Type::Block))
         statementBlock();
+    else if (match(Token::Type::If))
+        statementIf();
     else
         statementExpression();
 }
@@ -344,6 +362,21 @@ void Compiler::statementExpression()
     expression();
     consumeNewLine();
     emit(Opcode::Discard);
+}
+
+void Compiler::statementIf()
+{
+    expression();
+
+    auto jump_then = emitJump(Opcode::JumpFalsy);
+    emit(Opcode::Discard);
+    statementBlock();
+    auto jump_else = emitJump(Opcode::Jump);
+    patchJump(jump_then);
+
+    if (match(Token::Type::Else))
+        statementBlock();
+    patchJump(jump_else);
 }
 
 void Compiler::statementPrint()

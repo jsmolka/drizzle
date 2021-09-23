@@ -44,6 +44,8 @@ private:
     void equal();
     void greater();
     void greaterEqual();
+    void jump();
+    void jumpFalsy();
     void less();
     void lessEqual();
     void loadVariable();
