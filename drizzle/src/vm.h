@@ -38,8 +38,6 @@ private:
     void bitXor();
     void constant();
     void constantExt();
-    void defineGlobalVar();
-    void defineGlobalVarExt();
     void discard();
     void divide();
     void divideInt();
@@ -48,8 +46,8 @@ private:
     void greaterEqual();
     void less();
     void lessEqual();
-    void loadGlobalVar();
-    void loadGlobalVarExt();
+    void loadVariable();
+    void loadVariableExt();
     void modulo();
     void multiply();
     void negate();
@@ -57,8 +55,8 @@ private:
     void notEqual();
     void power();
     void print();
-    void storeGlobalVar();
-    void storeGlobalVarExt();
+    void storeVariable();
+    void storeVariableExt();
     void subtract();
     void valueFalse();
     void valueNull();
@@ -68,5 +66,4 @@ private:
     const u8* ip;
     Stack<DzValue, 512> stack;
     Interning interning;
-    DzTable<DzValue> globals;
 };

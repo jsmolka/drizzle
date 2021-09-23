@@ -46,6 +46,12 @@ private:
         Precedence precedence;
     };
 
+    struct Local
+    {
+        std::string_view identifier;
+        std::size_t depth;
+    };
+
     static const ParseRule& rule(Token::Type type);
 
     template<typename Error, typename... Args>
@@ -53,13 +59,21 @@ private:
 
     template<typename... Bytes>
     void emit(Bytes... bytes);
-    void emitValue(DzValue value, Opcode small, Opcode large);
+    void emitConstant(DzValue value);
+    void emitVariable(std::size_t index, Opcode opcode, Opcode opcode_ext);
 
     void advance();
     bool check(Token::Type type) const;
     bool match(Token::Type type);
     void consume(Token::Type type, std::string_view error);
+    void consumeColon();
+    void consumeDedent();
+    void consumeIndent();
     void consumeNewLine();
+
+    void beginScope();
+    void endScope();
+
     void parsePrecedence(Precedence precedence);
 
     void binary(bool);
@@ -71,6 +85,7 @@ private:
     void literal(bool);
     void statement();
     void statementAssert();
+    void statementBlock();
     void statementExpression();
     void statementPrint();
     void unary(bool);
@@ -80,4 +95,6 @@ private:
     Tokens::const_iterator token;
     Chunk* chunk;
     Interning& interning;
+    std::size_t scope_depth;
+    std::vector<Local> locals;
 };

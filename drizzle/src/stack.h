@@ -46,6 +46,11 @@ public:
         head = data;
     }
 
+    const T& atBottom(std::size_t index) const
+    {
+        return data[index];
+    }
+
     T& operator[](std::ptrdiff_t pos)
     {
         return *(head - pos - 1);

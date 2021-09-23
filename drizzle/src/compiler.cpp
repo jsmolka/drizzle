@@ -3,6 +3,7 @@
 #include <limits>
 #include <shell/array.h>
 #include <shell/macros.h>
+#include <shell/ranges.h>
 
 #include "dzstring.h"
 #include "errors.h"
@@ -17,6 +18,8 @@ void Compiler::compile(const Tokens& tokens, Chunk& chunk)
 {
     this->token = tokens.begin();
     this->chunk = &chunk;
+    this->scope_depth = 0;
+    this->locals.clear();
 
     advance();
     
@@ -82,17 +85,27 @@ void Compiler::emit(Bytes... bytes)
     (chunk->write(bytes, parser.previous.line), ...);
 }
 
-void Compiler::emitValue(DzValue value, Opcode opcode, Opcode opcode_ext)
+void Compiler::emitConstant(DzValue value)
 {
     std::size_t index = chunk->constants.size();
+    if (index <= std::numeric_limits<u8>::max())
+        emit(Opcode::Constant, index);
+    else if (index <= std::numeric_limits<u16>::max())
+        emit(Opcode::ConstantExt, index, index >> 8);
+    else
+        throw CompilerError("constant limit exceeded");
+
+    chunk->constants.push_back(value);
+}
+
+void Compiler::emitVariable(std::size_t index, Opcode opcode, Opcode opcode_ext)
+{
     if (index <= std::numeric_limits<u8>::max())
         emit(opcode, index);
     else if (index <= std::numeric_limits<u16>::max())
         emit(opcode_ext, index, index >> 8);
     else
-        throw CompilerError("constant limit exceeded");
-
-    chunk->constants.push_back(value);
+        throw CompilerError("variable limit exceeded");
 }
 
 void Compiler::advance()
@@ -124,9 +137,40 @@ void Compiler::consume(Token::Type type, std::string_view error)
     advance();
 }
 
+void Compiler::consumeColon()
+{
+    consume(Token::Type::Colon, "expected colon");
+}
+
 void Compiler::consumeNewLine()
 {
     consume(Token::Type::NewLine, "expected new line");
+}
+
+void Compiler::consumeIndent()
+{
+    consume(Token::Type::Indent, "expected indent");
+}
+
+void Compiler::consumeDedent()
+{
+    consume(Token::Type::Dedent, "expected dedent");
+}
+
+void Compiler::beginScope()
+{
+    scope_depth++;
+}
+
+void Compiler::endScope()
+{
+    scope_depth--;
+
+    while (locals.size() && locals.back().depth > scope_depth)
+    {
+        emit(Opcode::Discard);
+        locals.pop_back();
+    }
 }
 
 void Compiler::parsePrecedence(Precedence precedence)
@@ -200,7 +244,7 @@ void Compiler::constant(bool)
         break;
     }
 
-    emitValue(value, Opcode::Constant, Opcode::ConstantExt);
+    emitConstant(value);
 }
 
 void Compiler::declaration()
@@ -214,15 +258,20 @@ void Compiler::declaration()
 void Compiler::declarationVar()
 {
     consume(Token::Type::Identifier, "expected identifier");
-    std::string identifier(parser.previous.lexeme);
+    auto identifier = parser.previous.lexeme;
 
     if (match(Token::Type::Equal))
         expression();
     else
         emit(Opcode::Null);
 
-    auto value = interning.make(std::move(identifier));
-    emitValue(value, Opcode::DefineGlobalVar, Opcode::DefineGlobalVarExt);
+    // Todo: better exit condition?
+    for (const auto& local : shell::reversed(locals))
+    {
+        if (local.identifier == identifier && local.depth == scope_depth)
+            raise<SyntaxError>("redeclared '{}'", identifier);
+    }
+    locals.push_back({ identifier, scope_depth });
 
     consumeNewLine();
 }
@@ -258,6 +307,8 @@ void Compiler::statement()
         statementAssert();
     else if (match(Token::Type::Print))
         statementPrint();
+    else if (match(Token::Type::Block))
+        statementBlock();
     else
         statementExpression();
 }
@@ -267,6 +318,25 @@ void Compiler::statementAssert()
     expression();
     consumeNewLine();
     emit(Opcode::Assert);
+}
+
+void Compiler::statementBlock()
+{
+    consumeColon();
+    consumeNewLine();
+    consumeIndent();
+
+    if (check(Token::Type::Dedent))
+        raise<SyntaxError>("bad dedent");
+
+    beginScope();
+
+    while (!check(Token::Type::Dedent) && !check(Token::Type::Eof))
+        declaration();
+
+    endScope();
+
+    consumeDedent();
 }
 
 void Compiler::statementExpression()
@@ -302,16 +372,26 @@ void Compiler::unary(bool)
 
 void Compiler::variable(bool can_assign)
 {
-    std::string identifier(parser.previous.lexeme);
-    auto value = interning.make(std::move(identifier));
+    auto identifier = parser.previous.lexeme;
+    auto resolve = [this](std::string_view identifier) -> std::size_t
+    {
+        for (const auto& [index, local] : shell::enumerate(shell::reversed(locals)))
+        {
+            if (local.identifier == identifier)
+                return locals.size() - index - 1;
+        }
+        raise<SyntaxError>("undefined variable '{}'", identifier);
+        return -1;
+    };
 
+    auto index = resolve(identifier);
     if (can_assign && match(Token::Type::Equal))
     {
         expression();
-        emitValue(value, Opcode::StoreGlobalVar, Opcode::StoreGlobalVarExt);
+        emitVariable(index, Opcode::StoreVariable, Opcode::StoreVariableExt);
     }
     else
     {
-        emitValue(value, Opcode::LoadGLobalVar, Opcode::LoadGlobalVarExt);
+        emitVariable(index, Opcode::LoadVariable, Opcode::LoadVariableExt);
     }
 }

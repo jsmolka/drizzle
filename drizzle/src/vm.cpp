@@ -29,8 +29,6 @@ void Vm::interpret(const Tokens& tokens)
         case Opcode::BitXor: bitXor(); break;
         case Opcode::Constant: constant(); break;
         case Opcode::ConstantExt: constantExt(); break;
-        case Opcode::DefineGlobalVar: defineGlobalVar(); break;
-        case Opcode::DefineGlobalVarExt: defineGlobalVarExt(); break;
         case Opcode::Discard: discard(); break;
         case Opcode::Divide: divide(); break;
         case Opcode::DivideInt: divideInt(); break;
@@ -41,8 +39,8 @@ void Vm::interpret(const Tokens& tokens)
         case Opcode::GreaterEqual: greaterEqual(); break;
         case Opcode::Less: less(); break;
         case Opcode::LessEqual: lessEqual(); break;
-        case Opcode::LoadGLobalVar: loadGlobalVar(); break;
-        case Opcode::LoadGlobalVarExt: loadGlobalVarExt(); break;
+        case Opcode::LoadVariable: loadVariable(); break;
+        case Opcode::LoadVariableExt: loadVariableExt(); break;
         case Opcode::Modulo: modulo(); break;
         case Opcode::Multiply: multiply(); break;
         case Opcode::Negate: negate(); break;
@@ -51,8 +49,8 @@ void Vm::interpret(const Tokens& tokens)
         case Opcode::Null: valueNull(); break;
         case Opcode::Power: power(); break;
         case Opcode::Print: print(); break;
-        case Opcode::StoreGlobalVar: storeGlobalVar(); break;
-        case Opcode::StoreGlobalVarExt: storeGlobalVarExt(); break;
+        case Opcode::StoreVariable: storeVariable(); break;
+        case Opcode::StoreVariableExt: storeVariableExt(); break;
         case Opcode::Subtract: subtract(); break;
         case Opcode::True: valueTrue(); break;
 
@@ -276,24 +274,6 @@ void Vm::constantExt()
     stack.push(chunk.constants[read<u16>()]);
 }
 
-void Vm::defineGlobalVar()
-{
-    auto string = static_cast<DzString*>(chunk.constants[read<u8>()].o);
-    if (globals.contains(string->hash))
-        raise<RuntimeError>("variable redefinition '{}'", string->data);
-
-    globals.insert({ string->hash, stack.pop() });
-}
-
-void Vm::defineGlobalVarExt()
-{
-    auto string = static_cast<DzString*>(chunk.constants[read<u16>()].o);
-    if (globals.contains(string->hash))
-        raise<RuntimeError>("variable redefinition '{}'", string->data);
-
-    globals.insert({ string->hash, stack.pop() });
-}
-
 void Vm::discard()
 {
     stack.pop();
@@ -358,24 +338,16 @@ void Vm::lessEqual()
     primitiveBinary(lhs, rhs, [](auto a, auto b) { return a <= b; });
 }
 
-void Vm::loadGlobalVar()
+void Vm::loadVariable()
 {
-    auto string = static_cast<DzString*>(chunk.constants[read<u8>()].o);
-    auto iter = globals.find(string->hash);
-    if (iter == globals.end())
-        raise<RuntimeError>("undefined variable '{}'", string->data);
-
-    stack.push(iter->second);
+    auto index = read<u8>();
+    stack.push(stack.atBottom(index));
 }
 
-void Vm::loadGlobalVarExt()
+void Vm::loadVariableExt()
 {
-    auto string = static_cast<DzString*>(chunk.constants[read<u16>()].o);
-    auto iter = globals.find(string->hash);
-    if (iter == globals.end())
-        raise<RuntimeError>("undefined variable '{}'", string->data);
-
-    stack.push(iter->second);
+    auto index = read<u16>();
+    stack.push(stack.atBottom(index));
 }
 
 void Vm::modulo()
@@ -440,24 +412,16 @@ void Vm::print()
     shell::print("{}\n", stack.pop());
 }
 
-void Vm::storeGlobalVar()
+void Vm::storeVariable()
 {
-    auto string = static_cast<DzString*>(chunk.constants[read<u8>()].o);
-    auto iter = globals.find(string->hash);
-    if (iter == globals.end())
-        raise<RuntimeError>("undefined variable '{}'", string->data);
-
-    iter->second = stack[0];
+    auto index = read<u8>();
+    stack[index] = stack[0];
 }
 
-void Vm::storeGlobalVarExt()
+void Vm::storeVariableExt()
 {
-    auto string = static_cast<DzString*>(chunk.constants[read<u16>()].o);
-    auto iter = globals.find(string->hash);
-    if (iter == globals.end())
-        raise<RuntimeError>("undefined variable '{}'", string->data);
-
-    iter->second = stack[0];
+    auto index = read<u16>();
+    stack[index] = stack[0];
 }
 
 void Vm::subtract()

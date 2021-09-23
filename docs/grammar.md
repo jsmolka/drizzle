@@ -15,9 +15,12 @@ The remaining statement rules produce side effects, but do not introduce binding
 statement         → exprStmt
                   | assertStmt
                   | printStmt
+                  | block
+
 exprStmt          → expression NEWLINE ;
 assertStmt        → "assert" expression NEWLINE ;
 printStmt         → "print" expression NEWLINE ;
+block             → "block" ":" NEWLINE INDENT declaration+ DEDENT ;
 ```
 
 ## Expressions
