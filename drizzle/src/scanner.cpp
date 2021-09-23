@@ -371,6 +371,7 @@ void Scanner::scanIdentifier()
     static constexpr std::tuple<std::string_view, Token::Type> kKeywords[] =
     {
         { "assert",   Token::Type::Assert   },
+        { "block",    Token::Type::Block    },
         { "break",    Token::Type::Break    },
         { "class",    Token::Type::Class    },
         { "continue", Token::Type::Continue },

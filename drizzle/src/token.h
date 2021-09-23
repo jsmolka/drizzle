@@ -16,6 +16,7 @@ public:
         Assert,
         Bang,
         BangEqual,
+        Block,
         BraceLeft,
         BraceRight,
         BracketLeft,
