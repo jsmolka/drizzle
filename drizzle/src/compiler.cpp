@@ -136,7 +136,8 @@ void Compiler::parsePrecedence(Precedence precedence)
     if (!prefix)
         raise<SyntaxError>("invalid syntax");
 
-    std::invoke(prefix, this);
+    bool can_assign = precedence <= kPrecedenceAssignment;
+    std::invoke(prefix, this, can_assign);
 
     while (precedence <= rule(parser.current.type).precedence)
     {
@@ -145,11 +146,14 @@ void Compiler::parsePrecedence(Precedence precedence)
         if (!infix)
             raise<SyntaxError>("invalid syntax");
 
-        std::invoke(infix, this);
+        std::invoke(infix, this, can_assign);
     }
+
+    if (can_assign && match(Token::Type::Equal))
+        raise<SyntaxError>("bad assignment");
 }
 
-void Compiler::binary()
+void Compiler::binary(bool)
 {
     auto token = parser.previous.type;
     parsePrecedence(Precedence(rule(token).precedence + 1));
@@ -182,7 +186,7 @@ void Compiler::binary()
     }
 }
 
-void Compiler::constant()
+void Compiler::constant(bool)
 {
     DzValue value;
     switch (parser.previous.value.index())
@@ -228,13 +232,13 @@ void Compiler::expression()
     parsePrecedence(kPrecedenceAssignment);
 }
 
-void Compiler::grouping()
+void Compiler::grouping(bool)
 {
     expression();
     consume(Token::Type::ParenRight, "expected ')'");
 }
 
-void Compiler::literal()
+void Compiler::literal(bool)
 {
     switch (parser.previous.type)
     {
@@ -279,7 +283,7 @@ void Compiler::statementPrint()
     emit(Opcode::Print);
 }
 
-void Compiler::unary()
+void Compiler::unary(bool)
 {
     auto token = parser.previous.type;
     parsePrecedence(kPrecedenceUnary);
@@ -296,12 +300,12 @@ void Compiler::unary()
     }
 }
 
-void Compiler::variable()
+void Compiler::variable(bool can_assign)
 {
     std::string identifier(parser.previous.lexeme);
     auto value = interning.make(std::move(identifier));
 
-    if (match(Token::Type::Equal))
+    if (can_assign && match(Token::Type::Equal))
     {
         expression();
         emitValue(value, Opcode::StoreGlobalVar, Opcode::StoreGlobalVarExt);

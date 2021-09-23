@@ -37,7 +37,7 @@ private:
         Token previous;
     };
 
-    using ParseFunction = void(Compiler::*)(void);
+    using ParseFunction = void(Compiler::*)(bool);
 
     struct ParseRule
     {
@@ -62,19 +62,19 @@ private:
     void consumeNewLine();
     void parsePrecedence(Precedence precedence);
 
-    void binary();
-    void constant();
+    void binary(bool);
+    void constant(bool);
     void declaration();
     void declarationVar();
     void expression();
-    void grouping();
-    void literal();
+    void grouping(bool);
+    void literal(bool);
     void statement();
     void statementAssert();
     void statementExpression();
     void statementPrint();
-    void unary();
-    void variable();
+    void unary(bool);
+    void variable(bool can_assign);
 
     Parser parser;
     Tokens::const_iterator token;
