@@ -46,19 +46,24 @@ public:
         head = data;
     }
 
-    const T& atBottom(std::size_t index) const
+    T& peek(std::size_t index)
+    {
+        return *(head - index - 1);
+    }
+
+    const T& peek(std::size_t index) const
+    {
+        return *(head - index - 1);
+    }
+
+    T& operator[](std::size_t index)
     {
         return data[index];
     }
 
-    T& operator[](std::ptrdiff_t pos)
+    const T& operator[](std::size_t index) const
     {
-        return *(head - pos - 1);
-    }
-
-    const T& operator[](std::ptrdiff_t pos) const
-    {
-        return *(head - pos - 1);
+        return data[index];
     }
 
     SHELL_FORWARD_ITERATORS(data, head)

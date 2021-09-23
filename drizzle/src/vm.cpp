@@ -158,7 +158,7 @@ void Vm::raiseTypeError(std::string_view operation, const DzValue& lhs, const Dz
 std::tuple<DzValue&, DzValue> Vm::operands()
 {
     auto  rhs = stack.pop();
-    auto& lhs = stack[0];
+    auto& lhs = stack.peek(0);
 
     return std::forward_as_tuple(lhs, rhs);
 }
@@ -222,7 +222,7 @@ void Vm::bitAsr()
 
 void Vm::bitComplement()
 {
-    auto& value = stack[0];
+    auto& value = stack.peek(0);
     switch (value.type)
     {
     case DzValue::Type::Int:  value = ~value.i; break;
@@ -341,13 +341,13 @@ void Vm::lessEqual()
 void Vm::loadVariable()
 {
     auto index = read<u8>();
-    stack.push(stack.atBottom(index));
+    stack.push(stack[index]);
 }
 
 void Vm::loadVariableExt()
 {
     auto index = read<u16>();
-    stack.push(stack.atBottom(index));
+    stack.push(stack[index]);
 }
 
 void Vm::modulo()
@@ -373,7 +373,7 @@ void Vm::multiply()
 
 void Vm::negate()
 {
-    auto& value = stack[0];
+    auto& value = stack.peek(0);
     switch (value.type)
     {
     case DzValue::Type::Int:   value = -value.i; break;
@@ -388,7 +388,7 @@ void Vm::negate()
 
 void Vm::not_()
 {
-    auto& value = stack[0];
+    auto& value = stack.peek(0);
     value = !static_cast<bool>(value);
 }
 
@@ -415,13 +415,13 @@ void Vm::print()
 void Vm::storeVariable()
 {
     auto index = read<u8>();
-    stack[index] = stack[0];
+    stack[index] = stack.peek(0);
 }
 
 void Vm::storeVariableExt()
 {
     auto index = read<u16>();
-    stack[index] = stack[0];
+    stack[index] = stack.peek(0);
 }
 
 void Vm::subtract()
