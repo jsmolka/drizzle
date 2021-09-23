@@ -100,10 +100,10 @@ void Vm::bitwiseBinary(DzValue& lhs, const DzValue& rhs, Operation operation)
 
     switch (HASH(lhs.type, rhs.type))
     {
-    case HASH(DzValue::Type::Int,   DzValue::Type::Int ): lhs.set(promote(lhs.i, rhs.i)); break;
-    case HASH(DzValue::Type::Int,   DzValue::Type::Bool): lhs.set(promote(lhs.i, rhs.b)); break;
-    case HASH(DzValue::Type::Bool,  DzValue::Type::Int ): lhs.set(promote(lhs.b, rhs.i)); break;
-    case HASH(DzValue::Type::Bool,  DzValue::Type::Bool): lhs.set(promote(lhs.b, rhs.b)); break;
+    case HASH(DzValue::Type::Int,   DzValue::Type::Int ): lhs = promote(lhs.i, rhs.i); break;
+    case HASH(DzValue::Type::Int,   DzValue::Type::Bool): lhs = promote(lhs.i, rhs.b); break;
+    case HASH(DzValue::Type::Bool,  DzValue::Type::Int ): lhs = promote(lhs.b, rhs.i); break;
+    case HASH(DzValue::Type::Bool,  DzValue::Type::Bool): lhs = promote(lhs.b, rhs.b); break;
 
     default:
         SHELL_UNREACHABLE;
@@ -129,15 +129,15 @@ void Vm::primitiveBinary(DzValue& lhs, const DzValue& rhs, Operation operation)
 
     switch (HASH(lhs.type, rhs.type))
     {
-    case HASH(DzValue::Type::Int,   DzValue::Type::Int  ): lhs.set(promote(lhs.i, rhs.i)); break;
-    case HASH(DzValue::Type::Int,   DzValue::Type::Float): lhs.set(promote(lhs.i, rhs.f)); break;
-    case HASH(DzValue::Type::Int,   DzValue::Type::Bool ): lhs.set(promote(lhs.i, rhs.b)); break;
-    case HASH(DzValue::Type::Float, DzValue::Type::Int  ): lhs.set(promote(lhs.f, rhs.i)); break;
-    case HASH(DzValue::Type::Float, DzValue::Type::Float): lhs.set(promote(lhs.f, rhs.f)); break;
-    case HASH(DzValue::Type::Float, DzValue::Type::Bool ): lhs.set(promote(lhs.f, rhs.b)); break;
-    case HASH(DzValue::Type::Bool,  DzValue::Type::Int  ): lhs.set(promote(lhs.b, rhs.i)); break;
-    case HASH(DzValue::Type::Bool,  DzValue::Type::Float): lhs.set(promote(lhs.b, rhs.f)); break;
-    case HASH(DzValue::Type::Bool,  DzValue::Type::Bool ): lhs.set(promote(lhs.b, rhs.b)); break;
+    case HASH(DzValue::Type::Int,   DzValue::Type::Int  ): lhs = promote(lhs.i, rhs.i); break;
+    case HASH(DzValue::Type::Int,   DzValue::Type::Float): lhs = promote(lhs.i, rhs.f); break;
+    case HASH(DzValue::Type::Int,   DzValue::Type::Bool ): lhs = promote(lhs.i, rhs.b); break;
+    case HASH(DzValue::Type::Float, DzValue::Type::Int  ): lhs = promote(lhs.f, rhs.i); break;
+    case HASH(DzValue::Type::Float, DzValue::Type::Float): lhs = promote(lhs.f, rhs.f); break;
+    case HASH(DzValue::Type::Float, DzValue::Type::Bool ): lhs = promote(lhs.f, rhs.b); break;
+    case HASH(DzValue::Type::Bool,  DzValue::Type::Int  ): lhs = promote(lhs.b, rhs.i); break;
+    case HASH(DzValue::Type::Bool,  DzValue::Type::Float): lhs = promote(lhs.b, rhs.f); break;
+    case HASH(DzValue::Type::Bool,  DzValue::Type::Bool ): lhs = promote(lhs.b, rhs.b); break;
 
     default:
         SHELL_UNREACHABLE;
@@ -198,7 +198,7 @@ void Vm::add()
             static_cast<DzString*>(rhs.o)->data.size());
         str.append(static_cast<DzString*>(lhs.o)->data);
         str.append(static_cast<DzString*>(rhs.o)->data);
-        lhs.set(interning.make(std::move(str)));
+        lhs = interning.make(std::move(str));
     }
     else
         raiseTypeError("+", lhs, rhs);
@@ -227,8 +227,8 @@ void Vm::bitComplement()
     auto& value = stack[0];
     switch (value.type)
     {
-    case DzValue::Type::Int:  value.set(~value.i); break;
-    case DzValue::Type::Bool: value.set(~static_cast<dzint>(value.b)); break;
+    case DzValue::Type::Int:  value = ~value.i; break;
+    case DzValue::Type::Bool: value = ~static_cast<dzint>(value.b); break;
 
     default:
         raiseTypeError("~", value);
@@ -331,7 +331,7 @@ void Vm::equal()
     if (lhs.isPrimitive() && rhs.isPrimitive())
         primitiveBinary(lhs, rhs, [](auto a, auto b) { return a == b; });
     else
-        lhs.set(lhs == rhs);
+        lhs = lhs == rhs;
 }
 
 void Vm::greater()
@@ -404,9 +404,9 @@ void Vm::negate()
     auto& value = stack[0];
     switch (value.type)
     {
-    case DzValue::Type::Int:   value.set(-value.i); break;
-    case DzValue::Type::Float: value.set(-value.f); break;
-    case DzValue::Type::Bool:  value.set(-static_cast<dzint>(value.b)); break;
+    case DzValue::Type::Int:   value = -value.i; break;
+    case DzValue::Type::Float: value = -value.f; break;
+    case DzValue::Type::Bool:  value = -static_cast<dzint>(value.b); break;
 
     default:
         raise<TypeError>("bad operand type for '-': '{}'", value.typeName());
@@ -417,7 +417,7 @@ void Vm::negate()
 void Vm::not_()
 {
     auto& value = stack[0];
-    value.set(!static_cast<bool>(value));
+    value = !static_cast<bool>(value);
 }
 
 void Vm::notEqual()
@@ -426,7 +426,7 @@ void Vm::notEqual()
     if (lhs.isPrimitive() && rhs.isPrimitive())
         primitiveBinary(lhs, rhs, [](auto a, auto b) { return a != b; });
     else
-        lhs.set(lhs != rhs);
+        lhs = lhs != rhs;
 }
 
 void Vm::power()

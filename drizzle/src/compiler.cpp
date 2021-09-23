@@ -187,9 +187,9 @@ void Compiler::constant()
     DzValue value;
     switch (parser.previous.value.index())
     {
-    case 0: value.set(std::get<0>(parser.previous.value)); break;
-    case 1: value.set(std::get<1>(parser.previous.value)); break;
-    case 2: value.set(interning.make(std::move(std::get<2>(parser.previous.value)))); break;
+    case 0: value = std::get<0>(parser.previous.value); break;
+    case 1: value = std::get<1>(parser.previous.value); break;
+    case 2: value = interning.make(std::move(std::get<2>(parser.previous.value))); break;
 
     default:
         SHELL_UNREACHABLE;
