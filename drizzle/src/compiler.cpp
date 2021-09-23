@@ -300,5 +300,14 @@ void Compiler::variable()
 {
     std::string identifier(parser.previous.lexeme);
     auto value = interning.make(std::move(identifier));
-    emitValue(value, Opcode::LoadGLobalVar, Opcode::LoadGlobalVarExt);
+
+    if (match(Token::Type::Equal))
+    {
+        expression();
+        emitValue(value, Opcode::StoreGlobalVar, Opcode::StoreGlobalVarExt);
+    }
+    else
+    {
+        emitValue(value, Opcode::LoadGLobalVar, Opcode::LoadGlobalVarExt);
+    }
 }

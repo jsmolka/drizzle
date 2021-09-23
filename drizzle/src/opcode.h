@@ -35,6 +35,8 @@ enum class Opcode
     Null,
     Power,
     Print,
+    StoreGlobalVar,
+    StoreGlobalVarExt,
     Subtract,
     True,
 };

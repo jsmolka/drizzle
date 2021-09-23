@@ -57,6 +57,8 @@ private:
     void notEqual();
     void power();
     void print();
+    void storeGlobalVar();
+    void storeGlobalVarExt();
     void subtract();
     void valueFalse();
     void valueNull();

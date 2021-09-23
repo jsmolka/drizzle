@@ -51,6 +51,8 @@ void Vm::interpret(const Tokens& tokens)
         case Opcode::Null: valueNull(); break;
         case Opcode::Power: power(); break;
         case Opcode::Print: print(); break;
+        case Opcode::StoreGlobalVar: storeGlobalVar(); break;
+        case Opcode::StoreGlobalVarExt: storeGlobalVarExt(); break;
         case Opcode::Subtract: subtract(); break;
         case Opcode::True: valueTrue(); break;
 
@@ -277,12 +279,18 @@ void Vm::constantExt()
 void Vm::defineGlobalVar()
 {
     auto string = static_cast<DzString*>(chunk.constants[read<u8>()].o);
+    if (globals.contains(string->hash))
+        raise<RuntimeError>("variable redefinition '{}'", string->data);
+
     globals.insert({ string->hash, stack.pop() });
 }
 
 void Vm::defineGlobalVarExt()
 {
     auto string = static_cast<DzString*>(chunk.constants[read<u16>()].o);
+    if (globals.contains(string->hash))
+        raise<RuntimeError>("variable redefinition '{}'", string->data);
+
     globals.insert({ string->hash, stack.pop() });
 }
 
@@ -430,6 +438,26 @@ void Vm::power()
 void Vm::print()
 {
     shell::print("{}\n", stack.pop());
+}
+
+void Vm::storeGlobalVar()
+{
+    auto string = static_cast<DzString*>(chunk.constants[read<u8>()].o);
+    auto iter = globals.find(string->hash);
+    if (iter == globals.end())
+        raise<RuntimeError>("undefined variable '{}'", string->data);
+
+    iter->second = stack[0];
+}
+
+void Vm::storeGlobalVarExt()
+{
+    auto string = static_cast<DzString*>(chunk.constants[read<u16>()].o);
+    auto iter = globals.find(string->hash);
+    if (iter == globals.end())
+        raise<RuntimeError>("undefined variable '{}'", string->data);
+
+    iter->second = stack[0];
 }
 
 void Vm::subtract()
