@@ -22,7 +22,7 @@ enum class Opcode
     Greater,
     GreaterEqual,
     Jump,
-    JumpFalsy,
+    JumpDiscardFalsy,
     Less,
     LessEqual,
     LoadVariable,

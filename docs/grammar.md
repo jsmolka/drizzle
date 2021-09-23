@@ -14,19 +14,24 @@ The remaining statement rules produce side effects, but do not introduce binding
 ```
 statement         → exprStmt
                   | assertStmt
+                  | ifStmt
                   | printStmt
-                  | block
+                  | block ;
 
 exprStmt          → expression NEWLINE ;
 assertStmt        → "assert" expression NEWLINE ;
+ifStmt            → "if" expression BLOCK_BODY
+                    ( "elif" expression BLOCK_BODY )*
+                    ( "else" BLOCK_BODY )? ;
 printStmt         → "print" expression NEWLINE ;
-block             → "block" ":" NEWLINE INDENT declaration+ DEDENT ;
+block             → "block" BLOCK_BODY ;
+BLOCK_BODY        → ":" NEWLINE INDENT declaration+ DEDENT
 ```
 
 ## Expressions
 Expressions produce values. The precedence goes from high/bottom to low/top.
 ```
-expression        → primaryExpr
+expression        → assignment ;
 primaryExpr       → "true" | "false" | "null" | "this"
                   | NUMBER | STRING | IDENTIFIER | "(" expression ")" ;
 ```

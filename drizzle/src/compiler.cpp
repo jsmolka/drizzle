@@ -4,6 +4,7 @@
 #include <shell/array.h>
 #include <shell/macros.h>
 #include <shell/ranges.h>
+#include <shell/buffer.h>
 
 #include "dzstring.h"
 #include "errors.h"
@@ -366,17 +367,22 @@ void Compiler::statementExpression()
 
 void Compiler::statementIf()
 {
-    expression();
-
-    auto jump_then = emitJump(Opcode::JumpFalsy);
-    emit(Opcode::Discard);
-    statementBlock();
-    auto jump_else = emitJump(Opcode::Jump);
-    patchJump(jump_then);
+    shell::SmallBuffer<std::size_t, 16> jump_exit;
+    do
+    {
+        expression();
+        auto jump_next = emitJump(Opcode::JumpDiscardFalsy);
+        statementBlock();
+        jump_exit.push_back(emitJump(Opcode::Jump));
+        patchJump(jump_next);
+    }
+    while (match(Token::Type::Elif));
 
     if (match(Token::Type::Else))
         statementBlock();
-    patchJump(jump_else);
+
+    for (const auto& jump : jump_exit)
+        patchJump(jump);
 }
 
 void Compiler::statementPrint()
