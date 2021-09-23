@@ -375,10 +375,10 @@ void Compiler::variable(bool can_assign)
     auto identifier = parser.previous.lexeme;
     auto resolve = [this](std::string_view identifier) -> std::size_t
     {
-        for (const auto [index, local] : shell::enumerate(shell::reversed(locals)))
+        for (int i = locals.size() - 1; i > -1; --i)
         {
-            if (local.identifier == identifier)
-                return locals.size() - index - 1;
+            if (locals[i].identifier == identifier)
+                return i;
         }
         raise<SyntaxError>("undefined variable '{}'", identifier);
         return -1;
