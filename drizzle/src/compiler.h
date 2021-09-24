@@ -93,6 +93,7 @@ private:
     void statementBlock();
     void statementExpression();
     void statementIf();
+    void statementNoop();
     void statementPrint();
     void statementWhile();
     void unary(bool);

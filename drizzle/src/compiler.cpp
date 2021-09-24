@@ -355,6 +355,8 @@ void Compiler::statement()
         statementBlock();
     else if (match(Token::Type::If))
         statementIf();
+    else if (match(Token::Type::Noop))
+        statementNoop();
     else if (match(Token::Type::While))
         statementWhile();
     else
@@ -379,8 +381,11 @@ void Compiler::statementBlock()
 
     beginScope();
 
-    while (!check(Token::Type::Dedent))
+    do
+    {
         declaration();
+    }
+    while (!check(Token::Type::Dedent));
 
     endScope();
 
@@ -412,6 +417,11 @@ void Compiler::statementIf()
 
     for (const auto& jump : jump_exit)
         patchJump(jump);
+}
+
+void Compiler::statementNoop()
+{
+    consumeNewLine();
 }
 
 void Compiler::statementPrint()
