@@ -127,6 +127,15 @@ void Compiler::patchJump(std::size_t offset)
     chunk->code[offset + 1] = jump >> 8;
 }
 
+void Compiler::emitJumpBack(std::size_t index)
+{
+    auto jump = chunk->code.size() - index + 3;
+    if (jump > std::numeric_limits<u16>::max())
+        throw CompilerError("jump too long '{}'", jump);
+
+    emit(Opcode::JumpBack, jump, jump >> 8);
+}
+
 void Compiler::advance()
 {
     parser.previous = parser.current;
@@ -346,6 +355,8 @@ void Compiler::statement()
         statementBlock();
     else if (match(Token::Type::If))
         statementIf();
+    else if (match(Token::Type::While))
+        statementWhile();
     else
         statementExpression();
 }
@@ -368,7 +379,7 @@ void Compiler::statementBlock()
 
     beginScope();
 
-    while (!check(Token::Type::Dedent) && !check(Token::Type::Eof))
+    while (!check(Token::Type::Dedent))
         declaration();
 
     endScope();
@@ -408,6 +419,16 @@ void Compiler::statementPrint()
     expression();
     consumeNewLine();
     emit(Opcode::Print);
+}
+
+void Compiler::statementWhile()
+{
+    auto jump_loop = chunk->code.size();
+    expression();
+    auto jump_exit = emitJump(Opcode::JumpDiscardFalsy);
+    statementBlock();
+    emitJumpBack(jump_loop);
+    patchJump(jump_exit);
 }
 
 void Compiler::unary(bool)

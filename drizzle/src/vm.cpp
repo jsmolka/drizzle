@@ -38,6 +38,7 @@ void Vm::interpret(const Tokens& tokens)
         case Opcode::Greater: greater(); break;
         case Opcode::GreaterEqual: greaterEqual(); break;
         case Opcode::Jump: jump(); break;
+        case Opcode::JumpBack: jumpBack(); break;
         case Opcode::JumpDiscardFalsy: jumpDiscardFalsy(); break;
         case Opcode::JumpFalsy: jumpFalsy(); break;
         case Opcode::JumpTruthy: jumpTruthy(); break;
@@ -333,6 +334,11 @@ void Vm::greaterEqual()
 void Vm::jump()
 {
     ip += read<u16>();
+}
+
+void Vm::jumpBack()
+{
+    ip -= read<u16>();
 }
 
 void Vm::jumpDiscardFalsy()

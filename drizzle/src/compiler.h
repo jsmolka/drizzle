@@ -63,6 +63,7 @@ private:
     void emitVariable(std::size_t index, Opcode opcode, Opcode opcode_ext);
     std::size_t emitJump(Opcode opcode);
     void patchJump(std::size_t offset);
+    void emitJumpBack(std::size_t index);
 
     void advance();
     bool check(Token::Type type) const;
@@ -93,6 +94,7 @@ private:
     void statementExpression();
     void statementIf();
     void statementPrint();
+    void statementWhile();
     void unary(bool);
     void variable(bool can_assign);
 

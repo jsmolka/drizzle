@@ -45,6 +45,7 @@ private:
     void greater();
     void greaterEqual();
     void jump();
+    void jumpBack();
     void jumpDiscardFalsy();
     void jumpFalsy();
     void jumpTruthy();
