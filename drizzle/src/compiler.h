@@ -78,6 +78,7 @@ private:
 
     void parsePrecedence(Precedence precedence);
 
+    void and_(bool);
     void binary(bool);
     void constant(bool);
     void declaration();
@@ -85,6 +86,7 @@ private:
     void expression();
     void grouping(bool);
     void literal(bool);
+    void or_(bool);
     void statement();
     void statementAssert();
     void statementBlock();

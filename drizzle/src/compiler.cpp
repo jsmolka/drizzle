@@ -38,6 +38,7 @@ const Compiler::ParseRule& Compiler::rule(Token::Type type)
         switch (Token::Type(type))
         {
         case Token::Type::And:          return { nullptr,             &Compiler::binary, kPrecedenceBitAnd   };
+        case Token::Type::And2:         return { nullptr,             &Compiler::and_,   kPrecedenceAnd      };
         case Token::Type::Bang:         return { &Compiler::unary,    nullptr,           kPrecedenceTerm     };
         case Token::Type::BangEqual:    return { nullptr,             &Compiler::binary, kPrecedenceEquality };
         case Token::Type::Caret:        return { nullptr,             &Compiler::binary, kPrecedenceBitXor   };
@@ -58,6 +59,7 @@ const Compiler::ParseRule& Compiler::rule(Token::Type type)
         case Token::Type::ParenLeft:    return { &Compiler::grouping, nullptr,           kPrecedenceNone     };
         case Token::Type::Percent:      return { nullptr,             &Compiler::binary, kPrecedenceFactor   };
         case Token::Type::Pipe:         return { nullptr,             &Compiler::binary, kPrecedenceBitOr    };
+        case Token::Type::Pipe2:        return { nullptr,             &Compiler::or_,    kPrecedenceOr       };
         case Token::Type::Plus:         return { nullptr,             &Compiler::binary, kPrecedenceTerm     };
         case Token::Type::Slash:        return { nullptr,             &Compiler::binary, kPrecedenceFactor   };
         case Token::Type::Slash2:       return { nullptr,             &Compiler::binary, kPrecedenceFactor   };
@@ -214,6 +216,14 @@ void Compiler::parsePrecedence(Precedence precedence)
         raise<SyntaxError>("bad assignment");
 }
 
+void Compiler::and_(bool)
+{
+    auto jump_short_circuit = emitJump(Opcode::JumpFalsy);
+    emit(Opcode::Discard);
+    parsePrecedence(kPrecedenceAnd);
+    patchJump(jump_short_circuit);
+}
+
 void Compiler::binary(bool)
 {
     auto token = parser.previous.type;
@@ -316,6 +326,14 @@ void Compiler::literal(bool)
         SHELL_UNREACHABLE;
         break;
     }
+}
+
+void Compiler::or_(bool)
+{
+    auto jump_short_circuit = emitJump(Opcode::JumpTruthy);
+    emit(Opcode::Discard);
+    parsePrecedence(kPrecedenceOr);
+    patchJump(jump_short_circuit);
 }
 
 void Compiler::statement()

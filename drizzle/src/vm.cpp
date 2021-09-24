@@ -39,6 +39,8 @@ void Vm::interpret(const Tokens& tokens)
         case Opcode::GreaterEqual: greaterEqual(); break;
         case Opcode::Jump: jump(); break;
         case Opcode::JumpDiscardFalsy: jumpDiscardFalsy(); break;
+        case Opcode::JumpFalsy: jumpFalsy(); break;
+        case Opcode::JumpTruthy: jumpTruthy(); break;
         case Opcode::Less: less(); break;
         case Opcode::LessEqual: lessEqual(); break;
         case Opcode::LoadVariable: loadVariable(); break;
@@ -337,6 +339,20 @@ void Vm::jumpDiscardFalsy()
 {
     auto offset = read<u16>();
     if (!stack.pop())
+        ip += offset;
+}
+
+void Vm::jumpFalsy()
+{
+    auto offset = read<u16>();
+    if (!stack.peek(0))
+        ip += offset;
+}
+
+void Vm::jumpTruthy()
+{
+    auto offset = read<u16>();
+    if (stack.peek(0))
         ip += offset;
 }
 
