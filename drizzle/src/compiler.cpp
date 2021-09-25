@@ -182,32 +182,6 @@ void Compiler::consumeDedent()
     consume(Token::Type::Dedent, "expected dedent");
 }
 
-void Compiler::endScope()
-{
-    scope.pop_back();
-    popLocals(scope.size());
-}
-
-void Compiler::popLocals(std::size_t depth)
-{
-    auto size = locals.size();
-    while (locals.size() && locals.back().depth > depth)
-        locals.pop_back();
-
-    auto count = size - locals.size();
-    if (count == 0)
-        return;
-
-    if (count == 1)
-        emit(Opcode::Pop);
-    else if (count <= std::numeric_limits<u8>::max())
-        emit(Opcode::PopMultiple, count);
-    else if (count <= std::numeric_limits<u16>::max())
-        emit(Opcode::PopMultipleExt, count, count >> 8);
-    else
-        throw CompilerError("too many locals to pop '{}'", count);
-}
-
 void Compiler::parsePrecedence(Precedence precedence)
 {
     advance();
@@ -232,35 +206,57 @@ void Compiler::parsePrecedence(Precedence precedence)
         raise<SyntaxError>("bad assignment");
 }
 
+void Compiler::popLocals(std::size_t depth)
+{
+    auto size = locals.size();
+    while (locals.size() && locals.back().depth > depth)
+        locals.pop_back();
+
+    auto count = size - locals.size();
+    if (count == 0)
+        return;
+
+    if (count == 1)
+        emit(Opcode::Pop);
+    else if (count <= std::numeric_limits<u8>::max())
+        emit(Opcode::PopMultiple, count);
+    else if (count <= std::numeric_limits<u16>::max())
+        emit(Opcode::PopMultipleExt, count, count >> 8);
+    else
+        throw CompilerError("too many locals to pop '{}'", count);
+}
+
+Compiler::Labels Compiler::block(const Compiler::Block& block)
+{
+    consumeColon();
+    consumeNewLine();
+    consumeIndent();
+
+    scope.push_back(block);
+
+    while (!check(Token::Type::Dedent))
+        declaration();
+
+    auto breaks(std::move(scope.back().breaks));
+    auto continues(std::move(scope.back().continues));
+
+    for (const auto& jump : continues)
+        patchJump(jump);
+
+    scope.pop_back();
+    popLocals(scope.size());
+
+    consumeDedent();
+
+    return breaks;
+}
+
 void Compiler::and_(bool)
 {
     auto exit = emitJump(Opcode::JumpFalse);
     emit(Opcode::Pop);
     parsePrecedence(kPrecedenceAnd);
     patchJump(exit);
-}
-
-Compiler::Labels Compiler::block(Compiler::Block::Type type, std::string_view identifier)
-{
-    consumeColon();
-    consumeNewLine();
-    consumeIndent();
-
-    scope.push_back({ type, identifier, {}, {} });
-
-    while (!check(Token::Type::Dedent))
-        declaration();
-
-    for (const auto& jump : scope.back().continues)
-        patchJump(jump);
-
-    auto breaks(std::move(scope.back().breaks));
-
-    endScope();
-
-    consumeDedent();
-
-    return breaks;
 }
 
 void Compiler::binary(bool)
@@ -415,13 +411,13 @@ void Compiler::statementBlock()
                 raise<SyntaxError>("redefined '{}'", identifier);
         }
 
-        auto breaks = block(Block::Type::Block, identifier);
+        auto breaks = block({ Block::Type::Block, identifier });
         for (const auto& jump : breaks)
             patchJump(jump);
     }
     else
     {
-        block(Block::Type::Block);
+        block({ Block::Type::Block });
     }
 }
 
@@ -511,14 +507,14 @@ void Compiler::statementIf()
     {
         expression();
         auto next = emitJump(Opcode::JumpFalsePop);
-        block(Block::Type::Control);
+        block({ Block::Type::Control });
         exits.push_back(emitJump(Opcode::Jump));
         patchJump(next);
     }
     while (match(Token::Type::Elif));
 
     if (match(Token::Type::Else))
-        block(Block::Type::Control);
+        block({ Block::Type::Control });
 
     for (const auto& exit : exits)
         patchJump(exit);
@@ -541,7 +537,7 @@ void Compiler::statementWhile()
     auto condition = chunk->label();
     expression();
     auto exit = emitJump(Opcode::JumpFalsePop);
-    auto breaks = block(Block::Type::Loop);
+    auto breaks = block({ Block::Type::Loop });
     emitJump(Opcode::Jump, condition);
     patchJump(exit);
     for (const auto& jump : breaks)

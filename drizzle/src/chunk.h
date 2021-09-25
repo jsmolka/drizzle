@@ -1,7 +1,7 @@
 #pragma once
 
-#include "int.h"
 #include "dzvalue.h"
+#include "int.h"
 #include "opcode.h"
 
 class Chunk

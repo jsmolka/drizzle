@@ -87,12 +87,10 @@ private:
     void consumeDedent();
     void consumeIndent();
     void consumeNewLine();
-
-    Labels block(Block::Type type, std::string_view identifier = {});
-    void endScope();
-    void popLocals(std::size_t depth);
-
     void parsePrecedence(Precedence precedence);
+
+    void popLocals(std::size_t depth);
+    Labels block(const Block& block);
 
     void and_(bool);
     void binary(bool);
