@@ -111,29 +111,26 @@ void Compiler::emitVariable(std::size_t index, Opcode opcode, Opcode opcode_ext)
         throw CompilerError("variable limit exceeded");
 }
 
-std::size_t Compiler::emitJump(Opcode opcode)
+std::size_t Compiler::emitJump(Opcode opcode, std::size_t label)
 {
-    emit(opcode, 0xFF, 0xFF);
-    return chunk->code.size() - 2;
+    auto jump = chunk->code.size();
+
+    s64 offset = static_cast<s64>(label - jump) - 3; 
+    if (offset < std::numeric_limits<s16>::min() || offset > -3)
+        throw CompilerError("bad jump '{}'", offset);
+
+    emit(opcode, offset, offset >> 8);
+    return jump;
 }
 
-void Compiler::patchJump(std::size_t offset)
+void Compiler::patchJump(std::size_t jump)
 {
-    auto jump = chunk->code.size() - offset - 2;
-    if (jump > std::numeric_limits<u16>::max())
-        throw CompilerError("jump too long '{}'", jump);
+    s64 offset = static_cast<s64>(chunk->code.size() - jump) - 3;
+    if (offset < 0 || offset > std::numeric_limits<s16>::max())
+        throw CompilerError("bad jump '{}'", offset);
 
-    chunk->code[offset + 0] = jump;
-    chunk->code[offset + 1] = jump >> 8;
-}
-
-void Compiler::emitJumpBack(std::size_t index)
-{
-    auto jump = chunk->code.size() - index + 3;
-    if (jump > std::numeric_limits<u16>::max())
-        throw CompilerError("jump too long '{}'", jump);
-
-    emit(Opcode::JumpBack, jump, jump >> 8);
+    chunk->code[jump + 1] = offset;
+    chunk->code[jump + 2] = offset >> 8;
 }
 
 void Compiler::advance()
@@ -437,7 +434,7 @@ void Compiler::statementWhile()
     expression();
     auto jump_exit = emitJump(Opcode::JumpDiscardFalsy);
     statementBlock();
-    emitJumpBack(jump_loop);
+    emitJump(Opcode::Jump, jump_loop);
     patchJump(jump_exit);
 }
 

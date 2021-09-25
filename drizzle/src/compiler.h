@@ -61,9 +61,8 @@ private:
     void emit(Bytes... bytes);
     void emitConstant(DzValue value);
     void emitVariable(std::size_t index, Opcode opcode, Opcode opcode_ext);
-    std::size_t emitJump(Opcode opcode);
-    void patchJump(std::size_t offset);
-    void emitJumpBack(std::size_t index);
+    std::size_t emitJump(Opcode opcode, std::size_t label = 0);
+    void patchJump(std::size_t jump);
 
     void advance();
     bool check(Token::Type type) const;

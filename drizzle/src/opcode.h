@@ -25,7 +25,6 @@ enum class Opcode
     JumpFalsy,
     JumpDiscardFalsy,
     JumpTruthy,
-    JumpBack,
     Less,
     LessEqual,
     LoadVariable,

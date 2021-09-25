@@ -12,6 +12,7 @@ public:
     void write(u8 byte, std::size_t line);
     void write(Opcode opcode, std::size_t line);
 
+    std::size_t label() const;
     std::size_t line(std::size_t index);
 
     DzValues constants;

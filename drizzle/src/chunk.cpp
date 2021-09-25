@@ -20,6 +20,11 @@ void Chunk::write(Opcode opcode, std::size_t line)
     write(static_cast<u8>(opcode), line);
 }
 
+std::size_t Chunk::label() const
+{
+    return code.size();
+}
+
 std::size_t Chunk::line(std::size_t index)
 {
     for (const auto& line : shell::reversed(lines))
