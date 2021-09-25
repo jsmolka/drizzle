@@ -188,6 +188,7 @@ void Compiler::endScope()
 
     while (locals.size() && locals.back().depth > scope.size())
     {
+        // Todo: PopMultiple and PopMultipleExt
         emit(Opcode::Pop);
         locals.pop_back();
     }
@@ -225,20 +226,27 @@ void Compiler::and_(bool)
     patchJump(exit);
 }
 
-void Compiler::block(std::string_view identifier)
+Compiler::Labels Compiler::block(bool loop, std::string_view identifier)
 {
     consumeColon();
     consumeNewLine();
     consumeIndent();
 
-    scope.push_back(identifier);
+    scope.push_back({ loop, identifier, {}, {} });
 
     while (!check(Token::Type::Dedent))
         declaration();
 
+    for (const auto& jump : scope.back().continues)
+        patchJump(jump);
+
+    auto exits(std::move(scope.back().exits));
+
     endScope();
 
     consumeDedent();
+
+    return exits;
 }
 
 void Compiler::binary(bool)
@@ -357,14 +365,16 @@ void Compiler::statement()
 {
     if (match(Token::Type::Assert))
         statementAssert();
-    else if (match(Token::Type::Print))
-        statementPrint();
+    else if (match(Token::Type::Continue))
+        statementContinue();
     else if (match(Token::Type::Block))
         statementBlock();
     else if (match(Token::Type::If))
         statementIf();
     else if (match(Token::Type::Noop))
         statementNoop();
+    else if (match(Token::Type::Print))
+        statementPrint();
     else if (match(Token::Type::While))
         statementWhile();
     else
@@ -381,9 +391,24 @@ void Compiler::statementAssert()
 void Compiler::statementBlock()
 {
     if (match(Token::Type::Identifier))
-        block(parser.previous.lexeme);
+        block(false, parser.previous.lexeme);
     else
-        block();
+        block(false);
+}
+
+void Compiler::statementContinue()
+{
+    consumeNewLine();
+
+    for (auto& frame : shell::reversed(scope))
+    {
+        if (frame.loop)
+        {
+            frame.continues.push_back(emitJump(Opcode::Jump));
+            return;
+        }
+    }
+    raise<SyntaxError>("'continue' outside loop");
 }
 
 void Compiler::statementExpression()
@@ -400,14 +425,14 @@ void Compiler::statementIf()
     {
         expression();
         auto next = emitJump(Opcode::JumpFalsePop);
-        block();
+        block(false);
         exits.push_back(emitJump(Opcode::Jump));
         patchJump(next);
     }
     while (match(Token::Type::Elif));
 
     if (match(Token::Type::Else))
-        block();
+        block(false);
 
     for (const auto& exit : exits)
         patchJump(exit);
@@ -430,7 +455,7 @@ void Compiler::statementWhile()
     auto condition = chunk->label();
     expression();
     auto exit = emitJump(Opcode::JumpFalsePop);
-    block();
+    block(true);
     emitJump(Opcode::Jump, condition);
     patchJump(exit);
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <optional>
+#include <shell/buffer.h>
 
 #include "chunk.h"
 #include "interning.h"
@@ -54,6 +55,18 @@ private:
         std::size_t depth;
     };
 
+    using Labels = shell::SmallBuffer<std::size_t, 8>;
+
+    struct Frame
+    {
+        bool loop;
+        std::string_view identifier;
+        Labels exits;
+        Labels continues;
+    };
+
+    static constexpr auto x = sizeof(Frame);
+
     static const ParseRule& rule(Token::Type type);
 
     template<typename Error, typename... Args>
@@ -75,12 +88,12 @@ private:
     void consumeIndent();
     void consumeNewLine();
 
+    Labels block(bool loop, std::string_view identifier = {});
     void endScope();
 
     void parsePrecedence(Precedence precedence);
 
     void and_(bool);
-    void block(std::string_view identifier = {});
     void binary(bool);
     void constant(bool);
     void declaration();
@@ -92,6 +105,7 @@ private:
     void statement();
     void statementAssert();
     void statementBlock();
+    void statementContinue();
     void statementExpression();
     void statementIf();
     void statementNoop();
@@ -104,6 +118,6 @@ private:
     Parser parser;
     Tokens::const_iterator token;
     Chunk* chunk;  // Todo: pass as reference to constructor?
-    std::vector<std::string_view> scope;
+    std::vector<Frame> scope;
     std::vector<Local> locals;
 };
