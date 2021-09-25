@@ -174,7 +174,7 @@ void Compiler::consumeNewLine()
 
 void Compiler::consumeIndent()
 {
-    consume(Token::Type::Indent, "expected indent");
+    consume(Token::Type::Indent, "expected statement");
 }
 
 void Compiler::consumeDedent()
@@ -240,13 +240,13 @@ void Compiler::and_(bool)
     patchJump(exit);
 }
 
-Compiler::Labels Compiler::block(bool loop, std::string_view identifier)
+Compiler::Labels Compiler::block(Compiler::Block::Type type, std::string_view identifier)
 {
     consumeColon();
     consumeNewLine();
     consumeIndent();
 
-    scope.push_back({ loop, identifier, {}, {} });
+    scope.push_back({ type, identifier, {}, {} });
 
     while (!check(Token::Type::Dedent))
         declaration();
@@ -254,13 +254,13 @@ Compiler::Labels Compiler::block(bool loop, std::string_view identifier)
     for (const auto& jump : scope.back().continues)
         patchJump(jump);
 
-    auto exits(std::move(scope.back().exits));
+    auto breaks(std::move(scope.back().breaks));
 
     endScope();
 
     consumeDedent();
 
-    return exits;
+    return breaks;
 }
 
 void Compiler::binary(bool)
@@ -409,52 +409,92 @@ void Compiler::statementBlock()
     if (match(Token::Type::Identifier))
     {
         auto identifier = parser.previous.lexeme;
-        for (const auto& frame : scope)
+        for (const auto& block : scope)
         {
-            if (frame.identifier == identifier)
-                raise<SyntaxError>("redeclared '{}'", identifier);
+            if (block.identifier == identifier)
+                raise<SyntaxError>("redefined '{}'", identifier);
         }
-        for (const auto& exit : block(false, parser.previous.lexeme))
-            patchJump(exit);
+
+        auto breaks = block(Block::Type::Block, identifier);
+        for (const auto& jump : breaks)
+            patchJump(jump);
     }
     else
-        block(false);
+    {
+        block(Block::Type::Block);
+    }
 }
 
 void Compiler::statementBreak()
 {
-    std::string_view identifier;
+    auto inside_loop = false;
     if (match(Token::Type::Identifier))
-        identifier = parser.previous.lexeme;
-
-    consumeNewLine();
-
-    for (int i = scope.size() - 1; i > -1; --i)
     {
-        auto& frame = scope[i];
-        if (identifier.size() ? frame.identifier == identifier : frame.loop)
+        auto has_matching_block = false;
+        auto identifier = parser.previous.lexeme;
+        for (const auto& block : scope)
         {
-            popLocals(i);
-            frame.exits.push_back(emitJump(Opcode::Jump));
-            return;
+            if (block.identifier == identifier)
+            {
+                has_matching_block = true;
+                break;
+            }
+        }
+
+        if (!has_matching_block)
+            raise<SyntaxError>("no matching block '{}'", identifier);
+
+        for (int i = scope.size() - 1; i >= 0; --i)
+        {
+            auto& block = scope[i];
+            inside_loop |= block.type == Block::Type::Loop;
+
+            if (block.identifier == identifier)
+            {
+                popLocals(i);
+                block.breaks.push_back(emitJump(Opcode::Jump));
+                break;
+            }
         }
     }
-    raise<SyntaxError>("'break' outside loop");
+    else
+    {
+        for (int i = scope.size() - 1; i >= 0; --i)
+        {
+            auto& block = scope[i];
+            if (block.type == Block::Type::Loop)
+            {
+                popLocals(i);
+                block.breaks.push_back(emitJump(Opcode::Jump));
+                inside_loop = true;
+                break;
+            }
+        }
+    }
+
+    if (!inside_loop)
+        raise<SyntaxError>("'break' outside loop");
+
+    consumeNewLine();
 }
 
 void Compiler::statementContinue()
 {
-    consumeNewLine();
-
-    for (auto& frame : shell::reversed(scope))
+    auto inside_loop = false;
+    for (auto& block : shell::reversed(scope))
     {
-        if (frame.loop)
+        if (block.type == Block::Type::Loop)
         {
-            frame.continues.push_back(emitJump(Opcode::Jump));
-            return;
+            block.continues.push_back(emitJump(Opcode::Jump));
+            inside_loop = true;
+            break;
         }
     }
-    raise<SyntaxError>("'continue' outside loop");
+
+    if (!inside_loop)
+        raise<SyntaxError>("'continue' outside loop");
+
+    consumeNewLine();
 }
 
 void Compiler::statementExpression()
@@ -471,14 +511,14 @@ void Compiler::statementIf()
     {
         expression();
         auto next = emitJump(Opcode::JumpFalsePop);
-        block(false);
+        block(Block::Type::Control);
         exits.push_back(emitJump(Opcode::Jump));
         patchJump(next);
     }
     while (match(Token::Type::Elif));
 
     if (match(Token::Type::Else))
-        block(false);
+        block(Block::Type::Control);
 
     for (const auto& exit : exits)
         patchJump(exit);
@@ -501,11 +541,11 @@ void Compiler::statementWhile()
     auto condition = chunk->label();
     expression();
     auto exit = emitJump(Opcode::JumpFalsePop);
-    auto exits = block(true);
+    auto breaks = block(Block::Type::Loop);
     emitJump(Opcode::Jump, condition);
     patchJump(exit);
-    for (const auto& exit : exits)
-        patchJump(exit);
+    for (const auto& jump : breaks)
+        patchJump(jump);
 }
 
 void Compiler::unary(bool)

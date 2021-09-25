@@ -57,15 +57,15 @@ private:
 
     using Labels = shell::SmallBuffer<std::size_t, 8>;
 
-    struct Frame
+    struct Block
     {
-        bool loop;
+        enum class Type { Block, Loop, Control };
+
+        Type type;
         std::string_view identifier;
-        Labels exits;
+        Labels breaks;
         Labels continues;
     };
-
-    static constexpr auto x = sizeof(Frame);
 
     static const ParseRule& rule(Token::Type type);
 
@@ -88,7 +88,7 @@ private:
     void consumeIndent();
     void consumeNewLine();
 
-    Labels block(bool loop, std::string_view identifier = {});
+    Labels block(Block::Type type, std::string_view identifier = {});
     void endScope();
     void popLocals(std::size_t depth);
 
@@ -120,6 +120,6 @@ private:
     Parser parser;
     Tokens::const_iterator token;
     Chunk* chunk;  // Todo: pass as reference to constructor?
-    std::vector<Frame> scope;
+    std::vector<Block> scope;
     std::vector<Local> locals;
 };
