@@ -193,7 +193,7 @@ void Compiler::endScope()
 
     while (locals.size() && locals.back().depth > scope_depth)
     {
-        emit(Opcode::Discard);
+        emit(Opcode::Pop);
         locals.pop_back();
     }
 }
@@ -225,7 +225,7 @@ void Compiler::parsePrecedence(Precedence precedence)
 void Compiler::and_(bool)
 {
     auto jump_short_circuit = emitJump(Opcode::JumpFalsy);
-    emit(Opcode::Discard);
+    emit(Opcode::Pop);
     parsePrecedence(kPrecedenceAnd);
     patchJump(jump_short_circuit);
 }
@@ -337,7 +337,7 @@ void Compiler::literal(bool)
 void Compiler::or_(bool)
 {
     auto jump_short_circuit = emitJump(Opcode::JumpTruthy);
-    emit(Opcode::Discard);
+    emit(Opcode::Pop);
     parsePrecedence(kPrecedenceOr);
     patchJump(jump_short_circuit);
 }
@@ -393,7 +393,7 @@ void Compiler::statementExpression()
 {
     expression();
     consumeNewLine();
-    emit(Opcode::Discard);
+    emit(Opcode::Pop);
 }
 
 void Compiler::statementIf()

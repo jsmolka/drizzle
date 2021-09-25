@@ -29,7 +29,6 @@ void Vm::interpret(const Tokens& tokens)
         case Opcode::BitXor: bitXor(); break;
         case Opcode::Constant: constant(); break;
         case Opcode::ConstantExt: constantExt(); break;
-        case Opcode::Discard: discard(); break;
         case Opcode::Divide: divide(); break;
         case Opcode::DivideInt: divideInt(); break;
         case Opcode::Equal: equal(); break;
@@ -38,9 +37,9 @@ void Vm::interpret(const Tokens& tokens)
         case Opcode::Greater: greater(); break;
         case Opcode::GreaterEqual: greaterEqual(); break;
         case Opcode::Jump: jump(); break;
-        case Opcode::JumpDiscardFalsy: jumpDiscardFalsy(); break;
-        case Opcode::JumpFalsy: jumpFalsy(); break;
-        case Opcode::JumpTruthy: jumpTruthy(); break;
+        case Opcode::JumpFalse: jumpFalse(); break;
+        case Opcode::JumpFalsePop: jumpFalsePop(); break;
+        case Opcode::JumpTrue: jumpTrue(); break;
         case Opcode::Less: less(); break;
         case Opcode::LessEqual: lessEqual(); break;
         case Opcode::LoadVariable: loadVariable(); break;
@@ -51,6 +50,7 @@ void Vm::interpret(const Tokens& tokens)
         case Opcode::Not: not_(); break;
         case Opcode::NotEqual: notEqual(); break;
         case Opcode::Null: valueNull(); break;
+        case Opcode::Pop: pop(); break;
         case Opcode::Power: power(); break;
         case Opcode::Print: print(); break;
         case Opcode::StoreVariable: storeVariable(); break;
@@ -278,11 +278,6 @@ void Vm::constantExt()
     stack.push(chunk.constants[read<u16>()]);
 }
 
-void Vm::discard()
-{
-    stack.pop();
-}
-
 void Vm::divide()
 {
     auto [lhs, rhs] = primitiveOperands("/");
@@ -335,21 +330,21 @@ void Vm::jump()
     ip += read<s16>();
 }
 
-void Vm::jumpDiscardFalsy()
-{
-    auto offset = read<s16>();
-    if (!stack.pop())
-        ip += offset;
-}
-
-void Vm::jumpFalsy()
+void Vm::jumpFalse()
 {
     auto offset = read<s16>();
     if (!stack.peek(0))
         ip += offset;
 }
 
-void Vm::jumpTruthy()
+void Vm::jumpFalsePop()
+{
+    auto offset = read<s16>();
+    if (!stack.pop())
+        ip += offset;
+}
+
+void Vm::jumpTrue()
 {
     auto offset = read<s16>();
     if (stack.peek(0))
@@ -429,6 +424,11 @@ void Vm::notEqual()
         primitiveBinary(lhs, rhs, [](auto a, auto b) { return a != b; });
     else
         lhs = lhs != rhs;
+}
+
+void Vm::pop()
+{
+    stack.pop();
 }
 
 void Vm::power()

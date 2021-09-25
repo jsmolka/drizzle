@@ -38,16 +38,15 @@ private:
     void bitXor();
     void constant();
     void constantExt();
-    void discard();
     void divide();
     void divideInt();
     void equal();
     void greater();
     void greaterEqual();
     void jump();
-    void jumpDiscardFalsy();
-    void jumpFalsy();
-    void jumpTruthy();
+    void jumpFalse();
+    void jumpFalsePop();
+    void jumpTrue();
     void less();
     void lessEqual();
     void loadVariable();
@@ -57,6 +56,7 @@ private:
     void negate();
     void not_();
     void notEqual();
+    void pop();
     void power();
     void print();
     void storeVariable();
