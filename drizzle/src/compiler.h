@@ -90,6 +90,7 @@ private:
 
     Labels block(bool loop, std::string_view identifier = {});
     void endScope();
+    void popLocals(std::size_t depth);
 
     void parsePrecedence(Precedence precedence);
 
@@ -105,6 +106,7 @@ private:
     void statement();
     void statementAssert();
     void statementBlock();
+    void statementBreak();
     void statementContinue();
     void statementExpression();
     void statementIf();

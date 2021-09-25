@@ -185,8 +185,12 @@ void Compiler::consumeDedent()
 void Compiler::endScope()
 {
     scope.pop_back();
+    popLocals(scope.size());
+}
 
-    while (locals.size() && locals.back().depth > scope.size())
+void Compiler::popLocals(std::size_t depth)
+{
+    while (locals.size() && locals.back().depth > depth)
     {
         // Todo: PopMultiple and PopMultipleExt
         emit(Opcode::Pop);
@@ -365,10 +369,12 @@ void Compiler::statement()
 {
     if (match(Token::Type::Assert))
         statementAssert();
-    else if (match(Token::Type::Continue))
-        statementContinue();
     else if (match(Token::Type::Block))
         statementBlock();
+    else if (match(Token::Type::Break))
+        statementBreak();
+    else if (match(Token::Type::Continue))
+        statementContinue();
     else if (match(Token::Type::If))
         statementIf();
     else if (match(Token::Type::Noop))
@@ -391,9 +397,39 @@ void Compiler::statementAssert()
 void Compiler::statementBlock()
 {
     if (match(Token::Type::Identifier))
-        block(false, parser.previous.lexeme);
+    {
+        auto identifier = parser.previous.lexeme;
+        for (const auto& frame : scope)
+        {
+            if (frame.identifier == identifier)
+                raise<SyntaxError>("redeclared '{}'", identifier);
+        }
+        for (const auto& exit : block(false, parser.previous.lexeme))
+            patchJump(exit);
+    }
     else
         block(false);
+}
+
+void Compiler::statementBreak()
+{
+    std::string_view identifier;
+    if (match(Token::Type::Identifier))
+        identifier = parser.previous.lexeme;
+
+    consumeNewLine();
+
+    for (int i = scope.size() - 1; i > -1; --i)
+    {
+        auto& frame = scope[i];
+        if (identifier.size() ? frame.identifier == identifier : frame.loop)
+        {
+            popLocals(i);
+            frame.exits.push_back(emitJump(Opcode::Jump));
+            return;
+        }
+    }
+    raise<SyntaxError>("'break' outside loop");
 }
 
 void Compiler::statementContinue()
@@ -455,9 +491,11 @@ void Compiler::statementWhile()
     auto condition = chunk->label();
     expression();
     auto exit = emitJump(Opcode::JumpFalsePop);
-    block(true);
+    auto exits = block(true);
     emitJump(Opcode::Jump, condition);
     patchJump(exit);
+    for (const auto& exit : exits)
+        patchJump(exit);
 }
 
 void Compiler::unary(bool)
