@@ -1,5 +1,7 @@
 #pragma once
 
+#include <optional>
+
 #include "chunk.h"
 #include "interning.h"
 #include "token.h"
@@ -73,12 +75,12 @@ private:
     void consumeIndent();
     void consumeNewLine();
 
-    void beginScope();
     void endScope();
 
     void parsePrecedence(Precedence precedence);
 
     void and_(bool);
+    void block(std::string_view identifier = {});
     void binary(bool);
     void constant(bool);
     void declaration();
@@ -98,10 +100,10 @@ private:
     void unary(bool);
     void variable(bool can_assign);
 
+    Interning& interning;
     Parser parser;
     Tokens::const_iterator token;
-    Chunk* chunk;
-    Interning& interning;
-    std::size_t scope_depth;
+    Chunk* chunk;  // Todo: pass as reference to constructor?
+    std::vector<std::string_view> scope;
     std::vector<Local> locals;
 };

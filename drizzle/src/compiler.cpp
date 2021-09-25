@@ -19,7 +19,7 @@ void Compiler::compile(const Tokens& tokens, Chunk& chunk)
 {
     this->token = tokens.begin();
     this->chunk = &chunk;
-    this->scope_depth = 0;
+    this->scope.clear();
     this->locals.clear();
 
     advance();
@@ -182,16 +182,11 @@ void Compiler::consumeDedent()
     consume(Token::Type::Dedent, "expected dedent");
 }
 
-void Compiler::beginScope()
-{
-    scope_depth++;
-}
-
 void Compiler::endScope()
 {
-    scope_depth--;
+    scope.pop_back();
 
-    while (locals.size() && locals.back().depth > scope_depth)
+    while (locals.size() && locals.back().depth > scope.size())
     {
         emit(Opcode::Pop);
         locals.pop_back();
@@ -228,6 +223,22 @@ void Compiler::and_(bool)
     emit(Opcode::Pop);
     parsePrecedence(kPrecedenceAnd);
     patchJump(exit);
+}
+
+void Compiler::block(std::string_view identifier)
+{
+    consumeColon();
+    consumeNewLine();
+    consumeIndent();
+
+    scope.push_back(identifier);
+
+    while (!check(Token::Type::Dedent))
+        declaration();
+
+    endScope();
+
+    consumeDedent();
 }
 
 void Compiler::binary(bool)
@@ -301,10 +312,10 @@ void Compiler::declarationVar()
     // Todo: better exit condition?
     for (const auto& local : shell::reversed(locals))
     {
-        if (local.identifier == identifier && local.depth == scope_depth)
+        if (local.identifier == identifier && local.depth == scope.size())
             raise<SyntaxError>("redeclared '{}'", identifier);
     }
-    locals.push_back({ identifier, scope_depth });
+    locals.push_back({ identifier, scope.size() });
 
     consumeNewLine();
 }
@@ -369,18 +380,10 @@ void Compiler::statementAssert()
 
 void Compiler::statementBlock()
 {
-    consumeColon();
-    consumeNewLine();
-    consumeIndent();
-
-    beginScope();
-
-    while (!check(Token::Type::Dedent))
-        declaration();
-
-    endScope();
-
-    consumeDedent();
+    if (match(Token::Type::Identifier))
+        block(parser.previous.lexeme);
+    else
+        block();
 }
 
 void Compiler::statementExpression()
@@ -397,14 +400,14 @@ void Compiler::statementIf()
     {
         expression();
         auto next = emitJump(Opcode::JumpFalsePop);
-        statementBlock();
+        block();
         exits.push_back(emitJump(Opcode::Jump));
         patchJump(next);
     }
     while (match(Token::Type::Elif));
 
     if (match(Token::Type::Else))
-        statementBlock();
+        block();
 
     for (const auto& exit : exits)
         patchJump(exit);
@@ -427,7 +430,7 @@ void Compiler::statementWhile()
     auto condition = chunk->label();
     expression();
     auto exit = emitJump(Opcode::JumpFalsePop);
-    statementBlock();
+    block();
     emitJump(Opcode::Jump, condition);
     patchJump(exit);
 }
