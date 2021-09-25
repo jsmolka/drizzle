@@ -113,7 +113,7 @@ void Compiler::emitVariable(std::size_t index, Opcode opcode, Opcode opcode_ext)
 
 std::size_t Compiler::emitJump(Opcode opcode, std::size_t label)
 {
-    auto jump = chunk->code.size();
+    auto jump = chunk->label();
 
     s64 offset = static_cast<s64>(label - jump) - 3; 
     if (offset < std::numeric_limits<s16>::min() || offset > -3)
@@ -125,7 +125,7 @@ std::size_t Compiler::emitJump(Opcode opcode, std::size_t label)
 
 void Compiler::patchJump(std::size_t jump)
 {
-    s64 offset = static_cast<s64>(chunk->code.size() - jump) - 3;
+    s64 offset = static_cast<s64>(chunk->label() - jump) - 3;
     if (offset < 0 || offset > std::numeric_limits<s16>::max())
         throw CompilerError("bad jump '{}'", offset);
 
@@ -224,10 +224,10 @@ void Compiler::parsePrecedence(Precedence precedence)
 
 void Compiler::and_(bool)
 {
-    auto jump_short_circuit = emitJump(Opcode::JumpFalsy);
+    auto exit = emitJump(Opcode::JumpFalse);
     emit(Opcode::Pop);
     parsePrecedence(kPrecedenceAnd);
-    patchJump(jump_short_circuit);
+    patchJump(exit);
 }
 
 void Compiler::binary(bool)
@@ -336,10 +336,10 @@ void Compiler::literal(bool)
 
 void Compiler::or_(bool)
 {
-    auto jump_short_circuit = emitJump(Opcode::JumpTruthy);
+    auto exit = emitJump(Opcode::JumpTrue);
     emit(Opcode::Pop);
     parsePrecedence(kPrecedenceOr);
-    patchJump(jump_short_circuit);
+    patchJump(exit);
 }
 
 void Compiler::statement()
@@ -373,16 +373,10 @@ void Compiler::statementBlock()
     consumeNewLine();
     consumeIndent();
 
-    if (check(Token::Type::Dedent))
-        raise<SyntaxError>("bad dedent");
-
     beginScope();
 
-    do
-    {
+    while (!check(Token::Type::Dedent))
         declaration();
-    }
-    while (!check(Token::Type::Dedent));
 
     endScope();
 
@@ -398,22 +392,22 @@ void Compiler::statementExpression()
 
 void Compiler::statementIf()
 {
-    shell::SmallBuffer<std::size_t, 16> jump_exit;
+    shell::SmallBuffer<std::size_t, 16> exits;
     do
     {
         expression();
-        auto jump_next = emitJump(Opcode::JumpDiscardFalsy);
+        auto next = emitJump(Opcode::JumpFalsePop);
         statementBlock();
-        jump_exit.push_back(emitJump(Opcode::Jump));
-        patchJump(jump_next);
+        exits.push_back(emitJump(Opcode::Jump));
+        patchJump(next);
     }
     while (match(Token::Type::Elif));
 
     if (match(Token::Type::Else))
         statementBlock();
 
-    for (const auto& jump : jump_exit)
-        patchJump(jump);
+    for (const auto& exit : exits)
+        patchJump(exit);
 }
 
 void Compiler::statementNoop()
@@ -430,12 +424,12 @@ void Compiler::statementPrint()
 
 void Compiler::statementWhile()
 {
-    auto jump_loop = chunk->code.size();
+    auto condition = chunk->label();
     expression();
-    auto jump_exit = emitJump(Opcode::JumpDiscardFalsy);
+    auto exit = emitJump(Opcode::JumpFalsePop);
     statementBlock();
-    emitJump(Opcode::Jump, jump_loop);
-    patchJump(jump_exit);
+    emitJump(Opcode::Jump, condition);
+    patchJump(exit);
 }
 
 void Compiler::unary(bool)
