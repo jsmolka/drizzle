@@ -7,6 +7,16 @@
 #include "dzstring.h"
 #include "dzvalue.h"
 
+namespace
+{
+
+inline bool isWhole(double d)
+{
+    return std::fmod(d, 1.0) == 0.0;
+}
+
+}  // namespace
+
 template<>
 struct fmt::formatter<DzValue>
 {
@@ -23,7 +33,7 @@ struct fmt::formatter<DzValue>
         {
         case DzValue::Type::Bool:   return fmt::format_to(ctx.out(), "{}", value.b);
         case DzValue::Type::Int:    return fmt::format_to(ctx.out(), "{}", value.i);
-        case DzValue::Type::Float:  return fmt::format_to(ctx.out(), "{}", value.f);
+        case DzValue::Type::Float:  return fmt::format_to(ctx.out(), isWhole(value.f) ? "{:.1f}" : "{}", value.f);
         case DzValue::Type::Object: return fmt::format_to(ctx.out(), "{}", *value.o);
         case DzValue::Type::Null:   return fmt::format_to(ctx.out(), "null");
 
