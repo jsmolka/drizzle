@@ -51,6 +51,8 @@ void Vm::interpret(const Tokens& tokens)
         case Opcode::NotEqual: notEqual(); break;
         case Opcode::Null: valueNull(); break;
         case Opcode::Pop: pop(); break;
+        case Opcode::PopMultiple: popMultiple(); break;
+        case Opcode::PopMultipleExt: popMultipleExt(); break;
         case Opcode::Power: power(); break;
         case Opcode::Print: print(); break;
         case Opcode::StoreVariable: storeVariable(); break;
@@ -428,7 +430,17 @@ void Vm::notEqual()
 
 void Vm::pop()
 {
-    stack.pop();
+    stack.shrink(1);
+}
+
+void Vm::popMultiple()
+{
+    stack.shrink(read<u8>());
+}
+
+void Vm::popMultipleExt()
+{
+    stack.shrink(read<u16>());
 }
 
 void Vm::power()

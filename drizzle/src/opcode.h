@@ -35,6 +35,8 @@ enum class Opcode
     NotEqual,
     Null,
     Pop,
+    PopMultiple,
+    PopMultipleExt,
     Power,
     Print,
     StoreVariable,

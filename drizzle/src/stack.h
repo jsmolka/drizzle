@@ -46,6 +46,11 @@ public:
         head = data;
     }
 
+    void shrink(std::size_t count)
+    {
+        head -= count;
+    }
+
     T& peek(std::size_t index)
     {
         return *(head - index - 1);

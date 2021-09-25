@@ -190,12 +190,22 @@ void Compiler::endScope()
 
 void Compiler::popLocals(std::size_t depth)
 {
+    auto size = locals.size();
     while (locals.size() && locals.back().depth > depth)
-    {
-        // Todo: PopMultiple and PopMultipleExt
-        emit(Opcode::Pop);
         locals.pop_back();
-    }
+
+    auto count = size - locals.size();
+    if (count == 0)
+        return;
+
+    if (count == 1)
+        emit(Opcode::Pop);
+    else if (count <= std::numeric_limits<u8>::max())
+        emit(Opcode::PopMultiple, count);
+    else if (count <= std::numeric_limits<u16>::max())
+        emit(Opcode::PopMultipleExt, count, count >> 8);
+    else
+        throw CompilerError("too many locals to pop '{}'", count);
 }
 
 void Compiler::parsePrecedence(Precedence precedence)

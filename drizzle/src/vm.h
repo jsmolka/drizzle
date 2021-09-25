@@ -57,6 +57,8 @@ private:
     void not_();
     void notEqual();
     void pop();
+    void popMultiple();
+    void popMultipleExt();
     void power();
     void print();
     void storeVariable();
