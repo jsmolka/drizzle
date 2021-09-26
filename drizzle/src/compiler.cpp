@@ -4,7 +4,6 @@
 #include <shell/array.h>
 #include <shell/macros.h>
 #include <shell/ranges.h>
-#include <shell/buffer.h>
 
 #include "dzstring.h"
 #include "errors.h"
@@ -33,7 +32,7 @@ void Compiler::compile(const Tokens& tokens, Chunk& chunk)
 const Compiler::ParseRule& Compiler::rule(Token::Type type)
 {
     static constexpr auto kRulesSize = static_cast<std::size_t>(Token::Type::LastEnumValue);
-    static constexpr auto kRules = shell::makeArray<ParseRule, kRulesSize>([](std::size_t type) -> ParseRule
+    static constexpr auto kRules = shell::makeArray<ParseRule, kRulesSize>([](auto type) -> ParseRule
     {
         switch (Token::Type(type))
         {
@@ -74,14 +73,6 @@ const Compiler::ParseRule& Compiler::rule(Token::Type type)
     return kRules[static_cast<std::size_t>(type)];
 }
 
-template<typename Error, typename ...Args>
-void Compiler::raise(std::string_view message, Args&& ...args)
-{
-    static_assert(std::is_base_of_v<LocationError, Error>);
-
-    throw SyntaxError(parser.previous.lexeme.data(), message, std::forward<Args>(args)...);
-}
-
 template<typename... Bytes>
 void Compiler::emit(Bytes... bytes)
 {
@@ -90,7 +81,7 @@ void Compiler::emit(Bytes... bytes)
 
 void Compiler::emitConstant(DzValue value)
 {
-    std::size_t index = chunk->constants.size();
+    auto index = chunk->constants.size();
     if (index <= std::numeric_limits<u8>::max())
         emit(Opcode::Constant, index);
     else if (index <= std::numeric_limits<u16>::max())
@@ -154,56 +145,65 @@ bool Compiler::match(Token::Type type)
     return false;
 }
 
-void Compiler::consume(Token::Type type, std::string_view error)
+void Compiler::expect(Token::Type type, std::string_view error)
 {
     if (parser.current.type != type)
-        raise<SyntaxError>(error);
+        throw SyntaxError(parser.current.lexeme, error);
 
     advance();
 }
 
-void Compiler::consumeColon()
+void Compiler::expectColon()
 {
-    consume(Token::Type::Colon, "expected colon");
+    expect(Token::Type::Colon, "expected colon");
 }
 
-void Compiler::consumeNewLine()
+void Compiler::expectDedent()
 {
-    consume(Token::Type::NewLine, "expected new line");
+    expect(Token::Type::Dedent, "expected dedent");
 }
 
-void Compiler::consumeIndent()
+void Compiler::expectIdentifier()
 {
-    consume(Token::Type::Indent, "expected statement");
+    expect(Token::Type::Identifier, "expected identifier");
 }
 
-void Compiler::consumeDedent()
+void Compiler::expectIndent()
 {
-    consume(Token::Type::Dedent, "expected dedent");
+    expect(Token::Type::Indent, "expected indent");
 }
 
-void Compiler::parsePrecedence(Precedence precedence)
+void Compiler::expectNewLine()
 {
+    expect(Token::Type::NewLine, "expected new line");
+}
+
+void Compiler::parse(Precedence precedence)
+{
+    auto lexeme = parser.previous.lexeme;
+
     advance();
     auto prefix = rule(parser.previous.type).prefix;
     if (!prefix)
-        raise<SyntaxError>("invalid syntax");
+        throw SyntaxError(lexeme, "invalid syntax");
 
-    bool can_assign = precedence <= kPrecedenceAssignment;
+    auto can_assign = precedence <= kPrecedenceAssignment;
     std::invoke(prefix, this, can_assign);
 
     while (precedence <= rule(parser.current.type).precedence)
     {
+        lexeme = parser.previous.lexeme;
+
         advance();
         auto infix = rule(parser.previous.type).infix;
         if (!infix)
-            raise<SyntaxError>("invalid syntax");
+            throw SyntaxError(lexeme, "invalid syntax");
 
         std::invoke(infix, this, can_assign);
     }
 
     if (can_assign && match(Token::Type::Equal))
-        raise<SyntaxError>("bad assignment");
+        throw SyntaxError(parser.previous.lexeme, "bad assignment");
 }
 
 void Compiler::popLocals(std::size_t depth)
@@ -228,9 +228,9 @@ void Compiler::popLocals(std::size_t depth)
 
 Compiler::Labels Compiler::block(const Compiler::Block& block)
 {
-    consumeColon();
-    consumeNewLine();
-    consumeIndent();
+    expectColon();
+    expectNewLine();
+    expectIndent();
 
     scope.push_back(block);
 
@@ -246,23 +246,23 @@ Compiler::Labels Compiler::block(const Compiler::Block& block)
     scope.pop_back();
     popLocals(scope.size());
 
-    consumeDedent();
+    expectDedent();
 
     return breaks;
 }
 
 void Compiler::and_(bool)
 {
-    auto exit = emitJump(Opcode::JumpFalse);
+    auto short_circuit = emitJump(Opcode::JumpFalse);
     emit(Opcode::Pop);
-    parsePrecedence(kPrecedenceAnd);
-    patchJump(exit);
+    parse(kPrecedenceAnd);
+    patchJump(short_circuit);
 }
 
 void Compiler::binary(bool)
 {
     auto token = parser.previous.type;
-    parsePrecedence(Precedence(rule(token).precedence + 1));
+    parse(Precedence(rule(token).precedence + 1));
 
     switch (token)
     {
@@ -319,7 +319,7 @@ void Compiler::declaration()
 
 void Compiler::declarationVar()
 {
-    consume(Token::Type::Identifier, "expected identifier");
+    expectIdentifier();
     auto identifier = parser.previous.lexeme;
 
     if (match(Token::Type::Equal))
@@ -327,26 +327,28 @@ void Compiler::declarationVar()
     else
         emit(Opcode::Null);
 
-    // Todo: better exit condition?
     for (const auto& local : shell::reversed(locals))
     {
-        if (local.identifier == identifier && local.depth == scope.size())
-            raise<SyntaxError>("redeclared '{}'", identifier);
+        if (local.depth != scope.size())
+            break;
+
+        if (local.identifier == identifier)
+            throw SyntaxError(identifier, "redefined '{}'", identifier);
     }
     locals.push_back({ identifier, scope.size() });
 
-    consumeNewLine();
+    expectNewLine();
 }
 
 void Compiler::expression()
 {
-    parsePrecedence(kPrecedenceAssignment);
+    parse(kPrecedenceAssignment);
 }
 
 void Compiler::grouping(bool)
 {
     expression();
-    consume(Token::Type::ParenRight, "expected ')'");
+    expect(Token::Type::ParenRight, "expected ')'");
 }
 
 void Compiler::literal(bool)
@@ -365,10 +367,10 @@ void Compiler::literal(bool)
 
 void Compiler::or_(bool)
 {
-    auto exit = emitJump(Opcode::JumpTrue);
+    auto short_circuit = emitJump(Opcode::JumpTrue);
     emit(Opcode::Pop);
-    parsePrecedence(kPrecedenceOr);
-    patchJump(exit);
+    parse(kPrecedenceOr);
+    patchJump(short_circuit);
 }
 
 void Compiler::statement()
@@ -396,7 +398,7 @@ void Compiler::statement()
 void Compiler::statementAssert()
 {
     expression();
-    consumeNewLine();
+    expectNewLine();
     emit(Opcode::Assert);
 }
 
@@ -408,7 +410,7 @@ void Compiler::statementBlock()
         for (const auto& block : scope)
         {
             if (block.identifier == identifier)
-                raise<SyntaxError>("redefined '{}'", identifier);
+                throw SyntaxError(identifier, "redefined '{}'", identifier);
         }
 
         auto breaks = block({ Block::Type::Block, identifier });
@@ -423,112 +425,108 @@ void Compiler::statementBlock()
 
 void Compiler::statementBreak()
 {
-    auto inside_loop = false;
     if (match(Token::Type::Identifier))
-    {
-        auto has_matching_block = false;
-        auto identifier = parser.previous.lexeme;
-        for (const auto& block : scope)
-        {
-            if (block.identifier == identifier)
-            {
-                has_matching_block = true;
-                break;
-            }
-        }
-
-        if (!has_matching_block)
-            raise<SyntaxError>("no matching block '{}'", identifier);
-
-        for (int i = scope.size() - 1; i >= 0; --i)
-        {
-            auto& block = scope[i];
-            inside_loop |= block.type == Block::Type::Loop;
-
-            if (block.identifier == identifier)
-            {
-                popLocals(i);
-                block.breaks.push_back(emitJump(Opcode::Jump));
-                break;
-            }
-        }
-    }
+        statementBreakBlock();
     else
+        statementBreakLoop();
+
+    expectNewLine();
+}
+
+void Compiler::statementBreakBlock()
+{
+    auto found = false;
+    auto identifier = parser.previous.lexeme;
+    for (int i = scope.size() - 1; i >= 0; --i)
     {
-        for (int i = scope.size() - 1; i >= 0; --i)
+        auto& block = scope[i];
+        if (block.identifier == identifier)
         {
-            auto& block = scope[i];
-            if (block.type == Block::Type::Loop)
-            {
-                popLocals(i);
-                block.breaks.push_back(emitJump(Opcode::Jump));
-                inside_loop = true;
-                break;
-            }
+            popLocals(i);
+            block.breaks.push_back(emitJump(Opcode::Jump));
+            found = true;
+            break;
         }
     }
 
-    if (!inside_loop)
-        raise<SyntaxError>("'break' outside loop");
+    if (!found)
+        throw SyntaxError(identifier, "no matching block '{}'", identifier);
+}
 
-    consumeNewLine();
+void Compiler::statementBreakLoop()
+{
+    auto found = false;
+    for (int i = scope.size() - 1; i >= 0; --i)
+    {
+        auto& block = scope[i];
+        if (block.type == Block::Type::Loop)
+        {
+            popLocals(i);
+            block.breaks.push_back(emitJump(Opcode::Jump));
+            found = true;
+            break;
+        }
+    }
+
+    if (!found)
+        throw SyntaxError(parser.previous.lexeme, "'break' outside loop");
 }
 
 void Compiler::statementContinue()
 {
-    auto inside_loop = false;
+    auto found = false;
     for (auto& block : shell::reversed(scope))
     {
         if (block.type == Block::Type::Loop)
         {
             block.continues.push_back(emitJump(Opcode::Jump));
-            inside_loop = true;
+            found = true;
             break;
         }
     }
 
-    if (!inside_loop)
-        raise<SyntaxError>("'continue' outside loop");
+    if (!found)
+        throw SyntaxError(parser.previous.lexeme, "'break' outside loop");
 
-    consumeNewLine();
+    expectNewLine();
 }
 
 void Compiler::statementExpression()
 {
     expression();
-    consumeNewLine();
+    expectNewLine();
     emit(Opcode::Pop);
 }
 
 void Compiler::statementIf()
 {
-    shell::SmallBuffer<std::size_t, 16> exits;
+    Labels exits;
     do
     {
         expression();
-        auto next = emitJump(Opcode::JumpFalsePop);
+        auto elif = emitJump(Opcode::JumpFalsePop);
         block({ Block::Type::Control });
         exits.push_back(emitJump(Opcode::Jump));
-        patchJump(next);
+        patchJump(elif);
     }
     while (match(Token::Type::Elif));
 
     if (match(Token::Type::Else))
         block({ Block::Type::Control });
 
-    for (const auto& exit : exits)
-        patchJump(exit);
+    for (const auto& jump : exits)
+        patchJump(jump);
 }
 
 void Compiler::statementNoop()
 {
-    consumeNewLine();
+    expectNewLine();
 }
 
 void Compiler::statementPrint()
 {
     expression();
-    consumeNewLine();
+    expectNewLine();
     emit(Opcode::Print);
 }
 
@@ -539,6 +537,7 @@ void Compiler::statementWhile()
     auto exit = emitJump(Opcode::JumpFalsePop);
     auto breaks = block({ Block::Type::Loop });
     emitJump(Opcode::Jump, condition);
+
     patchJump(exit);
     for (const auto& jump : breaks)
         patchJump(jump);
@@ -547,7 +546,7 @@ void Compiler::statementWhile()
 void Compiler::unary(bool)
 {
     auto token = parser.previous.type;
-    parsePrecedence(kPrecedenceUnary);
+    parse(kPrecedenceUnary);
 
     switch (token)
     {
@@ -563,19 +562,21 @@ void Compiler::unary(bool)
 
 void Compiler::variable(bool can_assign)
 {
+    auto index = 0;
+    auto resolved = false;
     auto identifier = parser.previous.lexeme;
-    auto resolve = [this](std::string_view identifier) -> std::size_t
+    for (index = locals.size() - 1; index >= 0; --index)
     {
-        for (int i = locals.size() - 1; i > -1; --i)
+        if (locals[index].identifier == identifier)
         {
-            if (locals[i].identifier == identifier)
-                return i;
+            resolved = true;
+            break;
         }
-        raise<SyntaxError>("undefined variable '{}'", identifier);
-        return -1;
-    };
+    }
 
-    auto index = resolve(identifier);
+    if (!resolved)
+        throw SyntaxError(identifier, "undefined variable '{}'", identifier);
+
     if (can_assign && match(Token::Type::Equal))
     {
         expression();

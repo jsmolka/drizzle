@@ -69,9 +69,6 @@ private:
 
     static const ParseRule& rule(Token::Type type);
 
-    template<typename Error, typename... Args>
-    void raise(std::string_view message, Args&&... args);
-
     template<typename... Bytes>
     void emit(Bytes... bytes);
     void emitConstant(DzValue value);
@@ -82,12 +79,13 @@ private:
     void advance();
     bool check(Token::Type type) const;
     bool match(Token::Type type);
-    void consume(Token::Type type, std::string_view error);
-    void consumeColon();
-    void consumeDedent();
-    void consumeIndent();
-    void consumeNewLine();
-    void parsePrecedence(Precedence precedence);
+    void expect(Token::Type type, std::string_view error);
+    void expectColon();
+    void expectDedent();
+    void expectIdentifier();
+    void expectIndent();
+    void expectNewLine();
+    void parse(Precedence precedence);
 
     void popLocals(std::size_t depth);
     Labels block(const Block& block);
@@ -105,6 +103,8 @@ private:
     void statementAssert();
     void statementBlock();
     void statementBreak();
+    void statementBreakBlock();
+    void statementBreakLoop();
     void statementContinue();
     void statementExpression();
     void statementIf();

@@ -20,6 +20,10 @@ public:
     LocationError(const char* location, std::string_view message, Args&&... args)
         : Error(message, std::forward<Args>(args)...), location(location) {}
 
+    template<typename... Args>
+    LocationError(std::string_view location, std::string_view message, Args&&... args)
+        : Error(message, std::forward<Args>(args)...), location(location.data()) {}
+
     const char* const location;
 };
 

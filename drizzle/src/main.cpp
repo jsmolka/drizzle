@@ -93,6 +93,7 @@ int main(int argc, char* argv[])
         }
 
         source.push_back('\n');
+        source.push_back('\n');
 
         Scanner scanner;
         const auto tokens = scanner.scan(source);
