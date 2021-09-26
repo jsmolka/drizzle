@@ -25,7 +25,7 @@ std::size_t Chunk::label() const
     return code.size();
 }
 
-std::size_t Chunk::line(std::size_t index)
+std::size_t Chunk::line(std::size_t index) const
 {
     for (const auto& line : shell::reversed(lines))
     {

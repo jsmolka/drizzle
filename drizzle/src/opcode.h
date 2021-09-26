@@ -1,5 +1,9 @@
 #pragma once
 
+#include <limits>
+
+#include "int.h"
+
 enum class Opcode
 {
     Add,
@@ -43,4 +47,7 @@ enum class Opcode
     StoreVariableExt,
     Subtract,
     True,
+    LastEnumValue
 };
+
+static_assert(std::size_t(Opcode::LastEnumValue) <= std::numeric_limits<u8>::max());
