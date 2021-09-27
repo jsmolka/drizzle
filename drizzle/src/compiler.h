@@ -59,7 +59,7 @@ private:
 
     struct Block
     {
-        enum class Type { Block, Loop, Control };
+        enum class Type { Block, Conditional, Loop };
 
         Type type;
         std::string_view identifier;

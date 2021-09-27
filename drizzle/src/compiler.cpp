@@ -505,14 +505,14 @@ void Compiler::statementIf()
     {
         expression();
         auto elif = emitJump(Opcode::JumpFalsePop);
-        block({ Block::Type::Control });
+        block({ Block::Type::Conditional });
         exits.push_back(emitJump(Opcode::Jump));
         patchJump(elif);
     }
     while (match(Token::Type::Elif));
 
     if (match(Token::Type::Else))
-        block({ Block::Type::Control });
+        block({ Block::Type::Conditional });
 
     for (const auto& jump : exits)
         patchJump(jump);
