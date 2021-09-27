@@ -1,9 +1,10 @@
 #pragma once
 
-#include <shell/int.h>
 #include <shell/traits.h>
 
-using dzint   = shell::s64;
+#include "int.h"
+
+using dzint   = s64;
 using dzfloat = double;
 using dzbool  = bool;
 

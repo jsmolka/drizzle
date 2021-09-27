@@ -1,15 +1,11 @@
 #pragma once
 
 #include "dzvalue.h"
-#include "opcode.h"
 
 class Chunk
 {
 public:
-    Chunk();
-
     void write(u8 byte, std::size_t line);
-    void write(Opcode opcode, std::size_t line);
 
     std::size_t label() const;
     std::size_t line(std::size_t index) const;

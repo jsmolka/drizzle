@@ -29,10 +29,10 @@ void Compiler::compile(const Tokens& tokens, Chunk& chunk)
     emit(Opcode::Exit);
 }
 
-const Compiler::ParseRule& Compiler::rule(Token::Type type)
+const Compiler::Parser::Rule& Compiler::rule(Token::Type type)
 {
     static constexpr auto kRulesSize = static_cast<std::size_t>(Token::Type::LastEnumValue);
-    static constexpr auto kRules = shell::makeArray<ParseRule, kRulesSize>([](auto type) -> ParseRule
+    static constexpr auto kRules = shell::makeArray<Parser::Rule, kRulesSize>([](auto type) -> Parser::Rule
     {
         switch (Token::Type(type))
         {
@@ -76,7 +76,7 @@ const Compiler::ParseRule& Compiler::rule(Token::Type type)
 template<typename... Bytes>
 void Compiler::emit(Bytes... bytes)
 {
-    (chunk->write(bytes, parser.previous.line), ...);
+    (chunk->write(static_cast<u8>(bytes), parser.previous.line), ...);
 }
 
 void Compiler::emitConstant(DzValue value)

@@ -1,10 +1,10 @@
 #pragma once
 
-#include <optional>
 #include <shell/buffer.h>
 
 #include "chunk.h"
 #include "interning.h"
+#include "opcode.h"
 #include "token.h"
 
 class Compiler
@@ -15,6 +15,8 @@ public:
     void compile(const Tokens& tokens, Chunk& chunk);
 
 private:
+    using Labels = shell::SmallBuffer<std::size_t, 8>;
+
     enum class Precedence
     {
         None,
@@ -36,17 +38,17 @@ private:
 
     struct Parser
     {
+        struct Rule
+        {
+            using Parselet = void(Compiler::*)(bool);
+
+            Parselet prefix;
+            Parselet infix;
+            Precedence precedence;
+        };
+
         Token current;
         Token previous;
-    };
-
-    using ParseFunction = void(Compiler::*)(bool);
-
-    struct ParseRule
-    {
-        ParseFunction prefix;
-        ParseFunction infix;
-        Precedence precedence;
     };
 
     struct Local
@@ -54,8 +56,6 @@ private:
         std::string_view identifier;
         std::size_t depth;
     };
-
-    using Labels = shell::SmallBuffer<std::size_t, 8>;
 
     struct Block
     {
@@ -67,7 +67,7 @@ private:
         Labels continues;
     };
 
-    static const ParseRule& rule(Token::Type type);
+    static const Parser::Rule& rule(Token::Type type);
 
     template<typename... Bytes>
     void emit(Bytes... bytes);

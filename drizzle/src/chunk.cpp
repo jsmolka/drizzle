@@ -2,22 +2,12 @@
 
 #include <shell/ranges.h>
 
-Chunk::Chunk()
-{
-    lines.push_back({ 0, 0 });
-}
-
 void Chunk::write(u8 byte, std::size_t line)
 {
-    code.push_back(byte);
-
-    if (line > lines.back().number)
+    if (lines.empty() || line > lines.back().number)
         lines.push_back({ code.size(), line });
-}
 
-void Chunk::write(Opcode opcode, std::size_t line)
-{
-    write(static_cast<u8>(opcode), line);
+    code.push_back(byte);
 }
 
 std::size_t Chunk::label() const
