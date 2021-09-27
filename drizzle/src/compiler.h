@@ -15,23 +15,23 @@ public:
     void compile(const Tokens& tokens, Chunk& chunk);
 
 private:
-    enum Precedence
+    enum class Precedence
     {
-        kPrecedenceNone,
-        kPrecedenceAssignment,  // =
-        kPrecedenceOr,          // ||
-        kPrecedenceAnd,         // &&
-        kPrecedenceBitOr,       // |
-        kPrecedenceBitXor,      // ^
-        kPrecedenceBitAnd,      // &
-        kPrecedenceEquality,    // == !=
-        kPrecedenceComparison,  // < > <= >=
-        kPrecedenceBitShift,    // << >> >>>
-        kPrecedenceTerm,        // + -
-        kPrecedenceFactor,      // * / // %
-        kPrecedenceUnary,       // ! -
-        kPrecedenceCall,        // . ()
-        kPrecedencePrimary
+        None,
+        Assignment,
+        Or,
+        And,
+        BitOr,
+        BitXor,
+        BitAnd,
+        Equality,
+        Comparison,
+        BitShift,
+        Term,
+        Factor,
+        Unary,
+        Call,
+        Primary
     };
 
     struct Parser
