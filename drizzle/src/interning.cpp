@@ -23,3 +23,8 @@ DzString* Interning::make(std::string&& data)
         return string;
     }
 }
+
+DzString* Interning::make(const std::string& data)
+{
+    return make(std::string(data));
+}

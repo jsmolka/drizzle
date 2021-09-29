@@ -47,8 +47,8 @@ private:
             Precedence precedence;
         };
 
-        Token current;
-        Token previous;
+        Tokens::const_iterator current;
+        Tokens::const_iterator previous;
     };
 
     struct Block
@@ -77,7 +77,7 @@ private:
     void patchJump(std::size_t jump);
 
     void advance();
-    bool consume(Token::Type type);
+    bool match(Token::Type type);
     void parse(Precedence precedence);
     void expect(Token::Type type, std::string_view error);
     void expectColon();
@@ -89,6 +89,7 @@ private:
     void popLocals(std::size_t depth);
     Labels block(const Block& block);
 
+    void and_(bool);
     void binary(bool);
     void constant(bool);
     void declaration();
@@ -96,8 +97,7 @@ private:
     void expression();
     void group(bool);
     void literal(bool);
-    void logicalAnd(bool);
-    void logicalOr(bool);
+    void or_(bool);
     void statement();
     void statementAssert();
     void statementBlock();
@@ -114,9 +114,8 @@ private:
     void variable(bool can_assign);
 
     Interning& interning;
-    Parser parser;
-    Tokens::const_iterator token;
     Chunk* chunk;
+    Parser parser;
     std::vector<Block> scope;
     std::vector<Variable> variables;
 };

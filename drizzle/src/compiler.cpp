@@ -16,14 +16,12 @@ Compiler::Compiler(Interning& interning)
 
 void Compiler::compile(const Tokens& tokens, Chunk& chunk)
 {
-    this->token = tokens.begin();
+    this->parser.current = tokens.begin();
     this->chunk = &chunk;
     this->scope.clear();
     this->variables.clear();
-
-    advance();
     
-    while (!consume(Token::Type::Eof))
+    while (!match(Token::Type::Eof))
         declaration();
 
     emit(Opcode::Exit);
@@ -37,7 +35,7 @@ const Compiler::Parser::Rule& Compiler::rule(Token::Type type)
         switch (Token::Type(type))
         {
         case Token::Type::And:          return { nullptr,             &Compiler::binary, Precedence::BitAnd   };
-        case Token::Type::And2:         return { nullptr,             &Compiler::logicalAnd,   Precedence::And      };
+        case Token::Type::And2:         return { nullptr,             &Compiler::and_,   Precedence::And      };
         case Token::Type::Bang:         return { &Compiler::unary,    nullptr,           Precedence::Term     };
         case Token::Type::BangEqual:    return { nullptr,             &Compiler::binary, Precedence::Equality };
         case Token::Type::Caret:        return { nullptr,             &Compiler::binary, Precedence::BitXor   };
@@ -55,10 +53,10 @@ const Compiler::Parser::Rule& Compiler::rule(Token::Type type)
         case Token::Type::LessEqual:    return { nullptr,             &Compiler::binary, Precedence::Equality };
         case Token::Type::Minus:        return { &Compiler::unary,    &Compiler::binary, Precedence::Term     };
         case Token::Type::Null:         return { &Compiler::literal,  nullptr,           Precedence::None     };
-        case Token::Type::ParenLeft:    return { &Compiler::group, nullptr,           Precedence::None     };
+        case Token::Type::ParenLeft:    return { &Compiler::group,    nullptr,           Precedence::None     };
         case Token::Type::Percent:      return { nullptr,             &Compiler::binary, Precedence::Factor   };
         case Token::Type::Pipe:         return { nullptr,             &Compiler::binary, Precedence::BitOr    };
-        case Token::Type::Pipe2:        return { nullptr,             &Compiler::logicalOr,    Precedence::Or       };
+        case Token::Type::Pipe2:        return { nullptr,             &Compiler::or_,    Precedence::Or       };
         case Token::Type::Plus:         return { nullptr,             &Compiler::binary, Precedence::Term     };
         case Token::Type::Slash:        return { nullptr,             &Compiler::binary, Precedence::Factor   };
         case Token::Type::Slash2:       return { nullptr,             &Compiler::binary, Precedence::Factor   };
@@ -70,13 +68,13 @@ const Compiler::Parser::Rule& Compiler::rule(Token::Type type)
         }
         return { nullptr, nullptr, Precedence::None };
     });
-    return kRules[static_cast<std::size_t>(type)];
+    return kRules[std::size_t(type)];
 }
 
 template<typename... Bytes>
 void Compiler::emit(Bytes... bytes)
 {
-    (chunk->write(static_cast<u8>(bytes), parser.previous.line), ...);
+    (chunk->write(static_cast<u8>(bytes), parser.previous->line), ...);
 }
 
 void Compiler::emitConstant(DzValue value)
@@ -111,6 +109,7 @@ std::size_t Compiler::emitJump(Opcode opcode, std::size_t label)
         throw CompilerError("bad jump '{}'", offset);
 
     emit(opcode, offset, offset >> 8);
+
     return jump;
 }
 
@@ -126,13 +125,12 @@ void Compiler::patchJump(std::size_t jump)
 
 void Compiler::advance()
 {
-    parser.previous = parser.current;
-    parser.current  = *token++;
+    parser.previous = parser.current++;
 }
 
-bool Compiler::consume(Token::Type type)
+bool Compiler::match(Token::Type type)
 {
-    if (parser.current.type == type)
+    if (parser.current->type == type)
     {
         advance();
         return true;
@@ -143,31 +141,31 @@ bool Compiler::consume(Token::Type type)
 void Compiler::parse(Precedence precedence)
 {
     advance();
-    auto prefix = rule(parser.previous.type).prefix;
+    auto prefix = rule(parser.previous->type).prefix;
     if (!prefix)
-        throw SyntaxError(parser.previous.lexeme, "invalid syntax");
+        throw SyntaxError(parser.previous->lexeme, "invalid syntax");
 
     auto can_assign = precedence <= Precedence::Assignment;
     std::invoke(prefix, this, can_assign);
 
-    while (precedence <= rule(parser.current.type).precedence)
+    while (precedence <= rule(parser.current->type).precedence)
     {
         advance();
-        auto infix = rule(parser.previous.type).infix;
+        auto infix = rule(parser.previous->type).infix;
         if (!infix)
-            throw SyntaxError(parser.previous.lexeme, "invalid syntax");
+            throw SyntaxError(parser.previous->lexeme, "invalid syntax");
 
         std::invoke(infix, this, can_assign);
     }
 
-    if (can_assign && consume(Token::Type::Equal))
-        throw SyntaxError(parser.previous.lexeme, "bad assignment");
+    if (can_assign && match(Token::Type::Equal))
+        throw SyntaxError(parser.previous->lexeme, "bad assignment");
 }
 
 void Compiler::expect(Token::Type type, std::string_view error)
 {
-    if (!consume(type))
-        throw SyntaxError(parser.current.lexeme, error);
+    if (!match(type))
+        throw SyntaxError(parser.current->lexeme, error);
 }
 
 void Compiler::expectColon()
@@ -223,7 +221,7 @@ Compiler::Labels Compiler::block(const Compiler::Block& block)
 
     scope.push_back(block);
 
-    while (parser.current.type != Token::Type::Dedent)
+    while (parser.current->type != Token::Type::Dedent)
         declaration();
 
     auto breaks(std::move(scope.back().breaks));
@@ -240,9 +238,17 @@ Compiler::Labels Compiler::block(const Compiler::Block& block)
     return breaks;
 }
 
+void Compiler::and_(bool)
+{
+    auto short_circuit = emitJump(Opcode::JumpFalse);
+    emit(Opcode::Pop);
+    parse(Precedence::And);
+    patchJump(short_circuit);
+}
+
 void Compiler::binary(bool)
 {
-    auto token = parser.previous.type;
+    auto token = parser.previous->type;
     parse(Precedence(int(rule(token).precedence) + 1));
 
     switch (token)
@@ -276,23 +282,22 @@ void Compiler::binary(bool)
 void Compiler::constant(bool)
 {
     DzValue value;
-    switch (parser.previous.value.index())
+    switch (parser.previous->value.index())
     {
-    case 0: value = std::get<0>(parser.previous.value); break;
-    case 1: value = std::get<1>(parser.previous.value); break;
-    case 2: value = interning.make(std::move(std::get<2>(parser.previous.value))); break;
+    case 0: value = std::get<0>(parser.previous->value); break;
+    case 1: value = std::get<1>(parser.previous->value); break;
+    case 2: value = interning.make(std::get<2>(parser.previous->value)); break;
 
     default:
         SHELL_UNREACHABLE;
         break;
     }
-
     emitConstant(value);
 }
 
 void Compiler::declaration()
 {
-    if (consume(Token::Type::Var))
+    if (match(Token::Type::Var))
         declarationVar();
     else
         statement();
@@ -301,9 +306,9 @@ void Compiler::declaration()
 void Compiler::declarationVar()
 {
     expectIdentifier();
-    auto identifier = parser.previous.lexeme;
+    auto identifier = parser.previous->lexeme;
 
-    if (consume(Token::Type::Equal))
+    if (match(Token::Type::Equal))
         expression();
     else
         emit(Opcode::Null);
@@ -335,7 +340,7 @@ void Compiler::group(bool)
 
 void Compiler::literal(bool)
 {
-    switch (parser.previous.type)
+    switch (parser.previous->type)
     {
     case Token::Type::False: emit(Opcode::False); break;
     case Token::Type::Null:  emit(Opcode::Null); break;
@@ -347,15 +352,7 @@ void Compiler::literal(bool)
     }
 }
 
-void Compiler::logicalAnd(bool)
-{
-    auto short_circuit = emitJump(Opcode::JumpFalse);
-    emit(Opcode::Pop);
-    parse(Precedence::And);
-    patchJump(short_circuit);
-}
-
-void Compiler::logicalOr(bool)
+void Compiler::or_(bool)
 {
     auto short_circuit = emitJump(Opcode::JumpTrue);
     emit(Opcode::Pop);
@@ -365,21 +362,21 @@ void Compiler::logicalOr(bool)
 
 void Compiler::statement()
 {
-    if (consume(Token::Type::Assert))
+    if (match(Token::Type::Assert))
         statementAssert();
-    else if (consume(Token::Type::Block))
+    else if (match(Token::Type::Block))
         statementBlock();
-    else if (consume(Token::Type::Break))
+    else if (match(Token::Type::Break))
         statementBreak();
-    else if (consume(Token::Type::Continue))
+    else if (match(Token::Type::Continue))
         statementContinue();
-    else if (consume(Token::Type::If))
+    else if (match(Token::Type::If))
         statementIf();
-    else if (consume(Token::Type::Noop))
+    else if (match(Token::Type::Noop))
         statementNoop();
-    else if (consume(Token::Type::Print))
+    else if (match(Token::Type::Print))
         statementPrint();
-    else if (consume(Token::Type::While))
+    else if (match(Token::Type::While))
         statementWhile();
     else
         statementExpression();
@@ -394,9 +391,9 @@ void Compiler::statementAssert()
 
 void Compiler::statementBlock()
 {
-    if (consume(Token::Type::Identifier))
+    if (match(Token::Type::Identifier))
     {
-        auto identifier = parser.previous.lexeme;
+        auto identifier = parser.previous->lexeme;
         for (const auto& block : scope)
         {
             if (block.identifier == identifier)
@@ -415,7 +412,7 @@ void Compiler::statementBlock()
 
 void Compiler::statementBreak()
 {
-    if (consume(Token::Type::Identifier))
+    if (match(Token::Type::Identifier))
         statementBreakBlock();
     else
         statementBreakLoop();
@@ -435,7 +432,7 @@ void Compiler::statementBreakBlock()
         return nullptr;
     };
 
-    auto identifier = parser.previous.lexeme;
+    auto identifier = parser.previous->lexeme;
     auto block = resolve(identifier);
     if (!block)
         throw SyntaxError(identifier, "no matching block '{}'", identifier);
@@ -458,7 +455,7 @@ void Compiler::statementBreakLoop()
 
     auto block = resolve();
     if (!block)
-        throw SyntaxError(parser.previous.lexeme, "'break' outside loop");
+        throw SyntaxError(parser.previous->lexeme, "'break' outside loop");
 
     popLocals(std::distance(scope.data(), block));
     block->breaks.push_back(emitJump(Opcode::Jump));
@@ -478,7 +475,7 @@ void Compiler::statementContinue()
 
     auto block = resolve();
     if (!block)
-        throw SyntaxError(parser.previous.lexeme, "'continue' outside loop");
+        throw SyntaxError(parser.previous->lexeme, "'continue' outside loop");
 
     block->continues.push_back(emitJump(Opcode::Jump));
 
@@ -503,9 +500,9 @@ void Compiler::statementIf()
         exits.push_back(emitJump(Opcode::Jump));
         patchJump(elif);
     }
-    while (consume(Token::Type::Elif));
+    while (match(Token::Type::Elif));
 
-    if (consume(Token::Type::Else))
+    if (match(Token::Type::Else))
         block({ Block::Type::Conditional });
 
     for (const auto& jump : exits)
@@ -539,7 +536,7 @@ void Compiler::statementWhile()
 
 void Compiler::unary(bool)
 {
-    auto token = parser.previous.type;
+    auto token = parser.previous->type;
     parse(Precedence::Unary);
 
     switch (token)
@@ -566,13 +563,13 @@ void Compiler::variable(bool can_assign)
         return nullptr;
     };
 
-    auto identifier = parser.previous.lexeme;
+    auto identifier = parser.previous->lexeme;
     auto variable = resolve(identifier);
     if (!variable)
         throw SyntaxError(identifier, "undefined variable '{}'", identifier);
 
     auto index = std::distance(variables.data(), variable);
-    if (can_assign && consume(Token::Type::Equal))
+    if (can_assign && match(Token::Type::Equal))
     {
         expression();
         emitVariable(index, Opcode::StoreVariable, Opcode::StoreVariableExt);
