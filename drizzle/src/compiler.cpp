@@ -19,11 +19,11 @@ void Compiler::compile(const Tokens& tokens, Chunk& chunk)
     this->token = tokens.begin();
     this->chunk = &chunk;
     this->scope.clear();
-    this->locals.clear();
+    this->variables.clear();
 
     advance();
     
-    while (!match(Token::Type::Eof))
+    while (!consume(Token::Type::Eof))
         declaration();
 
     emit(Opcode::Exit);
@@ -37,7 +37,7 @@ const Compiler::Parser::Rule& Compiler::rule(Token::Type type)
         switch (Token::Type(type))
         {
         case Token::Type::And:          return { nullptr,             &Compiler::binary, Precedence::BitAnd   };
-        case Token::Type::And2:         return { nullptr,             &Compiler::and_,   Precedence::And      };
+        case Token::Type::And2:         return { nullptr,             &Compiler::logicalAnd,   Precedence::And      };
         case Token::Type::Bang:         return { &Compiler::unary,    nullptr,           Precedence::Term     };
         case Token::Type::BangEqual:    return { nullptr,             &Compiler::binary, Precedence::Equality };
         case Token::Type::Caret:        return { nullptr,             &Compiler::binary, Precedence::BitXor   };
@@ -55,10 +55,10 @@ const Compiler::Parser::Rule& Compiler::rule(Token::Type type)
         case Token::Type::LessEqual:    return { nullptr,             &Compiler::binary, Precedence::Equality };
         case Token::Type::Minus:        return { &Compiler::unary,    &Compiler::binary, Precedence::Term     };
         case Token::Type::Null:         return { &Compiler::literal,  nullptr,           Precedence::None     };
-        case Token::Type::ParenLeft:    return { &Compiler::grouping, nullptr,           Precedence::None     };
+        case Token::Type::ParenLeft:    return { &Compiler::group, nullptr,           Precedence::None     };
         case Token::Type::Percent:      return { nullptr,             &Compiler::binary, Precedence::Factor   };
         case Token::Type::Pipe:         return { nullptr,             &Compiler::binary, Precedence::BitOr    };
-        case Token::Type::Pipe2:        return { nullptr,             &Compiler::or_,    Precedence::Or       };
+        case Token::Type::Pipe2:        return { nullptr,             &Compiler::logicalOr,    Precedence::Or       };
         case Token::Type::Plus:         return { nullptr,             &Compiler::binary, Precedence::Term     };
         case Token::Type::Slash:        return { nullptr,             &Compiler::binary, Precedence::Factor   };
         case Token::Type::Slash2:       return { nullptr,             &Compiler::binary, Precedence::Factor   };
@@ -130,14 +130,9 @@ void Compiler::advance()
     parser.current  = *token++;
 }
 
-bool Compiler::check(Token::Type type) const
+bool Compiler::consume(Token::Type type)
 {
-    return parser.current.type == type;
-}
-
-bool Compiler::match(Token::Type type)
-{
-    if (check(type))
+    if (parser.current.type == type)
     {
         advance();
         return true;
@@ -145,12 +140,34 @@ bool Compiler::match(Token::Type type)
     return false;
 }
 
+void Compiler::parse(Precedence precedence)
+{
+    advance();
+    auto prefix = rule(parser.previous.type).prefix;
+    if (!prefix)
+        throw SyntaxError(parser.previous.lexeme, "invalid syntax");
+
+    auto can_assign = precedence <= Precedence::Assignment;
+    std::invoke(prefix, this, can_assign);
+
+    while (precedence <= rule(parser.current.type).precedence)
+    {
+        advance();
+        auto infix = rule(parser.previous.type).infix;
+        if (!infix)
+            throw SyntaxError(parser.previous.lexeme, "invalid syntax");
+
+        std::invoke(infix, this, can_assign);
+    }
+
+    if (can_assign && consume(Token::Type::Equal))
+        throw SyntaxError(parser.previous.lexeme, "bad assignment");
+}
+
 void Compiler::expect(Token::Type type, std::string_view error)
 {
-    if (parser.current.type != type)
+    if (!consume(type))
         throw SyntaxError(parser.current.lexeme, error);
-
-    advance();
 }
 
 void Compiler::expectColon()
@@ -178,41 +195,13 @@ void Compiler::expectNewLine()
     expect(Token::Type::NewLine, "expected new line");
 }
 
-void Compiler::parse(Precedence precedence)
-{
-    auto lexeme = parser.previous.lexeme;
-
-    advance();
-    auto prefix = rule(parser.previous.type).prefix;
-    if (!prefix)
-        throw SyntaxError(lexeme, "invalid syntax");
-
-    auto can_assign = int(precedence) <= int(Precedence::Assignment);
-    std::invoke(prefix, this, can_assign);
-
-    while (precedence <= rule(parser.current.type).precedence)
-    {
-        lexeme = parser.previous.lexeme;
-
-        advance();
-        auto infix = rule(parser.previous.type).infix;
-        if (!infix)
-            throw SyntaxError(lexeme, "invalid syntax");
-
-        std::invoke(infix, this, can_assign);
-    }
-
-    if (can_assign && match(Token::Type::Equal))
-        throw SyntaxError(parser.previous.lexeme, "bad assignment");
-}
-
 void Compiler::popLocals(std::size_t depth)
 {
-    auto size = locals.size();
-    while (locals.size() && locals.back().depth > depth)
-        locals.pop_back();
+    auto size = variables.size();
+    while (variables.size() && variables.back().depth > depth)
+        variables.pop_back();
 
-    auto count = size - locals.size();
+    auto count = size - variables.size();
     if (count == 0)
         return;
 
@@ -234,7 +223,7 @@ Compiler::Labels Compiler::block(const Compiler::Block& block)
 
     scope.push_back(block);
 
-    while (!check(Token::Type::Dedent))
+    while (parser.current.type != Token::Type::Dedent)
         declaration();
 
     auto breaks(std::move(scope.back().breaks));
@@ -249,14 +238,6 @@ Compiler::Labels Compiler::block(const Compiler::Block& block)
     expectDedent();
 
     return breaks;
-}
-
-void Compiler::and_(bool)
-{
-    auto short_circuit = emitJump(Opcode::JumpFalse);
-    emit(Opcode::Pop);
-    parse(Precedence::And);
-    patchJump(short_circuit);
 }
 
 void Compiler::binary(bool)
@@ -311,7 +292,7 @@ void Compiler::constant(bool)
 
 void Compiler::declaration()
 {
-    if (match(Token::Type::Var))
+    if (consume(Token::Type::Var))
         declarationVar();
     else
         statement();
@@ -322,20 +303,21 @@ void Compiler::declarationVar()
     expectIdentifier();
     auto identifier = parser.previous.lexeme;
 
-    if (match(Token::Type::Equal))
+    if (consume(Token::Type::Equal))
         expression();
     else
         emit(Opcode::Null);
 
-    for (const auto& local : shell::reversed(locals))
+    for (const auto& local : shell::reversed(variables))
     {
         if (local.depth != scope.size())
             break;
 
         if (local.identifier == identifier)
-            throw SyntaxError(identifier, "redefined '{}'", identifier);
+            throw SyntaxError(identifier, "redefined variable '{}'", identifier);
     }
-    locals.push_back({ identifier, scope.size() });
+
+    variables.push_back({ identifier, scope.size() });
 
     expectNewLine();
 }
@@ -345,7 +327,7 @@ void Compiler::expression()
     parse(Precedence::Assignment);
 }
 
-void Compiler::grouping(bool)
+void Compiler::group(bool)
 {
     expression();
     expect(Token::Type::ParenRight, "expected ')'");
@@ -365,7 +347,15 @@ void Compiler::literal(bool)
     }
 }
 
-void Compiler::or_(bool)
+void Compiler::logicalAnd(bool)
+{
+    auto short_circuit = emitJump(Opcode::JumpFalse);
+    emit(Opcode::Pop);
+    parse(Precedence::And);
+    patchJump(short_circuit);
+}
+
+void Compiler::logicalOr(bool)
 {
     auto short_circuit = emitJump(Opcode::JumpTrue);
     emit(Opcode::Pop);
@@ -375,21 +365,21 @@ void Compiler::or_(bool)
 
 void Compiler::statement()
 {
-    if (match(Token::Type::Assert))
+    if (consume(Token::Type::Assert))
         statementAssert();
-    else if (match(Token::Type::Block))
+    else if (consume(Token::Type::Block))
         statementBlock();
-    else if (match(Token::Type::Break))
+    else if (consume(Token::Type::Break))
         statementBreak();
-    else if (match(Token::Type::Continue))
+    else if (consume(Token::Type::Continue))
         statementContinue();
-    else if (match(Token::Type::If))
+    else if (consume(Token::Type::If))
         statementIf();
-    else if (match(Token::Type::Noop))
+    else if (consume(Token::Type::Noop))
         statementNoop();
-    else if (match(Token::Type::Print))
+    else if (consume(Token::Type::Print))
         statementPrint();
-    else if (match(Token::Type::While))
+    else if (consume(Token::Type::While))
         statementWhile();
     else
         statementExpression();
@@ -404,13 +394,13 @@ void Compiler::statementAssert()
 
 void Compiler::statementBlock()
 {
-    if (match(Token::Type::Identifier))
+    if (consume(Token::Type::Identifier))
     {
         auto identifier = parser.previous.lexeme;
         for (const auto& block : scope)
         {
             if (block.identifier == identifier)
-                throw SyntaxError(identifier, "redefined '{}'", identifier);
+                throw SyntaxError(identifier, "redefined block '{}'", identifier);
         }
 
         auto breaks = block({ Block::Type::Block, identifier });
@@ -425,7 +415,7 @@ void Compiler::statementBlock()
 
 void Compiler::statementBreak()
 {
-    if (match(Token::Type::Identifier))
+    if (consume(Token::Type::Identifier))
         statementBreakBlock();
     else
         statementBreakLoop();
@@ -435,58 +425,62 @@ void Compiler::statementBreak()
 
 void Compiler::statementBreakBlock()
 {
-    auto found = false;
-    auto identifier = parser.previous.lexeme;
-    for (int i = scope.size() - 1; i >= 0; --i)
+    auto resolve = [this](std::string_view identifier) -> Block*
     {
-        auto& block = scope[i];
-        if (block.identifier == identifier)
+        for (auto& block : shell::reversed(scope))
         {
-            popLocals(i);
-            block.breaks.push_back(emitJump(Opcode::Jump));
-            found = true;
-            break;
+            if (block.identifier == identifier)
+                return &block;
         }
-    }
+        return nullptr;
+    };
 
-    if (!found)
+    auto identifier = parser.previous.lexeme;
+    auto block = resolve(identifier);
+    if (!block)
         throw SyntaxError(identifier, "no matching block '{}'", identifier);
+    
+    popLocals(std::distance(scope.data(), block));
+    block->breaks.push_back(emitJump(Opcode::Jump));
 }
 
 void Compiler::statementBreakLoop()
 {
-    auto found = false;
-    for (int i = scope.size() - 1; i >= 0; --i)
+    auto resolve = [this]() -> Block*
     {
-        auto& block = scope[i];
-        if (block.type == Block::Type::Loop)
+        for (auto& block : shell::reversed(scope))
         {
-            popLocals(i);
-            block.breaks.push_back(emitJump(Opcode::Jump));
-            found = true;
-            break;
+            if (block.type == Block::Type::Loop)
+                return &block;
         }
-    }
+        return nullptr;
+    };
 
-    if (!found)
+    auto block = resolve();
+    if (!block)
         throw SyntaxError(parser.previous.lexeme, "'break' outside loop");
+
+    popLocals(std::distance(scope.data(), block));
+    block->breaks.push_back(emitJump(Opcode::Jump));
 }
 
 void Compiler::statementContinue()
 {
-    auto found = false;
-    for (auto& block : shell::reversed(scope))
+    auto resolve = [this]() -> Block*
     {
-        if (block.type == Block::Type::Loop)
+        for (auto& block : shell::reversed(scope))
         {
-            block.continues.push_back(emitJump(Opcode::Jump));
-            found = true;
-            break;
+            if (block.type == Block::Type::Loop)
+                return &block;
         }
-    }
+        return nullptr;
+    };
 
-    if (!found)
-        throw SyntaxError(parser.previous.lexeme, "'break' outside loop");
+    auto block = resolve();
+    if (!block)
+        throw SyntaxError(parser.previous.lexeme, "'continue' outside loop");
+
+    block->continues.push_back(emitJump(Opcode::Jump));
 
     expectNewLine();
 }
@@ -509,9 +503,9 @@ void Compiler::statementIf()
         exits.push_back(emitJump(Opcode::Jump));
         patchJump(elif);
     }
-    while (match(Token::Type::Elif));
+    while (consume(Token::Type::Elif));
 
-    if (match(Token::Type::Else))
+    if (consume(Token::Type::Else))
         block({ Block::Type::Conditional });
 
     for (const auto& jump : exits)
@@ -562,22 +556,23 @@ void Compiler::unary(bool)
 
 void Compiler::variable(bool can_assign)
 {
-    auto index = 0;
-    auto resolved = false;
-    auto identifier = parser.previous.lexeme;
-    for (index = locals.size() - 1; index >= 0; --index)
+    auto resolve = [this](std::string_view identifier) -> Variable*
     {
-        if (locals[index].identifier == identifier)
+        for (auto& variable : variables)
         {
-            resolved = true;
-            break;
+            if (variable.identifier == identifier)
+                return &variable;
         }
-    }
+        return nullptr;
+    };
 
-    if (!resolved)
+    auto identifier = parser.previous.lexeme;
+    auto variable = resolve(identifier);
+    if (!variable)
         throw SyntaxError(identifier, "undefined variable '{}'", identifier);
 
-    if (can_assign && match(Token::Type::Equal))
+    auto index = std::distance(variables.data(), variable);
+    if (can_assign && consume(Token::Type::Equal))
     {
         expression();
         emitVariable(index, Opcode::StoreVariable, Opcode::StoreVariableExt);

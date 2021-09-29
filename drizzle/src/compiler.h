@@ -51,12 +51,6 @@ private:
         Token previous;
     };
 
-    struct Local
-    {
-        std::string_view identifier;
-        std::size_t depth;
-    };
-
     struct Block
     {
         enum class Type { Block, Conditional, Loop };
@@ -65,6 +59,12 @@ private:
         std::string_view identifier;
         Labels breaks;
         Labels continues;
+    };
+
+    struct Variable
+    {
+        std::string_view identifier;
+        std::size_t depth;
     };
 
     static const Parser::Rule& rule(Token::Type type);
@@ -77,28 +77,27 @@ private:
     void patchJump(std::size_t jump);
 
     void advance();
-    bool check(Token::Type type) const;
-    bool match(Token::Type type);
+    bool consume(Token::Type type);
+    void parse(Precedence precedence);
     void expect(Token::Type type, std::string_view error);
     void expectColon();
     void expectDedent();
     void expectIdentifier();
     void expectIndent();
     void expectNewLine();
-    void parse(Precedence precedence);
 
     void popLocals(std::size_t depth);
     Labels block(const Block& block);
 
-    void and_(bool);
     void binary(bool);
     void constant(bool);
     void declaration();
     void declarationVar();
     void expression();
-    void grouping(bool);
+    void group(bool);
     void literal(bool);
-    void or_(bool);
+    void logicalAnd(bool);
+    void logicalOr(bool);
     void statement();
     void statementAssert();
     void statementBlock();
@@ -117,7 +116,7 @@ private:
     Interning& interning;
     Parser parser;
     Tokens::const_iterator token;
-    Chunk* chunk;  // Todo: pass as reference to constructor?
+    Chunk* chunk;
     std::vector<Block> scope;
-    std::vector<Local> locals;
+    std::vector<Variable> variables;
 };

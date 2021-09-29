@@ -1,5 +1,16 @@
 # Todo
 
+## Functions
+- type()
+- print()
+- assert()
+- conversion functions that return null on error
+
+## Classes
+- $construct
+- $string
+- $iterate
+
 ## Scanning
 - Brace aware scanning (line breaks inside braces, brackets, etc. are ignored)
 - Should `0xDEADreturn` result in two valid tokens?
