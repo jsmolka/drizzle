@@ -12,16 +12,6 @@ bool DzValue::isString() const
     return type == Type::Object && o->type == DzObject::Type::String;
 }
 
-bool DzValue::isBitwise() const
-{
-    return static_cast<int>(type) <= static_cast<int>(Type::Int);
-}
-
-bool DzValue::isPrimitive() const
-{
-    return static_cast<int>(type) <= static_cast<int>(Type::Float);
-}
-
 std::string_view DzValue::typeName() const
 {
     switch (type)

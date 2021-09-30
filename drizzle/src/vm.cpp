@@ -88,6 +88,43 @@ void Vm::raise(std::string_view message, Args&& ...args)
     throw Error(line, message, std::forward<Args>(args)...);
 }
 
+template<template<typename T, typename U> typename Promote, typename Callback>
+void Vm::binary(std::string_view operation, Callback callback)
+{
+    auto  rhs = stack.pop();
+    auto& lhs = stack.peek(0);
+
+    auto promote = [callback](DzValue& lhs, auto a, auto b)
+    {
+        using A = decltype(a);
+        using B = decltype(b);
+        using P = Promote<A, B>;
+
+        callback(lhs, static_cast<P>(a), static_cast<P>(b));
+    };
+
+    #define HASH(a, b) ((int(a) << 3) | int(b))
+
+    switch (HASH(lhs.type, rhs.type))
+    {
+    case HASH(DzValue::Type::Int,    DzValue::Type::Int  ): promote(lhs, lhs.i, rhs.i); break;
+    case HASH(DzValue::Type::Int,    DzValue::Type::Float): promote(lhs, lhs.i, rhs.f); break;
+    case HASH(DzValue::Type::Int,    DzValue::Type::Bool ): promote(lhs, lhs.i, rhs.b); break;
+    case HASH(DzValue::Type::Float,  DzValue::Type::Int  ): promote(lhs, lhs.f, rhs.i); break;
+    case HASH(DzValue::Type::Float,  DzValue::Type::Float): promote(lhs, lhs.f, rhs.f); break;
+    case HASH(DzValue::Type::Float,  DzValue::Type::Bool ): promote(lhs, lhs.f, rhs.b); break;
+    case HASH(DzValue::Type::Bool,   DzValue::Type::Int  ): promote(lhs, lhs.b, rhs.i); break;
+    case HASH(DzValue::Type::Bool,   DzValue::Type::Float): promote(lhs, lhs.b, rhs.f); break;
+    case HASH(DzValue::Type::Bool,   DzValue::Type::Bool ): promote(lhs, lhs.b, rhs.b); break;
+
+    default:
+        SHELL_UNREACHABLE;
+        break;
+    }
+
+    #undef HASH
+}
+
 template<typename Operation>
 void Vm::bitwiseBinary(DzValue& lhs, const DzValue& rhs, Operation operation)
 {
@@ -173,8 +210,8 @@ std::tuple<DzValue&, DzValue> Vm::bitwiseOperands(std::string_view operation)
 {
     auto [lhs, rhs] = operands();
 
-    if (!(lhs.isBitwise() && rhs.isBitwise()))
-        raiseTypeError(operation, lhs, rhs);
+    //if (!(lhs.isBitwise() && rhs.isBitwise()))
+    //    raiseTypeError(operation, lhs, rhs);
 
     return std::forward_as_tuple(lhs, rhs);
 }
@@ -183,29 +220,34 @@ std::tuple<DzValue&, DzValue> Vm::primitiveOperands(std::string_view operation)
 {
     auto [lhs, rhs] = operands();
     
-    if (!(lhs.isPrimitive() && rhs.isPrimitive()))
-        raiseTypeError(operation, lhs, rhs);
+    //if (!(lhs.isPrimitive() && rhs.isPrimitive()))
+    //    raiseTypeError(operation, lhs, rhs);
 
     return std::forward_as_tuple(lhs, rhs);
 }
 
+template<typename What, typename... T>
+inline constexpr auto is = shell::is_any_of_v<What, T...>;
+
 void Vm::add()
 {
-    auto [lhs, rhs] = operands();
-    if (lhs.isPrimitive() && rhs.isPrimitive())
-        primitiveBinary(lhs, rhs, [](auto a, auto b) { return a + b; });
-    else if (lhs.isString() && rhs.isString())
+    binary("+", [this](DzValue& dst, auto a, auto b)
     {
-        std::string str;
-        str.reserve(
-            static_cast<DzString*>(lhs.o)->data.size() +
-            static_cast<DzString*>(rhs.o)->data.size());
-        str.append(static_cast<DzString*>(lhs.o)->data);
-        str.append(static_cast<DzString*>(rhs.o)->data);
-        lhs = interning.make(std::move(str));
-    }
-    else
-        raiseTypeError("+", lhs, rhs);
+        using A = decltype(a);
+        using B = decltype(b);
+
+        if constexpr (is<dzint, A, B> || is<dzfloat, A, B>)
+        {
+            dst = a + b;
+            return true;
+        }
+        if constexpr (is<DzString, A, B>)
+        {
+            dst = interning.make(a.data + b.data);
+            return true;
+        }
+        return false;
+    });
 }
 
 void Vm::assertion()
@@ -308,11 +350,11 @@ void Vm::divideInt()
 
 void Vm::equal()
 {
-    auto [lhs, rhs] = operands();
-    if (lhs.isPrimitive() && rhs.isPrimitive())
-        primitiveBinary(lhs, rhs, [](auto a, auto b) { return a == b; });
-    else
-        lhs = lhs == rhs;
+    //auto [lhs, rhs] = operands();
+    //if (lhs.isPrimitive() && rhs.isPrimitive())
+    //    primitiveBinary(lhs, rhs, [](auto a, auto b) { return a == b; });
+    //else
+    //    lhs = lhs == rhs;
 }
 
 void Vm::greater()
@@ -421,11 +463,11 @@ void Vm::not_()
 
 void Vm::notEqual()
 {
-    auto [lhs, rhs] = operands();
-    if (lhs.isPrimitive() && rhs.isPrimitive())
-        primitiveBinary(lhs, rhs, [](auto a, auto b) { return a != b; });
-    else
-        lhs = lhs != rhs;
+    //auto [lhs, rhs] = operands();
+    //if (lhs.isPrimitive() && rhs.isPrimitive())
+    //    primitiveBinary(lhs, rhs, [](auto a, auto b) { return a != b; });
+    //else
+    //    lhs = lhs != rhs;
 }
 
 void Vm::pop()

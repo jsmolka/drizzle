@@ -17,6 +17,8 @@ inline constexpr auto is_dz_value_v = is_dz_primitive_v<T> || is_dz_object_v<T>;
 
 }  // namespace
 
+struct DzNull {};
+
 struct DzValue
 {
     enum class Type { Bool, Int, Float, Null, Object };
@@ -26,8 +28,6 @@ struct DzValue
     DzValue(const T& value);
 
     bool isString() const;
-    bool isBitwise() const;
-    bool isPrimitive() const;
     std::string_view typeName() const;
 
     operator bool() const;
