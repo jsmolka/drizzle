@@ -1,13 +1,12 @@
 #pragma once
 
-#include <algorithm>
 #include <shell/ranges.h>
 
-template<typename T, std::size_t N>
+template<typename T, std::size_t kSize>
 class Stack
 {
 public:
-    static_assert(N > 0);
+    static_assert(kSize > 0);
 
     using iterator = T*;
     using const_iterator = const iterator;
@@ -20,15 +19,27 @@ public:
 
     void push(const T& value)
     {
-        *head = value;
-        if (++head == last)
+        if (head == last)
             grow();
+        *head++ = value;
+    }
+
+    void push(T&& value)
+    {
+        if (head == last)
+            grow();
+        *head++ = std::move(value);
     }
 
     T pop()
     {
         head--;
         return *head;
+    }
+
+    std::size_t capacity() const
+    {
+        return last - data;
     }
 
     std::size_t size() const
@@ -76,14 +87,13 @@ public:
 private:
     void grow()
     {
-        std::size_t capacity_old = last - data;
+        std::size_t capacity_old = capacity();
         std::size_t capacity_new = 2 * capacity_old;
 
         T* data_old = data;
         T* data_new = new T[capacity_new];
 
-        std::copy(begin(), end(), data_new);
-
+        head = std::copy(begin(), end(), data_new);
         data = data_new;
         last = data_new + capacity_new;
 
@@ -91,8 +101,8 @@ private:
             delete[] data_old;
     }
 
-    T* head = stack;
-    T* last = stack + N;
     T* data = stack;
-    T stack[N];
+    T* head = stack;
+    T* last = stack + kSize;
+    T stack[kSize];
 };
