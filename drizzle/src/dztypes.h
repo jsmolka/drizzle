@@ -26,3 +26,19 @@ using promoted_t = typename promoted<T, U>::type;
 static_assert(std::is_same_v<promoted_t<dzbool, dzbool>, dzint>);
 static_assert(std::is_same_v<promoted_t<dzbool, dzint>, dzint>);
 static_assert(std::is_same_v<promoted_t<dzint, dzfloat>, dzfloat>);
+
+template<typename T, typename U>
+struct promoted_bitwise
+{
+    static_assert(is_dz_primitive_v<T>);
+    static_assert(is_dz_primitive_v<U>);
+
+    using type = std::conditional_t<shell::is_any_of_v<dzfloat, T, U>, dzfloat, std::conditional_t<shell::is_any_of_v<dzint, T, U>, dzint, dzbool>>;
+};
+
+template<typename T, typename U>
+using promoted_bitwise_t = typename promoted_bitwise<T, U>::type;
+
+static_assert(std::is_same_v<promoted_bitwise_t<dzbool, dzbool>, dzbool>);
+static_assert(std::is_same_v<promoted_bitwise_t<dzbool, dzint>, dzint>);
+static_assert(std::is_same_v<promoted_bitwise_t<dzint, dzfloat>, dzfloat>);

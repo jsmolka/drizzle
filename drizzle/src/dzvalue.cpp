@@ -7,11 +7,6 @@ DzValue::DzValue()
     type = Type::Null;
 }
 
-bool DzValue::isString() const
-{
-    return type == Type::Object && o->type == DzObject::Type::String;
-}
-
 std::string_view DzValue::typeName() const
 {
     switch (type)

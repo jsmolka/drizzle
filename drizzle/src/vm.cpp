@@ -1,11 +1,15 @@
 #include "vm.h"
 
 #include <shell/punning.h>
+#include <shell/traits.h>
 
 #include "compiler.h"
 #include "dzstring.h"
 #include "errors.h"
 #include "format.h"
+
+template<typename T, typename... Ts>
+inline constexpr auto is_same_v = shell::is_same_v<T, shell::unqualified_t<Ts>...>;
 
 void Vm::interpret(const Tokens& tokens)
 {
@@ -91,38 +95,62 @@ void Vm::raise(std::string_view message, Args&& ...args)
 template<template<typename T, typename U> typename Promote, typename Callback>
 void Vm::binary(std::string_view operation, Callback callback)
 {
-    auto  rhs = stack.pop();
+    static_assert(int(DzValue::Type::LastEnumValue) == 5);
+
+    auto  rhs = stack.popValue();
     auto& lhs = stack.peek(0);
 
-    auto promote = [callback](DzValue& lhs, auto a, auto b)
+    auto promote = [callback, &lhs = lhs](auto a, auto b)
     {
         using A = decltype(a);
         using B = decltype(b);
-        using P = Promote<A, B>;
 
-        callback(lhs, static_cast<P>(a), static_cast<P>(b));
+        if constexpr (is_dz_primitive_v<A> && is_dz_primitive_v<B>)
+            return callback(lhs, static_cast<Promote<A, B>>(a), static_cast<Promote<A, B>>(b));
+        else
+            return callback(lhs, a, b);
     };
 
-    #define HASH(a, b) ((int(a) << 3) | int(b))
+    #define DZ_EVAL(a, b) if (promote(a, b)) return; else break
+    #define DZ_HASH(a, b) (int(DzValue::Type::LastEnumValue) * int(a) + int(b))
 
-    switch (HASH(lhs.type, rhs.type))
+    switch (DZ_HASH(lhs.type, rhs.type))
     {
-    case HASH(DzValue::Type::Int,    DzValue::Type::Int  ): promote(lhs, lhs.i, rhs.i); break;
-    case HASH(DzValue::Type::Int,    DzValue::Type::Float): promote(lhs, lhs.i, rhs.f); break;
-    case HASH(DzValue::Type::Int,    DzValue::Type::Bool ): promote(lhs, lhs.i, rhs.b); break;
-    case HASH(DzValue::Type::Float,  DzValue::Type::Int  ): promote(lhs, lhs.f, rhs.i); break;
-    case HASH(DzValue::Type::Float,  DzValue::Type::Float): promote(lhs, lhs.f, rhs.f); break;
-    case HASH(DzValue::Type::Float,  DzValue::Type::Bool ): promote(lhs, lhs.f, rhs.b); break;
-    case HASH(DzValue::Type::Bool,   DzValue::Type::Int  ): promote(lhs, lhs.b, rhs.i); break;
-    case HASH(DzValue::Type::Bool,   DzValue::Type::Float): promote(lhs, lhs.b, rhs.f); break;
-    case HASH(DzValue::Type::Bool,   DzValue::Type::Bool ): promote(lhs, lhs.b, rhs.b); break;
+    case DZ_HASH(DzValue::Type::Bool,   DzValue::Type::Bool  ): DZ_EVAL(lhs.b, rhs.b);
+    case DZ_HASH(DzValue::Type::Bool,   DzValue::Type::Int   ): DZ_EVAL(lhs.b, rhs.i);
+    case DZ_HASH(DzValue::Type::Bool,   DzValue::Type::Float ): DZ_EVAL(lhs.b, rhs.f);
+    case DZ_HASH(DzValue::Type::Bool,   DzValue::Type::Null  ): DZ_EVAL(lhs.b, DzNull{});
+    case DZ_HASH(DzValue::Type::Bool,   DzValue::Type::Object): DZ_EVAL(lhs.b, rhs.o);
+    case DZ_HASH(DzValue::Type::Int,    DzValue::Type::Bool  ): DZ_EVAL(lhs.i, rhs.b);
+    case DZ_HASH(DzValue::Type::Int,    DzValue::Type::Int   ): DZ_EVAL(lhs.i, rhs.i);
+    case DZ_HASH(DzValue::Type::Int,    DzValue::Type::Float ): DZ_EVAL(lhs.i, rhs.f);
+    case DZ_HASH(DzValue::Type::Int,    DzValue::Type::Null  ): DZ_EVAL(lhs.i, DzNull{});
+    case DZ_HASH(DzValue::Type::Int,    DzValue::Type::Object): DZ_EVAL(lhs.i, rhs.o);
+    case DZ_HASH(DzValue::Type::Float,  DzValue::Type::Bool  ): DZ_EVAL(lhs.f, rhs.b);
+    case DZ_HASH(DzValue::Type::Float,  DzValue::Type::Int   ): DZ_EVAL(lhs.f, rhs.i);
+    case DZ_HASH(DzValue::Type::Float,  DzValue::Type::Float ): DZ_EVAL(lhs.f, rhs.f);
+    case DZ_HASH(DzValue::Type::Float,  DzValue::Type::Null  ): DZ_EVAL(lhs.f, DzNull{});
+    case DZ_HASH(DzValue::Type::Float,  DzValue::Type::Object): DZ_EVAL(lhs.f, rhs.o);
+    case DZ_HASH(DzValue::Type::Null,   DzValue::Type::Bool  ): DZ_EVAL(DzNull{}, rhs.b);
+    case DZ_HASH(DzValue::Type::Null,   DzValue::Type::Int   ): DZ_EVAL(DzNull{}, rhs.i);
+    case DZ_HASH(DzValue::Type::Null,   DzValue::Type::Float ): DZ_EVAL(DzNull{}, rhs.f);
+    case DZ_HASH(DzValue::Type::Null,   DzValue::Type::Null  ): DZ_EVAL(DzNull{}, DzNull{});
+    case DZ_HASH(DzValue::Type::Null,   DzValue::Type::Object): DZ_EVAL(DzNull{}, rhs.o);
+    case DZ_HASH(DzValue::Type::Object, DzValue::Type::Bool  ): DZ_EVAL(lhs.o, rhs.b);
+    case DZ_HASH(DzValue::Type::Object, DzValue::Type::Int   ): DZ_EVAL(lhs.o, rhs.i);
+    case DZ_HASH(DzValue::Type::Object, DzValue::Type::Float ): DZ_EVAL(lhs.o, rhs.f);
+    case DZ_HASH(DzValue::Type::Object, DzValue::Type::Null  ): DZ_EVAL(lhs.o, DzNull{});
+    case DZ_HASH(DzValue::Type::Object, DzValue::Type::Object): DZ_EVAL(lhs.o, rhs.o);
 
     default:
         SHELL_UNREACHABLE;
         break;
     }
 
-    #undef HASH
+    #undef DZ_HASH
+    #undef DZ_EVAL
+
+    raise<TypeError>("bad operand types for '{}': '{}' and '{}'", operation, lhs.typeName(), rhs.typeName());
 }
 
 template<typename Operation>
@@ -200,7 +228,7 @@ void Vm::raiseTypeError(std::string_view operation, const DzValue& lhs, const Dz
 
 std::tuple<DzValue&, DzValue> Vm::operands()
 {
-    auto  rhs = stack.pop();
+    auto  rhs = stack.popValue();
     auto& lhs = stack.peek(0);
 
     return std::forward_as_tuple(lhs, rhs);
@@ -226,9 +254,6 @@ std::tuple<DzValue&, DzValue> Vm::primitiveOperands(std::string_view operation)
     return std::forward_as_tuple(lhs, rhs);
 }
 
-template<typename What, typename... T>
-inline constexpr auto is = shell::is_any_of_v<What, T...>;
-
 void Vm::add()
 {
     binary("+", [this](DzValue& dst, auto a, auto b)
@@ -236,15 +261,21 @@ void Vm::add()
         using A = decltype(a);
         using B = decltype(b);
 
-        if constexpr (is<dzint, A, B> || is<dzfloat, A, B>)
+        if constexpr (is_same_v<dzint, A, B> || is_same_v<dzfloat, A, B>)
         {
             dst = a + b;
             return true;
         }
-        if constexpr (is<DzString, A, B>)
+        if constexpr (is_same_v<DzObject, A, B>)
         {
-            dst = interning.make(a.data + b.data);
-            return true;
+            if (a->type == DzObject::Type::String && b->type == DzObject::Type::String)
+            {
+                auto aa = static_cast<DzString*>(a);
+                auto bb = static_cast<DzString*>(b);
+
+                dst = interning.make(aa->data + bb->data);
+                return true;
+            }
         }
         return false;
     });
@@ -252,20 +283,40 @@ void Vm::add()
 
 void Vm::assertion()
 {
-    if (!stack.pop())
+    if (!stack.popValue())
         raise<AssertionError>("assertion failed");
 }
 
 void Vm::bitAnd()
 {
-    auto [lhs, rhs] = bitwiseOperands("&");
-    bitwiseBinary(lhs, rhs, [](auto a, auto b) { return a & b; });
+    binary<promoted_bitwise_t>("&", [](DzValue& dst, auto a, auto b)
+    {
+        using A = decltype(a);
+        using B = decltype(b);
+
+        if constexpr (is_same_v<dzbool, A, B> || is_same_v<dzint, A, B>)
+        {
+            dst = static_cast<A>(a & b);
+            return true;
+        }
+        return false;
+    });
 }
 
 void Vm::bitAsr()
 {
-    auto [lhs, rhs] = bitwiseOperands(">>");
-    bitwiseBinary(lhs, rhs, [](auto a, auto b) { return a >> b; });
+    binary(">>", [](DzValue& dst, auto a, auto b)
+    {
+        using A = decltype(a);
+        using B = decltype(b);
+
+        if constexpr (is_same_v<dzint, A, B>)
+        {
+            dst = a >> b;
+            return true;
+        }
+        return false;
+    });
 }
 
 void Vm::bitComplement()
@@ -284,8 +335,18 @@ void Vm::bitComplement()
 
 void Vm::bitLsl()
 {
-    auto [lhs, rhs] = bitwiseOperands("<<");
-    bitwiseBinary(lhs, rhs, [](auto a, auto b) { return a << b; });
+    binary("<<", [](DzValue& dst, auto a, auto b)
+    {
+        using A = decltype(a);
+        using B = decltype(b);
+
+        if constexpr (is_same_v<dzint, A, B>)
+        {
+            dst = a << b;
+            return true;
+        }
+        return false;
+    });
 }
 
 void Vm::bitLsr()
@@ -384,7 +445,7 @@ void Vm::jumpFalse()
 void Vm::jumpFalsePop()
 {
     auto offset = read<s16>();
-    if (!stack.pop())
+    if (!stack.popValue())
         ip += offset;
 }
 
@@ -472,17 +533,17 @@ void Vm::notEqual()
 
 void Vm::pop()
 {
-    stack.shrink(1);
+    stack.pop(1);
 }
 
 void Vm::popMultiple()
 {
-    stack.shrink(read<u8>());
+    stack.pop(read<u8>());
 }
 
 void Vm::popMultipleExt()
 {
-    stack.shrink(read<u16>());
+    stack.pop(read<u16>());
 }
 
 void Vm::power()
@@ -493,7 +554,7 @@ void Vm::power()
 
 void Vm::print()
 {
-    shell::print("{}\n", stack.pop());
+    shell::print("{}\n", stack.popValue());
 }
 
 void Vm::storeVariable()

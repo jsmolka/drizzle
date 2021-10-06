@@ -67,9 +67,6 @@
     <ClInclude Include="src\vm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\stack.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\compiler.h">
       <Filter>Header Files</Filter>
     </ClInclude>

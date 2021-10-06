@@ -1,8 +1,9 @@
 #pragma once
 
+#include <shell/stack.h>
+
 #include "chunk.h"
 #include "interning.h"
-#include "stack.h"
 #include "token.h"
 
 class Vm
@@ -74,6 +75,6 @@ private:
 
     Chunk chunk;
     const u8* ip;
-    Stack<DzValue, 512> stack;
+    shell::Stack<DzValue, 512> stack;
     Interning interning;
 };

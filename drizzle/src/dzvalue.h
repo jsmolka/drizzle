@@ -21,13 +21,12 @@ struct DzNull {};
 
 struct DzValue
 {
-    enum class Type { Bool, Int, Float, Null, Object };
+    enum class Type { Bool, Int, Float, Null, Object, LastEnumValue };
 
     DzValue();
     template<typename T, std::enable_if_t<is_dz_value_v<T>, int> = 0>
     DzValue(const T& value);
 
-    bool isString() const;
     std::string_view typeName() const;
 
     operator bool() const;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <shell/buffer.h>
+#include <shell/vector.h>
 
 #include "chunk.h"
 #include "interning.h"
@@ -15,7 +15,7 @@ public:
     void compile(const Tokens& tokens, Chunk& chunk);
 
 private:
-    using Labels = shell::SmallBuffer<std::size_t, 8>;
+    using Labels = shell::Vector<std::size_t, 8>;
 
     enum class Precedence
     {
