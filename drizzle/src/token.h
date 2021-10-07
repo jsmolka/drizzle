@@ -4,7 +4,7 @@
 #include <variant>
 #include <vector>
 
-#include "dztypes.h"
+#include "dzprimitives.h"
 
 class Token
 {

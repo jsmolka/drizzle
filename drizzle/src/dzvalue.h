@@ -4,7 +4,7 @@
 #include <shell/traits.h>
 
 #include "dzobject.h"
-#include "dztypes.h"
+#include "dzprimitives.h"
 
 namespace
 {

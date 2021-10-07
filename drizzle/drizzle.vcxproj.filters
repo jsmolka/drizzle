@@ -73,7 +73,7 @@
     <ClInclude Include="src\scanner.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\dztypes.h">
+    <ClInclude Include="src\dzprimitives.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\opcode.h">

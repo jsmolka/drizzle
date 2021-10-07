@@ -20,7 +20,7 @@ private:
     void raiseTypeError(std::string_view operation, const DzValue& value);
     void raiseTypeError(std::string_view operation, const DzValue& lhs, const DzValue& rhs);
 
-    template<template<typename T, typename U> typename Promote = promoted_t, typename Callback>
+    template<template<typename T, typename U> typename Promote = promote_t, typename Callback>
     void binary(std::string_view operation, Callback callback);
 
 

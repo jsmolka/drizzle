@@ -160,7 +160,7 @@ void Vm::bitwiseBinary(DzValue& lhs, const DzValue& rhs, Operation operation)
     {
         using A = decltype(a);
         using B = decltype(b);
-        using P = promoted_t<A, B>;
+        using P = promote_t<A, B>;
 
         return operation(static_cast<P>(a), static_cast<P>(b));
     };
@@ -189,7 +189,7 @@ void Vm::primitiveBinary(DzValue& lhs, const DzValue& rhs, Operation operation)
     {
         using A = decltype(a);
         using B = decltype(b);
-        using P = promoted_t<A, B>;
+        using P = promote_t<A, B>;
 
         return operation(static_cast<P>(a), static_cast<P>(b));
     };
@@ -289,14 +289,19 @@ void Vm::assertion()
 
 void Vm::bitAnd()
 {
-    binary<promoted_bitwise_t>("&", [](DzValue& dst, auto a, auto b)
+    binary<promote_lax_t>("&", [](DzValue& dst, auto a, auto b)
     {
         using A = decltype(a);
         using B = decltype(b);
 
-        if constexpr (is_same_v<dzbool, A, B> || is_same_v<dzint, A, B>)
+        if constexpr (is_same_v<dzbool, A, B>)
         {
-            dst = static_cast<A>(a & b);
+            dst = static_cast<dzbool>(a & b);
+            return true;
+        }
+        if constexpr (is_same_v<dzint, A, B>)
+        {
+            dst = a & b;
             return true;
         }
         return false;
@@ -533,7 +538,7 @@ void Vm::notEqual()
 
 void Vm::pop()
 {
-    stack.pop(1);
+    stack.pop();
 }
 
 void Vm::popMultiple()

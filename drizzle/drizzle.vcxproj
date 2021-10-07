@@ -40,7 +40,7 @@
     <ClInclude Include="src\opcode.h" />
     <ClInclude Include="src\scanner.h" />
     <ClInclude Include="src\token.h" />
-    <ClInclude Include="src\dztypes.h" />
+    <ClInclude Include="src\dzprimitives.h" />
     <ClInclude Include="src\dzvalue.h" />
     <ClInclude Include="src\vm.h" />
   </ItemGroup>
