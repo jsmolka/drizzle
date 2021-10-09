@@ -17,8 +17,9 @@ private:
 
     template<typename Error, typename... Args>
     void raise(std::string_view message, Args&&... args);
-    void raiseTypeError(std::string_view operation, const DzValue& value);
 
+    template<template<typename T> typename Promote = promote_t, typename Callback>
+    void unary(std::string_view operation, Callback callback);
     template<template<typename T, typename U> typename Promote = promote_t, typename Callback>
     void binary(std::string_view operation, Callback callback);
 

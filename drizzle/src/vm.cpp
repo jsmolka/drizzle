@@ -92,6 +92,41 @@ void Vm::raise(std::string_view message, Args&& ...args)
     throw Error(line, message, std::forward<Args>(args)...);
 }
 
+template<template<typename T> typename Promote, typename Callback>
+void Vm::unary(std::string_view operation, Callback callback)
+{
+    auto& value = stack.top();
+
+    auto promote = [callback, &value = value](auto a)
+    {
+        using A = decltype(a);
+
+        if constexpr (is_dz_primitive_v<A>)
+            return callback(value, static_cast<Promote<A>>(a));
+        else
+            return callback(value, a);
+    };
+
+    #define DZ_EVAL(a) if (promote(a)) return; else break
+
+    switch (value.type)
+    {
+    case DzValue::Type::Bool:   DZ_EVAL(value.b);
+    case DzValue::Type::Int:    DZ_EVAL(value.i);
+    case DzValue::Type::Float:  DZ_EVAL(value.f);
+    case DzValue::Type::Null:   DZ_EVAL(DzNull{});
+    case DzValue::Type::Object: DZ_EVAL(value.o);
+
+    default:
+        SHELL_UNREACHABLE;
+        break;
+    }
+
+    #undef DZ_EVAL
+
+    raise<TypeError>("bad operand type for '{}': '{}'", operation, value.typeName());
+}
+
 template<template<typename T, typename U> typename Promote, typename Callback>
 void Vm::binary(std::string_view operation, Callback callback)
 {
@@ -151,11 +186,6 @@ void Vm::binary(std::string_view operation, Callback callback)
     #undef DZ_EVAL
 
     raise<TypeError>("bad operand types for '{}': '{}' and '{}'", operation, lhs.typeName(), rhs.typeName());
-}
-
-void Vm::raiseTypeError(std::string_view operation, const DzValue& value)
-{
-    raise<TypeError>("bad operand type for '{}': '{}'", operation, value.typeName());
 }
 
 void Vm::add()
@@ -230,16 +260,17 @@ void Vm::bitAsr()
 
 void Vm::bitComplement()
 {
-    auto& value = stack.top();
-    switch (value.type)
+    unary("~", [](DzValue& dst, auto a)
     {
-    case DzValue::Type::Int:  value = ~value.i; break;
-    case DzValue::Type::Bool: value = ~static_cast<dzint>(value.b); break;
+        using A = decltype(a);
 
-    default:
-        raiseTypeError("~", value);
-        break;
-    }
+        if constexpr (is_dz_int_v<A>)
+        {
+            dst = ~a;
+            return true;
+        }
+        return false;
+    });
 }
 
 void Vm::bitLsl()
@@ -536,17 +567,17 @@ void Vm::multiply()
 
 void Vm::negate()
 {
-    auto& value = stack.top();
-    switch (value.type)
+    unary("-", [](DzValue& dst, auto a)
     {
-    case DzValue::Type::Int:   value = -value.i; break;
-    case DzValue::Type::Float: value = -value.f; break;
-    case DzValue::Type::Bool:  value = -static_cast<dzint>(value.b); break;
+        using A = decltype(a);
 
-    default:
-        raise<TypeError>("bad operand type for '-': '{}'", value.typeName());
-        break;
-    }
+        if constexpr (is_dz_int_v<A> || is_dz_float_v<A>)
+        {
+            dst = -a;
+            return true;
+        }
+        return false;
+    });
 }
 
 void Vm::not_()
