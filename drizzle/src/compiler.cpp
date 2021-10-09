@@ -555,7 +555,7 @@ void Compiler::variable(bool can_assign)
 {
     auto resolve = [this](std::string_view identifier) -> Variable*
     {
-        for (auto& variable : variables)
+        for (auto& variable : shell::reversed(variables))
         {
             if (variable.identifier == identifier)
                 return &variable;
