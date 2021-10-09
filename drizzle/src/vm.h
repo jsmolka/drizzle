@@ -18,19 +18,9 @@ private:
     template<typename Error, typename... Args>
     void raise(std::string_view message, Args&&... args);
     void raiseTypeError(std::string_view operation, const DzValue& value);
-    void raiseTypeError(std::string_view operation, const DzValue& lhs, const DzValue& rhs);
 
     template<template<typename T, typename U> typename Promote = promote_t, typename Callback>
     void binary(std::string_view operation, Callback callback);
-
-
-    template<typename Operation>
-    void bitwiseBinary(DzValue& lhs, const DzValue& rhs, Operation operation);
-    template<typename Operation>
-    void primitiveBinary(DzValue& lhs, const DzValue& rhs, Operation operation);
-    std::tuple<DzValue&, DzValue> operands();
-    std::tuple<DzValue&, DzValue> bitwiseOperands(std::string_view operation);
-    std::tuple<DzValue&, DzValue> primitiveOperands(std::string_view operation);
 
     void add();
     void assertion();

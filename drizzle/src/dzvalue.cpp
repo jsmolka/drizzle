@@ -18,7 +18,8 @@ std::string_view DzValue::typeName() const
     case Type::Object: return o->typeName();
 
     default:
-        return "unknown";
+        SHELL_UNREACHABLE;
+        return "unreachable";
     }
 }
 
@@ -36,27 +37,4 @@ DzValue::operator bool() const
         SHELL_UNREACHABLE;
         return false;
     }
-}
-
-bool DzValue::operator==(const DzValue& other) const
-{
-    if (type != other.type)
-        return false;
-
-    switch (other.type)
-    {
-    case DzValue::Type::Bool:   return b == other.b;
-    case DzValue::Type::Int:    return i == other.i;
-    case DzValue::Type::Float:  return f == other.f;
-    case DzValue::Type::Null:   return true;
-    case DzValue::Type::Object: return o == other.o;
-
-    default:
-        SHELL_UNREACHABLE;
-        return false;
-    }
-}
-bool DzValue::operator!=(const DzValue& other) const
-{
-    return !(*this == other);
 }

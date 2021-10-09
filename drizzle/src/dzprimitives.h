@@ -43,22 +43,13 @@ struct promote
 template<typename T, typename U>
 using promote_t = typename promote<T, U>::type;
 
-static_assert(std::is_same_v<promote_t<dzbool, dzbool>, dzint>);
-static_assert(std::is_same_v<promote_t<dzbool, dzint>, dzint>);
-static_assert(std::is_same_v<promote_t<dzint, dzfloat>, dzfloat>);
-
 template<typename T, typename U>
 struct promote_lax
 {
     static_assert(is_dz_primitive_v<T, U>);
 
-    using type = std::conditional_t<shell::is_any_of_v<dzfloat, T, U>, dzfloat,
-        std::conditional_t<shell::is_any_of_v<dzint, T, U>, dzint, dzbool>>;
+    using type = std::conditional_t<is_dz_bool_v<T, U>, dzbool, promote_t<T, U>>;
 };
 
 template<typename T, typename U>
 using promote_lax_t = typename promote_lax<T, U>::type;
-
-static_assert(std::is_same_v<promote_lax_t<dzbool, dzbool>, dzbool>);
-static_assert(std::is_same_v<promote_lax_t<dzbool, dzint>, dzint>);
-static_assert(std::is_same_v<promote_lax_t<dzint, dzfloat>, dzfloat>);

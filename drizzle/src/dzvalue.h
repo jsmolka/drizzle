@@ -1,40 +1,31 @@
 #pragma once
 
 #include <vector>
-#include <shell/traits.h>
 
 #include "dzobject.h"
 #include "dzprimitives.h"
 
-namespace
-{
-
-template<typename T>
-inline constexpr auto is_dz_object_v = std::is_pointer_v<T> && std::is_base_of_v<DzObject, shell::unqualified_t<T>>;
-
-template<typename T>
-inline constexpr auto is_dz_value_v = is_dz_primitive_v<T> || is_dz_object_v<T>;
-
-}  // namespace
-
 struct DzNull {};
+
+template<typename... Ts>
+inline constexpr auto is_dz_null_v = shell::is_same_v<DzNull, Ts...>;
+
+template<typename... Ts>
+struct is_dz_null : std::bool_constant<is_dz_null_v<Ts...>> {};
 
 struct DzValue
 {
     enum class Type { Bool, Int, Float, Null, Object, LastEnumValue };
 
     DzValue();
-    template<typename T, std::enable_if_t<is_dz_value_v<T>, int> = 0>
+    template<typename T>
     DzValue(const T& value);
+    template<typename T>
+    DzValue& operator=(const T& value);
 
     std::string_view typeName() const;
 
     operator bool() const;
-    bool operator==(const DzValue& other) const;
-    bool operator!=(const DzValue& other) const;
-
-    template<typename T, std::enable_if_t<is_dz_value_v<T>, int> = 0>
-    DzValue& operator=(const T& value);
 
     Type type;
     union
@@ -46,36 +37,22 @@ struct DzValue
     };
 };
 
-template<typename T, std::enable_if_t<is_dz_value_v<T>, int>>
+using DzValues = std::vector<DzValue>;
+
+template<typename T>
 DzValue::DzValue(const T& value)
 {
     *this = value;
 }
 
-template<typename T, std::enable_if_t<is_dz_value_v<T>, int>>
+template<typename T>
 DzValue& DzValue::operator=(const T& value)
 {
-    if constexpr (std::is_same_v<T, dzbool>)
-    {
-        b = value;
-        type = Type::Bool;
-    }
-    if constexpr (std::is_same_v<T, dzint>)
-    {
-        i = value;
-        type = Type::Int;
-    }
-    if constexpr (std::is_same_v<T, dzfloat>)
-    {
-        f = value;
-        type = Type::Float;
-    }
-    if constexpr (is_dz_object_v<T>)
-    {
-        o = value;
-        type = Type::Object;
-    }
+    static_assert(is_dz_primitive_v<T> || is_dz_object_v<T>);
+
+    if constexpr (is_dz_bool_v<T>)   { b = value; type = Type::Bool;   }
+    if constexpr (is_dz_int_v<T>)    { i = value; type = Type::Int;    }
+    if constexpr (is_dz_float_v<T>)  { f = value; type = Type::Float;  }
+    if constexpr (is_dz_object_v<T>) { o = value; type = Type::Object; }
     return *this;
 }
-
-using DzValues = std::vector<DzValue>;

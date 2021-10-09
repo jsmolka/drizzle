@@ -36,6 +36,16 @@ DzObject::operator bool() const
     }
 }
 
+bool DzObject::operator==(const DzObject& other) const
+{
+    return this == &other;
+}
+
+bool DzObject::operator!=(const DzObject& other) const
+{
+    return !(this == &other);
+}
+
 template<typename T>
 const T& DzObject::as() const
 {
