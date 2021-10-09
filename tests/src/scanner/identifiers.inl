@@ -54,13 +54,6 @@ TEST_CASE("scanner_identifiers_8")
     scanLexeme(kSource, Token::Type::For, "for");
 }
 
-TEST_CASE("scanner_identifiers_9")
-{
-    constexpr auto kSource = "| function |";
-
-    scanLexeme(kSource, Token::Type::Function, "function");
-}
-
 TEST_CASE("scanner_identifiers_10")
 {
     constexpr auto kSource = "| if |";
@@ -73,13 +66,6 @@ TEST_CASE("scanner_identifiers_11")
     constexpr auto kSource = "| in |";
 
     scanLexeme(kSource, Token::Type::In, "in");
-}
-
-TEST_CASE("scanner_identifiers_12")
-{
-    constexpr auto kSource = "| iterator |";
-
-    scanLexeme(kSource, Token::Type::Iterator, "iterator");
 }
 
 TEST_CASE("scanner_identifiers_13")

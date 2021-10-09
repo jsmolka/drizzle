@@ -57,12 +57,12 @@ private:
     void popMultipleExt();
     void power();
     void print();
-    void storeVariable();
-    void storeVariableExt();
-    void subtract();
     void pushFalse();
     void pushNull();
     void pushTrue();
+    void storeVariable();
+    void storeVariableExt();
+    void subtract();
 
     Chunk chunk;
     const u8* ip;
