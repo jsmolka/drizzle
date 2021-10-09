@@ -19,7 +19,7 @@ std::size_t Chunk::line(std::size_t index) const
 {
     for (const auto& line : shell::reversed(lines))
     {
-        if (line.index <= index)
+        if (line.index < index)
             return line.number;
     }
     return -1;
