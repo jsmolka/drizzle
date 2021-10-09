@@ -1,15 +1,11 @@
 #include "vm.h"
 
 #include <shell/punning.h>
-#include <shell/traits.h>
 
 #include "compiler.h"
 #include "dzstring.h"
 #include "errors.h"
 #include "format.h"
-
-template<typename T, typename... Ts>
-inline constexpr auto is_same_v = shell::is_same_v<T, shell::unqualified_t<Ts>...>;
 
 void Vm::interpret(const Tokens& tokens)
 {
@@ -37,7 +33,7 @@ void Vm::interpret(const Tokens& tokens)
         case Opcode::DivideInt: divideInt(); break;
         case Opcode::Equal: equal(); break;
         case Opcode::Exit: return;
-        case Opcode::False: valueFalse(); break;
+        case Opcode::False: pushFalse(); break;
         case Opcode::Greater: greater(); break;
         case Opcode::GreaterEqual: greaterEqual(); break;
         case Opcode::Jump: jump(); break;
@@ -53,7 +49,7 @@ void Vm::interpret(const Tokens& tokens)
         case Opcode::Negate: negate(); break;
         case Opcode::Not: not_(); break;
         case Opcode::NotEqual: notEqual(); break;
-        case Opcode::Null: valueNull(); break;
+        case Opcode::Null: pushNull(); break;
         case Opcode::Pop: pop(); break;
         case Opcode::PopMultiple: popMultiple(); break;
         case Opcode::PopMultipleExt: popMultipleExt(); break;
@@ -62,7 +58,7 @@ void Vm::interpret(const Tokens& tokens)
         case Opcode::StoreVariable: storeVariable(); break;
         case Opcode::StoreVariableExt: storeVariableExt(); break;
         case Opcode::Subtract: subtract(); break;
-        case Opcode::True: valueTrue(); break;
+        case Opcode::True: pushTrue(); break;
 
         default:
             SHELL_UNREACHABLE;
@@ -76,7 +72,7 @@ Integral Vm::read()
 {
     static_assert(std::is_integral_v<Integral>);
 
-    const auto value = shell::read<Integral>(ip, 0);
+    auto value = shell::read<Integral>(ip, 0);
     ip += sizeof(Integral);
     return value;
 }
@@ -86,8 +82,8 @@ void Vm::raise(std::string_view message, Args&& ...args)
 {
     static_assert(std::is_base_of_v<RuntimeError, Error>);
 
-    std::size_t index = ip - chunk.code.data();
-    std::size_t line = chunk.line(index);
+    auto index = ip - chunk.code.data();
+    auto line = chunk.line(index);
 
     throw Error(line, message, std::forward<Args>(args)...);
 }
@@ -95,6 +91,8 @@ void Vm::raise(std::string_view message, Args&& ...args)
 template<template<typename T> typename Promote, typename Callback>
 void Vm::unary(std::string_view operation, Callback callback)
 {
+    static_assert(int(DzValue::Type::LastEnumValue) == 5);
+
     auto& value = stack.top();
 
     auto promote = [callback, &value = value](auto a)
@@ -291,7 +289,7 @@ void Vm::bitLsl()
 
 void Vm::bitLsr()
 {
-    binary(">>", [](DzValue& dst, auto a, auto b)
+    binary(">>>", [](DzValue& dst, auto a, auto b)
     {
         using A = decltype(a);
         using B = decltype(b);
@@ -349,12 +347,14 @@ void Vm::bitXor()
 
 void Vm::constant()
 {
-    stack.push(chunk.constants[read<u8>()]);
+    auto index = read<u8>();
+    stack.push(chunk.constants[index]);
 }
 
 void Vm::constantExt()
 {
-    stack.push(chunk.constants[read<u16>()]);
+    auto index = read<u16>();
+    stack.push(chunk.constants[index]);
 }
 
 void Vm::divide()
@@ -368,6 +368,7 @@ void Vm::divide()
         {
             if (b == static_cast<B>(0))
                 raise<ZeroDivsionError>("division by zero");
+
             dst = static_cast<dzfloat>(a) / static_cast<dzfloat>(b);
             return true;
         }
@@ -382,18 +383,15 @@ void Vm::divideInt()
         using A = decltype(a);
         using B = decltype(b);
 
-        if constexpr (is_dz_int_v<A, B>)
+        if constexpr (is_dz_int_v<A, B> || is_dz_float_v<A, B>)
         {
             if (b == static_cast<B>(0))
                 raise<ZeroDivsionError>("integer division by zero");
-            dst = a / b;
-            return true;
-        }
-        if constexpr (is_dz_float_v<A, B>)
-        {
-            if (b == static_cast<B>(0))
-                raise<ZeroDivsionError>("integer division by zero");
-            dst = std::floor(a / b);
+
+            if constexpr (is_dz_int_v<A, B>)
+                dst = a / b;
+            else
+                dst = std::floor(a / b);
             return true;
         }
         return false;
@@ -505,7 +503,7 @@ void Vm::lessEqual()
 
         if constexpr (is_dz_int_v<A, B> || is_dz_float_v<A, B>)
         {
-            dst = a > b;
+            dst = a <= b;
             return true;
         }
         return false;
@@ -531,18 +529,15 @@ void Vm::modulo()
         using A = decltype(a);
         using B = decltype(b);
 
-        if constexpr (is_dz_int_v<A, B>)
+        if constexpr (is_dz_int_v<A, B> || is_dz_float_v<A, B>)
         {
             if (b == static_cast<B>(0))
                 raise<ZeroDivsionError>("modulo by zero");
-            dst = a % b;
-            return true;
-        }
-        if constexpr (is_dz_float_v<A, B>)
-        {
-            if (b == static_cast<B>(0))
-                raise<ZeroDivsionError>("modulo by zero");
-            dst = std::fmod(a, b);
+
+            if constexpr (is_dz_int_v<A, B>)
+                dst = a % b;
+            else
+                dst = std::fmod(a, b);
             return true;
         }
         return false;
@@ -614,12 +609,14 @@ void Vm::pop()
 
 void Vm::popMultiple()
 {
-    stack.pop(read<u8>());
+    auto count = read<u8>();
+    stack.pop(count);
 }
 
 void Vm::popMultipleExt()
 {
-    stack.pop(read<u16>());
+    auto count = read<u16>();
+    stack.pop(count);
 }
 
 void Vm::power()
@@ -643,14 +640,31 @@ void Vm::print()
     shell::print("{}\n", stack.popValue());
 }
 
+void Vm::pushFalse()
+{
+    stack.push(false);
+}
+
+void Vm::pushNull()
+{
+    stack.push({});
+}
+
+void Vm::pushTrue()
+{
+    stack.push(true);
+}
+
 void Vm::storeVariable()
 {
-    stack[read<u8>()] = stack.top();
+    auto index = read<u8>();
+    stack[index] = stack.top();
 }
 
 void Vm::storeVariableExt()
 {
-    stack[read<u16>()] = stack.top();
+    auto index = read<u16>();
+    stack[index] = stack.top();
 }
 
 void Vm::subtract()
@@ -667,19 +681,4 @@ void Vm::subtract()
         }
         return false;
     });
-}
-
-void Vm::valueFalse()
-{
-    stack.push(false);
-}
-
-void Vm::valueNull()
-{
-    stack.push({});
-}
-
-void Vm::valueTrue()
-{
-    stack.push(true);
 }

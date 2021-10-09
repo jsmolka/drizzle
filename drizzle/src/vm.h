@@ -60,9 +60,9 @@ private:
     void storeVariable();
     void storeVariableExt();
     void subtract();
-    void valueFalse();
-    void valueNull();
-    void valueTrue();
+    void pushFalse();
+    void pushNull();
+    void pushTrue();
 
     Chunk chunk;
     const u8* ip;
