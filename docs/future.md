@@ -1,15 +1,36 @@
 # Todo
+- Foreign Function Interface
+- Should global be bound late like in Python?
+- Iterators, mix yield and return (to stop)
+- Tuples, destructuring
+
+## Exceptions
+- [Zero cost](https://bugs.python.org/issue40222)
 
 ## Functions
-- type()
+- type(), classes should return "object"
 - print()
 - assert()
+- format()
 - conversion functions that return null on error
 
 ## Classes
-- $construct
-- $string
-- $iterate
+- $ (constructor)
+- $in, $for, $str, $[op]
+
+```dz
+class Point:
+  def $(x, y)
+    this.x = x
+    this.y = y
+
+  def $str():
+    return format("{},{}", this.x, this.y)
+
+
+var p = Point(1, 1)
+print(p)
+```
 
 ## Scanning
 - Brace aware scanning (line breaks inside braces, brackets, etc. are ignored)
@@ -56,9 +77,6 @@ elif $i == 2:
 else:
   noop
 ```
-
-## Error Handling
-Doesn't seem to be necessary now. Consider adding basic `try/catch` block.
 
 ## Operators
 - Operation equals

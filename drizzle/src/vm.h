@@ -18,10 +18,10 @@ private:
     template<typename Error, typename... Args>
     void raise(std::string_view message, Args&&... args);
 
-    template<template<typename T> typename Promote = promote_t, typename Callback>
-    void unary(std::string_view operation, Callback callback);
-    template<template<typename T, typename U> typename Promote = promote_t, typename Callback>
-    void binary(std::string_view operation, Callback callback);
+    template<template<typename T> typename Promote = promote_t, typename Handler>
+    void unary(std::string_view operation, Handler callback);
+    template<template<typename T, typename U> typename Promote = promote_t, typename Handler>
+    void binary(std::string_view operation, Handler callback);
 
     void add();
     void assertion();

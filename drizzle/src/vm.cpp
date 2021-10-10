@@ -88,21 +88,21 @@ void Vm::raise(std::string_view message, Args&& ...args)
     throw Error(line, message, std::forward<Args>(args)...);
 }
 
-template<template<typename T> typename Promote, typename Callback>
-void Vm::unary(std::string_view operation, Callback callback)
+template<template<typename T> typename Promote, typename Handler>
+void Vm::unary(std::string_view operation, Handler handler)
 {
     static_assert(int(DzValue::Type::LastEnumValue) == 5);
 
     auto& value = stack.top();
 
-    auto promote = [callback, &value = value](auto a)
+    auto promote = [handler, &value = value](auto a)
     {
         using A = decltype(a);
 
         if constexpr (is_dz_primitive_v<A>)
-            return callback(value, static_cast<Promote<A>>(a));
+            return handler(value, static_cast<Promote<A>>(a));
         else
-            return callback(value, a);
+            return handler(value, a);
     };
 
     #define DZ_EVAL(a) if (promote(a)) return; else break
@@ -125,23 +125,23 @@ void Vm::unary(std::string_view operation, Callback callback)
     raise<TypeError>("bad operand type for '{}': '{}'", operation, value.typeName());
 }
 
-template<template<typename T, typename U> typename Promote, typename Callback>
-void Vm::binary(std::string_view operation, Callback callback)
+template<template<typename T, typename U> typename Promote, typename Handler>
+void Vm::binary(std::string_view operation, Handler handler)
 {
     static_assert(int(DzValue::Type::LastEnumValue) == 5);
 
     auto  rhs = stack.popValue();
     auto& lhs = stack.top();
 
-    auto promote = [callback, &lhs = lhs](auto a, auto b)
+    auto promote = [handler, &lhs = lhs](auto a, auto b)
     {
         using A = decltype(a);
         using B = decltype(b);
 
         if constexpr (is_dz_primitive_v<A, B>)
-            return callback(lhs, static_cast<Promote<A, B>>(a), static_cast<Promote<A, B>>(b));
+            return handler(lhs, static_cast<Promote<A, B>>(a), static_cast<Promote<A, B>>(b));
         else
-            return callback(lhs, a, b);
+            return handler(lhs, a, b);
     };
 
     #define DZ_EVAL(a, b) if (promote(a, b)) return; else break
