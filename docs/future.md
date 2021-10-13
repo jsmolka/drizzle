@@ -3,6 +3,7 @@
 - Should global be bound late like in Python?
 - Iterators, mix yield and return (to stop)
 - Tuples, destructuring
+- Rename scanner to tokenizer
 
 ## Exceptions
 - [Zero cost](https://bugs.python.org/issue40222)
@@ -15,12 +16,18 @@
 - conversion functions that return null on error
 
 ## Classes
+- Define variables beforehand
+  - Don't allow assignment to undefined stuff
+  - Can this be used for optimizing?
 - $ (constructor)
 - $in, $for, $str, $[op]
 
 ```dz
 class Point:
-  def $(x, y)
+  var x
+  var y
+
+  def $(x, y):
     this.x = x
     this.y = y
 
@@ -89,3 +96,4 @@ else:
 - Register based bytecode
 - Keep IP in CPU register, no member variable
 - add opcodes for frequent numbers -1, 0, 1, 2
+- Optimize string literals, don't intern everything

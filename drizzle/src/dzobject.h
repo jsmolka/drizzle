@@ -7,7 +7,7 @@
 class DzObject
 {
 public:
-    enum class Type { String };
+    enum class Type { String, Function };
 
     DzObject(Type type);
 

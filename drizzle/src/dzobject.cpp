@@ -2,6 +2,7 @@
 
 #include <shell/macros.h>
 
+#include "dzfunction.h"
 #include "dzstring.h"
 
 DzObject::DzObject(DzObject::Type type)
@@ -17,6 +18,9 @@ std::string_view DzObject::typeName() const
     case Type::String:
         return as<DzString>().typeName();
 
+    case Type::Function:
+        return as<DzFunction>().typeName();
+
     default:
         SHELL_UNREACHABLE;
         return "unreachable";
@@ -29,6 +33,9 @@ DzObject::operator bool() const
     {
     case Type::String:
         return static_cast<bool>(as<DzString>());
+
+    case Type::Function:
+        return static_cast<bool>(as<DzFunction>());
 
     default:
         SHELL_UNREACHABLE;
