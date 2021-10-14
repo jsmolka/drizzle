@@ -9,10 +9,10 @@
 
 void Vm::interpret(const Tokens& tokens)
 {
-    Compiler compiler(interning);
-    compiler.compile(tokens, chunk);
+    Compiler compiler(interning, Compiler::Type::Main);
+    main = compiler.compile(tokens.begin());
 
-    ip = chunk.code.data();
+    ip = main->chunk.code.data();
 
     while (true)
     {
@@ -82,8 +82,8 @@ void Vm::raise(std::string_view message, Args&& ...args)
 {
     static_assert(std::is_base_of_v<RuntimeError, Error>);
 
-    auto index = ip - chunk.code.data();
-    auto line = chunk.line(index);
+    auto index = ip - main->chunk.code.data();
+    auto line = main->chunk.line(index);
 
     throw Error(line, message, std::forward<Args>(args)...);
 }
@@ -348,13 +348,13 @@ void Vm::bitXor()
 void Vm::constant()
 {
     auto index = read<u8>();
-    stack.push(chunk.constants[index]);
+    stack.push(main->chunk.constants[index]);
 }
 
 void Vm::constantExt()
 {
     auto index = read<u16>();
-    stack.push(chunk.constants[index]);
+    stack.push(main->chunk.constants[index]);
 }
 
 void Vm::divide()

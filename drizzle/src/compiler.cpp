@@ -8,23 +8,27 @@
 #include "dzstring.h"
 #include "errors.h"
 
-Compiler::Compiler(Interning& interning)
-    : interning(interning)
+Compiler::Compiler(Interning& interning, Compiler::Type type)
+    : interning(interning), type(type)
 {
 
 }
 
-void Compiler::compile(const Tokens& tokens, Chunk& chunk)
+DzFunction* Compiler::compile(Tokens::const_iterator tokens)
 {
-    this->parser.current = tokens.begin();
-    this->chunk = &chunk;
+    auto function = new DzFunction();
+
+    this->parser.current = tokens;
+    this->chunk = &function->chunk;
     this->scope.clear();
     this->variables.clear();
-    
+
     while (!match(Token::Type::Eof))
         declaration();
 
     emit(Opcode::Exit);
+
+    return function;
 }
 
 const Compiler::Parser::Rule& Compiler::rule(Token::Type type)

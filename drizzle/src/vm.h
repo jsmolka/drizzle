@@ -2,7 +2,7 @@
 
 #include <shell/stack.h>
 
-#include "chunk.h"
+#include "dzfunction.h"
 #include "interning.h"
 #include "token.h"
 
@@ -64,8 +64,8 @@ private:
     void storeVariableExt();
     void subtract();
 
-    Chunk chunk;
     const u8* ip;
+    DzFunction* main;
     shell::Stack<DzValue, 512> stack;
     Interning interning;
 };

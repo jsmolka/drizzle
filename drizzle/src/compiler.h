@@ -2,7 +2,7 @@
 
 #include <shell/vector.h>
 
-#include "chunk.h"
+#include "dzfunction.h"
 #include "interning.h"
 #include "opcode.h"
 #include "token.h"
@@ -10,9 +10,15 @@
 class Compiler
 {
 public:
-    Compiler(Interning& interning);
+    enum class Type
+    {
+        Main,
+        Function
+    };
 
-    void compile(const Tokens& tokens, Chunk& chunk);
+    Compiler(Interning& interning, Type type);
+
+    DzFunction* compile(Tokens::const_iterator tokens);
 
 private:
     using Labels = shell::Vector<std::size_t, 8>;
@@ -113,6 +119,7 @@ private:
     void unary(bool);
     void variable(bool can_assign);
 
+    Type type;
     Interning& interning;
     Chunk* chunk;
     Parser parser;
