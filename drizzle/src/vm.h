@@ -12,6 +12,13 @@ public:
     void interpret(const Tokens& tokens);
 
 private:
+    struct CallFrame  // Todo: stack frame?
+    {
+        DzFunction* function;
+        const u8* pc;
+        std::size_t sp;
+    };
+
     template<typename Integral>
     Integral read();
 
@@ -64,8 +71,8 @@ private:
     void storeVariableExt();
     void subtract();
 
-    const u8* ip;
-    DzFunction* main;
+    CallFrame* frame;
     shell::Stack<DzValue, 512> stack;
+    shell::Vector<CallFrame, 64> frames;
     Interning interning;
 };

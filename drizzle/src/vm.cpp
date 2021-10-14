@@ -10,9 +10,10 @@
 void Vm::interpret(const Tokens& tokens)
 {
     Compiler compiler(interning, Compiler::Type::Main);
-    main = compiler.compile(tokens.begin());
+    auto main = compiler.compile(tokens.begin());
 
-    ip = main->chunk.code.data();
+    frames.push_back({ main, main->chunk.code.data(), 0 });
+    frame = &frames.back();
 
     while (true)
     {
@@ -72,8 +73,8 @@ Integral Vm::read()
 {
     static_assert(std::is_integral_v<Integral>);
 
-    auto value = shell::read<Integral>(ip, 0);
-    ip += sizeof(Integral);
+    auto value = shell::read<Integral>(frame->pc, 0);
+    frame->pc += sizeof(Integral);
     return value;
 }
 
@@ -82,8 +83,8 @@ void Vm::raise(std::string_view message, Args&& ...args)
 {
     static_assert(std::is_base_of_v<RuntimeError, Error>);
 
-    auto index = ip - main->chunk.code.data();
-    auto line = main->chunk.line(index);
+    auto index = frame->pc - frame->function->chunk.code.data();
+    auto line = frame->function->chunk.line(index);
 
     throw Error(line, message, std::forward<Args>(args)...);
 }
@@ -348,13 +349,13 @@ void Vm::bitXor()
 void Vm::constant()
 {
     auto index = read<u8>();
-    stack.push(main->chunk.constants[index]);
+    stack.push(frame->function->chunk.constants[index]);
 }
 
 void Vm::constantExt()
 {
     auto index = read<u16>();
-    stack.push(main->chunk.constants[index]);
+    stack.push(frame->function->chunk.constants[index]);
 }
 
 void Vm::divide()
@@ -454,28 +455,28 @@ void Vm::greaterEqual()
 
 void Vm::jump()
 {
-    ip += read<s16>();
+    frame->pc += read<s16>();
 }
 
 void Vm::jumpFalse()
 {
     auto offset = read<s16>();
     if (!stack.top())
-        ip += offset;
+        frame->pc += offset;
 }
 
 void Vm::jumpFalsePop()
 {
     auto offset = read<s16>();
     if (!stack.popValue())
-        ip += offset;
+        frame->pc += offset;
 }
 
 void Vm::jumpTrue()
 {
     auto offset = read<s16>();
     if (stack.top())
-        ip += offset;
+        frame->pc += offset;
 }
 
 void Vm::less()
@@ -513,13 +514,13 @@ void Vm::lessEqual()
 void Vm::loadVariable()
 {
     auto index = read<u8>();
-    stack.push(stack[index]);
+    stack.push(stack[frame->sp + index]);
 }
 
 void Vm::loadVariableExt()
 {
     auto index = read<u16>();
-    stack.push(stack[index]);
+    stack.push(stack[frame->sp + index]);
 }
 
 void Vm::modulo()
@@ -658,13 +659,13 @@ void Vm::pushTrue()
 void Vm::storeVariable()
 {
     auto index = read<u8>();
-    stack[index] = stack.top();
+    stack[frame->sp + index] = stack.top();
 }
 
 void Vm::storeVariableExt()
 {
     auto index = read<u16>();
-    stack[index] = stack.top();
+    stack[frame->sp + index] = stack.top();
 }
 
 void Vm::subtract()
