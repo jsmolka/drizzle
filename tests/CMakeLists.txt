@@ -17,6 +17,7 @@ file(GLOB_RECURSE SOURCE_FILES
   ${PROJECT_SOURCE_DIR}/src/*.cpp
   ../drizzle/src/chunk.cpp
   ../drizzle/src/compiler.cpp
+  ../drizzle/src/dzclosure.cpp
   ../drizzle/src/dzfunction.cpp
   ../drizzle/src/dzobject.cpp
   ../drizzle/src/dzstring.cpp

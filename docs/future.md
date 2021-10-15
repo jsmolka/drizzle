@@ -17,7 +17,10 @@
 - print()
 - assert()
 - format()
-- conversion functions that return null on error
+- Conversion functions that return null on error
+
+## Closures
+- Efficient implementation keywords: "closure conversion", "lambda lifting"
 
 ## Classes
 - $ (constructor)
