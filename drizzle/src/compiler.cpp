@@ -25,7 +25,7 @@ void Compiler::compile(const Tokens& tokens, Chunk& chunk)
     while (!match(Token::Type::Eof))
         declaration();
 
-    emit(Opcode::Exit);
+    emitReturn();
 }
 
 const Compiler::Parser::Rule& Compiler::rule(Token::Type type)
@@ -35,37 +35,37 @@ const Compiler::Parser::Rule& Compiler::rule(Token::Type type)
     {
         switch (Token::Type(type))
         {
-        case Token::Type::And:          return { nullptr,             &Compiler::binary, Precedence::BitAnd   };
-        case Token::Type::And2:         return { nullptr,             &Compiler::and_,   Precedence::And      };
-        case Token::Type::Bang:         return { &Compiler::unary,    nullptr,           Precedence::Term     };
-        case Token::Type::BangEqual:    return { nullptr,             &Compiler::binary, Precedence::Equality };
-        case Token::Type::Caret:        return { nullptr,             &Compiler::binary, Precedence::BitXor   };
-        case Token::Type::Equal2:       return { nullptr,             &Compiler::binary, Precedence::Equality };
-        case Token::Type::False:        return { &Compiler::literal,  nullptr,           Precedence::None     };
-        case Token::Type::Float:        return { &Compiler::constant, nullptr,           Precedence::Term     };
-        case Token::Type::Greater:      return { nullptr,             &Compiler::binary, Precedence::Equality };
-        case Token::Type::Greater2:     return { nullptr,             &Compiler::binary, Precedence::BitShift };
-        case Token::Type::Greater3:     return { nullptr,             &Compiler::binary, Precedence::BitShift };
-        case Token::Type::GreaterEqual: return { nullptr,             &Compiler::binary, Precedence::Equality };
-        case Token::Type::Identifier:   return { &Compiler::variable, nullptr,           Precedence::None     };
-        case Token::Type::Integer:      return { &Compiler::constant, nullptr,           Precedence::Term     };
-        case Token::Type::Less:         return { nullptr,             &Compiler::binary, Precedence::Equality };
-        case Token::Type::Less2:        return { nullptr,             &Compiler::binary, Precedence::BitShift };
-        case Token::Type::LessEqual:    return { nullptr,             &Compiler::binary, Precedence::Equality };
-        case Token::Type::Minus:        return { &Compiler::unary,    &Compiler::binary, Precedence::Term     };
-        case Token::Type::Null:         return { &Compiler::literal,  nullptr,           Precedence::None     };
-        case Token::Type::ParenLeft:    return { &Compiler::group,    nullptr,           Precedence::None     };
-        case Token::Type::Percent:      return { nullptr,             &Compiler::binary, Precedence::Factor   };
-        case Token::Type::Pipe:         return { nullptr,             &Compiler::binary, Precedence::BitOr    };
-        case Token::Type::Pipe2:        return { nullptr,             &Compiler::or_,    Precedence::Or       };
-        case Token::Type::Plus:         return { nullptr,             &Compiler::binary, Precedence::Term     };
-        case Token::Type::Slash:        return { nullptr,             &Compiler::binary, Precedence::Factor   };
-        case Token::Type::Slash2:       return { nullptr,             &Compiler::binary, Precedence::Factor   };
-        case Token::Type::Star:         return { nullptr,             &Compiler::binary, Precedence::Factor   };
-        case Token::Type::Star2:        return { nullptr,             &Compiler::binary, Precedence::Factor   };
-        case Token::Type::String:       return { &Compiler::constant, nullptr,           Precedence::None     };
-        case Token::Type::Tilde:        return { &Compiler::unary,    nullptr,           Precedence::Unary    };
-        case Token::Type::True:         return { &Compiler::literal,  nullptr,           Precedence::None     };
+        case Token::Type::And:          return { nullptr,             &Compiler::binary, Precedence::BitAnd     };
+        case Token::Type::And2:         return { nullptr,             &Compiler::and_,   Precedence::And        };
+        case Token::Type::Bang:         return { &Compiler::unary,    nullptr,           Precedence::Term       };
+        case Token::Type::BangEqual:    return { nullptr,             &Compiler::binary, Precedence::Equality   };
+        case Token::Type::Caret:        return { nullptr,             &Compiler::binary, Precedence::BitXor     };
+        case Token::Type::Equal2:       return { nullptr,             &Compiler::binary, Precedence::Equality   };
+        case Token::Type::False:        return { &Compiler::literal,  nullptr,           Precedence::None       };
+        case Token::Type::Float:        return { &Compiler::constant, nullptr,           Precedence::Term       };
+        case Token::Type::Greater:      return { nullptr,             &Compiler::binary, Precedence::Equality   };
+        case Token::Type::Greater2:     return { nullptr,             &Compiler::binary, Precedence::BitShift   };
+        case Token::Type::Greater3:     return { nullptr,             &Compiler::binary, Precedence::BitShift   };
+        case Token::Type::GreaterEqual: return { nullptr,             &Compiler::binary, Precedence::Equality   };
+        case Token::Type::Identifier:   return { &Compiler::variable, nullptr,           Precedence::None       };
+        case Token::Type::Integer:      return { &Compiler::constant, nullptr,           Precedence::Term       };
+        case Token::Type::Less:         return { nullptr,             &Compiler::binary, Precedence::Equality   };
+        case Token::Type::Less2:        return { nullptr,             &Compiler::binary, Precedence::BitShift   };
+        case Token::Type::LessEqual:    return { nullptr,             &Compiler::binary, Precedence::Equality   };
+        case Token::Type::Minus:        return { &Compiler::unary,    &Compiler::binary, Precedence::Term       };
+        case Token::Type::Null:         return { &Compiler::literal,  nullptr,           Precedence::None       };
+        case Token::Type::ParenLeft:    return { &Compiler::group,    &Compiler::call,   Precedence::Assignment };
+        case Token::Type::Percent:      return { nullptr,             &Compiler::binary, Precedence::Factor     };
+        case Token::Type::Pipe:         return { nullptr,             &Compiler::binary, Precedence::BitOr      };
+        case Token::Type::Pipe2:        return { nullptr,             &Compiler::or_,    Precedence::Or         };
+        case Token::Type::Plus:         return { nullptr,             &Compiler::binary, Precedence::Term       };
+        case Token::Type::Slash:        return { nullptr,             &Compiler::binary, Precedence::Factor     };
+        case Token::Type::Slash2:       return { nullptr,             &Compiler::binary, Precedence::Factor     };
+        case Token::Type::Star:         return { nullptr,             &Compiler::binary, Precedence::Factor     };
+        case Token::Type::Star2:        return { nullptr,             &Compiler::binary, Precedence::Factor     };
+        case Token::Type::String:       return { &Compiler::constant, nullptr,           Precedence::None       };
+        case Token::Type::Tilde:        return { &Compiler::unary,    nullptr,           Precedence::Unary      };
+        case Token::Type::True:         return { &Compiler::literal,  nullptr,           Precedence::None       };
         }
         return { nullptr, nullptr, Precedence::None };
     });
@@ -76,6 +76,11 @@ template<typename... Bytes>
 void Compiler::emit(Bytes... bytes)
 {
     (chunk->write(static_cast<u8>(bytes), parser.previous->line), ...);
+}
+
+void Compiler::emitReturn()
+{
+    emit(Opcode::Null, Opcode::Return);
 }
 
 void Compiler::emitConstant(DzValue value)
@@ -303,6 +308,25 @@ void Compiler::binary(bool)
     }
 }
 
+void Compiler::call(bool)
+{
+    u8 argc = 0;
+    if (parser.current->type != Token::Type::ParenRight)
+    {
+        do
+        {
+            expression();
+            if (argc == std::numeric_limits<u8>::max())
+                throw CompilerError("Function argument limit exceeded");
+            argc++;
+        }
+        while (match(Token::Type::Comma));
+    }
+
+    expectParenRight();
+    emit(Opcode::Call, argc);
+}
+
 void Compiler::constant(bool)
 {
     DzValue value;
@@ -360,6 +384,8 @@ void Compiler::declarationDef()
     compiler.chunk = &function->chunk;
     compiler.parser = parser;
     compiler.block({ Block::Type::Block });
+    compiler.emit(Opcode::Null);
+    compiler.emit(Opcode::Return);
 
     parser = compiler.parser;
 
@@ -384,11 +410,6 @@ void Compiler::declarationVar()
 void Compiler::expression()
 {
     parse(Precedence::Assignment);
-}
-
-void Compiler::function(Type type)
-{
-
 }
 
 void Compiler::group(bool)
@@ -435,6 +456,8 @@ void Compiler::statement()
         statementNoop();
     else if (match(Token::Type::Print))
         statementPrint();
+    else if (match(Token::Type::Return))
+        statementReturn();
     else if (match(Token::Type::While))
         statementWhile();
     else
@@ -578,6 +601,23 @@ void Compiler::statementPrint()
     expression();
     expectNewLine();
     emit(Opcode::Print);
+}
+
+void Compiler::statementReturn()
+{
+    if (type == Type::Main)
+        throw SyntaxError(parser.previous->lexeme, "return outside function");
+
+    if (match(Token::Type::NewLine))
+    {
+        emitReturn();
+    }
+    else
+    {
+        expression();
+        expectNewLine();
+        emit(Opcode::Return);
+    }
 }
 
 void Compiler::statementWhile()

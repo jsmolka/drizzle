@@ -39,6 +39,8 @@ private:
     void bitLsr();
     void bitOr();
     void bitXor();
+    void call(DzFunction* function, u8 argc);
+    void callValue();
     void constant();
     void constantExt();
     void divide();
@@ -67,6 +69,7 @@ private:
     void pushFalse();
     void pushNull();
     void pushTrue();
+    bool return_();
     void storeVariable();
     void storeVariableExt();
     void subtract();

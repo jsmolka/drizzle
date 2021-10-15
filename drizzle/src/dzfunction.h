@@ -12,7 +12,7 @@ public:
 
     operator bool() const;
 
-    int arity;
+    int arity = 0;
     Chunk chunk;
     std::string_view identifier;
 };

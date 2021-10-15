@@ -14,8 +14,8 @@ void Vm::interpret(const Tokens& tokens)
     Compiler compiler(interning, Compiler::Type::Main);
     compiler.compile(tokens, main->chunk);
 
-    frames.push_back({ main, main->chunk.code.data(), 0 });
-    frame = &frames.back();
+    stack.push(main);
+    call(main, 0);
 
     while (true)
     {
@@ -30,12 +30,12 @@ void Vm::interpret(const Tokens& tokens)
         case Opcode::BitLsl: bitLsl(); break;
         case Opcode::BitOr: bitOr(); break;
         case Opcode::BitXor: bitXor(); break;
+        case Opcode::Call: callValue(); break;
         case Opcode::Constant: constant(); break;
         case Opcode::ConstantExt: constantExt(); break;
         case Opcode::Divide: divide(); break;
         case Opcode::DivideInt: divideInt(); break;
         case Opcode::Equal: equal(); break;
-        case Opcode::Exit: return;
         case Opcode::False: pushFalse(); break;
         case Opcode::Greater: greater(); break;
         case Opcode::GreaterEqual: greaterEqual(); break;
@@ -58,6 +58,7 @@ void Vm::interpret(const Tokens& tokens)
         case Opcode::PopMultipleExt: popMultipleExt(); break;
         case Opcode::Power: power(); break;
         case Opcode::Print: print(); break;
+        case Opcode::Return: if (return_()) return; break;
         case Opcode::StoreVariable: storeVariable(); break;
         case Opcode::StoreVariableExt: storeVariableExt(); break;
         case Opcode::Subtract: subtract(); break;
@@ -346,6 +347,28 @@ void Vm::bitXor()
         }
         return false;
     });
+}
+
+void Vm::call(DzFunction* function, u8 argc)
+{
+    if (argc != function->arity)
+        raise<RuntimeError>("expected {} arguments but got {}", function->arity, argc);
+
+    frames.push_back({ function, function->chunk.code.data(), stack.size() - argc });
+    frame = &frames.back();
+}
+
+void Vm::callValue()
+{
+    auto argc = read<u8>();
+    auto& callee = stack.peek(argc);
+    if (callee.type != DzValue::Type::Object)
+        raise<RuntimeError>("tried calling {}", callee.typeName());
+    if (callee.o->type != DzObject::Type::Function)
+        raise<RuntimeError>("tried calling {}", callee.typeName());
+
+    auto function = static_cast<DzFunction*>(callee.o);
+    call(function, argc);
 }
 
 void Vm::constant()
@@ -656,6 +679,25 @@ void Vm::pushNull()
 void Vm::pushTrue()
 {
     stack.push(true);
+}
+
+bool Vm::return_()
+{
+    auto result = stack.popValue();
+
+    frames.pop_back();
+
+    if (frames.empty())
+    {
+        stack.pop();
+        return true;
+    }
+
+    frame = &frames.back();
+
+    stack.push(result);
+
+    return false;
 }
 
 void Vm::storeVariable()

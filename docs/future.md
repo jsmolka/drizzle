@@ -10,6 +10,7 @@
 
 ## Exceptions
 - [Zero cost](https://bugs.python.org/issue40222)
+- Show call stack
 
 ## Functions
 - type(), classes should return "object"

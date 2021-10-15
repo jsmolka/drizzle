@@ -77,6 +77,7 @@ private:
 
     template<typename... Bytes>
     void emit(Bytes... bytes);
+    void emitReturn();
     void emitConstant(DzValue value);
     void emitVariable(std::size_t index, Opcode opcode, Opcode opcode_ext);
     std::size_t emitJump(Opcode opcode, std::size_t label = 0);
@@ -101,12 +102,12 @@ private:
 
     void and_(bool);
     void binary(bool);
+    void call(bool);
     void constant(bool);
     void declaration();
     void declarationDef();
     void declarationVar();
     void expression();
-    void function(Type type);
     void group(bool);
     void literal(bool);
     void or_(bool);
@@ -121,6 +122,7 @@ private:
     void statementIf();
     void statementNoop();
     void statementPrint();
+    void statementReturn();
     void statementWhile();
     void unary(bool);
     void variable(bool can_assign);
