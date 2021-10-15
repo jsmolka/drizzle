@@ -363,7 +363,7 @@ void Compiler::declarationDef()
     auto function = new DzFunction();
     function->identifier = parser.previous->lexeme;
 
-    Compiler compiler(interning, type);
+    Compiler compiler(interning, Type::Function);
     compiler.scope.push_back({ Block::Type::Function });
 
     expectParenLeft();
