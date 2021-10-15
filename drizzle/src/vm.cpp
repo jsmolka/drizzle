@@ -684,18 +684,15 @@ void Vm::pushTrue()
 bool Vm::return_()
 {
     auto result = stack.popValue();
+    auto sp = frames.back().sp;
 
     frames.pop_back();
-
     if (frames.empty())
-    {
-        stack.pop();
         return true;
-    }
 
     frame = &frames.back();
-
-    stack.push(result);
+    stack.pop(stack.size() - sp);
+    stack.top() = result;
 
     return false;
 }
