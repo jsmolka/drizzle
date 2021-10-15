@@ -9,8 +9,10 @@
 
 void Vm::interpret(const Tokens& tokens)
 {
+    // Todo: free
+    auto main = new DzFunction();
     Compiler compiler(interning, Compiler::Type::Main);
-    auto main = compiler.compile(tokens.begin());
+    compiler.compile(tokens, main->chunk);
 
     frames.push_back({ main, main->chunk.code.data(), 0 });
     frame = &frames.back();

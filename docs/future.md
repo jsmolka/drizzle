@@ -5,6 +5,9 @@
 - Tuples, destructuring
 - Rename scanner to tokenizer
 
+## Compiler
+- Add map to get expected name for a token (expect(Token::Type::ParenLeft) instead of expectParenLeft())
+
 ## Exceptions
 - [Zero cost](https://bugs.python.org/issue40222)
 
@@ -16,17 +19,11 @@
 - conversion functions that return null on error
 
 ## Classes
-- Define variables beforehand
-  - Don't allow assignment to undefined stuff
-  - Can this be used for optimizing?
 - $ (constructor)
 - $in, $for, $str, $[op]
 
 ```dz
 class Point:
-  var x
-  var y
-
   def $(x, y):
     this.x = x
     this.y = y

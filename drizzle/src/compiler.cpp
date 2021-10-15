@@ -5,6 +5,7 @@
 #include <shell/macros.h>
 #include <shell/ranges.h>
 
+#include "dzfunction.h"
 #include "dzstring.h"
 #include "errors.h"
 
@@ -14,12 +15,10 @@ Compiler::Compiler(Interning& interning, Compiler::Type type)
 
 }
 
-DzFunction* Compiler::compile(Tokens::const_iterator tokens)
+void Compiler::compile(const Tokens& tokens, Chunk& chunk)
 {
-    auto function = new DzFunction();
-
-    this->parser.current = tokens;
-    this->chunk = &function->chunk;
+    this->parser.current = tokens.begin();
+    this->chunk = &chunk;
     this->scope.clear();
     this->variables.clear();
 
@@ -27,8 +26,6 @@ DzFunction* Compiler::compile(Tokens::const_iterator tokens)
         declaration();
 
     emit(Opcode::Exit);
-
-    return function;
 }
 
 const Compiler::Parser::Rule& Compiler::rule(Token::Type type)
@@ -197,6 +194,16 @@ void Compiler::expectNewLine()
     expect(Token::Type::NewLine, "expected new line");
 }
 
+void Compiler::expectParenLeft()
+{
+    expect(Token::Type::ParenLeft, "expected '('");
+}
+
+void Compiler::expectParenRight()
+{
+    expect(Token::Type::ParenRight, "expected ')'");
+}
+
 void Compiler::popLocals(std::size_t depth)
 {
     auto size = variables.size();
@@ -240,6 +247,19 @@ Compiler::Labels Compiler::block(const Compiler::Block& block)
     expectDedent();
 
     return breaks;
+}
+
+void Compiler::defineVariable(std::string_view identifier)
+{
+    for (const auto& variable : shell::reversed(variables))
+    {
+        if (variable.depth != scope.size())
+            break;
+
+        if (variable.identifier == identifier)
+            throw SyntaxError(identifier, "redefined '{}'", identifier);
+    }
+    variables.push_back({ identifier, scope.size() });
 }
 
 void Compiler::and_(bool)
@@ -301,32 +321,62 @@ void Compiler::constant(bool)
 
 void Compiler::declaration()
 {
+    if (match(Token::Type::Def))
+        declarationDef();
     if (match(Token::Type::Var))
         declarationVar();
     else
         statement();
 }
 
+void Compiler::declarationDef()
+{
+    expectIdentifier();
+    defineVariable(parser.previous->lexeme);
+
+    auto function = new DzFunction();
+    function->identifier = parser.previous->lexeme;
+
+    // Prevent redefinition errors in argument list
+    // Todo: check if necessary?
+    scope.push_back({ Block::Type::Block });
+
+    expectParenLeft();
+    if (parser.current->type != Token::Type::ParenRight)
+    {
+        do
+        {
+            if (++function->arity > std::numeric_limits<u8>::max())
+                throw CompilerError("Function argument limit exceeded");
+
+            expectIdentifier();
+            defineVariable(parser.previous->lexeme);
+        }
+        while (match(Token::Type::Comma));
+    }
+    expectParenRight();
+
+    Compiler compiler(interning, type);
+    compiler.chunk = &function->chunk;
+    compiler.parser = parser;
+    compiler.block({ Block::Type::Block });
+
+    parser = compiler.parser;
+
+    scope.pop_back();
+
+    emitConstant(function);
+}
+
 void Compiler::declarationVar()
 {
     expectIdentifier();
-    auto identifier = parser.previous->lexeme;
+    defineVariable(parser.previous->lexeme);
 
     if (match(Token::Type::Equal))
         expression();
     else
         emit(Opcode::Null);
-
-    for (const auto& local : shell::reversed(variables))
-    {
-        if (local.depth != scope.size())
-            break;
-
-        if (local.identifier == identifier)
-            throw SyntaxError(identifier, "redefined variable '{}'", identifier);
-    }
-
-    variables.push_back({ identifier, scope.size() });
 
     expectNewLine();
 }
@@ -336,10 +386,15 @@ void Compiler::expression()
     parse(Precedence::Assignment);
 }
 
+void Compiler::function(Type type)
+{
+
+}
+
 void Compiler::group(bool)
 {
     expression();
-    expect(Token::Type::ParenRight, "expected ')'");
+    expectParenRight();
 }
 
 void Compiler::literal(bool)

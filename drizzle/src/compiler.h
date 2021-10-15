@@ -2,7 +2,7 @@
 
 #include <shell/vector.h>
 
-#include "dzfunction.h"
+#include "chunk.h"
 #include "interning.h"
 #include "opcode.h"
 #include "token.h"
@@ -18,7 +18,7 @@ public:
 
     Compiler(Interning& interning, Type type);
 
-    DzFunction* compile(Tokens::const_iterator tokens);
+    void compile(const Tokens& token, Chunk& chunk);
 
 private:
     using Labels = shell::Vector<std::size_t, 8>;
@@ -91,16 +91,22 @@ private:
     void expectIdentifier();
     void expectIndent();
     void expectNewLine();
+    void expectParenLeft();
+    void expectParenRight();
 
     void popLocals(std::size_t depth);
     Labels block(const Block& block);
+
+    void defineVariable(std::string_view identifier);
 
     void and_(bool);
     void binary(bool);
     void constant(bool);
     void declaration();
+    void declarationDef();
     void declarationVar();
     void expression();
+    void function(Type type);
     void group(bool);
     void literal(bool);
     void or_(bool);

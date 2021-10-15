@@ -29,7 +29,7 @@ public:
         Comma,
         Continue,
         Dedent,
-        Define,
+        Def,
         Dot,
         Elif,
         Else,

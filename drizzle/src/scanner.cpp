@@ -376,7 +376,7 @@ void Scanner::scanIdentifier()
         { "case",     Token::Type::Case     },
         { "class",    Token::Type::Class    },
         { "continue", Token::Type::Continue },
-        { "def",      Token::Type::Define   },
+        { "def",      Token::Type::Def      },
         { "elif",     Token::Type::Elif     },
         { "else",     Token::Type::Else     },
         { "extends",  Token::Type::Extends  },
