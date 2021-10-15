@@ -361,9 +361,7 @@ void Compiler::declarationDef()
     auto function = new DzFunction();
     function->identifier = parser.previous->lexeme;
 
-    // Prevent redefinition errors in argument list
-    // Todo: check if necessary?
-    scope.push_back({ Block::Type::Block });
+    Compiler compiler(interning, type);
 
     expectParenLeft();
     if (parser.current->type != Token::Type::ParenRight)
@@ -374,13 +372,12 @@ void Compiler::declarationDef()
                 throw CompilerError("Function argument limit exceeded");
 
             expectIdentifier();
-            defineVariable(parser.previous->lexeme);
+            compiler.defineVariable(parser.previous->lexeme);
         }
         while (match(Token::Type::Comma));
     }
     expectParenRight();
 
-    Compiler compiler(interning, type);
     compiler.chunk = &function->chunk;
     compiler.parser = parser;
     compiler.block({ Block::Type::Block });
@@ -388,8 +385,6 @@ void Compiler::declarationDef()
     compiler.emit(Opcode::Return);
 
     parser = compiler.parser;
-
-    scope.pop_back();
 
     emitConstant(function);
 }
