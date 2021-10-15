@@ -59,7 +59,7 @@ private:
 
     struct Block
     {
-        enum class Type { Block, Conditional, Loop };
+        enum class Type { Block, Conditional, Loop, Function };
 
         Type type;
         std::string_view identifier;
@@ -96,7 +96,7 @@ private:
     void expectParenRight();
 
     void popLocals(std::size_t depth);
-    Labels block(const Block& block);
+    Labels block(const Block& block, bool increase_scope = true);
 
     void defineVariable(std::string_view identifier);
 

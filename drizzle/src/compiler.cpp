@@ -229,13 +229,14 @@ void Compiler::popLocals(std::size_t depth)
         throw CompilerError("too many locals to pop '{}'", count);
 }
 
-Compiler::Labels Compiler::block(const Compiler::Block& block)
+Compiler::Labels Compiler::block(const Compiler::Block& block, bool increase_scope)
 {
     expectColon();
     expectNewLine();
     expectIndent();
 
-    scope.push_back(block);
+    if (increase_scope)
+        scope.push_back(block);
 
     while (parser.current->type != Token::Type::Dedent)
         declaration();
@@ -246,7 +247,8 @@ Compiler::Labels Compiler::block(const Compiler::Block& block)
     for (const auto& jump : continues)
         patchJump(jump);
 
-    scope.pop_back();
+    if (increase_scope)
+        scope.pop_back();
     popLocals(scope.size());
 
     expectDedent();
@@ -362,6 +364,7 @@ void Compiler::declarationDef()
     function->identifier = parser.previous->lexeme;
 
     Compiler compiler(interning, type);
+    compiler.scope.push_back({ Block::Type::Function });
 
     expectParenLeft();
     if (parser.current->type != Token::Type::ParenRight)
@@ -380,7 +383,8 @@ void Compiler::declarationDef()
 
     compiler.chunk = &function->chunk;
     compiler.parser = parser;
-    compiler.block({ Block::Type::Block });
+    compiler.block({ Block::Type::Block }, false);
+    compiler.scope.pop_back();
     compiler.emit(Opcode::Null);
     compiler.emit(Opcode::Return);
 
