@@ -2,6 +2,7 @@
 
 #include <shell/stack.h>
 
+#include "dzclosure.h"
 #include "dzfunction.h"
 #include "interning.h"
 #include "token.h"
@@ -14,7 +15,7 @@ public:
 private:
     struct CallFrame  // Todo: stack frame?
     {
-        DzFunction* function;
+        DzClosure* closure;
         const u8* pc;
         std::size_t sp;
     };
@@ -39,10 +40,12 @@ private:
     void bitLsr();
     void bitOr();
     void bitXor();
-    void call(DzFunction* function, u8 argc);
+    void call(DzClosure* closure, u8 argc);
     void callValue();
+    template<typename Integral>
+    void closure();
+    template<typename Integral>
     void constant();
-    void constantExt();
     void divide();
     void divideInt();
     void equal();
@@ -54,24 +57,24 @@ private:
     void jumpTrue();
     void less();
     void lessEqual();
+    template<typename Integral>
     void loadVariable();
-    void loadVariableExt();
     void modulo();
     void multiply();
     void negate();
     void not_();
     void notEqual();
     void pop();
+    template<typename Integral>
     void popMultiple();
-    void popMultipleExt();
     void power();
     void print();
     void pushFalse();
     void pushNull();
     void pushTrue();
     bool return_();
+    template<typename Integral>
     void storeVariable();
-    void storeVariableExt();
     void subtract();
 
     CallFrame* frame;

@@ -83,13 +83,13 @@ void Compiler::emitReturn()
     emit(Opcode::Null, Opcode::Return);
 }
 
-void Compiler::emitConstant(DzValue value)
+void Compiler::emitConstant(DzValue value, Opcode opcode, Opcode opcode_ext)
 {
     auto index = chunk->constants.size();
     if (index <= std::numeric_limits<u8>::max())
-        emit(Opcode::Constant, index);
+        emit(opcode, index);
     else if (index <= std::numeric_limits<u16>::max())
-        emit(Opcode::ConstantExt, index, index >> 8);
+        emit(opcode_ext, index, index >> 8);
     else
         throw CompilerError("constant limit exceeded");
 
@@ -342,7 +342,7 @@ void Compiler::constant(bool)
         SHELL_UNREACHABLE;
         break;
     }
-    emitConstant(value);
+    emitConstant(value, Opcode::Constant, Opcode::ConstantExt);
 }
 
 void Compiler::declaration()
@@ -390,7 +390,7 @@ void Compiler::declarationDef()
 
     parser = compiler.parser;
 
-    emitConstant(function);
+    emitConstant(function, Opcode::Closure, Opcode::ClosureExt);
 }
 
 void Compiler::declarationVar()

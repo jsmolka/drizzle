@@ -16,6 +16,8 @@ enum class Opcode
     BitOr,
     BitXor,
     Call,
+    Closure,
+    ClosureExt,
     Constant,
     ConstantExt,
     Divide,
