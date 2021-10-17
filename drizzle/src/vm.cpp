@@ -11,7 +11,7 @@ void Vm::interpret(const Tokens& tokens)
 {
     // Todo: free
     auto main = new DzFunction();
-    Compiler compiler(interning, Compiler::Type::Main);
+    Compiler compiler(interning);
     compiler.compile(tokens, main->chunk);
 
     stack.push(main);
@@ -543,6 +543,11 @@ void Vm::lessEqual()
 }
 
 template<typename Integral>
+void Vm::loadUpvalue()
+{
+}
+
+template<typename Integral>
 void Vm::loadVariable()
 {
     auto index = read<Integral>();
@@ -691,6 +696,11 @@ bool Vm::return_()
     stack.top() = result;
 
     return false;
+}
+
+template<typename Integral>
+void Vm::storeUpvalue()
+{
 }
 
 template<typename Integral>

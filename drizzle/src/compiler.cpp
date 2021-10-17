@@ -9,8 +9,8 @@
 #include "dzstring.h"
 #include "errors.h"
 
-Compiler::Compiler(Interning& interning, Compiler::Type type)
-    : interning(interning), type(type)
+Compiler::Compiler(Interning& interning, Compiler* parent)
+    : interning(interning), parent(parent)
 {
 
 }
@@ -256,6 +256,16 @@ Compiler::Labels Compiler::block(const Compiler::Block& block, bool increase_sco
     return breaks;
 }
 
+Compiler::Variable* Compiler::resolveVariable(std::string_view identifier)
+{
+    for (auto& variable : shell::reversed(variables))
+    {
+        if (variable.identifier == identifier)
+            return &variable;
+    }
+    return nullptr;
+}
+
 void Compiler::defineVariable(std::string_view identifier)
 {
     for (const auto& variable : shell::reversed(variables))
@@ -363,7 +373,7 @@ void Compiler::declarationDef()
     auto function = new DzFunction();
     function->identifier = parser.previous->lexeme;
 
-    Compiler compiler(interning, Type::Function);
+    Compiler compiler(interning, this);
     compiler.scope.push_back({ Block::Type::Function });
 
     expectParenLeft();
@@ -604,7 +614,7 @@ void Compiler::statementPrint()
 
 void Compiler::statementReturn()
 {
-    if (type == Type::Main)
+    if (!parent)
         throw SyntaxError(parser.previous->lexeme, "return outside function");
 
     if (match(Token::Type::NewLine))
@@ -651,20 +661,10 @@ void Compiler::unary(bool)
 
 void Compiler::variable(bool can_assign)
 {
-    auto resolve = [this](std::string_view identifier) -> Variable*
-    {
-        for (auto& variable : shell::reversed(variables))
-        {
-            if (variable.identifier == identifier)
-                return &variable;
-        }
-        return nullptr;
-    };
-
     auto identifier = parser.previous->lexeme;
-    auto variable = resolve(identifier);
+    auto variable = resolveVariable(identifier);
     if (!variable)
-        throw SyntaxError(identifier, "undefined variable '{}'", identifier);
+        throw SyntaxError(identifier, "undefined '{}'", identifier);
 
     auto index = std::distance(variables.data(), variable);
     if (can_assign && match(Token::Type::Equal))

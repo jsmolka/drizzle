@@ -10,13 +10,7 @@
 class Compiler
 {
 public:
-    enum class Type
-    {
-        Main,
-        Function
-    };
-
-    Compiler(Interning& interning, Type type);
+    Compiler(Interning& interning, Compiler* parent = nullptr);
 
     void compile(const Tokens& token, Chunk& chunk);
 
@@ -97,6 +91,7 @@ private:
 
     void popLocals(std::size_t depth);
     Labels block(const Block& block, bool increase_scope = true);
+    Variable* resolveVariable(std::string_view identifier);
 
     void defineVariable(std::string_view identifier);
 
@@ -127,7 +122,7 @@ private:
     void unary(bool);
     void variable(bool can_assign);
 
-    Type type;
+    Compiler* parent;
     Interning& interning;
     Chunk* chunk;
     Parser parser;
