@@ -12,7 +12,8 @@ public:
 
     operator bool() const;
 
-    int arity = 0;
     Chunk chunk;
+    std::size_t arity = 0;
+    std::size_t upvalues = 0;
     std::string_view identifier;
 };

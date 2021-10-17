@@ -12,7 +12,7 @@ void Vm::interpret(const Tokens& tokens)
     // Todo: free
     auto main = new DzFunction();
     Compiler compiler(interning);
-    compiler.compile(tokens, main->chunk);
+    compiler.compile(tokens, *main);
 
     stack.push(main);
     call(new DzClosure(*main), 0);

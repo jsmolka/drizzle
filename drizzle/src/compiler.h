@@ -2,6 +2,7 @@
 
 #include <shell/vector.h>
 
+#include "dzfunction.h"
 #include "chunk.h"
 #include "interning.h"
 #include "opcode.h"
@@ -12,7 +13,7 @@ class Compiler
 public:
     Compiler(Interning& interning, Compiler* parent = nullptr);
 
-    void compile(const Tokens& token, Chunk& chunk);
+    void compile(const Tokens& token, DzFunction& function);
 
 private:
     using Labels = shell::Vector<std::size_t, 8>;
@@ -67,13 +68,19 @@ private:
         std::size_t depth;
     };
 
+    struct Upvalue
+    {
+        std::size_t index;
+        bool is_local;
+    };
+
     static const Parser::Rule& rule(Token::Type type);
 
     template<typename... Bytes>
     void emit(Bytes... bytes);
     void emitReturn();
-    void emitConstant(DzValue value, Opcode opcode, Opcode opcode_ext);
-    void emitVariable(std::size_t index, Opcode opcode, Opcode opcode_ext);
+    void emitConstant(DzValue value, Opcode opcode);
+    void emitVariable(std::size_t index, Opcode opcode);
     std::size_t emitJump(Opcode opcode, std::size_t label = 0);
     void patchJump(std::size_t jump);
 
@@ -91,7 +98,9 @@ private:
 
     void popLocals(std::size_t depth);
     Labels block(const Block& block, bool increase_scope = true);
-    Variable* resolveVariable(std::string_view identifier);
+    std::size_t resolveVariable(std::string_view identifier);
+    std::size_t resolveUpvalue(std::string_view identifier);
+    std::size_t addUpvalue(std::size_t index, bool is_local);
 
     void defineVariable(std::string_view identifier);
 
@@ -124,8 +133,9 @@ private:
 
     Compiler* parent;
     Interning& interning;
-    Chunk* chunk;
+    DzFunction* function;
     Parser parser;
     std::vector<Block> scope;
     std::vector<Variable> variables;
+    std::vector<Upvalue> upvalues;
 };

@@ -15,10 +15,10 @@ Compiler::Compiler(Interning& interning, Compiler* parent)
 
 }
 
-void Compiler::compile(const Tokens& tokens, Chunk& chunk)
+void Compiler::compile(const Tokens& tokens, DzFunction& function)
 {
     this->parser.current = tokens.begin();
-    this->chunk = &chunk;
+    this->function = &function;
     this->scope.clear();
     this->variables.clear();
 
@@ -75,7 +75,7 @@ const Compiler::Parser::Rule& Compiler::rule(Token::Type type)
 template<typename... Bytes>
 void Compiler::emit(Bytes... bytes)
 {
-    (chunk->write(static_cast<u8>(bytes), parser.previous->line), ...);
+    (function->chunk.write(static_cast<u8>(bytes), parser.previous->line), ...);
 }
 
 void Compiler::emitReturn()
@@ -83,32 +83,32 @@ void Compiler::emitReturn()
     emit(Opcode::Null, Opcode::Return);
 }
 
-void Compiler::emitConstant(DzValue value, Opcode opcode, Opcode opcode_ext)
+void Compiler::emitConstant(DzValue value, Opcode opcode)
 {
-    auto index = chunk->constants.size();
+    auto index = function->chunk.constants.size();
     if (index <= std::numeric_limits<u8>::max())
         emit(opcode, index);
     else if (index <= std::numeric_limits<u16>::max())
-        emit(opcode_ext, index, index >> 8);
+        emit(int(opcode) + 1, index, index >> 8);
     else
         throw CompilerError("constant limit exceeded");
 
-    chunk->constants.push_back(value);
+    function->chunk.constants.push_back(value);
 }
 
-void Compiler::emitVariable(std::size_t index, Opcode opcode, Opcode opcode_ext)
+void Compiler::emitVariable(std::size_t index, Opcode opcode)
 {
     if (index <= std::numeric_limits<u8>::max())
         emit(opcode, index);
     else if (index <= std::numeric_limits<u16>::max())
-        emit(opcode_ext, index, index >> 8);
+        emit(int(opcode) + 1, index, index >> 8);
     else
         throw CompilerError("variable limit exceeded");
 }
 
 std::size_t Compiler::emitJump(Opcode opcode, std::size_t label)
 {
-    auto jump = chunk->label();
+    auto jump = function->chunk.label();
 
     s64 offset = static_cast<s64>(label - jump) - 3; 
     if (offset < std::numeric_limits<s16>::min() || offset > -3)
@@ -121,12 +121,12 @@ std::size_t Compiler::emitJump(Opcode opcode, std::size_t label)
 
 void Compiler::patchJump(std::size_t jump)
 {
-    s64 offset = static_cast<s64>(chunk->label() - jump) - 3;
+    s64 offset = static_cast<s64>(function->chunk.label() - jump) - 3;
     if (offset < 0 || offset > std::numeric_limits<s16>::max())
         throw CompilerError("bad jump '{}'", offset);
 
-    chunk->code[jump + 1] = offset;
-    chunk->code[jump + 2] = offset >> 8;
+    function->chunk.code[jump + 1] = offset;
+    function->chunk.code[jump + 2] = offset >> 8;
 }
 
 void Compiler::advance()
@@ -256,14 +256,41 @@ Compiler::Labels Compiler::block(const Compiler::Block& block, bool increase_sco
     return breaks;
 }
 
-Compiler::Variable* Compiler::resolveVariable(std::string_view identifier)
+std::size_t Compiler::resolveVariable(std::string_view identifier)
 {
     for (auto& variable : shell::reversed(variables))
     {
         if (variable.identifier == identifier)
-            return &variable;
+            return std::distance(variables.data(), &variable);
     }
-    return nullptr;
+    return -1;
+}
+
+std::size_t Compiler::resolveUpvalue(std::string_view identifier)
+{
+    if (!parent)
+        return -1;
+
+    auto index = parent->resolveVariable(identifier);
+    if (index != -1)
+        return addUpvalue(index, true);
+
+    return -1;
+}
+
+std::size_t Compiler::addUpvalue(std::size_t index, bool is_local)
+{
+    for (const auto& upvalue : upvalues)
+    {
+        if (upvalue.index == index && upvalue.is_local == is_local)
+            return std::distance<const Upvalue*>(upvalues.data(), &upvalue);
+    }
+
+    if (upvalues.size() == std::numeric_limits<u16>::max())
+        throw CompilerError("Closure variable limit exceeded");
+
+    upvalues.push_back({ index, is_local });
+    return function->upvalues++;
 }
 
 void Compiler::defineVariable(std::string_view identifier)
@@ -352,7 +379,7 @@ void Compiler::constant(bool)
         SHELL_UNREACHABLE;
         break;
     }
-    emitConstant(value, Opcode::Constant, Opcode::ConstantExt);
+    emitConstant(value, Opcode::Constant);
 }
 
 void Compiler::declaration()
@@ -391,7 +418,7 @@ void Compiler::declarationDef()
     }
     expectParenRight();
 
-    compiler.chunk = &function->chunk;
+    compiler.function = function;
     compiler.parser = parser;
     compiler.block({ Block::Type::Block }, false);
     compiler.scope.pop_back();
@@ -400,7 +427,7 @@ void Compiler::declarationDef()
 
     parser = compiler.parser;
 
-    emitConstant(function, Opcode::Closure, Opcode::ClosureExt);
+    emitConstant(function, Opcode::Closure);
 }
 
 void Compiler::declarationVar()
@@ -631,7 +658,7 @@ void Compiler::statementReturn()
 
 void Compiler::statementWhile()
 {
-    auto condition = chunk->label();
+    auto condition = function->chunk.label();
     expression();
     auto exit = emitJump(Opcode::JumpFalsePop);
     auto breaks = block({ Block::Type::Loop });
@@ -662,18 +689,33 @@ void Compiler::unary(bool)
 void Compiler::variable(bool can_assign)
 {
     auto identifier = parser.previous->lexeme;
-    auto variable = resolveVariable(identifier);
-    if (!variable)
-        throw SyntaxError(identifier, "undefined '{}'", identifier);
 
-    auto index = std::distance(variables.data(), variable);
-    if (can_assign && match(Token::Type::Equal))
+    Opcode load;
+    Opcode store;
+    
+    auto variable = resolveVariable(identifier);
+    if (variable != -1)
     {
-        expression();
-        emitVariable(index, Opcode::StoreVariable, Opcode::StoreVariableExt);
+        load = Opcode::LoadVariable;
+        store = Opcode::StoreVariable;
+    }
+    else if ((variable = resolveUpvalue(identifier)) != -1)
+    {
+        load = Opcode::LoadUpvalue;
+        store = Opcode::StoreUpvalue;
     }
     else
     {
-        emitVariable(index, Opcode::LoadVariable, Opcode::LoadVariableExt);
+        throw SyntaxError(identifier, "undefined '{}'", identifier);
+    }
+
+    if (can_assign && match(Token::Type::Equal))
+    {
+        expression();
+        emitVariable(variable, store);
+    }
+    else
+    {
+        emitVariable(variable, load);
     }
 }
