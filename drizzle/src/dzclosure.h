@@ -5,11 +5,11 @@
 class DzClosure : public DzObject
 {
 public:
-    DzClosure();
+    DzClosure(DzFunction& function);
 
     std::string_view typeName() const;
 
     operator bool() const;
 
-    DzFunction* function;
+    DzFunction& function;
 };

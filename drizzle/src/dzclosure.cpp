@@ -1,17 +1,17 @@
 #include "dzclosure.h"
 
-DzClosure::DzClosure()
-    : DzObject(Type::Closure)
+DzClosure::DzClosure(DzFunction& function)
+    : DzObject(Type::Closure), function(function)
 {
 
 }
 
 std::string_view DzClosure::typeName() const
 {
-    return "closure";
+    return function.typeName();
 }
 
 DzClosure::operator bool() const
 {
-    return true;
+    return static_cast<bool>(function);
 }

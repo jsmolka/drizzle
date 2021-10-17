@@ -21,6 +21,7 @@
 
 ## Closures
 - Efficient implementation keywords: "closure conversion", "lambda lifting"
+- AST approach: http://www.craftinginterpreters.com/closures.html#upvalues
 
 ## Classes
 - $ (constructor)
@@ -45,6 +46,8 @@ print(p)
 - Should `0xDEADreturn` result in two valid tokens?
 
 ## AST
+- C++ AST example:  https://github.com/wiz-lang/wiz/tree/master/src/wiz
+
 Generate an AST and perform certain optimization/syntax passes:
 - Constant folding, type checking and range checks for numbers
 - Dead code elimination

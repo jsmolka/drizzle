@@ -3,6 +3,7 @@
 #include <shell/format.h>
 #include <shell/macros.h>
 
+#include "dzclosure.h"
 #include "dzfunction.h"
 #include "dzobject.h"
 #include "dzstring.h"
@@ -59,11 +60,9 @@ struct fmt::formatter<DzObject>
     {
         switch (object.type)
         {
-        case DzObject::Type::Function:
-            return fmt::format_to(ctx.out(), "<fn {}>", static_cast<const DzFunction*>(&object)->identifier);
-
-        case DzObject::Type::String:
-            return fmt::format_to(ctx.out(), "{}", static_cast<const DzString*>(&object)->data);
+        case DzObject::Type::String:   return fmt::format_to(ctx.out(), "{}", static_cast<const DzString*>(&object)->data);
+        case DzObject::Type::Function: return fmt::format_to(ctx.out(), "<fn {}>", static_cast<const DzFunction*>(&object)->identifier);
+        case DzObject::Type::Closure:  return fmt::format_to(ctx.out(), "{}", static_cast<const DzClosure*>(&object)->function);
 
         default:
             SHELL_UNREACHABLE;
