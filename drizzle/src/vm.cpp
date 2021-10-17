@@ -47,6 +47,8 @@ void Vm::interpret(const Tokens& tokens)
         case Opcode::JumpTrue: jumpTrue(); break;
         case Opcode::Less: less(); break;
         case Opcode::LessEqual: lessEqual(); break;
+        case Opcode::LoadUpvalue: loadUpvalue<u8>(); break;
+        case Opcode::LoadUpvalueExt: loadUpvalue<u16>(); break;
         case Opcode::LoadVariable: loadVariable<u8>(); break;
         case Opcode::LoadVariableExt: loadVariable<u16>(); break;
         case Opcode::Modulo: modulo(); break;
@@ -61,6 +63,8 @@ void Vm::interpret(const Tokens& tokens)
         case Opcode::Power: power(); break;
         case Opcode::Print: print(); break;
         case Opcode::Return: if (return_()) return; break;
+        case Opcode::StoreUpvalue: storeUpvalue<u8>(); break;
+        case Opcode::StoreUpvalueExt: storeUpvalue<u16>(); break;
         case Opcode::StoreVariable: storeVariable<u8>(); break;
         case Opcode::StoreVariableExt: storeVariable<u16>(); break;
         case Opcode::Subtract: subtract(); break;
@@ -190,6 +194,11 @@ void Vm::binary(std::string_view operation, Handler handler)
     #undef DZ_EVAL
 
     raise<TypeError>("bad operand types for '{}': '{}' and '{}'", operation, lhs.typeName(), rhs.typeName());
+}
+
+DzUpvalue* Vm::capture(std::size_t index)
+{
+    return new DzUpvalue(stack[frame->sp + index]);
 }
 
 void Vm::add()
@@ -380,6 +389,18 @@ void Vm::closure()
     auto function = static_cast<DzFunction*>(frame->closure->function.chunk.constants[index].o);
     auto closure = new DzClosure(*function);
     stack.push(closure);
+
+    for (auto& upvalue : closure->upvalues)
+    {
+        auto is_local = read<u8>();
+        auto index = read<u8>();
+
+        if (is_local)
+            upvalue = capture(index);
+        else
+            upvalue = frame->closure->upvalues[index];
+    }
+
 }
 
 template<typename Integral>
@@ -545,6 +566,8 @@ void Vm::lessEqual()
 template<typename Integral>
 void Vm::loadUpvalue()
 {
+    auto index = read<Integral>();
+    stack.push(frame->closure->upvalues[index]->value);
 }
 
 template<typename Integral>
@@ -701,6 +724,8 @@ bool Vm::return_()
 template<typename Integral>
 void Vm::storeUpvalue()
 {
+    auto index = read<Integral>();
+    frame->closure->upvalues[index]->value = stack.top();
 }
 
 template<typename Integral>

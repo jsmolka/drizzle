@@ -436,8 +436,8 @@ void Compiler::declarationDef()
     emitConstant(function, Opcode::Closure);
 
     // Todo: change after upvalue s16 change
-    for (const auto& upvalue : upvalues)
-        emit (upvalue.is_local, upvalue.index);
+    for (const auto& upvalue : compiler.upvalues)
+        emit(upvalue.is_local, upvalue.index);
 }
 
 void Compiler::declarationVar()

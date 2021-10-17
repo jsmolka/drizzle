@@ -22,6 +22,7 @@ private:
 
     template<typename Integral>
     Integral read();
+    DzUpvalue* capture(std::size_t index);
 
     template<typename Error, typename... Args>
     void raise(std::string_view message, Args&&... args);

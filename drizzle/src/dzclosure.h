@@ -1,15 +1,28 @@
 #pragma once
 
+#include <shell/vector.h>
+
 #include "dzfunction.h"
+#include "dzupvalue.h"
 
 class DzClosure : public DzObject
 {
 public:
     DzClosure(DzFunction& function);
 
-    std::string_view typeName() const;
-
-    operator bool() const;
+    constexpr std::string_view typeName() const;
+    constexpr operator bool() const;
 
     DzFunction& function;
+    shell::Vector<DzUpvalue*, 4> upvalues;
 };
+
+constexpr std::string_view DzClosure::typeName() const
+{
+    return function.typeName();
+}
+
+constexpr DzClosure::operator bool() const
+{
+    return static_cast<bool>(function);
+}

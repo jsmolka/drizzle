@@ -3,15 +3,6 @@
 DzClosure::DzClosure(DzFunction& function)
     : DzObject(Type::Closure), function(function)
 {
-
-}
-
-std::string_view DzClosure::typeName() const
-{
-    return function.typeName();
-}
-
-DzClosure::operator bool() const
-{
-    return static_cast<bool>(function);
+    upvalues.resize(function.upvalues);
+    std::fill(upvalues.begin(), upvalues.end(), nullptr);
 }
