@@ -101,7 +101,6 @@ private:
     std::size_t resolveVariable(std::string_view identifier);
     std::size_t resolveUpvalue(std::string_view identifier);
     std::size_t addUpvalue(std::size_t index, bool is_local);
-
     void defineVariable(std::string_view identifier);
 
     void and_(bool);

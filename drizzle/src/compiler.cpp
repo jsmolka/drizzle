@@ -275,6 +275,10 @@ std::size_t Compiler::resolveUpvalue(std::string_view identifier)
     if (index != -1)
         return addUpvalue(index, true);
 
+    index = parent->resolveUpvalue(identifier);
+    if (index != -1)
+        return addUpvalue(index, false);
+
     return -1;
 }
 
@@ -286,7 +290,9 @@ std::size_t Compiler::addUpvalue(std::size_t index, bool is_local)
             return std::distance<const Upvalue*>(upvalues.data(), &upvalue);
     }
 
-    if (upvalues.size() == std::numeric_limits<u16>::max())
+    // Todo: this limit does not match the Ext opcodes
+    // use the upper bit to identify locals and s16 as a numeric limit here
+    if (upvalues.size() == std::numeric_limits<u8>::max())
         throw CompilerError("Closure variable limit exceeded");
 
     upvalues.push_back({ index, is_local });
@@ -428,6 +434,10 @@ void Compiler::declarationDef()
     parser = compiler.parser;
 
     emitConstant(function, Opcode::Closure);
+
+    // Todo: change after upvalue s16 change
+    for (const auto& upvalue : upvalues)
+        emit (upvalue.is_local, upvalue.index);
 }
 
 void Compiler::declarationVar()

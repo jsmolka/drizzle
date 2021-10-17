@@ -21,6 +21,7 @@ file(GLOB_RECURSE SOURCE_FILES
   ../drizzle/src/dzfunction.cpp
   ../drizzle/src/dzobject.cpp
   ../drizzle/src/dzstring.cpp
+  ../drizzle/src/dzupvalue.cpp
   ../drizzle/src/dzvalue.cpp
   ../drizzle/src/interning.cpp
   ../drizzle/src/scanner.cpp
