@@ -400,7 +400,6 @@ void Vm::closure()
         else
             upvalue = frame->closure->upvalues[index];
     }
-
 }
 
 template<typename Integral>

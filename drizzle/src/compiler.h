@@ -66,6 +66,7 @@ private:
     {
         std::string_view identifier;
         std::size_t depth;
+        bool captured = false;
     };
 
     struct Upvalue

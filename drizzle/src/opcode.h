@@ -16,6 +16,7 @@ enum class Opcode
     BitOr,
     BitXor,
     Call,
+    CloseUpvalue,
     Closure,
     ClosureExt,
     Constant,

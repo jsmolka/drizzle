@@ -211,22 +211,29 @@ void Compiler::expectParenRight()
 
 void Compiler::popLocals(std::size_t depth)
 {
-    auto size = variables.size();
+    //auto size = variables.size();
     while (variables.size() && variables.back().depth > depth)
+    {
+        if (variables.back().captured)
+            emit(Opcode::CloseUpvalue);
+        else
+            emit(Opcode::Pop);
+
         variables.pop_back();
+    }
 
-    auto count = size - variables.size();
-    if (count == 0)
-        return;
+    //auto count = size - variables.size();
+    //if (count == 0)
+    //    return;
 
-    if (count == 1)
-        emit(Opcode::Pop);
-    else if (count <= std::numeric_limits<u8>::max())
-        emit(Opcode::PopMultiple, count);
-    else if (count <= std::numeric_limits<u16>::max())
-        emit(Opcode::PopMultipleExt, count, count >> 8);
-    else
-        throw CompilerError("too many locals to pop '{}'", count);
+    //if (count == 1)
+    //    emit(Opcode::Pop);
+    //else if (count <= std::numeric_limits<u8>::max())
+    //    emit(Opcode::PopMultiple, count);
+    //else if (count <= std::numeric_limits<u16>::max())
+    //    emit(Opcode::PopMultipleExt, count, count >> 8);
+    //else
+    //    throw CompilerError("too many locals to pop '{}'", count);
 }
 
 Compiler::Labels Compiler::block(const Compiler::Block& block, bool increase_scope)
@@ -273,7 +280,10 @@ std::size_t Compiler::resolveUpvalue(std::string_view identifier)
 
     auto index = parent->resolveVariable(identifier);
     if (index != -1)
+    {
+        parent->variables[index].captured = true;
         return addUpvalue(index, true);
+    }
 
     index = parent->resolveUpvalue(identifier);
     if (index != -1)
