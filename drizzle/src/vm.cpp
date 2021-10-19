@@ -11,11 +11,11 @@ void Vm::interpret(const Tokens& tokens)
 {
     // Todo: free
     auto main = new DzFunction();
-    Compiler compiler(interning);
-    compiler.compile(tokens, *main);
+    Compiler compiler(interning, Compiler::Type::Main);
+    compiler.compile(tokens, main->chunk);
 
     stack.push(main);
-    call(new DzClosure(*main), 0);
+    call(main, 0);
 
     while (true)
     {
@@ -31,10 +31,8 @@ void Vm::interpret(const Tokens& tokens)
         case Opcode::BitOr: bitOr(); break;
         case Opcode::BitXor: bitXor(); break;
         case Opcode::Call: callValue(); break;
-        case Opcode::Closure: closure<u8>(); break;
-        case Opcode::ClosureExt: closure<u16>(); break;
-        case Opcode::Constant: constant<u8>(); break;
-        case Opcode::ConstantExt: constant<u16>(); break;
+        case Opcode::Constant: constant(); break;
+        case Opcode::ConstantExt: constantExt(); break;
         case Opcode::Divide: divide(); break;
         case Opcode::DivideInt: divideInt(); break;
         case Opcode::Equal: equal(); break;
@@ -47,10 +45,8 @@ void Vm::interpret(const Tokens& tokens)
         case Opcode::JumpTrue: jumpTrue(); break;
         case Opcode::Less: less(); break;
         case Opcode::LessEqual: lessEqual(); break;
-        case Opcode::LoadUpvalue: loadUpvalue<u8>(); break;
-        case Opcode::LoadUpvalueExt: loadUpvalue<u16>(); break;
-        case Opcode::LoadVariable: loadVariable<u8>(); break;
-        case Opcode::LoadVariableExt: loadVariable<u16>(); break;
+        case Opcode::LoadVariable: loadVariable(); break;
+        case Opcode::LoadVariableExt: loadVariableExt(); break;
         case Opcode::Modulo: modulo(); break;
         case Opcode::Multiply: multiply(); break;
         case Opcode::Negate: negate(); break;
@@ -58,15 +54,13 @@ void Vm::interpret(const Tokens& tokens)
         case Opcode::NotEqual: notEqual(); break;
         case Opcode::Null: pushNull(); break;
         case Opcode::Pop: pop(); break;
-        case Opcode::PopMultiple: popMultiple<u8>(); break;
-        case Opcode::PopMultipleExt: popMultiple<u16>(); break;
+        case Opcode::PopMultiple: popMultiple(); break;
+        case Opcode::PopMultipleExt: popMultipleExt(); break;
         case Opcode::Power: power(); break;
         case Opcode::Print: print(); break;
         case Opcode::Return: if (return_()) return; break;
-        case Opcode::StoreUpvalue: storeUpvalue<u8>(); break;
-        case Opcode::StoreUpvalueExt: storeUpvalue<u16>(); break;
-        case Opcode::StoreVariable: storeVariable<u8>(); break;
-        case Opcode::StoreVariableExt: storeVariable<u16>(); break;
+        case Opcode::StoreVariable: storeVariable(); break;
+        case Opcode::StoreVariableExt: storeVariableExt(); break;
         case Opcode::Subtract: subtract(); break;
         case Opcode::True: pushTrue(); break;
 
@@ -92,8 +86,8 @@ void Vm::raise(std::string_view message, Args&& ...args)
 {
     static_assert(std::is_base_of_v<RuntimeError, Error>);
 
-    auto index = frame->pc - frame->closure->function.chunk.code.data();
-    auto line = frame->closure->function.chunk.line(index);
+    auto index = frame->pc - frame->function->chunk.code.data();
+    auto line = frame->function->chunk.line(index);
 
     throw Error(line, message, std::forward<Args>(args)...);
 }
@@ -194,11 +188,6 @@ void Vm::binary(std::string_view operation, Handler handler)
     #undef DZ_EVAL
 
     raise<TypeError>("bad operand types for '{}': '{}' and '{}'", operation, lhs.typeName(), rhs.typeName());
-}
-
-DzUpvalue* Vm::capture(std::size_t index)
-{
-    return new DzUpvalue(stack[frame->sp + index]);
 }
 
 void Vm::add()
@@ -360,12 +349,12 @@ void Vm::bitXor()
     });
 }
 
-void Vm::call(DzClosure* closure, u8 argc)
+void Vm::call(DzFunction* function, u8 argc)
 {
-    if (argc != closure->function.arity)
-        raise<RuntimeError>("expected {} argument(s) but got {}", closure->function.arity, argc);
+    if (argc != function->arity)
+        raise<RuntimeError>("expected {} arguments but got {}", function->arity, argc);
 
-    frames.push_back({ closure, closure->function.chunk.code.data(), stack.size() - argc });
+    frames.push_back({ function, function->chunk.code.data(), stack.size() - argc });
     frame = &frames.back();
 }
 
@@ -375,38 +364,23 @@ void Vm::callValue()
     auto& callee = stack.peek(argc);
     if (callee.type != DzValue::Type::Object)
         raise<RuntimeError>("tried calling {}", callee.typeName());
-    if (callee.o->type != DzObject::Type::Closure)
+    if (callee.o->type != DzObject::Type::Function)
         raise<RuntimeError>("tried calling {}", callee.typeName());
 
-    auto closure = static_cast<DzClosure*>(callee.o);
-    call(closure, argc);
+    auto function = static_cast<DzFunction*>(callee.o);
+    call(function, argc);
 }
 
-template<typename Integral>
-void Vm::closure()
-{
-    auto index = read<Integral>();
-    auto function = static_cast<DzFunction*>(frame->closure->function.chunk.constants[index].o);
-    auto closure = new DzClosure(*function);
-    stack.push(closure);
-
-    for (auto& upvalue : closure->upvalues)
-    {
-        auto is_local = read<u8>();
-        auto index = read<u8>();
-
-        if (is_local)
-            upvalue = capture(index);
-        else
-            upvalue = frame->closure->upvalues[index];
-    }
-}
-
-template<typename Integral>
 void Vm::constant()
 {
-    auto index = read<Integral>();
-    stack.push(frame->closure->function.chunk.constants[index]);
+    auto index = read<u8>();
+    stack.push(frame->function->chunk.constants[index]);
+}
+
+void Vm::constantExt()
+{
+    auto index = read<u16>();
+    stack.push(frame->function->chunk.constants[index]);
 }
 
 void Vm::divide()
@@ -562,17 +536,15 @@ void Vm::lessEqual()
     });
 }
 
-template<typename Integral>
-void Vm::loadUpvalue()
-{
-    auto index = read<Integral>();
-    stack.push(frame->closure->upvalues[index]->value);
-}
-
-template<typename Integral>
 void Vm::loadVariable()
 {
-    auto index = read<Integral>();
+    auto index = read<u8>();
+    stack.push(stack[frame->sp + index]);
+}
+
+void Vm::loadVariableExt()
+{
+    auto index = read<u16>();
     stack.push(stack[frame->sp + index]);
 }
 
@@ -661,10 +633,15 @@ void Vm::pop()
     stack.pop();
 }
 
-template<typename Integral>
 void Vm::popMultiple()
 {
-    auto count = read<Integral>();
+    auto count = read<u8>();
+    stack.pop(count);
+}
+
+void Vm::popMultipleExt()
+{
+    auto count = read<u16>();
     stack.pop(count);
 }
 
@@ -720,17 +697,15 @@ bool Vm::return_()
     return false;
 }
 
-template<typename Integral>
-void Vm::storeUpvalue()
-{
-    auto index = read<Integral>();
-    frame->closure->upvalues[index]->value = stack.top();
-}
-
-template<typename Integral>
 void Vm::storeVariable()
 {
-    auto index = read<Integral>();
+    auto index = read<u8>();
+    stack[frame->sp + index] = stack.top();
+}
+
+void Vm::storeVariableExt()
+{
+    auto index = read<u16>();
     stack[frame->sp + index] = stack.top();
 }
 

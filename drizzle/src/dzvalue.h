@@ -13,9 +13,8 @@ inline constexpr auto is_dz_null_v = shell::is_same_v<DzNull, Ts...>;
 template<typename... Ts>
 struct is_dz_null : std::bool_constant<is_dz_null_v<Ts...>> {};
 
-class DzValue
+struct DzValue
 {
-public:
     enum class Type { Bool, Int, Float, Null, Object, LastEnumValue };
 
     DzValue();

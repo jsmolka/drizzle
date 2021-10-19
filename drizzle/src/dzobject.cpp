@@ -2,10 +2,8 @@
 
 #include <shell/macros.h>
 
-#include "dzclosure.h"
 #include "dzfunction.h"
 #include "dzstring.h"
-#include "dzupvalue.h"
 
 DzObject::DzObject(DzObject::Type type)
     : type(type)
@@ -17,10 +15,11 @@ std::string_view DzObject::typeName() const
 {
     switch (type)
     {
-    case Type::String:   return as<DzString>().typeName();
-    case Type::Function: return as<DzFunction>().typeName();
-    case Type::Closure:  return as<DzClosure>().typeName();
-    case Type::Upvalue:  return as<DzUpvalue>().typeName();
+    case Type::String:
+        return as<DzString>().typeName();
+
+    case Type::Function:
+        return as<DzFunction>().typeName();
 
     default:
         SHELL_UNREACHABLE;
@@ -32,10 +31,11 @@ DzObject::operator bool() const
 {
     switch (type)
     {
-    case Type::String:   return static_cast<bool>(as<DzString>());
-    case Type::Function: return static_cast<bool>(as<DzFunction>());
-    case Type::Closure:  return static_cast<bool>(as<DzClosure>());
-    case Type::Upvalue:  return static_cast<bool>(as<DzUpvalue>());
+    case Type::String:
+        return static_cast<bool>(as<DzString>());
+
+    case Type::Function:
+        return static_cast<bool>(as<DzFunction>());
 
     default:
         SHELL_UNREACHABLE;

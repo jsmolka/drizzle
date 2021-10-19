@@ -9,16 +9,16 @@
 #include "dzstring.h"
 #include "errors.h"
 
-Compiler::Compiler(Interning& interning, Compiler* parent)
-    : interning(interning), parent(parent)
+Compiler::Compiler(Interning& interning, Compiler::Type type)
+    : interning(interning), type(type)
 {
 
 }
 
-void Compiler::compile(const Tokens& tokens, DzFunction& function)
+void Compiler::compile(const Tokens& tokens, Chunk& chunk)
 {
     this->parser.current = tokens.begin();
-    this->function = &function;
+    this->chunk = &chunk;
     this->scope.clear();
     this->variables.clear();
 
@@ -75,7 +75,7 @@ const Compiler::Parser::Rule& Compiler::rule(Token::Type type)
 template<typename... Bytes>
 void Compiler::emit(Bytes... bytes)
 {
-    (function->chunk.write(static_cast<u8>(bytes), parser.previous->line), ...);
+    (chunk->write(static_cast<u8>(bytes), parser.previous->line), ...);
 }
 
 void Compiler::emitReturn()
@@ -83,32 +83,32 @@ void Compiler::emitReturn()
     emit(Opcode::Null, Opcode::Return);
 }
 
-void Compiler::emitConstant(DzValue value, Opcode opcode)
+void Compiler::emitConstant(DzValue value)
 {
-    auto index = function->chunk.constants.size();
+    auto index = chunk->constants.size();
     if (index <= std::numeric_limits<u8>::max())
-        emit(opcode, index);
+        emit(Opcode::Constant, index);
     else if (index <= std::numeric_limits<u16>::max())
-        emit(int(opcode) + 1, index, index >> 8);
+        emit(Opcode::ConstantExt, index, index >> 8);
     else
         throw CompilerError("constant limit exceeded");
 
-    function->chunk.constants.push_back(value);
+    chunk->constants.push_back(value);
 }
 
-void Compiler::emitVariable(std::size_t index, Opcode opcode)
+void Compiler::emitVariable(std::size_t index, Opcode opcode, Opcode opcode_ext)
 {
     if (index <= std::numeric_limits<u8>::max())
         emit(opcode, index);
     else if (index <= std::numeric_limits<u16>::max())
-        emit(int(opcode) + 1, index, index >> 8);
+        emit(opcode_ext, index, index >> 8);
     else
         throw CompilerError("variable limit exceeded");
 }
 
 std::size_t Compiler::emitJump(Opcode opcode, std::size_t label)
 {
-    auto jump = function->chunk.label();
+    auto jump = chunk->label();
 
     s64 offset = static_cast<s64>(label - jump) - 3; 
     if (offset < std::numeric_limits<s16>::min() || offset > -3)
@@ -121,12 +121,12 @@ std::size_t Compiler::emitJump(Opcode opcode, std::size_t label)
 
 void Compiler::patchJump(std::size_t jump)
 {
-    s64 offset = static_cast<s64>(function->chunk.label() - jump) - 3;
+    s64 offset = static_cast<s64>(chunk->label() - jump) - 3;
     if (offset < 0 || offset > std::numeric_limits<s16>::max())
         throw CompilerError("bad jump '{}'", offset);
 
-    function->chunk.code[jump + 1] = offset;
-    function->chunk.code[jump + 2] = offset >> 8;
+    chunk->code[jump + 1] = offset;
+    chunk->code[jump + 2] = offset >> 8;
 }
 
 void Compiler::advance()
@@ -211,29 +211,22 @@ void Compiler::expectParenRight()
 
 void Compiler::popLocals(std::size_t depth)
 {
-    //auto size = variables.size();
+    auto size = variables.size();
     while (variables.size() && variables.back().depth > depth)
-    {
-        if (variables.back().captured)
-            emit(Opcode::CloseUpvalue);
-        else
-            emit(Opcode::Pop);
-
         variables.pop_back();
-    }
 
-    //auto count = size - variables.size();
-    //if (count == 0)
-    //    return;
+    auto count = size - variables.size();
+    if (count == 0)
+        return;
 
-    //if (count == 1)
-    //    emit(Opcode::Pop);
-    //else if (count <= std::numeric_limits<u8>::max())
-    //    emit(Opcode::PopMultiple, count);
-    //else if (count <= std::numeric_limits<u16>::max())
-    //    emit(Opcode::PopMultipleExt, count, count >> 8);
-    //else
-    //    throw CompilerError("too many locals to pop '{}'", count);
+    if (count == 1)
+        emit(Opcode::Pop);
+    else if (count <= std::numeric_limits<u8>::max())
+        emit(Opcode::PopMultiple, count);
+    else if (count <= std::numeric_limits<u16>::max())
+        emit(Opcode::PopMultipleExt, count, count >> 8);
+    else
+        throw CompilerError("too many locals to pop '{}'", count);
 }
 
 Compiler::Labels Compiler::block(const Compiler::Block& block, bool increase_scope)
@@ -261,52 +254,6 @@ Compiler::Labels Compiler::block(const Compiler::Block& block, bool increase_sco
     expectDedent();
 
     return breaks;
-}
-
-std::size_t Compiler::resolveVariable(std::string_view identifier)
-{
-    for (auto& variable : shell::reversed(variables))
-    {
-        if (variable.identifier == identifier)
-            return std::distance(variables.data(), &variable);
-    }
-    return -1;
-}
-
-std::size_t Compiler::resolveUpvalue(std::string_view identifier)
-{
-    if (!parent)
-        return -1;
-
-    auto index = parent->resolveVariable(identifier);
-    if (index != -1)
-    {
-        parent->variables[index].captured = true;
-        return addUpvalue(index, true);
-    }
-
-    index = parent->resolveUpvalue(identifier);
-    if (index != -1)
-        return addUpvalue(index, false);
-
-    return -1;
-}
-
-std::size_t Compiler::addUpvalue(std::size_t index, bool is_local)
-{
-    for (const auto& upvalue : upvalues)
-    {
-        if (upvalue.index == index && upvalue.is_local == is_local)
-            return std::distance<const Upvalue*>(upvalues.data(), &upvalue);
-    }
-
-    // Todo: this limit does not match the Ext opcodes
-    // use the upper bit to identify locals and s16 as a numeric limit here
-    if (upvalues.size() == std::numeric_limits<u8>::max())
-        throw CompilerError("Closure variable limit exceeded");
-
-    upvalues.push_back({ index, is_local });
-    return function->upvalues++;
 }
 
 void Compiler::defineVariable(std::string_view identifier)
@@ -395,7 +342,7 @@ void Compiler::constant(bool)
         SHELL_UNREACHABLE;
         break;
     }
-    emitConstant(value, Opcode::Constant);
+    emitConstant(value);
 }
 
 void Compiler::declaration()
@@ -416,7 +363,7 @@ void Compiler::declarationDef()
     auto function = new DzFunction();
     function->identifier = parser.previous->lexeme;
 
-    Compiler compiler(interning, this);
+    Compiler compiler(interning, Type::Function);
     compiler.scope.push_back({ Block::Type::Function });
 
     expectParenLeft();
@@ -434,7 +381,7 @@ void Compiler::declarationDef()
     }
     expectParenRight();
 
-    compiler.function = function;
+    compiler.chunk = &function->chunk;
     compiler.parser = parser;
     compiler.block({ Block::Type::Block }, false);
     compiler.scope.pop_back();
@@ -443,11 +390,7 @@ void Compiler::declarationDef()
 
     parser = compiler.parser;
 
-    emitConstant(function, Opcode::Closure);
-
-    // Todo: change after upvalue s16 change
-    for (const auto& upvalue : compiler.upvalues)
-        emit(upvalue.is_local, upvalue.index);
+    emitConstant(function);
 }
 
 void Compiler::declarationVar()
@@ -661,7 +604,7 @@ void Compiler::statementPrint()
 
 void Compiler::statementReturn()
 {
-    if (!parent)
+    if (type == Type::Main)
         throw SyntaxError(parser.previous->lexeme, "return outside function");
 
     if (match(Token::Type::NewLine))
@@ -678,7 +621,7 @@ void Compiler::statementReturn()
 
 void Compiler::statementWhile()
 {
-    auto condition = function->chunk.label();
+    auto condition = chunk->label();
     expression();
     auto exit = emitJump(Opcode::JumpFalsePop);
     auto breaks = block({ Block::Type::Loop });
@@ -708,34 +651,29 @@ void Compiler::unary(bool)
 
 void Compiler::variable(bool can_assign)
 {
+    auto resolve = [this](std::string_view identifier) -> Variable*
+    {
+        for (auto& variable : shell::reversed(variables))
+        {
+            if (variable.identifier == identifier)
+                return &variable;
+        }
+        return nullptr;
+    };
+
     auto identifier = parser.previous->lexeme;
+    auto variable = resolve(identifier);
+    if (!variable)
+        throw SyntaxError(identifier, "undefined variable '{}'", identifier);
 
-    Opcode load;
-    Opcode store;
-    
-    auto variable = resolveVariable(identifier);
-    if (variable != -1)
-    {
-        load = Opcode::LoadVariable;
-        store = Opcode::StoreVariable;
-    }
-    else if ((variable = resolveUpvalue(identifier)) != -1)
-    {
-        load = Opcode::LoadUpvalue;
-        store = Opcode::StoreUpvalue;
-    }
-    else
-    {
-        throw SyntaxError(identifier, "undefined '{}'", identifier);
-    }
-
+    auto index = std::distance(variables.data(), variable);
     if (can_assign && match(Token::Type::Equal))
     {
         expression();
-        emitVariable(variable, store);
+        emitVariable(index, Opcode::StoreVariable, Opcode::StoreVariableExt);
     }
     else
     {
-        emitVariable(variable, load);
+        emitVariable(index, Opcode::LoadVariable, Opcode::LoadVariableExt);
     }
 }
