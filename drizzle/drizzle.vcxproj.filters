@@ -48,7 +48,13 @@
     <ClCompile Include="src\dzfunction.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\expression.cpp">
+    <ClCompile Include="src\ast\expression.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ast\parser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ast\statement.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -106,7 +112,13 @@
     <ClInclude Include="src\dzfunction.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\expression.h">
+    <ClInclude Include="src\ast\expression.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ast\parser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ast\statement.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
