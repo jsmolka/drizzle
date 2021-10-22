@@ -17,6 +17,7 @@
     <ResourceCompile Include="drizzle.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\ast\pass.cpp" />
     <ClCompile Include="src\ast\statement.cpp" />
     <ClCompile Include="src\chunk.cpp" />
     <ClCompile Include="src\compiler.cpp" />
@@ -32,6 +33,7 @@
     <ClCompile Include="src\vm.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\ast\pass.h" />
     <ClInclude Include="src\ast\statement.h" />
     <ClInclude Include="src\chunk.h" />
     <ClInclude Include="src\compiler.h" />

@@ -57,6 +57,9 @@
     <ClCompile Include="src\ast\statement.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\ast\pass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="drizzle.rc">
@@ -119,6 +122,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\ast\statement.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ast\pass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
