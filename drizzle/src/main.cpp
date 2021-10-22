@@ -3,8 +3,6 @@
 #include <shell/main.h>
 
 #include "errors.h"
-#include "scanner.h"
-#include "vm.h"
 
 std::string source;
 
@@ -72,8 +70,22 @@ void lineError(const LineError& error)
     shell::print("{}: {}\n", error.name(), error.what());
 }
 
+#include "v2/expression.h"
+
+void X(std::vector<int>&& x)
+{
+
+}
+
 int main(int argc, char* argv[])
 {
+    auto int1 = std::make_unique<Expression>(Expression::Literal(1ll));
+    auto int2 = std::make_unique<Expression>(Expression::Literal(2ll));
+    auto bin1 = std::make_unique<Expression>(Expression::Binary(
+        Expression::Binary::Kind::Addition,
+        std::move(int1),
+        std::move(int2)));
+
     using namespace shell::filesystem;
     try
     {
@@ -94,11 +106,6 @@ int main(int argc, char* argv[])
 
         source.push_back('\n');
         source.push_back('\n');
-
-        Scanner scanner;
-        const auto tokens = scanner.scan(source);
-        Vm vm;
-        vm.interpret(tokens);
 
         return 0;
     }

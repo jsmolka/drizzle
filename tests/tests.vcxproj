@@ -14,15 +14,6 @@
     <Text Include="CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\drizzle\src\chunk.cpp" />
-    <ClCompile Include="..\drizzle\src\compiler.cpp" />
-    <ClCompile Include="..\drizzle\src\dzfunction.cpp" />
-    <ClCompile Include="..\drizzle\src\dzobject.cpp" />
-    <ClCompile Include="..\drizzle\src\dzstring.cpp" />
-    <ClCompile Include="..\drizzle\src\dzvalue.cpp" />
-    <ClCompile Include="..\drizzle\src\interning.cpp" />
-    <ClCompile Include="..\drizzle\src\scanner.cpp" />
-    <ClCompile Include="..\drizzle\src\vm.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>

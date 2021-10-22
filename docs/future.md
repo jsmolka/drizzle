@@ -1,12 +1,15 @@
 # Todo
 - Foreign Function Interface
-- Should global be bound late like in Python?
 - Iterators, mix yield and return (to stop)
 - Tuples, destructuring
 - Rename scanner to tokenizer
-
-## Compiler
-- Add map to get expected name for a token (expect(Token::Type::ParenLeft) instead of expectParenLeft())
+- Fix max int parsing
+- Late bind top level functions and classes
+- Using < for chunk.line() seems wrong, use pc - 1 instead?
+- Precedence assignment for parens ok?
+- constexpr typeName/operator bool of types
+- Map optimized for integers
+- Static assert last enum value where needed
 
 ## Exceptions
 - [Zero cost](https://bugs.python.org/issue40222)

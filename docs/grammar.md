@@ -78,23 +78,17 @@ DIGIT             → "0" ... "9" ;
 
 The following identifiers are used as reserved words:
 - `break`
-- `class`
 - `continue`
+- `def`
 - `elif`
 - `else`
-- `extends`
 - `false`
 - `for`
-- `function`
 - `if`
 - `in`
-- `iterator`
 - `noop`
 - `null`
 - `return`
-- `super`
-- `this`
 - `true`
 - `var`
 - `while`
-- `yield`
