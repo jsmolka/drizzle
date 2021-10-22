@@ -2,10 +2,10 @@
 
 #include <shell/macros.h>
 
-Expression::Binary::Binary(Kind kind, std::unique_ptr<Expression> left, std::unique_ptr<Expression> right)
+Expression::Binary::Binary(Kind kind, Expr left, Expr right)
     : kind(kind), left(std::move(left)), right(std::move(right)) {}
 
-Expression::Group::Group(std::unique_ptr<Expression> expression)
+Expression::Group::Group(Expr expression)
     : expression(std::move(expression)) {}
 
 Expression::Literal::Literal()
@@ -14,7 +14,7 @@ Expression::Literal::Literal()
 Expression::Literal::Literal(dzbool value)
     : kind(Kind::Boolean), value(value) {}
 
-Expression::Unary::Unary(Kind kind, std::unique_ptr<Expression> expression)
+Expression::Unary::Unary(Kind kind, Expr expression)
     : kind(kind), expression(std::move(expression)) {}
 
 Expression::Literal::Literal(dzint value)

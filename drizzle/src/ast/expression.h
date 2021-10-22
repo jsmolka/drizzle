@@ -6,6 +6,10 @@
 
 #include "dzprimitives.h"
 
+class Expression;
+
+using Expr = std::unique_ptr<Expression>;
+
 class Expression
 {
 public:
@@ -43,18 +47,18 @@ public:
             Subtraction,
         };
 
-        Binary(Kind kind, std::unique_ptr<Expression> left, std::unique_ptr<Expression> right);
+        Binary(Kind kind, Expr left, Expr right);
 
         Kind kind;
-        std::unique_ptr<Expression> left;
-        std::unique_ptr<Expression> right;
+        Expr left;
+        Expr right;
     };
 
     struct Group
     {
-        Group(std::unique_ptr<Expression> expression);
+        Group(Expr expression);
 
-        std::unique_ptr<Expression> expression;
+        Expr expression;
     };
 
     struct Literal
@@ -87,10 +91,10 @@ public:
             Not,
         };
 
-        Unary(Kind kind, std::unique_ptr<Expression> expression);
+        Unary(Kind kind, Expr expression);
 
         Kind kind;
-        std::unique_ptr<Expression> expression;
+        Expr expression;
     };
 
     Expression(Binary binary);
