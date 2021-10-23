@@ -3,11 +3,8 @@
 #include "expression.h"
 #include "statement.h"
 
-class Pass
+class AstWalker
 {
-public:
-    void run(Stmt& ast);
-
 protected:
     void walk(Stmt& stmt);
     void walk(Expr& expr);

@@ -27,7 +27,7 @@
     <ClCompile Include="src\statement.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\pass.cpp">
+    <ClCompile Include="src\astwalker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\tokenizer.cpp">
@@ -61,7 +61,7 @@
     <ClInclude Include="src\statement.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\pass.h">
+    <ClInclude Include="src\astwalker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\token.h">

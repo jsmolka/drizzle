@@ -1,13 +1,8 @@
-#include "pass.h"
+#include "astwalker.h"
 
 #include <shell/macros.h>
 
-void Pass::run(Stmt& ast)
-{
-    walk(ast);
-}
-
-void Pass::walk(Stmt& stmt)
+void AstWalker::walk(Stmt& stmt)
 {
     before(stmt);
 
@@ -19,7 +14,7 @@ void Pass::walk(Stmt& stmt)
         break;
 
     case Statement::Type::ExpressionStatement:
-        walk(stmt->expression.expression);
+        walk(stmt->expression_statement.expression);
         break;
 
     case Statement::Type::Program:
@@ -35,7 +30,7 @@ void Pass::walk(Stmt& stmt)
     after(stmt);
 }
 
-void Pass::walk(Expr& expr)
+void AstWalker::walk(Expr& expr)
 {
     before(expr);
 

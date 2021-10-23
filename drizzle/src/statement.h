@@ -49,7 +49,7 @@ public:
     union
     {
         Block block;
-        ExpressionStatement expression;
+        ExpressionStatement expression_statement;
         Program program;
     };
 };

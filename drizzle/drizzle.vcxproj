@@ -18,7 +18,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\parser.cpp" />
-    <ClCompile Include="src\pass.cpp" />
+    <ClCompile Include="src\astwalker.cpp" />
     <ClCompile Include="src\statement.cpp" />
     <ClCompile Include="src\expression.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -26,7 +26,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\parser.h" />
-    <ClInclude Include="src\pass.h" />
+    <ClInclude Include="src\astwalker.h" />
     <ClInclude Include="src\statement.h" />
     <ClInclude Include="src\token.h" />
     <ClInclude Include="src\errors.h" />
