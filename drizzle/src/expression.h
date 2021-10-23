@@ -46,6 +46,7 @@ public:
             Or,
             Power,
             Subtraction,
+            LastEnumValue,
         };
 
         Binary(Type type, Expr left, Expr right);

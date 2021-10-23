@@ -24,6 +24,18 @@
     <ClCompile Include="..\drizzle\src\tokenizer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\drizzle\src\expression.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\drizzle\src\parser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\drizzle\src\statement.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\drizzle\src\astwalker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\scanner.inl">
@@ -90,6 +102,12 @@
       <Filter>Header Files</Filter>
     </None>
     <None Include="src\tests_tokenizer_whitespace.inl">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="src\tests_parser.inl">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="src\tests_parser_expr_binary.inl">
       <Filter>Header Files</Filter>
     </None>
   </ItemGroup>

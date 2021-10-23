@@ -14,6 +14,10 @@
     <Text Include="CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\drizzle\src\astwalker.cpp" />
+    <ClCompile Include="..\drizzle\src\expression.cpp" />
+    <ClCompile Include="..\drizzle\src\parser.cpp" />
+    <ClCompile Include="..\drizzle\src\statement.cpp" />
     <ClCompile Include="..\drizzle\src\tokenizer.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
@@ -27,6 +31,8 @@
     <None Include="src\scanner\number.inl" />
     <None Include="src\scanner\string.inl" />
     <None Include="src\scanner\tokens.inl" />
+    <None Include="src\tests_parser.inl" />
+    <None Include="src\tests_parser_expr_binary.inl" />
     <None Include="src\tests_tokenizer_indentation.inl" />
     <None Include="src\tests_tokenizer.inl" />
     <None Include="src\tests_tokenizer_blank_lines.inl" />
