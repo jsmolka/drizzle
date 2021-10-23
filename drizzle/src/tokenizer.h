@@ -10,7 +10,7 @@ public:
     std::vector<Token> tokenize(const std::string& source);
 
 private:
-    template<char Base = 10>
+    template<char kBase = 10>
     static bool isDigit(char c);
     static bool isAlpha(char c);
 

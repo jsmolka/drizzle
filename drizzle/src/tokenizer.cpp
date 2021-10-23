@@ -29,18 +29,18 @@ std::vector<Token> Tokenizer::tokenize(const std::string& source)
     return tokens;
 }
 
-template<char Base>
+template<char kBase>
 bool Tokenizer::isDigit(char c)
 {
-    static_assert(Base <= 36);
+    static_assert(kBase <= 36);
 
-    if constexpr (Base <= 10)
-        return (c >= '0') && (c < ('0' + Base));
+    if constexpr (kBase <= 10)
+        return (c >= '0') && (c < ('0' + kBase));
 
-    if constexpr (Base <= 36)
+    if constexpr (kBase <= 36)
         return (c >= '0' && c <= '9')
-        || (c >= 'a' && c < ('a' + Base - 10))
-        || (c >= 'A' && c < ('A' + Base - 10));
+            || (c >= 'a' && c < ('a' + kBase - 10))
+            || (c >= 'A' && c < ('A' + kBase - 10));
 }
 
 bool Tokenizer::isAlpha(char c)
@@ -68,12 +68,12 @@ bool Tokenizer::next(char match)
 
 bool Tokenizer::next(std::string_view match)
 {
-    const char* previous = cursor;
-    for (char c : match)
+    const char* position = cursor;
+    for (const auto& c : match)
     {
         if (!(*cursor && *cursor == c))
         {
-            cursor = previous;
+            cursor = position;
             return false;
         }
         cursor++;
@@ -91,17 +91,15 @@ void Tokenizer::emit(Token::Type type)
     Token token;
     token.type = type;
     token.line = line;
-    token.lexeme = std::string_view(lexeme, cursor - lexeme);
+    token.lexeme = std::string_view(lexeme, std::distance(lexeme, cursor));
+    tokens.push_back(token);
 
     lexeme = cursor;
-    tokens.push_back(token);
 }
 
 void Tokenizer::scanIndentation()
 {
     constexpr auto kSpacesPerIndentation = 2;
-
-    const char* begin = cursor;
 
     switch (*cursor)
     {
@@ -119,7 +117,9 @@ void Tokenizer::scanIndentation()
         return;
     }
 
-    auto count_spaces = [this, begin]() -> int
+    const char* error = cursor;
+
+    const auto count_spaces = [this, error]() -> int
     {
         int spaces = 0;
         while (true)
@@ -136,7 +136,7 @@ void Tokenizer::scanIndentation()
                 break;
 
             case '\t':
-                throw SyntaxError(begin, "tabs used for indent");
+                throw SyntaxError(error, "tabs used for indent");
 
             default:
                 return spaces;
@@ -146,13 +146,13 @@ void Tokenizer::scanIndentation()
 
     int spaces = count_spaces();
     if (spaces % kSpacesPerIndentation)
-        throw SyntaxError(begin, "indent spaces must be a multiple of {}", kSpacesPerIndentation);
+        throw SyntaxError(error, "indent spaces must be a multiple of {}", kSpacesPerIndentation);
 
     int indent = spaces / kSpacesPerIndentation;
     if (indent > indentation)
     {
         if ((indent - indentation) > 1)
-            throw SyntaxError(begin, "too many indents at once");
+            throw SyntaxError(error, "multiple indents at once");
 
         emit(Token::Type::Indent);
         indentation++;
@@ -169,9 +169,9 @@ void Tokenizer::scanIndentation()
 
 void Tokenizer::scanBlankLines()
 {
-    auto skip_line = [this]() -> bool
+    const auto skip_line = [this]()
     {
-        const char* previous = cursor;
+        const char* position = cursor;
         while (*cursor)
         {
             switch (*cursor)
@@ -192,7 +192,7 @@ void Tokenizer::scanBlankLines()
                 return true;
 
             default:
-                cursor = previous;
+                cursor = position;
                 return false;
             }
         }
@@ -240,7 +240,7 @@ void Tokenizer::scanComment()
 
 void Tokenizer::scanString()
 {
-    const char* begin = cursor;
+    const char* error = cursor;
 
     if (next(R"(""")"))
     {
@@ -248,7 +248,7 @@ void Tokenizer::scanString()
         {
             if (next(R"(""")"))
             {
-                begin = nullptr;
+                error = nullptr;
                 break;
             }
 
@@ -264,7 +264,7 @@ void Tokenizer::scanString()
         {
             if (next('"'))
             {
-                begin = nullptr;
+                error = nullptr;
                 break;
             }
 
@@ -301,8 +301,8 @@ void Tokenizer::scanString()
         }
     }
 
-    if (begin)
-        throw SyntaxError(begin, "unterminated string");
+    if (error)
+        throw SyntaxError(error, "unterminated string");
 
     emit(Token::Type::String);
 
@@ -389,8 +389,7 @@ void Tokenizer::scanIdentifier()
     while (isAlpha(*cursor) || isDigit(*cursor))
         next();
 
-    std::string_view identifier(lexeme, cursor - lexeme);
-
+    std::string_view identifier(lexeme, std::distance(lexeme, cursor));
     for (const auto& [keyword, token] : kKeywords)
     {
         if (identifier == keyword)
@@ -473,61 +472,54 @@ void Tokenizer::parseInt(int base)
     SHELL_ASSERT(base == 2 || base == 10 || base == 16);
 
     auto& token = tokens.back();
-    std::string_view lexeme = token.lexeme;
+    auto lexeme = token.lexeme;
     if (base == 2 || base == 16)
         lexeme.remove_prefix(2);
 
-    dzint value = std::strtoull(lexeme.data(), nullptr, base);
+    token.value = static_cast<dzint>(std::strtoull(lexeme.data(), nullptr, base));
     if (errno == ERANGE)
-    {
-        errno = 0;
         throw SyntaxError(token.lexeme.data(), "cannot parse int");
-    }
-    token.value = value;
 }
 
 void Tokenizer::parseFloat()
 {
     auto& token = tokens.back();
+    auto lexeme = token.lexeme;
 
-    dzfloat value = std::strtod(token.lexeme.data(), nullptr);
+    token.value = static_cast<dzfloat>(std::strtod(lexeme.data(), nullptr));
     if (errno == ERANGE)
-    {
-        errno = 0;
-        throw SyntaxError(token.lexeme.data(), "cannot parse float");
-    }
-    token.value = value;
+        throw SyntaxError(lexeme.data(), "cannot parse float");
 }
 
 void Tokenizer::parseString()
 {
     auto& token = tokens.back();
+    auto lexeme = token.lexeme;
+    auto quotes = shell::startsWith(lexeme, R"(""")") ? 3 : 1;
+    lexeme.remove_prefix(quotes);
+    lexeme.remove_suffix(quotes);
 
-    std::string_view data = token.lexeme;
-    std::size_t quotes = shell::startsWith(data, R"(""")") ? 3 : 1;
-    data.remove_prefix(quotes);
-    data.remove_suffix(quotes);
+    std::string value;
+    value.reserve(lexeme.size());
 
-    std::string string;
     if (quotes == 1)
     {
-        string.reserve(data.size());
-        for (auto iter = data.begin(); iter != data.end(); ++iter)
+        for (auto iter = lexeme.begin(); iter != lexeme.end(); ++iter)
         {
             switch (*iter)
             {
             case '\\':
                 switch (*(++iter))
                 {
-                case '\\': string.push_back('\\'); break;
-                case '\"': string.push_back('\"'); break;
-                case 'a':  string.push_back('\a'); break;
-                case 'b':  string.push_back('\b'); break;
-                case 'f':  string.push_back('\f'); break;
-                case 'n':  string.push_back('\n'); break;
-                case 'r':  string.push_back('\r'); break;
-                case 't':  string.push_back('\t'); break;
-                case 'v':  string.push_back('\v'); break;
+                case '\\': value.push_back('\\'); break;
+                case '\"': value.push_back('\"'); break;
+                case 'a':  value.push_back('\a'); break;
+                case 'b':  value.push_back('\b'); break;
+                case 'f':  value.push_back('\f'); break;
+                case 'n':  value.push_back('\n'); break;
+                case 'r':  value.push_back('\r'); break;
+                case 't':  value.push_back('\t'); break;
+                case 'v':  value.push_back('\v'); break;
 
                 default:
                     SHELL_UNREACHABLE;
@@ -536,14 +528,14 @@ void Tokenizer::parseString()
                 break;
 
             default:
-                string.push_back(*iter);
+                value.push_back(*iter);
                 break;
             }
         }
     }
     else
     {
-        string = data;
+        value = lexeme;
     }
-    token.value = std::move(string);
+    token.value = std::move(value);
 }
