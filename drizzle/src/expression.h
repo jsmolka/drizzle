@@ -112,3 +112,9 @@ public:
         Unary unary;
     };
 };
+
+template<typename T, typename... Args>
+Expr newExpr(Args... args)
+{
+    return std::make_unique<Expression>(T(std::forward<Args>(args)...));
+}

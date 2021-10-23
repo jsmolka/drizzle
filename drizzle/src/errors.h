@@ -1,8 +1,5 @@
 #pragma once
 
-#include <stdexcept>
-#include <string>
-#include <string_view>
 #include <shell/errors.h>
 
 class Error : public shell::Error

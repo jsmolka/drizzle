@@ -3,6 +3,7 @@
 #include <shell/main.h>
 
 #include "errors.h"
+#include "parser.h"
 #include "tokenizer.h"
 
 std::string source;
@@ -95,6 +96,7 @@ int main(int argc, char* argv[])
         source.push_back('\n');
 
         const auto tokens = Tokenizer().tokenize(source);
+        auto ast = Parser().parse(tokens);
 
         return 0;
     }

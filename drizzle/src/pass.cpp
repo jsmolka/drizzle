@@ -13,6 +13,11 @@ void Pass::walk(Stmt& stmt)
 
     switch (stmt->type)
     {
+    case Statement::Type::Block:
+        for (auto& stmt : stmt->block.statements)
+            walk(stmt);
+        break;
+
     case Statement::Type::ExpressionStatement:
         walk(stmt->expression.expression);
         break;

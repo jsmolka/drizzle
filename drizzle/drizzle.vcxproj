@@ -17,6 +17,7 @@
     <ResourceCompile Include="drizzle.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\parser.cpp" />
     <ClCompile Include="src\pass.cpp" />
     <ClCompile Include="src\statement.cpp" />
     <ClCompile Include="src\expression.cpp" />
@@ -24,6 +25,7 @@
     <ClCompile Include="src\tokenizer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\parser.h" />
     <ClInclude Include="src\pass.h" />
     <ClInclude Include="src\statement.h" />
     <ClInclude Include="src\token.h" />
