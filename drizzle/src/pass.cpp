@@ -11,13 +11,13 @@ void Pass::walk(Stmt& stmt)
 {
     before(stmt);
 
-    switch (stmt->kind)
+    switch (stmt->type)
     {
-    case Statement::Kind::ExpressionStatement:
+    case Statement::Type::ExpressionStatement:
         walk(stmt->expression.expression);
         break;
 
-    case Statement::Kind::Program:
+    case Statement::Type::Program:
         for (auto& stmt : stmt->program.statements)
             walk(stmt);
         break;
@@ -34,21 +34,21 @@ void Pass::walk(Expr& expr)
 {
     before(expr);
 
-    switch (expr->kind)
+    switch (expr->type)
     {
-    case Expression::Kind::Binary:
+    case Expression::Type::Binary:
         walk(expr->binary.left);
         walk(expr->binary.right);
         break;
 
-    case Expression::Kind::Group:
+    case Expression::Type::Group:
         walk(expr->group.expression);
         break;
 
-    case Expression::Kind::Literal:
+    case Expression::Type::Literal:
         break;
 
-    case Expression::Kind::Unary:
+    case Expression::Type::Unary:
         walk(expr->unary.expression);
         break;
 

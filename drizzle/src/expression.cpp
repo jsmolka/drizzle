@@ -2,50 +2,50 @@
 
 #include <shell/macros.h>
 
-Expression::Binary::Binary(Kind kind, Expr left, Expr right)
-    : kind(kind), left(std::move(left)), right(std::move(right)) {}
+Expression::Binary::Binary(Type type, Expr left, Expr right)
+    : type(type), left(std::move(left)), right(std::move(right)) {}
 
 Expression::Group::Group(Expr expression)
     : expression(std::move(expression)) {}
 
 Expression::Literal::Literal()
-    : kind(Kind::Null) {}
+    : type(Type::Null) {}
 
 Expression::Literal::Literal(dzbool value)
-    : kind(Kind::Boolean), value(value) {}
+    : type(Type::Boolean), value(value) {}
 
-Expression::Unary::Unary(Kind kind, Expr expression)
-    : kind(kind), expression(std::move(expression)) {}
+Expression::Unary::Unary(Type type, Expr expression)
+    : type(type), expression(std::move(expression)) {}
 
 Expression::Literal::Literal(dzint value)
-    : kind(Kind::Integer), value(value) {}
+    : type(Type::Integer), value(value) {}
 
 Expression::Literal::Literal(dzfloat value)
-    : kind(Kind::Float), value(value) {}
+    : type(Type::Float), value(value) {}
 
 Expression::Literal::Literal(const std::string& value)
-    : kind(Kind::String), value(value) {}
+    : type(Type::String), value(value) {}
 
 Expression::Expression(Binary binary)
-    : kind(Kind::Binary), binary(std::move(binary)) {}
+    : type(Type::Binary), binary(std::move(binary)) {}
 
 Expression::Expression(Group group)
-    : kind(Kind::Group), group(std::move(group)) {}
+    : type(Type::Group), group(std::move(group)) {}
 
 Expression::Expression(Literal literal)
-    : kind(Kind::Literal), literal(std::move(literal)) {}
+    : type(Type::Literal), literal(std::move(literal)) {}
 
 Expression::Expression(Unary unary)
-    : kind(Kind::Unary), unary(std::move(unary)) {}
+    : type(Type::Unary), unary(std::move(unary)) {}
 
 Expression::~Expression()
 {
-    switch (kind)
+    switch (type)
     {
-    case Kind::Binary: binary.~Binary(); break;
-    case Kind::Group: group.~Group(); break;
-    case Kind::Literal: literal.~Literal(); break;
-    case Kind::Unary: unary.~Unary(); break;
+    case Type::Binary: binary.~Binary(); break;
+    case Type::Group: group.~Group(); break;
+    case Type::Literal: literal.~Literal(); break;
+    case Type::Unary: unary.~Unary(); break;
 
     default:
         SHELL_UNREACHABLE;

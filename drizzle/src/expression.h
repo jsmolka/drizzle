@@ -13,7 +13,7 @@ using Expr = std::unique_ptr<Expression>;
 class Expression
 {
 public:
-    enum class Kind
+    enum class Type
     {
         Binary,
         Group,
@@ -23,7 +23,7 @@ public:
 
     struct Binary
     {
-        enum class Kind
+        enum class Type
         {
             And,
             Addition,
@@ -47,9 +47,9 @@ public:
             Subtraction,
         };
 
-        Binary(Kind kind, Expr left, Expr right);
+        Binary(Type type, Expr left, Expr right);
 
-        Kind kind;
+        Type type;
         Expr left;
         Expr right;
     };
@@ -63,7 +63,7 @@ public:
 
     struct Literal
     {
-        enum class Kind
+        enum class Type
         {
             Boolean,
             Float,
@@ -78,22 +78,22 @@ public:
         Literal(dzfloat value);
         Literal(const std::string& value);
 
-        Kind kind;
+        Type type;
         std::variant<dzbool, dzint, dzfloat, std::string> value;
     };
 
     struct Unary
     {
-        enum class Kind
+        enum class Type
         {
             BitwiseComplement,
             Minus,
             Not,
         };
 
-        Unary(Kind kind, Expr expression);
+        Unary(Type type, Expr expression);
 
-        Kind kind;
+        Type type;
         Expr expression;
     };
 
@@ -103,7 +103,7 @@ public:
     Expression(Unary unary);
     ~Expression();
 
-    Kind kind;
+    Type type;
     union
     {
         Binary binary;

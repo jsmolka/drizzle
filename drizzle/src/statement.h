@@ -11,7 +11,7 @@ using Stmt = std::shared_ptr<Statement>;
 class Statement
 {
 public:
-    enum class Kind
+    enum class Type
     {
         ExpressionStatement,
         Program,
@@ -35,7 +35,7 @@ public:
     Statement(Program program);
     ~Statement();
 
-    Kind kind;
+    Type type;
     union
     {
         ExpressionStatement expression;
