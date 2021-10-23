@@ -14,6 +14,7 @@
     <Text Include="CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\drizzle\src\tokenizer.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -26,6 +27,16 @@
     <None Include="src\scanner\number.inl" />
     <None Include="src\scanner\string.inl" />
     <None Include="src\scanner\tokens.inl" />
+    <None Include="src\tests_tokenizer_indentation.inl" />
+    <None Include="src\tests_tokenizer.inl" />
+    <None Include="src\tests_tokenizer_blank_lines.inl" />
+    <None Include="src\tests_tokenizer_comments.inl" />
+    <None Include="src\tests_tokenizer_eof.inl" />
+    <None Include="src\tests_tokenizer_identifiers.inl" />
+    <None Include="src\tests_tokenizer_number.inl" />
+    <None Include="src\tests_tokenizer_types.inl" />
+    <None Include="src\tests_tokenizer_string.inl" />
+    <None Include="src\tests_tokenizer_whitespace.inl" />
     <None Include="src\vm.inl" />
     <None Include="src\vm\unary.inl" />
     <None Include="src\vm\assertion.inl" />
