@@ -10,6 +10,7 @@
 - constexpr typeName/operator bool of types
 - Map optimized for integers
 - Static assert last enum value where needed
+- Make print a function with no fixed arity
 
 ## Exceptions
 - [Zero cost](https://bugs.python.org/issue40222)

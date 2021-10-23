@@ -77,15 +77,14 @@ DIGIT             → "0" ... "9" ;
 ```
 
 The following identifiers are used as reserved words:
+- `block`
 - `break`
 - `continue`
 - `def`
 - `elif`
 - `else`
 - `false`
-- `for`
 - `if`
-- `in`
 - `noop`
 - `null`
 - `return`

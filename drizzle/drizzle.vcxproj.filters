@@ -21,13 +21,16 @@
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\v2\expression.cpp">
+    <ClCompile Include="src\expression.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\v2\statement.cpp">
+    <ClCompile Include="src\statement.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\v2\pass.cpp">
+    <ClCompile Include="src\pass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tokenizer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -49,16 +52,19 @@
     <ClInclude Include="src\format.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\v2\expression.h">
+    <ClInclude Include="src\expression.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\v2\statement.h">
+    <ClInclude Include="src\statement.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\v2\pass.h">
+    <ClInclude Include="src\pass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\v2\tokenizer.h">
+    <ClInclude Include="src\token.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tokenizer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
