@@ -32,6 +32,7 @@ public:
             BitwiseLsl,
             BitwiseLsr,
             BitwiseOr,
+            BitwiseXor,
             Division,
             Equal,
             Greater,
