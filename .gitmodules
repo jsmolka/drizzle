@@ -1,7 +1,3 @@
 [submodule "drizzle/modules/shell"]
     path = drizzle/modules/shell
     url = https://github.com/jsmolka/shell
-
-[submodule "drizzle/modules/robin-hood-hashing"]
-    path = drizzle/modules/robin-hood-hashing
-    url = https://github.com/martinus/robin-hood-hashing

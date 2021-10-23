@@ -70,22 +70,8 @@ void lineError(const LineError& error)
     shell::print("{}: {}\n", error.name(), error.what());
 }
 
-#include "v2/expression.h"
-
-void X(std::vector<int>&& x)
-{
-
-}
-
 int main(int argc, char* argv[])
 {
-    auto int1 = std::make_unique<Expression>(Expression::Literal(1ll));
-    auto int2 = std::make_unique<Expression>(Expression::Literal(2ll));
-    auto bin1 = std::make_unique<Expression>(Expression::Binary(
-        Expression::Binary::Kind::Addition,
-        std::move(int1),
-        std::move(int2)));
-
     using namespace shell::filesystem;
     try
     {
