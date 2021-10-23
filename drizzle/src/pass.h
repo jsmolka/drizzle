@@ -9,14 +9,11 @@ public:
     void run(Stmt& ast);
 
 protected:
-    virtual void statementExpression(Stmt&) {}
-    virtual void program(Stmt&) {}
-    virtual void binary(Expr&) {}
-    virtual void group(Expr&) {}
-    virtual void literal(Expr&) {}
-    virtual void unary(Expr&) {}
-
-private:
     void walk(Stmt& stmt);
     void walk(Expr& expr);
+
+    virtual void before(Stmt&) {}
+    virtual void after(Stmt&) {}
+    virtual void before(Expr&) {}
+    virtual void after(Expr&) {}
 };
