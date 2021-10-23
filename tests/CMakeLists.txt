@@ -10,20 +10,12 @@ include_directories(src)
 include_directories(modules)
 include_directories(../drizzle/src)
 include_directories(../drizzle/modules/shell/include)
-include_directories(../drizzle/modules/robin-hood-hashing/src/include)
 
 file(GLOB_RECURSE SOURCE_FILES
   ${PROJECT_SOURCE_DIR}/src/*.h
   ${PROJECT_SOURCE_DIR}/src/*.cpp
-  ../drizzle/src/chunk.cpp
-  ../drizzle/src/compiler.cpp
-  ../drizzle/src/dzfunction.cpp
-  ../drizzle/src/dzobject.cpp
-  ../drizzle/src/dzstring.cpp
-  ../drizzle/src/dzvalue.cpp
-  ../drizzle/src/interning.cpp
-  ../drizzle/src/scanner.cpp
-  ../drizzle/src/vm.cpp
+  ../drizzle/src/*.h
+  ../drizzle/src/*.cpp
 )
 
 add_executable(${CMAKE_PROJECT_NAME} ${SOURCE_FILES})
