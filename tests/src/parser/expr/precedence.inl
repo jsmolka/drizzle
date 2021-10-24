@@ -1,12 +1,9 @@
-static_assert(int(Expression::Unary::Type::LastEnumValue) == 3, "Update");
-
 TEST_CASE("parser_expr_precedence_1")
 {
-    static constexpr std::string_view kOperations[] = { "-", "!", "~" };
-
-    for (const auto& operation : kOperations)
+    for (int i = 0; i < int(Expression::Unary::Type::LastEnumValue); ++i)
     {
-        auto source = shell::format("{}1 * 2\n", operation);
+        const auto type = Expression::Unary::Type(i);
+        auto source = shell::format("{}1 * 2\n", type);
 
         SECTION(source)
         {
@@ -16,10 +13,10 @@ TEST_CASE("parser_expr_precedence_1")
       unary {}
         literal 1
       literal 2
-)", operation));
+)", type));
         }
 
-        source = shell::format("{}(1 * 2)\n", operation);
+        source = shell::format("{}(1 * 2)\n", type);
 
         SECTION(source)
         {
@@ -29,15 +26,15 @@ TEST_CASE("parser_expr_precedence_1")
       binary *
         literal 1
         literal 2
-)", operation));
+)", type));
         }
     }
 }
 
-static_assert(int(Expression::Binary::Type::LastEnumValue) == 21, "Update");
-
 TEST_CASE("parser_expr_precedence_2")
 {
+    static_assert(int(Expression::Binary::Type::LastEnumValue) == 21, "Update");
+
     std::vector<std::vector<std::string_view>> precedences =
     {
         { "*", "/", "%", "//", "**" },
@@ -52,7 +49,7 @@ TEST_CASE("parser_expr_precedence_2")
         { "||" },
     };
 
-    for (std::size_t i = 0; i < precedences.size() - 1; ++i)
+    for (int i = 0; i < precedences.size() - 1; ++i)
     {
         const auto& highs = precedences[i];
         const auto& lows  = precedences[i + 1];

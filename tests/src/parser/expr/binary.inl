@@ -1,14 +1,9 @@
-static_assert(int(Expression::Binary::Type::LastEnumValue) == 21, "Update");
-
 TEST_CASE("parser_expr_binary")
 {
-    static constexpr std::string_view kOperations[] = {
-        "&&", "+", "&", ">>", "<<", ">>>", "|", "^", "/", "==", ">", ">=", "//", "<", "<=", "%", "*", "!=", "||", "**", "-",
-    };
-
-    for (const auto& operation : kOperations)
+    for (int i = 0; i < int(Expression::Binary::Type::LastEnumValue); ++i)
     {
-        const auto source = shell::format("1 {} 2\n", operation);
+        const auto type = Expression::Binary::Type(i);
+        const auto source = shell::format("1 {} 2\n", type);
 
         SECTION(source)
         {
@@ -17,7 +12,7 @@ TEST_CASE("parser_expr_binary")
     binary {}
       literal 1
       literal 2
-)", operation));
+)", type));
         }
     }
 }

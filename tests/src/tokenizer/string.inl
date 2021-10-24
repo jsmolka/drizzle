@@ -74,7 +74,10 @@ TEST_CASE("tokenizer_string_8")
     {
         const auto source = shell::format("\"\\{}\"", c);
 
-        tokenizeThrows(source);
+        SECTION(source)
+        {
+            tokenizeThrows(source);
+        }
     }
 }
 
