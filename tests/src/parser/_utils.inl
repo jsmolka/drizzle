@@ -4,3 +4,9 @@ void parse(const std::string& source, const std::string& expect)
     auto ast = Parser().parse(tokens);
     REQUIRE(AstPrinter().print(ast) == expect);
 }
+
+void parseThrows(const std::string& source)
+{
+    const auto tokens = Tokenizer().tokenize(source);
+    REQUIRE_THROWS_AS(Parser().parse(tokens), SyntaxError);
+}
