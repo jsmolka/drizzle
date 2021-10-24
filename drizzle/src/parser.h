@@ -65,6 +65,7 @@ private:
     Stmt program();
     Stmt declaration();
     Stmt statement();
+    Stmt statementBlock();
     Stmt statementNoop();
     Stmt statementPrint();
     Stmt expressionStatement();

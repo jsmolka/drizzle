@@ -15,7 +15,17 @@ void AstPrinter::before(Stmt& stmt)
     static_assert(int(Statement::Type::LastEnumValue) == 5, "Update");
 
     indent();
-    fmt::format_to(out, "{}\n", stmt->type);
+    fmt::format_to(out, "{}", stmt->type);
+
+    switch (stmt->type)
+    {
+    case Statement::Type::Block:
+        if (stmt->block.identifier.size())
+            fmt::format_to(out, " {}", stmt->block.identifier);
+        break;
+    }
+
+    fmt::format_to(out, "\n");
     indentation++;
 }
 

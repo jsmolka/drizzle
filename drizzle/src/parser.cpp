@@ -279,12 +279,33 @@ Stmt Parser::declaration()
 
 Stmt Parser::statement()
 {
+    if (match(Token::Type::Block))
+        return statementBlock();
     if (match(Token::Type::Noop))
         return statementNoop();
     if (match(Token::Type::Print))
         return statementPrint();
 
     return expressionStatement();
+}
+
+Stmt Parser::statementBlock()
+{
+    std::string_view identifier;
+    if (match(Token::Type::Identifier))
+        identifier = previous->lexeme;
+
+    expectColon();
+    expectNewLine();
+    expectIndent();
+
+    std::vector<Stmt> statements;
+    while (current->type != Token::Type::Dedent)
+        statements.push_back(declaration());
+
+    expectDedent();
+
+    return newStmt<Statement::Block>(identifier, std::move(statements));
 }
 
 Stmt Parser::statementNoop()
