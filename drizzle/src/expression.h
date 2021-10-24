@@ -19,6 +19,7 @@ public:
         Group,
         Literal,
         Unary,
+        LastEnumValue,
     };
 
     struct Binary
@@ -72,6 +73,7 @@ public:
             Integer,
             Null,
             String,
+            LastEnumValue,
         };
 
         Literal();
@@ -91,6 +93,7 @@ public:
             BitwiseComplement,
             Minus,
             Not,
+            LastEnumValue,
         };
 
         Unary(Type type, Expr expression);

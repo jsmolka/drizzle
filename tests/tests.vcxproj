@@ -22,6 +22,10 @@
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="src\parser\expr\binary.inl" />
+    <None Include="src\parser\expr\literal.inl" />
+    <None Include="src\parser\expr\unary.inl" />
+    <None Include="src\parser\_tests.inl" />
     <None Include="src\scanner.inl" />
     <None Include="src\scanner\comments.inl" />
     <None Include="src\scanner\blank_lines.inl" />
@@ -31,8 +35,6 @@
     <None Include="src\scanner\number.inl" />
     <None Include="src\scanner\string.inl" />
     <None Include="src\scanner\tokens.inl" />
-    <None Include="src\tests_parser.inl" />
-    <None Include="src\tests_parser_expr_binary.inl" />
     <None Include="src\tests_tokenizer_indentation.inl" />
     <None Include="src\tests_tokenizer.inl" />
     <None Include="src\tests_tokenizer_blank_lines.inl" />
@@ -48,6 +50,7 @@
     <None Include="src\vm\assertion.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\parser\_utils.inl" />
     <ClInclude Include="src\scanner\whitespace.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

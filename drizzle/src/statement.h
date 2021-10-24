@@ -16,6 +16,7 @@ public:
         Block,
         ExpressionStatement,
         Program,
+        LastEnumValue,
     };
 
     struct Block

@@ -104,15 +104,24 @@
     <None Include="src\tests_tokenizer_whitespace.inl">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\tests_parser.inl">
+    <None Include="src\parser\_tests.inl">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\tests_parser_expr_binary.inl">
+    <None Include="src\parser\expr\binary.inl">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="src\parser\expr\unary.inl">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="src\parser\expr\literal.inl">
       <Filter>Header Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\scanner\whitespace.inl">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\parser\_utils.inl">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -10,8 +10,8 @@
 #include "statement.h"
 #include "tokenizer.h"
 
-#include "tests_parser.inl"
-#include "tests_parser_expr_binary.inl"
+#include "parser/_tests.inl"
+
 #include "tests_tokenizer.inl"
 #include "tests_tokenizer_blank_lines.inl"
 #include "tests_tokenizer_comments.inl"

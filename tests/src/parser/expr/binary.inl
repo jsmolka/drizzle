@@ -1,6 +1,6 @@
 TEST_CASE("parser_expr_binary")
 {
-    static_assert(int(Expression::Binary::Type::LastEnumValue) == 21, "Update test");
+    static_assert(int(Expression::Binary::Type::LastEnumValue) == 21, "Update");
 
     static constexpr std::tuple<Expression::Binary::Type, std::string_view> operations[] =
     {
@@ -10,7 +10,7 @@ TEST_CASE("parser_expr_binary")
         { Expression::Binary::Type::BitwiseAsr,      ">>"  },
         { Expression::Binary::Type::BitwiseLsl,      "<<"  },
         { Expression::Binary::Type::BitwiseLsr,      ">>>" },
-        { Expression::Binary::Type::BitwiseOr,       "||"  },
+        { Expression::Binary::Type::BitwiseOr,       "|"   },
         { Expression::Binary::Type::BitwiseXor,      "^"   },
         { Expression::Binary::Type::Division,        "/"   },
         { Expression::Binary::Type::Equal,           "=="  },
@@ -39,6 +39,12 @@ TEST_CASE("parser_expr_binary")
                 Expression::Type::Binary,
                 Expression::Type::Literal,
                 Expression::Type::Literal
+                });
+
+            parseTest<Expr>(source, [type=type](Expr& expr)
+            {
+                if (expr->type == Expression::Type::Binary)
+                    REQUIRE(expr->binary.type == type);
             });
         }
     }

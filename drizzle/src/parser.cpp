@@ -238,7 +238,7 @@ void Parser::or_(bool)
     auto rhs = stack.popValue();
     auto lhs = stack.popValue();
 
-    stack.push(newExpr<Expression::Binary>(Expression::Binary::Type::And, std::move(lhs), std::move(rhs)));
+    stack.push(newExpr<Expression::Binary>(Expression::Binary::Type::Or, std::move(lhs), std::move(rhs)));
 }
 
 void Parser::unary(bool)
