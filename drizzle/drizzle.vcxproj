@@ -17,6 +17,7 @@
     <ResourceCompile Include="drizzle.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\astprinter.cpp" />
     <ClCompile Include="src\parser.cpp" />
     <ClCompile Include="src\astwalker.cpp" />
     <ClCompile Include="src\statement.cpp" />
@@ -25,6 +26,7 @@
     <ClCompile Include="src\tokenizer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\astprinter.h" />
     <ClInclude Include="src\parser.h" />
     <ClInclude Include="src\astwalker.h" />
     <ClInclude Include="src\statement.h" />

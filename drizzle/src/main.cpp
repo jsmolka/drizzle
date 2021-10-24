@@ -2,6 +2,7 @@
 #include <shell/format.h>
 #include <shell/main.h>
 
+#include "astprinter.h"
 #include "errors.h"
 #include "parser.h"
 #include "tokenizer.h"
@@ -97,6 +98,7 @@ int main(int argc, char* argv[])
 
         const auto tokens = Tokenizer().tokenize(source);
         auto ast = Parser().parse(tokens);
+        shell::print(AstPrinter().print(ast));
 
         return 0;
     }
