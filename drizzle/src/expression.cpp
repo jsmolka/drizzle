@@ -14,9 +14,6 @@ Expression::Literal::Literal()
 Expression::Literal::Literal(dzbool value)
     : type(Type::Boolean), value(value) {}
 
-Expression::Unary::Unary(Type type, Expr expression)
-    : type(type), expression(std::move(expression)) {}
-
 Expression::Literal::Literal(dzint value)
     : type(Type::Integer), value(value) {}
 
@@ -25,6 +22,9 @@ Expression::Literal::Literal(dzfloat value)
 
 Expression::Literal::Literal(const std::string& value)
     : type(Type::String), value(value) {}
+
+Expression::Unary::Unary(Type type, Expr expression)
+    : type(type), expression(std::move(expression)) {}
 
 Expression::Expression(Binary binary)
     : type(Type::Binary), binary(std::move(binary)) {}

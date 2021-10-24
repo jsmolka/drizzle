@@ -2,7 +2,7 @@
 
 std::string AstPrinter::print(Stmt& ast)
 {
-    out = fmt::memory_buffer();
+    out.clear();
     indentation = 0;
 
     walk(ast);
@@ -57,5 +57,5 @@ void AstPrinter::after(Expr& expr)
 
 void AstPrinter::indent()
 {
-    fmt::format_to(out, "{:^{}}", "", kSpaces * indentation);
+    fmt::format_to(out, "{:<{}}", "", 2 * indentation);
 }

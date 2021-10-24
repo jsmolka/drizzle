@@ -15,8 +15,6 @@ protected:
     void after(Expr& expr) final;
 
 private:
-    static constexpr auto kSpaces = 2;
-
     void indent();
 
     fmt::memory_buffer out;
