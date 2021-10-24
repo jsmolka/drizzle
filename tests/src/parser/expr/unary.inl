@@ -1,7 +1,7 @@
+static_assert(int(Expression::Unary::Type::LastEnumValue) == 3, "Update");
+
 TEST_CASE("parser_expr_unary")
 {
-    static_assert(int(Expression::Unary::Type::LastEnumValue) == 3, "Update");
-
     static constexpr std::tuple<Expression::Unary::Type, std::string_view> operations[] =
     {
         { Expression::Unary::Type::BitwiseComplement, "~" },
@@ -9,12 +9,12 @@ TEST_CASE("parser_expr_unary")
         { Expression::Unary::Type::Not,               "!" },
     };
 
-    for (const auto& [type, mnemonic] : operations)
+    for (const auto& [type, operation] : operations)
     {
-        SECTION(std::string(mnemonic))
-        {
-            const auto source = shell::format("{}1\n", mnemonic);
+        const auto source = shell::format("{}1\n", operation);
 
+        SECTION(source)
+        {
             parse(source, {
                 Statement::Type::Program,
                 Statement::Type::ExpressionStatement,

@@ -26,8 +26,7 @@ private:
         Term,
         Factor,
         Unary,
-        Call,
-        Primary
+        Primary,
     };
 
     struct Rule
@@ -56,7 +55,6 @@ private:
     void parseExpression(Precedence precedence);
     void and_(bool);
     void binary(bool);
-    void call(bool);
     void constant(bool);
     void group(bool);
     void literal(bool);

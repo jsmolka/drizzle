@@ -26,18 +26,18 @@ const Parser::Rule& Parser::rule(Token::Type type)
         case Token::Type::Equal2:       return { nullptr,           &Parser::binary, Precedence::Equality   };
         case Token::Type::False:        return { &Parser::literal,  nullptr,         Precedence::None       };
         case Token::Type::Float:        return { &Parser::constant, nullptr,         Precedence::Term       };
-        case Token::Type::Greater:      return { nullptr,           &Parser::binary, Precedence::Equality   };
+        case Token::Type::Greater:      return { nullptr,           &Parser::binary, Precedence::Comparison };
         case Token::Type::Greater2:     return { nullptr,           &Parser::binary, Precedence::BitShift   };
         case Token::Type::Greater3:     return { nullptr,           &Parser::binary, Precedence::BitShift   };
-        case Token::Type::GreaterEqual: return { nullptr,           &Parser::binary, Precedence::Equality   };
+        case Token::Type::GreaterEqual: return { nullptr,           &Parser::binary, Precedence::Comparison };
         case Token::Type::Identifier:   return { &Parser::variable, nullptr,         Precedence::None       };
         case Token::Type::Integer:      return { &Parser::constant, nullptr,         Precedence::Term       };
-        case Token::Type::Less:         return { nullptr,           &Parser::binary, Precedence::Equality   };
+        case Token::Type::Less:         return { nullptr,           &Parser::binary, Precedence::Comparison };
         case Token::Type::Less2:        return { nullptr,           &Parser::binary, Precedence::BitShift   };
-        case Token::Type::LessEqual:    return { nullptr,           &Parser::binary, Precedence::Equality   };
+        case Token::Type::LessEqual:    return { nullptr,           &Parser::binary, Precedence::Comparison };
         case Token::Type::Minus:        return { &Parser::unary,    &Parser::binary, Precedence::Term       };
         case Token::Type::Null:         return { &Parser::literal,  nullptr,         Precedence::None       };
-        case Token::Type::ParenLeft:    return { &Parser::group,    &Parser::call,   Precedence::Assignment };
+        case Token::Type::ParenLeft:    return { &Parser::group,    nullptr,         Precedence::None       };
         case Token::Type::Percent:      return { nullptr,           &Parser::binary, Precedence::Factor     };
         case Token::Type::Pipe:         return { nullptr,           &Parser::binary, Precedence::BitOr      };
         case Token::Type::Pipe2:        return { nullptr,           &Parser::or_,    Precedence::Or         };
@@ -191,10 +191,6 @@ void Parser::binary(bool)
     auto lhs = stack.popValue();
 
     stack.push(newExpr<Expression::Binary>(type(token), std::move(lhs), std::move(rhs)));
-}
-
-void Parser::call(bool)
-{
 }
 
 void Parser::constant(bool)

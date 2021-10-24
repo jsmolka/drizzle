@@ -1,7 +1,7 @@
+static_assert(int(Expression::Literal::Type::LastEnumValue) == 5, "Update");
+
 TEST_CASE("parser_expr_literal")
 {
-    static_assert(int(Expression::Literal::Type::LastEnumValue) == 5, "Update");
-
     static constexpr std::tuple<Expression::Literal::Type, std::string_view> literals[] =
     {
         { Expression::Literal::Type::Boolean, "true"     },
@@ -12,12 +12,12 @@ TEST_CASE("parser_expr_literal")
         { Expression::Literal::Type::String,  "\"test\"" },
     };
 
-    for (const auto& [type, mnemonic] : literals)
+    for (const auto& [type, literal] : literals)
     {
-        SECTION(std::string(mnemonic))
-        {
-            const auto source = shell::format("{}\n", mnemonic);
+        const auto source = shell::format("{}\n", literal);
 
+        SECTION(source)
+        {
             parse(source, {
                 Statement::Type::Program,
                 Statement::Type::ExpressionStatement,

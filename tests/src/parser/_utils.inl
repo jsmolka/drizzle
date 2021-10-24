@@ -3,36 +3,36 @@ using AstNodeTypes = std::vector<std::variant<Statement::Type, Expression::Type>
 class AstNodeComparer final : public AstWalker
 {
 public:
-    void compare(Stmt& ast, const AstNodeTypes& expected)
+    AstNodeComparer(const AstNodeTypes& compare)
+        : compare(compare) {}
+
+    void run(Stmt& ast)
     {
-        current = expected.begin();
-        end = expected.end();
-
+        iter = compare.begin();
         walk(ast);
-
-        REQUIRE(current == end);
+        REQUIRE(iter == compare.end());
     }
 
 protected:
     void before(Stmt& stmt) final
     {
-        REQUIRE(current != end);
-        REQUIRE(current->index() == 0);
-        REQUIRE(stmt->type == std::get<0>(*current));
-        current++;
+        REQUIRE(iter != compare.end());
+        REQUIRE(iter->index() == 0);
+        REQUIRE(stmt->type == std::get<0>(*iter));
+        iter++;
     }
 
     void before(Expr& expr) final
     {
-        REQUIRE(current != end);
-        REQUIRE(current->index() == 1);
-        REQUIRE(expr->type == std::get<1>(*current));
-        current++;
+        REQUIRE(iter != compare.end());
+        REQUIRE(iter->index() == 1);
+        REQUIRE(expr->type == std::get<1>(*iter));
+        iter++;
     }
 
 private:
-    AstNodeTypes::const_iterator current;
-    AstNodeTypes::const_iterator end;
+    const AstNodeTypes& compare;
+    AstNodeTypes::const_iterator iter;
 };
 
 template<typename T>
@@ -68,11 +68,11 @@ private:
     const Test& test;
 };
 
-void parse(const std::string& source, const AstNodeTypes& expected)
+void parse(const std::string& source, const AstNodeTypes& compare)
 {
     const auto tokens = Tokenizer().tokenize(source);
     auto ast = Parser().parse(tokens);
-    AstNodeComparer().compare(ast, expected);
+    AstNodeComparer(compare).run(ast);
 }
 
 template<typename T>

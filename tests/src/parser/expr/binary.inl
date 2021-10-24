@@ -1,7 +1,7 @@
+static_assert(int(Expression::Binary::Type::LastEnumValue) == 21, "Update");
+
 TEST_CASE("parser_expr_binary")
 {
-    static_assert(int(Expression::Binary::Type::LastEnumValue) == 21, "Update");
-
     static constexpr std::tuple<Expression::Binary::Type, std::string_view> operations[] =
     {
         { Expression::Binary::Type::And,             "&&"  },
@@ -27,19 +27,19 @@ TEST_CASE("parser_expr_binary")
         { Expression::Binary::Type::Subtraction,     "-"   },
     };
 
-    for (const auto& [type, mnemonic] : operations)
+    for (const auto& [type, operation] : operations)
     {
-        SECTION(std::string(mnemonic))
-        {
-            const auto source = shell::format("1 {} 1\n", mnemonic);
+        const auto source = shell::format("1 {} 1\n", operation);
 
+        SECTION(source)
+        {
             parse(source, {
                 Statement::Type::Program,
                 Statement::Type::ExpressionStatement,
                 Expression::Type::Binary,
                 Expression::Type::Literal,
-                Expression::Type::Literal
-                });
+                Expression::Type::Literal,
+            });
 
             parseTest<Expr>(source, [type=type](Expr& expr)
             {

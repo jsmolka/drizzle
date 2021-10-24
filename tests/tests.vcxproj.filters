@@ -116,6 +116,15 @@
     <None Include="src\parser\expr\literal.inl">
       <Filter>Header Files</Filter>
     </None>
+    <None Include="src\parser\expr\precedence.inl">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="src\parser\expr\_tests.inl">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="src\parser\expr\group.inl">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\scanner\whitespace.inl">
