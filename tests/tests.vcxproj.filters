@@ -77,34 +77,31 @@
     <None Include="src\vm\unary.inl">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\tests_tokenizer.inl">
+    <None Include="src\tokenizer\eof.inl">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\tests_tokenizer_eof.inl">
+    <None Include="src\tokenizer\blank_lines.inl">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\tests_tokenizer_blank_lines.inl">
+    <None Include="src\tokenizer\comments.inl">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\tests_tokenizer_comments.inl">
+    <None Include="src\tokenizer\identifiers.inl">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\tests_tokenizer_identifiers.inl">
+    <None Include="src\tokenizer\types.inl">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\tests_tokenizer_types.inl">
+    <None Include="src\tokenizer\indentation.inl">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\tests_tokenizer_indentation.inl">
+    <None Include="src\tokenizer\number.inl">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\tests_tokenizer_number.inl">
+    <None Include="src\tokenizer\string.inl">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\tests_tokenizer_string.inl">
-      <Filter>Header Files</Filter>
-    </None>
-    <None Include="src\tests_tokenizer_whitespace.inl">
+    <None Include="src\tokenizer\whitespace.inl">
       <Filter>Header Files</Filter>
     </None>
     <None Include="src\parser\_tests.inl">
@@ -135,6 +132,12 @@
       <Filter>Header Files</Filter>
     </None>
     <None Include="src\parser\stmt\_tests.inl">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="src\tokenizer\_tests.inl">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="src\tokenizer\_utils.inl">
       <Filter>Header Files</Filter>
     </None>
   </ItemGroup>
