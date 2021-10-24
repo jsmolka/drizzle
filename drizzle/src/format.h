@@ -60,7 +60,7 @@ struct fmt::formatter<Expression::Binary::Type>
         case Expression::Binary::Type::BitwiseAsr:      return ">>";
         case Expression::Binary::Type::BitwiseLsl:      return "<<";
         case Expression::Binary::Type::BitwiseLsr:      return ">>>";
-        case Expression::Binary::Type::BitwiseOr:       return "||";
+        case Expression::Binary::Type::BitwiseOr:       return "|";
         case Expression::Binary::Type::BitwiseXor:      return "^";
         case Expression::Binary::Type::Division:        return "/";
         case Expression::Binary::Type::Equal:           return "==";
@@ -109,7 +109,7 @@ struct fmt::formatter<Expression::Literal>
         case Expression::Literal::Type::Float:   return fmt::format_to(ctx.out(), "{}", std::get<dzfloat>(value.value));
         case Expression::Literal::Type::Integer: return fmt::format_to(ctx.out(), "{}", std::get<dzint>(value.value));
         case Expression::Literal::Type::Null:    return fmt::format_to(ctx.out(), "null");
-        case Expression::Literal::Type::String:  return fmt::format_to(ctx.out(), std::get<std::string>(value.value));
+        case Expression::Literal::Type::String:  return fmt::format_to(ctx.out(), "\"{}\"", std::get<std::string>(value.value));
 
         default:
             SHELL_UNREACHABLE;

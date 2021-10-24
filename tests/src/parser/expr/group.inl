@@ -1,33 +1,31 @@
 TEST_CASE("parser_expr_group_1")
 {
-    constexpr auto kSource = "(1 * 1) + (1 * 1)\n";
+    constexpr auto kSource = "(1 * 2) + (3 * 4)\n";
 
-    parse(kSource, {
-        Statement::Type::Program,
-        Statement::Type::ExpressionStatement,
-        Expression::Type::Binary,
-        Expression::Type::Binary,
-        Expression::Type::Literal,
-        Expression::Type::Literal,
-        Expression::Type::Binary,
-        Expression::Type::Literal,
-        Expression::Type::Literal,
-    });
+    parse(kSource, R"(program
+  expression_statement
+    binary +
+      binary *
+        literal 1
+        literal 2
+      binary *
+        literal 3
+        literal 4
+)");
 }
 
 TEST_CASE("parser_expr_group_2")
 {
-    //constexpr auto kSource = "1 * (2 + 3) * 4\n";
+    constexpr auto kSource = "1 * (2 + 3) * 4\n";
 
-    //parse(kSource, {
-    //    Statement::Type::Program,
-    //    Statement::Type::ExpressionStatement,
-    //    Expression::Type::Binary,
-    //    Expression::Type::Literal,
-    //    Expression::Type::Binary,
-    //    Expression::Type::Binary,
-    //    Expression::Type::Literal,
-    //    Expression::Type::Literal,
-    //    Expression::Type::Literal,
-    //});
+    parse(kSource, R"(program
+  expression_statement
+    binary *
+      binary *
+        literal 1
+        binary +
+          literal 2
+          literal 3
+      literal 4
+)");
 }

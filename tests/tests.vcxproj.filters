@@ -36,6 +36,9 @@
     <ClCompile Include="..\drizzle\src\astwalker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\drizzle\src\astprinter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\scanner.inl">

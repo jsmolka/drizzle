@@ -2,36 +2,34 @@ static_assert(int(Expression::Unary::Type::LastEnumValue) == 3, "Update");
 
 TEST_CASE("parser_expr_precedence_1")
 {
-    static constexpr std::string_view operations[] = { "-", "!", "~" };
+    static constexpr std::string_view kOperations[] = { "-", "!", "~" };
 
-    for (const auto& operation : operations)
+    for (const auto& operation : kOperations)
     {
-        auto source = shell::format("{}1 * 1\n", operation);
+        auto source = shell::format("{}1 * 2\n", operation);
 
         SECTION(source)
         {
-            parse(source, {
-                Statement::Type::Program,
-                Statement::Type::ExpressionStatement,
-                Expression::Type::Binary,
-                Expression::Type::Unary,
-                Expression::Type::Literal,
-                Expression::Type::Literal,
-            });
+            parse(source, shell::format(R"(program
+  expression_statement
+    binary *
+      unary {}
+        literal 1
+      literal 2
+)", operation));
         }
 
-        source = shell::format("{}(1 * 1)\n", operation);
+        source = shell::format("{}(1 * 2)\n", operation);
 
         SECTION(source)
         {
-            parse(source, {
-                Statement::Type::Program,
-                Statement::Type::ExpressionStatement,
-                Expression::Type::Unary,
-                Expression::Type::Binary,
-                Expression::Type::Literal,
-                Expression::Type::Literal,
-            });
+            parse(source, shell::format(R"(program
+  expression_statement
+    unary {}
+      binary *
+        literal 1
+        literal 2
+)", operation));
         }
     }
 }
@@ -40,7 +38,8 @@ static_assert(int(Expression::Binary::Type::LastEnumValue) == 21, "Update");
 
 TEST_CASE("parser_expr_precedence_2")
 {
-    std::vector<std::vector<std::string_view>> precedences = {
+    std::vector<std::vector<std::string_view>> precedences =
+    {
         { "*", "/", "%", "//", "**" },
         { "+", "-" },
         { "<<", ">>", ">>>" },
@@ -53,7 +52,7 @@ TEST_CASE("parser_expr_precedence_2")
         { "||" },
     };
 
-    for (int i = 0; i < precedences.size() - 1; ++i)
+    for (std::size_t i = 0; i < precedences.size() - 1; ++i)
     {
         const auto& highs = precedences[i];
         const auto& lows  = precedences[i + 1];
@@ -62,34 +61,32 @@ TEST_CASE("parser_expr_precedence_2")
         {
             for (const auto& low : lows)
             {
-                auto source = shell::format("1 {} 1 {} 1\n", low, high);
+                auto source = shell::format("1 {} 2 {} 3\n", low, high);
 
                 SECTION(source)
                 {
-                    parse(source, {
-                        Statement::Type::Program,
-                        Statement::Type::ExpressionStatement,
-                        Expression::Type::Binary,
-                        Expression::Type::Literal,
-                        Expression::Type::Binary,
-                        Expression::Type::Literal,
-                        Expression::Type::Literal,
-                    });
+                    parse(source, shell::format(R"(program
+  expression_statement
+    binary {}
+      literal 1
+      binary {}
+        literal 2
+        literal 3
+)", low, high));
                 }
 
-                source = shell::format("(1 {} 1) {} 1\n", low, high);
+                source = shell::format("(1 {} 2) {} 3\n", low, high);
 
                 SECTION(source)
                 {
-                    parse(source, {
-                        Statement::Type::Program,
-                        Statement::Type::ExpressionStatement,
-                        Expression::Type::Binary,
-                        Expression::Type::Binary,
-                        Expression::Type::Literal,
-                        Expression::Type::Literal,
-                        Expression::Type::Literal,
-                    });
+                    parse(source, shell::format(R"(program
+  expression_statement
+    binary {}
+      binary {}
+        literal 1
+        literal 2
+      literal 3
+)", high, low));
                 }
             }
         }

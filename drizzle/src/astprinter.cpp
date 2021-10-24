@@ -40,6 +40,10 @@ void AstPrinter::before(Expr& expr)
     case Expression::Type::Literal:
         fmt::format_to(out, " {}", expr->literal);
         break;
+
+    case Expression::Type::Unary:
+        fmt::format_to(out, " {}", expr->unary.type);
+        break;
     }
 
     fmt::format_to(out, "\n");
