@@ -128,6 +128,15 @@
     <None Include="src\parser\expr\group.inl">
       <Filter>Header Files</Filter>
     </None>
+    <None Include="src\parser\stmt\program.inl">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="src\parser\stmt\expression_statement.inl">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="src\parser\stmt\_tests.inl">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\scanner\whitespace.inl">
