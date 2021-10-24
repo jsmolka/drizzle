@@ -4,7 +4,7 @@
 
 void AstWalker::walk(Stmt& stmt)
 {
-    static_assert(int(Statement::Type::LastEnumValue) == 3, "Update");
+    static_assert(int(Statement::Type::LastEnumValue) == 5, "Update");
 
     before(stmt);
 
@@ -17,6 +17,13 @@ void AstWalker::walk(Stmt& stmt)
 
     case Statement::Type::ExpressionStatement:
         walk(stmt->expression_statement.expression);
+        break;
+
+    case Statement::Type::Noop:
+        break;
+
+    case Statement::Type::Print:
+        walk(stmt->print.expression);
         break;
 
     case Statement::Type::Program:

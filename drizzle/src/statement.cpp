@@ -8,11 +8,20 @@ Statement::Block::Block(std::string_view identifier, std::vector<Stmt> statement
 Statement::ExpressionStatement::ExpressionStatement(Expr expression)
     : expression(std::move(expression)) {}
 
+Statement::Print::Print(Expr expression)
+    : expression(std::move(expression)) {}
+
 Statement::Program::Program(std::vector<Stmt> statements)
     : statements(std::move(statements)) {}
 
+Statement::Statement()
+    : type(Type::Noop) {}
+
 Statement::Statement(ExpressionStatement expression)
     : type(Type::ExpressionStatement), expression_statement(std::move(expression)) {}
+
+Statement::Statement(Print print)
+    : type(Type::Print), print(std::move(print)) {}
 
 Statement::Statement(Block block)
     : type(Type::Block), block(std::move(block)) {}
@@ -26,6 +35,8 @@ Statement::~Statement()
     {
     case Type::Block: block.~Block(); break;
     case Type::ExpressionStatement: expression_statement.~ExpressionStatement(); break;
+    case Type::Noop: break;
+    case Type::Print: print.~Print(); break;
     case Type::Program: program.~Program(); break;
 
     default:

@@ -140,6 +140,12 @@
     <None Include="src\tokenizer\_utils.inl">
       <Filter>Header Files</Filter>
     </None>
+    <None Include="src\parser\stmt\print.inl">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="src\parser\stmt\noop.inl">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\scanner\whitespace.inl">

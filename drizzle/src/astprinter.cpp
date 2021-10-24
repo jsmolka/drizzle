@@ -12,7 +12,7 @@ std::string AstPrinter::print(Stmt& ast)
 
 void AstPrinter::before(Stmt& stmt)
 {
-    static_assert(int(Statement::Type::LastEnumValue) == 3, "Update");
+    static_assert(int(Statement::Type::LastEnumValue) == 5, "Update");
 
     indent();
     fmt::format_to(out, "{}\n", stmt->type);

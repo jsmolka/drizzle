@@ -114,7 +114,6 @@ void Parser::expectParenRight()
 Expr Parser::expression()
 {
     parseExpression(Precedence::Assignment);
-
     return stack.popValue();
 }
 
@@ -280,7 +279,25 @@ Stmt Parser::declaration()
 
 Stmt Parser::statement()
 {
+    if (match(Token::Type::Noop))
+        return statementNoop();
+    if (match(Token::Type::Print))
+        return statementPrint();
+
     return expressionStatement();
+}
+
+Stmt Parser::statementNoop()
+{
+    expectNewLine();
+    return std::make_unique<Statement>();
+}
+
+Stmt Parser::statementPrint()
+{
+    auto expr = expression();
+    expectNewLine();
+    return newStmt<Statement::Print>(std::move(expr));
 }
 
 Stmt Parser::expressionStatement()

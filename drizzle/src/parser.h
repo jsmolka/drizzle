@@ -65,6 +65,8 @@ private:
     Stmt program();
     Stmt declaration();
     Stmt statement();
+    Stmt statementNoop();
+    Stmt statementPrint();
     Stmt expressionStatement();
 
     std::vector<Token>::const_iterator current;

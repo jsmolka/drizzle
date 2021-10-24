@@ -30,6 +30,8 @@
     <None Include="src\parser\expr\unary.inl" />
     <None Include="src\parser\expr\_tests.inl" />
     <None Include="src\parser\stmt\expression_statement.inl" />
+    <None Include="src\parser\stmt\noop.inl" />
+    <None Include="src\parser\stmt\print.inl" />
     <None Include="src\parser\stmt\program.inl" />
     <None Include="src\parser\stmt\_tests.inl" />
     <None Include="src\parser\_tests.inl" />

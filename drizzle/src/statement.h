@@ -15,6 +15,8 @@ public:
     {
         Block,
         ExpressionStatement,
+        Noop,
+        Print,
         Program,
         LastEnumValue,
     };
@@ -34,6 +36,13 @@ public:
         Expr expression;
     };
 
+    struct Print
+    {
+        Print(Expr expression);
+
+        Expr expression;
+    };
+
     struct Program
     {
         Program(std::vector<Stmt> statements);
@@ -41,8 +50,10 @@ public:
         std::vector<Stmt> statements;
     };
 
+    Statement();
     Statement(Block block);
     Statement(ExpressionStatement expression);
+    Statement(Print print);
     Statement(Program program);
     ~Statement();
 
@@ -51,6 +62,7 @@ public:
     {
         Block block;
         ExpressionStatement expression_statement;
+        Print print;
         Program program;
     };
 };
