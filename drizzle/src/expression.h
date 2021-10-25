@@ -5,6 +5,7 @@
 #include <variant>
 
 #include "dzprimitives.h"
+#include "sourcelocation.h"
 
 class Expression;
 
@@ -102,10 +103,10 @@ public:
         Expr expression;
     };
 
-    Expression(Binary binary);
-    Expression(Group group);
-    Expression(Literal literal);
-    Expression(Unary unary);
+    Expression(Binary binary, const SourceLocation& location);
+    Expression(Group group, const SourceLocation& location);
+    Expression(Literal literal, const SourceLocation& location);
+    Expression(Unary unary, const SourceLocation& location);
     ~Expression();
 
     Type type;
@@ -116,10 +117,5 @@ public:
         Literal literal;
         Unary unary;
     };
+    const SourceLocation location;
 };
-
-template<typename T, typename... Args>
-Expr newExpr(Args... args)
-{
-    return std::make_unique<Expression>(T(std::forward<Args>(args)...));
-}

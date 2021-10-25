@@ -30,7 +30,7 @@ const Parser::Rule& Parser::rule(Token::Type type)
         case Token::Type::Greater2:     return { nullptr,           &Parser::binary, Precedence::BitShift   };
         case Token::Type::Greater3:     return { nullptr,           &Parser::binary, Precedence::BitShift   };
         case Token::Type::GreaterEqual: return { nullptr,           &Parser::binary, Precedence::Comparison };
-        case Token::Type::Identifier:   return { &Parser::variable, nullptr,         Precedence::None       };
+        case Token::Type::Identifier:   return { nullptr,           nullptr,         Precedence::None       };
         case Token::Type::Integer:      return { &Parser::constant, nullptr,         Precedence::Term       };
         case Token::Type::Less:         return { nullptr,           &Parser::binary, Precedence::Comparison };
         case Token::Type::Less2:        return { nullptr,           &Parser::binary, Precedence::BitShift   };
@@ -76,40 +76,13 @@ void Parser::expect(Token::Type type, std::string_view error)
         throw SyntaxError(current->lexeme, error);
 }
 
-void Parser::expectColon()
-{
-    expect(Token::Type::Colon, "expected colon");
-}
-
-void Parser::expectDedent()
-{
-    expect(Token::Type::Dedent, "expected dedent");
-}
-
-void Parser::expectIdentifier()
-{
-    expect(Token::Type::Identifier, "expected identifier");
-}
-
-void Parser::expectIndent()
-{
-    expect(Token::Type::Indent, "expected indent");
-}
-
-void Parser::expectNewLine()
-{
-    expect(Token::Type::NewLine, "expected new line");
-}
-
-void Parser::expectParenLeft()
-{
-    expect(Token::Type::ParenLeft, "expected '('");
-}
-
-void Parser::expectParenRight()
-{
-    expect(Token::Type::ParenRight, "expected ')'");
-}
+void Parser::expectColon()      { expect(Token::Type::Colon,      "expected colon");      }
+void Parser::expectDedent()     { expect(Token::Type::Dedent,     "expected dedent");     }
+void Parser::expectIdentifier() { expect(Token::Type::Identifier, "expected identifier"); }
+void Parser::expectIndent()     { expect(Token::Type::Indent,     "expected indent");     }
+void Parser::expectNewLine()    { expect(Token::Type::NewLine,    "expected new line");   }
+void Parser::expectParenLeft()  { expect(Token::Type::ParenLeft,  "expected '('");        }
+void Parser::expectParenRight() { expect(Token::Type::ParenRight, "expected ')'");        }
 
 Expr Parser::expression()
 {
@@ -148,7 +121,12 @@ void Parser::and_(bool)
     auto rhs = stack.popValue();
     auto lhs = stack.popValue();
 
-    stack.push(newExpr<Expression::Binary>(Expression::Binary::Type::And, std::move(lhs), std::move(rhs)));
+    stack.push(std::make_unique<Expression>(
+        Expression::Binary(
+            Expression::Binary::Type::And,
+            std::move(lhs),
+            std::move(rhs)),
+        previous->line));
 }
 
 void Parser::binary(bool)
@@ -189,16 +167,21 @@ void Parser::binary(bool)
     auto rhs = stack.popValue();
     auto lhs = stack.popValue();
 
-    stack.push(newExpr<Expression::Binary>(type(token), std::move(lhs), std::move(rhs)));
+    stack.push(std::make_unique<Expression>(
+        Expression::Binary(
+            type(token),
+            std::move(lhs),
+            std::move(rhs)),
+        previous->line));
 }
 
 void Parser::constant(bool)
 {
     switch (previous->value.index())
     {
-    case 0: stack.push(newExpr<Expression::Literal>(std::get<0>(previous->value))); break;
-    case 1: stack.push(newExpr<Expression::Literal>(std::get<1>(previous->value))); break;
-    case 2: stack.push(newExpr<Expression::Literal>(std::get<2>(previous->value))); break;
+    case 0: stack.push(std::make_unique<Expression>(Expression::Literal(std::get<0>(previous->value)), previous->line)); break;
+    case 1: stack.push(std::make_unique<Expression>(Expression::Literal(std::get<1>(previous->value)), previous->line)); break;
+    case 2: stack.push(std::make_unique<Expression>(Expression::Literal(std::get<2>(previous->value)), previous->line)); break;
 
     default:
         SHELL_UNREACHABLE;
@@ -216,9 +199,9 @@ void Parser::literal(bool)
 {
     switch (previous->type)
     {
-    case Token::Type::False: stack.push(newExpr<Expression::Literal>(false)); break;
-    case Token::Type::Null:  stack.push(newExpr<Expression::Literal>()); break;
-    case Token::Type::True:  stack.push(newExpr<Expression::Literal>(true)); break;
+    case Token::Type::False: stack.push(std::make_unique<Expression>(Expression::Literal(false), previous->line)); break;
+    case Token::Type::Null:  stack.push(std::make_unique<Expression>(Expression::Literal(), previous->line)); break;
+    case Token::Type::True:  stack.push(std::make_unique<Expression>(Expression::Literal(true), previous->line)); break;
 
     default:
         SHELL_UNREACHABLE;
@@ -233,7 +216,12 @@ void Parser::or_(bool)
     auto rhs = stack.popValue();
     auto lhs = stack.popValue();
 
-    stack.push(newExpr<Expression::Binary>(Expression::Binary::Type::Or, std::move(lhs), std::move(rhs)));
+    stack.push(std::make_unique<Expression>(
+        Expression::Binary(
+            Expression::Binary::Type::Or,
+            std::move(lhs),
+            std::move(rhs)),
+        previous->line));
 }
 
 void Parser::unary(bool)
@@ -255,11 +243,11 @@ void Parser::unary(bool)
     auto token = previous->type;
     parseExpression(Precedence::Unary);
 
-    stack.push(newExpr<Expression::Unary>(type(token), stack.popValue()));
-}
-
-void Parser::variable(bool can_assign)
-{
+    stack.push(std::make_unique<Expression>(
+        Expression::Unary(
+            type(token),
+            stack.popValue()),
+        previous->line));
 }
 
 Stmt Parser::program()
@@ -269,7 +257,9 @@ Stmt Parser::program()
     while (!match(Token::Type::Eof))
         statements.push_back(declaration());
 
-    return newStmt<Statement::Program>(std::move(statements));
+    return std::make_unique<Statement>(
+        Statement::Program(std::move(statements)),
+        0);
 }
 
 Stmt Parser::declaration()
@@ -291,6 +281,8 @@ Stmt Parser::statement()
 
 Stmt Parser::statementBlock()
 {
+    const auto location = previous->lexeme;
+
     std::string_view identifier;
     if (match(Token::Type::Identifier))
         identifier = previous->lexeme;
@@ -305,25 +297,31 @@ Stmt Parser::statementBlock()
 
     expectDedent();
 
-    return newStmt<Statement::Block>(identifier, std::move(statements));
+    return std::make_shared<Statement>(
+        Statement::Block(identifier, std::move(statements)),
+        location);
 }
 
 Stmt Parser::statementNoop()
 {
     expectNewLine();
-    return std::make_unique<Statement>();
+    return std::make_unique<Statement>(previous->lexeme);
 }
 
 Stmt Parser::statementPrint()
 {
     auto expr = expression();
     expectNewLine();
-    return newStmt<Statement::Print>(std::move(expr));
+    return std::make_shared<Statement>(
+        Statement::Print(std::move(expr)),
+        previous->line);
 }
 
 Stmt Parser::expressionStatement()
 {
     auto expr = expression();
     expectNewLine();
-    return newStmt<Statement::ExpressionStatement>(std::move(expr));
+    return std::make_shared<Statement>(
+        Statement::ExpressionStatement(std::move(expr)),
+        previous->line);
 }

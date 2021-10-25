@@ -5,16 +5,16 @@
 class SourceLocation
 {
 public:
-    enum class Type { Position, Line };
+    enum class Type { Location, Line };
 
-    SourceLocation(const char* position);
-    SourceLocation(std::string_view position);
+    SourceLocation(const char* location);
+    SourceLocation(std::string_view location);
     SourceLocation(std::size_t line);
 
     const Type type;
     union
     {
-        const char* const position;
+        const char* const location;
         const std::size_t line;
     };
 };

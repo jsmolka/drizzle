@@ -60,7 +60,6 @@ private:
     void literal(bool);
     void or_(bool);
     void unary(bool);
-    void variable(bool can_assign);
 
     Stmt program();
     Stmt declaration();

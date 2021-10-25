@@ -50,11 +50,11 @@ public:
         std::vector<Stmt> statements;
     };
 
-    Statement();
-    Statement(Block block);
-    Statement(ExpressionStatement expression);
-    Statement(Print print);
-    Statement(Program program);
+    Statement(const SourceLocation& location);
+    Statement(Block block, const SourceLocation& location);
+    Statement(ExpressionStatement expression, const SourceLocation& location);
+    Statement(Print print, const SourceLocation& location);
+    Statement(Program program, const SourceLocation& location);
     ~Statement();
 
     Type type;
@@ -65,10 +65,5 @@ public:
         Print print;
         Program program;
     };
+    const SourceLocation location;
 };
-
-template<typename T, typename... Args>
-Stmt newStmt(Args... args)
-{
-    return std::make_unique<Statement>(T(std::forward<Args>(args)...));
-}
