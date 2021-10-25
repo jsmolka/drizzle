@@ -18,6 +18,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\astprinter.cpp" />
+    <ClCompile Include="src\sourcelocation.cpp" />
     <ClCompile Include="src\parser.cpp" />
     <ClCompile Include="src\astwalker.cpp" />
     <ClCompile Include="src\statement.cpp" />
@@ -27,6 +28,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\astprinter.h" />
+    <ClInclude Include="src\sourcelocation.h" />
     <ClInclude Include="src\parser.h" />
     <ClInclude Include="src\astwalker.h" />
     <ClInclude Include="src\statement.h" />

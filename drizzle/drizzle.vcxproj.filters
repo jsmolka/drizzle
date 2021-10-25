@@ -39,6 +39,9 @@
     <ClCompile Include="src\astprinter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\sourcelocation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="drizzle.rc">
@@ -77,6 +80,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\astprinter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sourcelocation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
