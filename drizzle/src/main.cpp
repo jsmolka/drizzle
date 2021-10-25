@@ -1,5 +1,4 @@
 #include <shell/filesystem.h>
-#include <shell/format.h>
 #include <shell/main.h>
 
 #include "astprinter.h"
@@ -23,8 +22,6 @@ std::size_t sourceLine(const char* location)
 
 std::string_view sourceView(std::size_t line)
 {
-    static constexpr std::string_view kDummy = "dummy";
-
     const char* b = source.data();
     const char* c = source.data();
 
@@ -38,19 +35,27 @@ std::string_view sourceView(std::size_t line)
         else
             return std::string_view(b, c - b);
     }
-    return kDummy;
+    return "<error>";
 }
 
-void locationError(const LocationError& error)
+void printSourceLine(std::size_t line)
 {
-    const auto line = sourceLine(error.location);
+    const auto view = sourceView(line);
+    const auto info = shell::format("Line {} | ", line + 1);
+
+    shell::print("{}{}\n\n", info, view);
+}
+
+void printSourceLocation(const char* location)
+{
+    const auto line = sourceLine(location);
     const auto view = sourceView(line);
     const auto info = shell::format("Line {} | ", line + 1);
 
     std::string whitespace(info.size(), ' ');
     for (const auto& c : view)
     {
-        if (&c == error.location)
+        if (&c == location)
             break;
 
         if (c == '\t')
@@ -61,17 +66,23 @@ void locationError(const LocationError& error)
 
     shell::print("{}{}\n", info, view);
     shell::print("{}^\n", whitespace);
-    shell::print("{}: {}\n", error.name(), error.what());
 }
 
-void lineError(const LineError& error)
+void printError(const Error& error)
 {
-    const auto view = sourceView(error.line);
-    const auto info = shell::format("Line {} | ", error.line + 1);
-
-    shell::print("{}{}\n\n", info, view);
     shell::print("{}: {}\n", error.name(), error.what());
 }
+
+void printLocationError(const LocationError& error)
+{
+    if (error.location.type == SourceLocation::Type::Location)
+        printSourceLocation(error.location.location);
+    if (error.location.type == SourceLocation::Type::Line)
+        printSourceLine(error.location.line);
+
+    printError(error);
+}
+
 
 int main(int argc, char* argv[])
 {
@@ -104,17 +115,12 @@ int main(int argc, char* argv[])
     }
     catch (const LocationError& error)
     {
-        locationError(error);
-        return 1;
-    }
-    catch (const LineError& error)
-    {
-        lineError(error);
+        printLocationError(error);
         return 1;
     }
     catch (const Error& error)
     {
-        shell::print("{}: {}\n", error.name(), error.what());
+        printError(error);
         return 1;
     }
     catch (const std::exception& error)

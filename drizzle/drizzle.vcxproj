@@ -18,6 +18,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\astprinter.cpp" />
+    <ClCompile Include="src\errors.cpp" />
     <ClCompile Include="src\sourcelocation.cpp" />
     <ClCompile Include="src\parser.cpp" />
     <ClCompile Include="src\astwalker.cpp" />
