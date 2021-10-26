@@ -7,9 +7,7 @@
 - Late bind top level functions and classes
 - Using < for chunk.line() seems wrong, use pc - 1 instead?
 - Precedence assignment for parens ok?
-- constexpr typeName/operator bool of types
 - Map optimized for integers
-- Static assert last enum value where needed
 - Make print a function with no fixed arity
 
 ## Exceptions
@@ -47,7 +45,6 @@ print(p)
 
 ## Scanning
 - Brace aware scanning (line breaks inside braces, brackets, etc. are ignored)
-- Should `0xDEADreturn` result in two valid tokens?
 
 ## AST
 - C++ AST example:  https://github.com/wiz-lang/wiz/tree/master/src/wiz
