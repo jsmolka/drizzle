@@ -73,7 +73,7 @@ bool Parser::match(Token::Type type)
 void Parser::expect(Token::Type type, std::string_view error)
 {
     if (!match(type))
-        throw SyntaxError(current->lexeme, error);
+        throw SyntaxError(current->lexeme.data(), error);
 }
 
 void Parser::expectColon()      { expect(Token::Type::Colon,      "expected colon");      }
@@ -95,7 +95,7 @@ void Parser::parseExpression(Precedence precedence)
     advance();
     auto prefix = rule(previous->type).prefix;
     if (!prefix)
-        throw SyntaxError(previous->lexeme, "invalid syntax");
+        throw SyntaxError(previous->lexeme.data(), "invalid syntax");
 
     auto can_assign = precedence <= Precedence::Assignment;
     std::invoke(prefix, this, can_assign);
@@ -105,13 +105,13 @@ void Parser::parseExpression(Precedence precedence)
         advance();
         auto infix = rule(previous->type).infix;
         if (!infix)
-            throw SyntaxError(previous->lexeme, "invalid syntax");
+            throw SyntaxError(previous->lexeme.data(), "invalid syntax");
 
         std::invoke(infix, this, can_assign);
     }
 
     if (can_assign && match(Token::Type::Equal))
-        throw SyntaxError(previous->lexeme, "bad assignment");
+        throw SyntaxError(previous->lexeme.data(), "bad assignment");
 }
 
 void Parser::and_(bool)
@@ -281,8 +281,6 @@ Stmt Parser::statement()
 
 Stmt Parser::statementBlock()
 {
-    const auto location = previous->lexeme;
-
     std::string_view identifier;
     if (match(Token::Type::Identifier))
         identifier = previous->lexeme;
@@ -299,13 +297,13 @@ Stmt Parser::statementBlock()
 
     return std::make_shared<Statement>(
         Statement::Block(identifier, std::move(statements)),
-        location);
+        previous->line);
 }
 
 Stmt Parser::statementNoop()
 {
     expectNewLine();
-    return std::make_unique<Statement>(previous->lexeme);
+    return std::make_unique<Statement>(previous->line);
 }
 
 Stmt Parser::statementPrint()

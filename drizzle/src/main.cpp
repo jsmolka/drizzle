@@ -38,7 +38,7 @@ std::string_view sourceView(std::size_t line)
     return "<error>";
 }
 
-void printSourceLine(std::size_t line)
+void printErrorLine(std::size_t line)
 {
     const auto view = sourceView(line);
     const auto info = shell::format("Line {} | ", line + 1);
@@ -46,7 +46,7 @@ void printSourceLine(std::size_t line)
     shell::print("{}{}\n\n", info, view);
 }
 
-void printSourceLocation(const char* location)
+void printErrorLocation(const char* location)
 {
     const auto line = sourceLine(location);
     const auto view = sourceView(line);
@@ -70,19 +70,13 @@ void printSourceLocation(const char* location)
 
 void printError(const Error& error)
 {
+    if (error.location.type == Error::Location::Type::Location)
+        printErrorLocation(error.location.location);
+    if (error.location.type == Error::Location::Type::Line)
+        printErrorLine(error.location.line);
+
     shell::print("{}: {}\n", error.name(), error.what());
 }
-
-void printLocationError(const LocationError& error)
-{
-    if (error.location.type == SourceLocation::Type::Location)
-        printSourceLocation(error.location.location);
-    if (error.location.type == SourceLocation::Type::Line)
-        printSourceLine(error.location.line);
-
-    printError(error);
-}
-
 
 int main(int argc, char* argv[])
 {
@@ -112,11 +106,6 @@ int main(int argc, char* argv[])
         shell::print(AstPrinter().print(ast));
 
         return 0;
-    }
-    catch (const LocationError& error)
-    {
-        printLocationError(error);
-        return 1;
     }
     catch (const Error& error)
     {

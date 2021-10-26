@@ -3,34 +3,43 @@
 #include <stdexcept>
 #include <shell/format.h>
 
-#include "sourcelocation.h"
-
 class Error : public std::exception
 {
 public:
-    Error(const std::string& message);
+    class Location
+    {
+    public:
+        enum class Type { None, Line, Location };
+
+        Location();
+        Location(std::size_t line);
+        Location(const char* location);
+
+        const Type type;
+        union
+        {
+            const std::size_t line;
+            const char* const location;
+        };
+    };
+
+    template<typename... Args>
+    Error(const Location& location, std::string_view format, Args&&... args)
+        : location(location), message(fmt::format(format, std::forward<Args>(args)...)) {}
 
     virtual const char* name() const noexcept = 0;
     virtual const char* what() const noexcept final;
+
+    const Location location;
 
 private:
     std::string message;
 };
 
-class LocationError : public Error
+class SyntaxError : public Error
 {
 public:
-    template<typename... Args>
-    LocationError(const SourceLocation& location, std::string_view format, Args&&... args)
-        : Error(shell::format(format, std::forward<Args>(args)...)), location(location) {}
-
-    const SourceLocation location;
-};
-
-class SyntaxError : public LocationError
-{
-public:
-    using LocationError::LocationError;
+    using Error::Error;
 
     virtual const char* name() const noexcept final;
 };
