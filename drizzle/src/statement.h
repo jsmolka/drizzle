@@ -65,5 +65,5 @@ public:
         Print print;
         Program program;
     };
-    const SourceLocation location;
+    SourceLocation location;
 };

@@ -24,3 +24,13 @@ const char* SyntaxError::name() const noexcept
 {
     return "SyntaxError";
 }
+
+const char* CompilerError::name() const noexcept
+{
+    return "CompilerError";
+}
+
+const char* RuntimeError::name() const noexcept
+{
+    return "RuntimeError";
+}

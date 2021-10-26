@@ -15,11 +15,11 @@ public:
         Location(std::size_t line);
         Location(const char* location);
 
-        const Type type;
+        Type type;
         union
         {
-            const std::size_t line;
-            const char* const location;
+            std::size_t line;
+            const char* location;
         };
     };
 
@@ -30,7 +30,7 @@ public:
     virtual const char* name() const noexcept = 0;
     virtual const char* what() const noexcept final;
 
-    const Location location;
+    Location location;
 
 private:
     std::string message;
@@ -41,5 +41,21 @@ class SyntaxError : public Error
 public:
     using Error::Error;
 
-    virtual const char* name() const noexcept final;
+    const char* name() const noexcept final;
+};
+
+class CompilerError : public Error
+{
+public:
+    using Error::Error;
+
+    const char* name() const noexcept final;
+};
+
+class RuntimeError : public Error
+{
+public:
+    using Error::Error;
+
+    const char* name() const noexcept final;
 };

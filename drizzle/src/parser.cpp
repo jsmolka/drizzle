@@ -84,6 +84,12 @@ void Parser::expectNewLine()    { expect(Token::Type::NewLine,    "expected new 
 void Parser::expectParenLeft()  { expect(Token::Type::ParenLeft,  "expected '('");        }
 void Parser::expectParenRight() { expect(Token::Type::ParenRight, "expected ')'");        }
 
+template<typename T, typename... Args>
+Expr Parser::newExpr(Args... args)
+{
+    return std::make_unique<Expression>(T(std::forward<Args>(args)...), previous->line);
+}
+
 Expr Parser::expression()
 {
     parseExpression(Precedence::Assignment);
@@ -121,12 +127,10 @@ void Parser::and_(bool)
     auto rhs = stack.popValue();
     auto lhs = stack.popValue();
 
-    stack.push(std::make_unique<Expression>(
-        Expression::Binary(
-            Expression::Binary::Type::And,
-            std::move(lhs),
-            std::move(rhs)),
-        previous->line));
+    stack.push(newExpr<Expression::Binary>(
+        Expression::Binary::Type::And,
+        std::move(lhs),
+        std::move(rhs)));
 }
 
 void Parser::binary(bool)
@@ -167,21 +171,19 @@ void Parser::binary(bool)
     auto rhs = stack.popValue();
     auto lhs = stack.popValue();
 
-    stack.push(std::make_unique<Expression>(
-        Expression::Binary(
-            type(token),
-            std::move(lhs),
-            std::move(rhs)),
-        previous->line));
+    stack.push(newExpr<Expression::Binary>(
+        type(token),
+        std::move(lhs),
+        std::move(rhs)));
 }
 
 void Parser::constant(bool)
 {
     switch (previous->value.index())
     {
-    case 0: stack.push(std::make_unique<Expression>(Expression::Literal(std::get<0>(previous->value)), previous->line)); break;
-    case 1: stack.push(std::make_unique<Expression>(Expression::Literal(std::get<1>(previous->value)), previous->line)); break;
-    case 2: stack.push(std::make_unique<Expression>(Expression::Literal(std::get<2>(previous->value)), previous->line)); break;
+    case 0: stack.push(newExpr<Expression::Literal>(std::get<0>(previous->value))); break;
+    case 1: stack.push(newExpr<Expression::Literal>(std::get<1>(previous->value))); break;
+    case 2: stack.push(newExpr<Expression::Literal>(std::get<2>(previous->value))); break;
 
     default:
         SHELL_UNREACHABLE;
@@ -199,9 +201,9 @@ void Parser::literal(bool)
 {
     switch (previous->type)
     {
-    case Token::Type::False: stack.push(std::make_unique<Expression>(Expression::Literal(false), previous->line)); break;
-    case Token::Type::Null:  stack.push(std::make_unique<Expression>(Expression::Literal(), previous->line)); break;
-    case Token::Type::True:  stack.push(std::make_unique<Expression>(Expression::Literal(true), previous->line)); break;
+    case Token::Type::False: stack.push(newExpr<Expression::Literal>(false)); break;
+    case Token::Type::Null:  stack.push(newExpr<Expression::Literal>()); break;
+    case Token::Type::True:  stack.push(newExpr<Expression::Literal>(true)); break;
 
     default:
         SHELL_UNREACHABLE;
@@ -216,12 +218,10 @@ void Parser::or_(bool)
     auto rhs = stack.popValue();
     auto lhs = stack.popValue();
 
-    stack.push(std::make_unique<Expression>(
-        Expression::Binary(
-            Expression::Binary::Type::Or,
-            std::move(lhs),
-            std::move(rhs)),
-        previous->line));
+    stack.push(newExpr<Expression::Binary>(
+        Expression::Binary::Type::Or,
+        std::move(lhs),
+        std::move(rhs)));
 }
 
 void Parser::unary(bool)
@@ -243,11 +243,13 @@ void Parser::unary(bool)
     auto token = previous->type;
     parseExpression(Precedence::Unary);
 
-    stack.push(std::make_unique<Expression>(
-        Expression::Unary(
-            type(token),
-            stack.popValue()),
-        previous->line));
+    stack.push(newExpr<Expression::Unary>(type(token), stack.popValue()));
+}
+
+template<typename T, typename ...Args>
+Stmt Parser::newStmt(Args ...args)
+{
+    return std::make_unique<Statement>(T(std::forward<Args>(args)...), previous->line);
 }
 
 Stmt Parser::program()
@@ -257,9 +259,7 @@ Stmt Parser::program()
     while (!match(Token::Type::Eof))
         statements.push_back(declaration());
 
-    return std::make_unique<Statement>(
-        Statement::Program(std::move(statements)),
-        0);
+    return newStmt<Statement::Program>(std::move(statements));
 }
 
 Stmt Parser::declaration()
@@ -295,9 +295,7 @@ Stmt Parser::statementBlock()
 
     expectDedent();
 
-    return std::make_shared<Statement>(
-        Statement::Block(identifier, std::move(statements)),
-        previous->line);
+    return newStmt<Statement::Block>(identifier, std::move(statements));
 }
 
 Stmt Parser::statementNoop()
@@ -310,16 +308,12 @@ Stmt Parser::statementPrint()
 {
     auto expr = expression();
     expectNewLine();
-    return std::make_shared<Statement>(
-        Statement::Print(std::move(expr)),
-        previous->line);
+    return newStmt<Statement::Print>(std::move(expr));
 }
 
 Stmt Parser::expressionStatement()
 {
     auto expr = expression();
     expectNewLine();
-    return std::make_shared<Statement>(
-        Statement::ExpressionStatement(std::move(expr)),
-        previous->line);
+    return newStmt<Statement::ExpressionStatement>(std::move(expr));
 }

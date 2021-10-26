@@ -51,6 +51,8 @@ private:
     void expectParenLeft();
     void expectParenRight();
 
+    template<typename T, typename... Args>
+    Expr newExpr(Args... args);
     Expr expression();
     void parseExpression(Precedence precedence);
     void and_(bool);
@@ -61,6 +63,8 @@ private:
     void or_(bool);
     void unary(bool);
 
+    template<typename T, typename... Args>
+    Stmt newStmt(Args... args);
     Stmt program();
     Stmt declaration();
     Stmt statement();
