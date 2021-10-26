@@ -28,17 +28,20 @@
     <ClCompile Include="src\statement.cpp" />
     <ClCompile Include="src\expression.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\stringpool.cpp" />
     <ClCompile Include="src\tokenizer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\astprinter.h" />
     <ClInclude Include="src\dzobject.h" />
     <ClInclude Include="src\dzstring.h" />
+    <ClInclude Include="src\dztable.h" />
     <ClInclude Include="src\dzvalue.h" />
     <ClInclude Include="src\sourcelocation.h" />
     <ClInclude Include="src\parser.h" />
     <ClInclude Include="src\astwalker.h" />
     <ClInclude Include="src\statement.h" />
+    <ClInclude Include="src\stringpool.h" />
     <ClInclude Include="src\token.h" />
     <ClInclude Include="src\errors.h" />
     <ClInclude Include="src\expression.h" />
@@ -83,7 +86,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)modules\shell\include\;$(ProjectDir)modules\robin-hood-hashing\src\include\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)modules\;$(ProjectDir)modules\shell\include\</AdditionalIncludeDirectories>
       <ObjectFileName>$(IntDir)/%(RelativeDir)/</ObjectFileName>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -103,7 +106,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
-      <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)modules\shell\include\;$(ProjectDir)modules\robin-hood-hashing\src\include\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)modules\;$(ProjectDir)modules\shell\include\</AdditionalIncludeDirectories>
       <ObjectFileName>$(IntDir)/%(RelativeDir)/</ObjectFileName>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>

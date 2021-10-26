@@ -9,6 +9,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -flto")
 include_directories(src)
 include_directories(modules)
 include_directories(../drizzle/src)
+include_directories(../drizzle/modules)
 include_directories(../drizzle/modules/shell/include)
 
 file(GLOB_RECURSE SOURCE_FILES
