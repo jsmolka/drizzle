@@ -17,7 +17,10 @@
     <ResourceCompile Include="drizzle.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\dzstring.cpp" />
     <ClCompile Include="src\astprinter.cpp" />
+    <ClCompile Include="src\dzobject.cpp" />
+    <ClCompile Include="src\dzvalue.cpp" />
     <ClCompile Include="src\errors.cpp" />
     <ClCompile Include="src\sourcelocation.cpp" />
     <ClCompile Include="src\parser.cpp" />
@@ -29,6 +32,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\astprinter.h" />
+    <ClInclude Include="src\dzobject.h" />
+    <ClInclude Include="src\dzstring.h" />
+    <ClInclude Include="src\dzvalue.h" />
     <ClInclude Include="src\sourcelocation.h" />
     <ClInclude Include="src\parser.h" />
     <ClInclude Include="src\astwalker.h" />

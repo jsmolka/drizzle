@@ -45,6 +45,15 @@
     <ClCompile Include="..\drizzle\src\errors.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\drizzle\src\dzobject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\drizzle\src\dzstring.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\drizzle\src\dzvalue.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\scanner.inl">

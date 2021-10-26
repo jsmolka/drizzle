@@ -15,11 +15,11 @@ public:
         Location(std::size_t line);
         Location(const char* location);
 
-        Type type;
+        const Type type;
         union
         {
-            std::size_t line;
-            const char* location;
+            const std::size_t line;
+            const char* const location;
         };
     };
 
@@ -30,10 +30,10 @@ public:
     virtual const char* name() const noexcept = 0;
     virtual const char* what() const noexcept final;
 
-    Location location;
+    const Location location;
 
 private:
-    std::string message;
+    const std::string message;
 };
 
 class SyntaxError : public Error

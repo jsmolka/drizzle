@@ -109,7 +109,7 @@ public:
     Expression(Unary unary, const SourceLocation& location);
     ~Expression();
 
-    Type type;
+    const Type type;
     union
     {
         Binary binary;
@@ -117,5 +117,5 @@ public:
         Literal literal;
         Unary unary;
     };
-    SourceLocation location;
+    const SourceLocation location;
 };

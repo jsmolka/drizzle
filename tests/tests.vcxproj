@@ -16,6 +16,9 @@
   <ItemGroup>
     <ClCompile Include="..\drizzle\src\astprinter.cpp" />
     <ClCompile Include="..\drizzle\src\astwalker.cpp" />
+    <ClCompile Include="..\drizzle\src\dzobject.cpp" />
+    <ClCompile Include="..\drizzle\src\dzstring.cpp" />
+    <ClCompile Include="..\drizzle\src\dzvalue.cpp" />
     <ClCompile Include="..\drizzle\src\errors.cpp" />
     <ClCompile Include="..\drizzle\src\expression.cpp" />
     <ClCompile Include="..\drizzle\src\parser.cpp" />

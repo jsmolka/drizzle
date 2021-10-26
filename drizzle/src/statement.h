@@ -57,7 +57,7 @@ public:
     Statement(Program program, const SourceLocation& location);
     ~Statement();
 
-    Type type;
+    const Type type;
     union
     {
         Block block;
@@ -65,5 +65,5 @@ public:
         Print print;
         Program program;
     };
-    SourceLocation location;
+    const SourceLocation location;
 };
