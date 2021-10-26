@@ -1,3 +1,5 @@
+#pragma once
+
 #include <robin_hood/robin_hood.h>
 #include <shell/functional.h>
 
