@@ -1,21 +1,165 @@
 #include "compiler.h"
 
+#include <shell/macros.h>
+
+#include "errors.h"
+#include "opcode.h"
+
 Compiler::Compiler(StringPool& pool)
     : pool(pool)
 {
 }
 
-void Compiler::compile(Stmt& ast, Chunk& chunk)
+void Compiler::compile(const Stmt& ast, Chunk& chunk)
 {
     this->chunk = &chunk;
+    compile(ast);
 }
 
-void Compiler::walk(Stmt& stmt)
+template<typename ...Bytes>
+void Compiler::emit(Bytes ...bytes)
 {
-
+    (chunk->write(static_cast<u8>(bytes), line), ...);
 }
 
-void Compiler::walk(Expr& expr)
+void Compiler::emitConstant(DzValue value)
 {
+    const auto index = chunk->constants.size();
+    if (index <= std::numeric_limits<u8>::max())
+        emit(Opcode::Constant, index);
+    else if (index <= std::numeric_limits<u16>::max())
+        emit(Opcode::ConstantExt, index, index >> 8);
+    else
+        throw CompilerError(line, "constant limit exceeded");
 
+    chunk->constants.push_back(value);
+}
+
+void Compiler::compile(const Stmt& stmt)
+{
+    static_assert(int(Statement::Type::LastEnumValue) == 5, "Update");
+
+    line = stmt->location.line;
+
+    switch (stmt->type)
+    {
+    case Statement::Type::Noop: break; 
+    case Statement::Type::Block:               compile(stmt->block); break;
+    case Statement::Type::ExpressionStatement: compile(stmt->expression_statement); break;
+    case Statement::Type::Print:               compile(stmt->print); break;
+    case Statement::Type::Program:             compile(stmt->program); break;
+
+    default:
+        SHELL_UNREACHABLE;
+        break;
+    }
+}
+
+void Compiler::compile(const Statement::Block& block)
+{
+    for (auto& stmt : block.statements)
+        compile(stmt);
+}
+
+void Compiler::compile(const Statement::ExpressionStatement& expression_statement)
+{
+    compile(expression_statement.expression);
+}
+
+void Compiler::compile(const Statement::Print& print)
+{
+    compile(print.expression);
+}
+
+void Compiler::compile(const Statement::Program& program)
+{
+    for (auto& stmt : program.statements)
+        compile(stmt);
+}
+
+void Compiler::compile(const Expr& expr)
+{
+    static_assert(int(Expression::Type::LastEnumValue) == 4, "Update");
+
+    line = expr->location.line;
+
+    switch (expr->type)
+    {
+    case Expression::Type::Binary:  compile(expr->binary); break;
+    case Expression::Type::Group:   compile(expr->group); break;
+    case Expression::Type::Literal: compile(expr->literal); break;
+    case Expression::Type::Unary:   compile(expr->unary); break;
+
+    default:
+        SHELL_UNREACHABLE;
+        break;
+    }
+}
+
+void Compiler::compile(const Expression::Binary& binary)
+{
+    static_assert(int(Expression::Binary::Type::LastEnumValue) == 21, "Update");
+
+    compile(binary.left);
+    compile(binary.right);
+
+    switch (binary.type)
+    {
+    case Expression::Binary::Type::Addition:        emit(Opcode::Add); break;
+    case Expression::Binary::Type::And: /* HANDLE */ break;
+    case Expression::Binary::Type::BitwiseAnd:      emit(Opcode::BitwiseAnd); break;
+    case Expression::Binary::Type::BitwiseAsr:      emit(Opcode::BitwiseAsr); break;
+    case Expression::Binary::Type::BitwiseLsl:      emit(Opcode::BitwiseLsl); break;
+    case Expression::Binary::Type::BitwiseLsr:      emit(Opcode::BitwiseLsr); break;
+    case Expression::Binary::Type::BitwiseOr:       emit(Opcode::BitwiseOr); break;
+    case Expression::Binary::Type::BitwiseXor:      emit(Opcode::BitwiseXor); break;
+    case Expression::Binary::Type::Division:        emit(Opcode::Divide); break;
+    case Expression::Binary::Type::Equal:           emit(Opcode::Equal); break;
+    case Expression::Binary::Type::Greater:         emit(Opcode::Greater); break;
+    case Expression::Binary::Type::GreaterEqual:    emit(Opcode::GreaterEqual); break;
+    case Expression::Binary::Type::IntegerDivision: emit(Opcode::DivideInt); break;
+    case Expression::Binary::Type::Less:            emit(Opcode::Less); break;
+    case Expression::Binary::Type::LessEqual:       emit(Opcode::LessEqual); break;
+    case Expression::Binary::Type::Modulo:          emit(Opcode::Modulo); break;
+    case Expression::Binary::Type::Multiplication:  emit(Opcode::Multiply); break;
+    case Expression::Binary::Type::NotEqual:        emit(Opcode::NotEqual); break;
+    case Expression::Binary::Type::Or: /* HANDLE */ break;
+    case Expression::Binary::Type::Power:           emit(Opcode::Power); break;
+    case Expression::Binary::Type::Subtraction:     emit(Opcode::Subtract); break;
+
+    default:
+        SHELL_UNREACHABLE;
+        break;
+    }
+}
+
+void Compiler::compile(const Expression::Group& group)
+{
+    compile(group.expression);
+}
+
+void Compiler::compile(const Expression::Literal& literal)
+{
+    static_assert(int(Expression::Literal::Type::LastEnumValue) == 5, "Update");
+
+    DzValue value;
+    switch (literal.type)
+    {
+    case Expression::Literal::Type::Null: break;
+    case Expression::Literal::Type::Boolean: value = std::get<dzbool>(literal.value); break;
+    case Expression::Literal::Type::Float:   value = std::get<dzfloat>(literal.value); break;
+    case Expression::Literal::Type::Integer: value = std::get<dzint>(literal.value); break;
+    case Expression::Literal::Type::String:  value = pool.make(std::string(std::get<std::string>(literal.value))); break;
+
+    default:
+        SHELL_UNREACHABLE;
+        break;
+    }
+
+    emitConstant(value);
+}
+
+void Compiler::compile(const Expression::Unary& unary)
+{
+    compile(unary.expression);
 }
