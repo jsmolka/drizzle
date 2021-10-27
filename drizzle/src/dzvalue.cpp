@@ -3,8 +3,8 @@
 #include <shell/macros.h>
 
 DzValue::DzValue()
+    : type(Type::Null)
 {
-    type = Type::Null;
 }
 
 std::string_view DzValue::typeName() const

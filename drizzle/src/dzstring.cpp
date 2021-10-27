@@ -5,7 +5,6 @@ DzString::DzString(std::string&& data, std::size_t hash)
     , data(std::move(data))
     , hash(hash)
 {
-
 }
 
 DzString::operator bool() const

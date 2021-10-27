@@ -4,4 +4,4 @@
 #include <shell/functional.h>
 
 template<typename T>
-using DzTable = robin_hood::unordered_flat_map<std::size_t, T, shell::Identity>;
+using DzMap = robin_hood::unordered_flat_map<std::size_t, T, shell::Identity>;

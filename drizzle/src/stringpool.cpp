@@ -21,8 +21,3 @@ DzString* StringPool::make(std::string&& data)
         return string;
     }
 }
-
-DzString* StringPool::make(const std::string& data)
-{
-    return make(std::string(data));
-}

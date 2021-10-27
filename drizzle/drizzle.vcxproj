@@ -18,6 +18,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\chunk.cpp" />
+    <ClCompile Include="src\compiler.cpp" />
     <ClCompile Include="src\dzstring.cpp" />
     <ClCompile Include="src\astprinter.cpp" />
     <ClCompile Include="src\dzobject.cpp" />
@@ -35,10 +36,12 @@
   <ItemGroup>
     <ClInclude Include="src\astprinter.h" />
     <ClInclude Include="src\chunk.h" />
+    <ClInclude Include="src\compiler.h" />
     <ClInclude Include="src\dzobject.h" />
     <ClInclude Include="src\dzstring.h" />
-    <ClInclude Include="src\dztable.h" />
+    <ClInclude Include="src\dzmap.h" />
     <ClInclude Include="src\dzvalue.h" />
+    <ClInclude Include="src\opcode.h" />
     <ClInclude Include="src\sourcelocation.h" />
     <ClInclude Include="src\parser.h" />
     <ClInclude Include="src\astwalker.h" />
