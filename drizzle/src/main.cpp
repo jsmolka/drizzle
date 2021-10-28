@@ -2,7 +2,7 @@
 #include <shell/main.h>
 #include <shell/options.h>
 
-#include "astprinter.h"
+#include "astformatter.h"
 #include "compiler.h"
 #include "errors.h"
 #include "parser.h"
@@ -112,7 +112,7 @@ int main(int argc, char* argv[])
 
         if (print_ast)
         {
-            fmt::print("{}\n", AstPrinter().print(ast));
+            fmt::print("{}", AstFormatter().format(ast));
         }
         else
         {

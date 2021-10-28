@@ -14,7 +14,7 @@
     <Text Include="CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\drizzle\src\astprinter.cpp" />
+    <ClCompile Include="..\drizzle\src\astformatter.cpp" />
     <ClCompile Include="..\drizzle\src\astwalker.cpp" />
     <ClCompile Include="..\drizzle\src\chunk.cpp" />
     <ClCompile Include="..\drizzle\src\dzobject.cpp" />

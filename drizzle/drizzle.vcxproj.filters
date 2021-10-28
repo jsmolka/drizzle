@@ -36,7 +36,7 @@
     <ClCompile Include="src\parser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\astprinter.cpp">
+    <ClCompile Include="src\astformatter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\sourcelocation.cpp">
@@ -103,7 +103,7 @@
     <ClInclude Include="src\parser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\astprinter.h">
+    <ClInclude Include="src\astformatter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\sourcelocation.h">

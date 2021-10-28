@@ -3,10 +3,10 @@
 #include "astwalker.h"
 #include "format.h"
 
-class AstPrinter final : public AstWalker
+class AstFormatter final : public AstWalker
 {
 public:
-    std::string print(Stmt& ast);
+    std::string format(Stmt& ast);
 
 protected:
     void before(Stmt& stmt) final;

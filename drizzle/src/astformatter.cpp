@@ -1,6 +1,6 @@
-#include "astprinter.h"
+#include "astformatter.h"
 
-std::string AstPrinter::print(Stmt& ast)
+std::string AstFormatter::format(Stmt& ast)
 {
     out.clear();
     indentation = 0;
@@ -10,7 +10,7 @@ std::string AstPrinter::print(Stmt& ast)
     return fmt::to_string(out);
 }
 
-void AstPrinter::before(Stmt& stmt)
+void AstFormatter::before(Stmt& stmt)
 {
     static_assert(int(Statement::Type::LastEnumValue) == 6, "Update");
 
@@ -33,12 +33,12 @@ void AstPrinter::before(Stmt& stmt)
     indentation++;
 }
 
-void AstPrinter::after(Stmt& stmt)
+void AstFormatter::after(Stmt& stmt)
 {
     indentation--;
 }
 
-void AstPrinter::before(Expr& expr)
+void AstFormatter::before(Expr& expr)
 {
     static_assert(int(Expression::Type::LastEnumValue) == 4, "Update");
 
@@ -64,12 +64,12 @@ void AstPrinter::before(Expr& expr)
     indentation++;
 }
 
-void AstPrinter::after(Expr& expr)
+void AstFormatter::after(Expr& expr)
 {
     indentation--;
 }
 
-void AstPrinter::indent()
+void AstFormatter::indent()
 {
     fmt::format_to(out, "{:<{}}", "", 2 * indentation);
 }
