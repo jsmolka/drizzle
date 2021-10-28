@@ -154,21 +154,32 @@ void Compiler::compile(const Expression::Literal& literal)
 {
     static_assert(int(Expression::Literal::Type::LastEnumValue) == 5, "Update");
 
-    DzValue value;
     switch (literal.type)
     {
-    case Expression::Literal::Type::Null: break;
-    case Expression::Literal::Type::Boolean: value = std::get<dzbool>(literal.value); break;
-    case Expression::Literal::Type::Float:   value = std::get<dzfloat>(literal.value); break;
-    case Expression::Literal::Type::Integer: value = std::get<dzint>(literal.value); break;
-    case Expression::Literal::Type::String:  value = pool.make(std::string(std::get<std::string>(literal.value))); break;
+    case Expression::Literal::Type::Null:
+        emit(Opcode::Null);
+        break;
+
+    case Expression::Literal::Type::Boolean:
+        emit(std::get<dzbool>(literal.value) ? Opcode::True : Opcode::False);
+        break;
+
+    case Expression::Literal::Type::Float:
+        emitConstant(std::get<dzfloat>(literal.value));
+        break;
+        
+    case Expression::Literal::Type::Integer:
+        emitConstant(std::get<dzint>(literal.value));
+        break;
+
+    case Expression::Literal::Type::String:
+        emitConstant(pool.make(std::string(std::get<std::string>(literal.value))));
+        break;
 
     default:
         SHELL_UNREACHABLE;
         break;
     }
-
-    emitConstant(value);
 }
 
 void Compiler::compile(const Expression::Unary& unary)
