@@ -62,11 +62,13 @@ private:
     void literal(bool);
     void or_(bool);
     void unary(bool);
+    void variable(bool assign);
 
     template<typename T, typename... Args>
     Stmt newStmt(Args... args);
     Stmt program();
     Stmt declaration();
+    Stmt declarationVar();
     Stmt statement();
     Stmt statementBlock();
     Stmt statementNoop();

@@ -18,6 +18,7 @@ public:
         Noop,
         Print,
         Program,
+        VariableDefinition,
         LastEnumValue,
     };
 
@@ -50,11 +51,20 @@ public:
         std::vector<Stmt> statements;
     };
 
+    struct VariableDefinition
+    {
+        VariableDefinition(std::string_view identifier, Expr initializer);
+
+        std::string_view identifier;
+        Expr initializer;
+    };
+
     Statement(const SourceLocation& location);
     Statement(Block block, const SourceLocation& location);
     Statement(ExpressionStatement expression, const SourceLocation& location);
     Statement(Print print, const SourceLocation& location);
     Statement(Program program, const SourceLocation& location);
+    Statement(VariableDefinition variable_definition, const SourceLocation& location);
     ~Statement();
 
     const Type type;
@@ -64,6 +74,7 @@ public:
         ExpressionStatement expression_statement;
         Print print;
         Program program;
+        VariableDefinition variable_definition;
     };
     const SourceLocation location;
 };

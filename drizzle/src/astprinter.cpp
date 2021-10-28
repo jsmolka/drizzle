@@ -12,7 +12,7 @@ std::string AstPrinter::print(Stmt& ast)
 
 void AstPrinter::before(Stmt& stmt)
 {
-    static_assert(int(Statement::Type::LastEnumValue) == 5, "Update");
+    static_assert(int(Statement::Type::LastEnumValue) == 6, "Update");
 
     indent();
     fmt::format_to(out, "{}", stmt->type);
@@ -22,6 +22,10 @@ void AstPrinter::before(Stmt& stmt)
     case Statement::Type::Block:
         if (stmt->block.identifier.size())
             fmt::format_to(out, " {}", stmt->block.identifier);
+        break;
+
+    case Statement::Type::VariableDefinition:
+        fmt::format_to(out, " {}", stmt->variable_definition.identifier);
         break;
     }
 

@@ -4,7 +4,7 @@
 
 void AstWalker::walk(Stmt& stmt)
 {
-    static_assert(int(Statement::Type::LastEnumValue) == 5, "Update");
+    static_assert(int(Statement::Type::LastEnumValue) == 6, "Update");
 
     before(stmt);
 
@@ -29,6 +29,10 @@ void AstWalker::walk(Stmt& stmt)
     case Statement::Type::Program:
         for (auto& stmt : stmt->program.statements)
             walk(stmt);
+        break;
+
+    case Statement::Type::VariableDefinition:
+        walk(stmt->variable_definition.initializer);
         break;
 
     default:

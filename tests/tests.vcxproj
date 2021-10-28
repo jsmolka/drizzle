@@ -42,6 +42,7 @@
     <None Include="src\parser\stmt\noop.inl" />
     <None Include="src\parser\stmt\print.inl" />
     <None Include="src\parser\stmt\program.inl" />
+    <None Include="src\parser\stmt\variable_definition.inl" />
     <None Include="src\parser\stmt\_tests.inl" />
     <None Include="src\parser\_tests.inl" />
     <None Include="src\scanner.inl" />

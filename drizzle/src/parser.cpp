@@ -30,7 +30,7 @@ const Parser::Rule& Parser::rule(Token::Type type)
         case Token::Type::Greater2:     return { nullptr,           &Parser::binary, Precedence::BitShift   };
         case Token::Type::Greater3:     return { nullptr,           &Parser::binary, Precedence::BitShift   };
         case Token::Type::GreaterEqual: return { nullptr,           &Parser::binary, Precedence::Comparison };
-        case Token::Type::Identifier:   return { nullptr,           nullptr,         Precedence::None       };
+        case Token::Type::Identifier:   return { &Parser::variable, nullptr,         Precedence::None       };
         case Token::Type::Integer:      return { &Parser::constant, nullptr,         Precedence::Term       };
         case Token::Type::Less:         return { nullptr,           &Parser::binary, Precedence::Comparison };
         case Token::Type::Less2:        return { nullptr,           &Parser::binary, Precedence::BitShift   };
@@ -103,8 +103,8 @@ void Parser::parseExpression(Precedence precedence)
     if (!prefix)
         throw SyntaxError(previous->lexeme.data(), "invalid syntax");
 
-    auto can_assign = precedence <= Precedence::Assignment;
-    std::invoke(prefix, this, can_assign);
+    auto assign = precedence <= Precedence::Assignment;
+    std::invoke(prefix, this, assign);
 
     while (precedence <= rule(current->type).precedence)
     {
@@ -113,10 +113,10 @@ void Parser::parseExpression(Precedence precedence)
         if (!infix)
             throw SyntaxError(previous->lexeme.data(), "invalid syntax");
 
-        std::invoke(infix, this, can_assign);
+        std::invoke(infix, this, assign);
     }
 
-    if (can_assign && match(Token::Type::Equal))
+    if (assign && match(Token::Type::Equal))
         throw SyntaxError(previous->lexeme.data(), "bad assignment");
 }
 
@@ -246,6 +246,10 @@ void Parser::unary(bool)
     stack.push(newExpr<Expression::Unary>(type(token), stack.popValue()));
 }
 
+void Parser::variable(bool assign)
+{
+}
+
 template<typename T, typename ...Args>
 Stmt Parser::newStmt(Args ...args)
 {
@@ -264,7 +268,26 @@ Stmt Parser::program()
 
 Stmt Parser::declaration()
 {
+    if (match(Token::Type::Var))
+        return declarationVar();
+
     return statement();
+}
+
+Stmt Parser::declarationVar()
+{
+    expectIdentifier();
+    const auto identifier = previous->lexeme;
+
+    Expr initializer;
+    if (match(Token::Type::Equal))
+        initializer = expression();
+    else
+        initializer = newExpr<Expression::Literal>();
+
+    expectNewLine();
+
+    return newStmt<Statement::VariableDefinition>(identifier, std::move(initializer));
 }
 
 Stmt Parser::statement()

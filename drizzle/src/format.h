@@ -164,7 +164,7 @@ struct fmt::formatter<Statement::Type>
 
     static constexpr std::string_view repr(const Statement::Type& value)
     {
-        static_assert(int(Statement::Type::LastEnumValue) == 5);
+        static_assert(int(Statement::Type::LastEnumValue) == 6);
 
         switch (value)
         {
@@ -173,6 +173,7 @@ struct fmt::formatter<Statement::Type>
         case Statement::Type::Noop:                 return "noop";
         case Statement::Type::Print:                return "print";
         case Statement::Type::Program:              return "program";
+        case Statement::Type::VariableDefinition:   return "variable_definition";
 
         default:
             SHELL_UNREACHABLE;

@@ -22,6 +22,11 @@ Statement::Program::Program(std::vector<Stmt> statements)
 {
 }
 
+Statement::VariableDefinition::VariableDefinition(std::string_view identifier, Expr initializer)
+    : identifier(identifier), initializer(std::move(initializer))
+{
+}
+
 Statement::Statement(const SourceLocation& location)
     : type(Type::Noop), location(location)
 {
@@ -47,6 +52,11 @@ Statement::Statement(Program program, const SourceLocation& location)
 {
 }
 
+Statement::Statement(VariableDefinition variable_definition, const SourceLocation& location)
+    : type(Type::VariableDefinition), variable_definition(std::move(variable_definition)), location(location)
+{
+}
+
 Statement::~Statement()
 {
     switch (type)
@@ -56,6 +66,7 @@ Statement::~Statement()
     case Type::Noop: break;
     case Type::Print: print.~Print(); break;
     case Type::Program: program.~Program(); break;
+    case Type::VariableDefinition: variable_definition.~VariableDefinition(); break;
 
     default:
         SHELL_UNREACHABLE;

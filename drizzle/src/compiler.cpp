@@ -38,7 +38,7 @@ void Compiler::emitConstant(DzValue value)
 
 void Compiler::compile(const Stmt& stmt)
 {
-    static_assert(int(Statement::Type::LastEnumValue) == 5, "Update");
+    static_assert(int(Statement::Type::LastEnumValue) == 6, "Update");
 
     line = stmt->location.line;
 
@@ -79,6 +79,11 @@ void Compiler::compile(const Statement::Program& program)
 {
     for (auto& stmt : program.statements)
         compile(stmt);
+}
+
+void Compiler::compile(const Statement::VariableDefinition& variable_definition)
+{
+    // TODO
 }
 
 void Compiler::compile(const Expr& expr)
