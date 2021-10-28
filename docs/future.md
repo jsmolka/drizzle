@@ -9,6 +9,7 @@
 - Precedence assignment for parens ok?
 - Map optimized for integers
 - Make print a function with no fixed arity
+- Handle chained comparisons
 
 ## Exceptions
 - [Zero cost](https://bugs.python.org/issue40222)
