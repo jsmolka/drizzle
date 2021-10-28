@@ -24,8 +24,8 @@ void AstPrinter::before(Stmt& stmt)
             fmt::format_to(out, " {}", stmt->block.identifier);
         break;
 
-    case Statement::Type::VariableDefinition:
-        fmt::format_to(out, " {}", stmt->variable_definition.identifier);
+    case Statement::Type::Var:
+        fmt::format_to(out, " {}", stmt->var.identifier);
         break;
     }
 

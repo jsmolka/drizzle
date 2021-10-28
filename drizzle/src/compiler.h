@@ -21,7 +21,7 @@ private:
     void compile(const Statement::ExpressionStatement& expression_statement);
     void compile(const Statement::Print& print);
     void compile(const Statement::Program& program);
-    void compile(const Statement::VariableDefinition& variable_definition);
+    void compile(const Statement::Var& variable_definition);
     void compile(const Expr& expr);
     void compile(const Expression::Binary& binary);
     void compile(const Expression::Group& group);

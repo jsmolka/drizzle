@@ -287,7 +287,7 @@ Stmt Parser::declarationVar()
 
     expectNewLine();
 
-    return newStmt<Statement::VariableDefinition>(identifier, std::move(initializer));
+    return newStmt<Statement::Var>(identifier, std::move(initializer));
 }
 
 Stmt Parser::statement()

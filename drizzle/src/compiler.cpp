@@ -81,7 +81,7 @@ void Compiler::compile(const Statement::Program& program)
         compile(stmt);
 }
 
-void Compiler::compile(const Statement::VariableDefinition& variable_definition)
+void Compiler::compile(const Statement::Var& variable_definition)
 {
     // TODO
 }

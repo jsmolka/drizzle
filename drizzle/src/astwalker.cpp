@@ -31,8 +31,8 @@ void AstWalker::walk(Stmt& stmt)
             walk(stmt);
         break;
 
-    case Statement::Type::VariableDefinition:
-        walk(stmt->variable_definition.initializer);
+    case Statement::Type::Var:
+        walk(stmt->var.initializer);
         break;
 
     default:

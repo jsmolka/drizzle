@@ -173,7 +173,7 @@ struct fmt::formatter<Statement::Type>
         case Statement::Type::Noop:                 return "noop";
         case Statement::Type::Print:                return "print";
         case Statement::Type::Program:              return "program";
-        case Statement::Type::VariableDefinition:   return "variable_definition";
+        case Statement::Type::Var:                  return "var";
 
         default:
             SHELL_UNREACHABLE;
