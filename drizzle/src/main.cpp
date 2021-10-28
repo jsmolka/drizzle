@@ -87,8 +87,8 @@ int main(int argc, char* argv[])
     using namespace shell::filesystem;
 
     Options options("drizzle");
-    options.add({ "-a,--ast", "print ast"   }, Options::value<bool>(false));
-    options.add({     "file", "script file" }, Options::value<filesystem::path>()->positional());
+    options.add({ "-a,--ast", "print AST"       }, Options::value<bool>(false));
+    options.add({     "file", "file to execute" }, Options::value<filesystem::path>()->positional());
 
     try
     {
@@ -112,7 +112,7 @@ int main(int argc, char* argv[])
 
         if (print_ast)
         {
-            fmt::print("{}", AstFormatter().format(ast));
+            shell::print(AstFormatter().format(ast));
         }
         else
         {
@@ -130,7 +130,7 @@ int main(int argc, char* argv[])
     }
     catch (const shell::ParseError& error)
     {
-        shell::print("OptionsError: {}\n", error.what());
+        shell::print("{}\n\n{}", error.what(), options.help());
         return 1;
     }
     catch (const std::exception& error)

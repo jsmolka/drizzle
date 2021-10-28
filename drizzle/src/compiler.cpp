@@ -49,6 +49,7 @@ void Compiler::compile(const Stmt& stmt)
     case Statement::Type::ExpressionStatement: compile(stmt->expression_statement); break;
     case Statement::Type::Print:               compile(stmt->print); break;
     case Statement::Type::Program:             compile(stmt->program); break;
+    case Statement::Type::Var:                 compile(stmt->var); break;
 
     default:
         SHELL_UNREACHABLE;
@@ -81,7 +82,7 @@ void Compiler::compile(const Statement::Program& program)
         compile(stmt);
 }
 
-void Compiler::compile(const Statement::Var& variable_definition)
+void Compiler::compile(const Statement::Var& var)
 {
     // TODO
 }
