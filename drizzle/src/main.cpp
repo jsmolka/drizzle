@@ -1,5 +1,6 @@
 #include <shell/filesystem.h>
 #include <shell/main.h>
+#include <shell/options.h>
 
 #include "astprinter.h"
 #include "compiler.h"
@@ -82,16 +83,19 @@ void printError(const Error& error)
 
 int main(int argc, char* argv[])
 {
+    using namespace shell;
     using namespace shell::filesystem;
+
+    Options options("drizzle");
+    options.add({ "-a,--ast", "print ast"   }, Options::value<bool>(false));
+    options.add({     "file", "script file" }, Options::value<filesystem::path>()->positional());
+
     try
     {
-        if (argc != 2)
-        {
-            shell::print("Usage: drizzle <file>\n");
-            return 0;
-        }
+        const auto result = options.parse(argc, argv);
+        const auto file(*result.find<filesystem::path>("file"));
+        const auto print_ast(*result.find<bool>("--ast"));
 
-        const auto file = u8path(argv[1]);
         const auto status = read(file, source);
 
         if (status != Status::Ok)
@@ -104,22 +108,34 @@ int main(int argc, char* argv[])
         source.push_back('\n');
 
         const auto tokens = Tokenizer().tokenize(source);
-        const auto ast = Parser().parse(tokens);
-        StringPool pool;
-        Chunk chunk;
-        Compiler(pool).compile(ast, chunk);
-        Vm(pool).interpret(chunk);
+        auto ast = Parser().parse(tokens);
 
+        if (print_ast)
+        {
+            fmt::print("{}\n", AstPrinter().print(ast));
+        }
+        else
+        {
+            StringPool pool;
+            Chunk chunk;
+            Compiler(pool).compile(ast, chunk);
+            Vm(pool).interpret(chunk);
+        }
         return 0;
     }
-    catch (const Error& error)
+    catch (const ::Error& error)
     {
         printError(error);
         return 1;
     }
+    catch (const shell::ParseError& error)
+    {
+        shell::print("OptionsError: {}\n", error.what());
+        return 1;
+    }
     catch (const std::exception& error)
     {
-        shell::print("Unknown: {}\n", error.what());
+        shell::print("Unknown error: {}\n", error.what());
         return 1;
     }
 }
