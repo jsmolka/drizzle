@@ -26,7 +26,6 @@ private:
     void binary(std::string_view operation, Handler callback);
 
     void add();
-    void assertion();
     void bitwiseAnd();
     void bitwiseAsr();
     void bitwiseComplement();

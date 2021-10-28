@@ -22,7 +22,6 @@ void Vm::interpret(const Chunk& chunk)
         switch (static_cast<Opcode>(read<u8>()))
         {
         case Opcode::Add: add(); break;
-        //case Opcode::Assert: assertion(); break;
         case Opcode::BitwiseAnd: bitwiseAnd(); break;
         case Opcode::BitwiseAsr: bitwiseAsr(); break;
         case Opcode::BitwiseComplement: bitwiseComplement(); break;
@@ -38,14 +37,14 @@ void Vm::interpret(const Chunk& chunk)
         case Opcode::False: pushFalse(); break;
         case Opcode::Greater: greater(); break;
         case Opcode::GreaterEqual: greaterEqual(); break;
-        //case Opcode::Jump: jump(); break;
-        //case Opcode::JumpFalse: jumpFalse(); break;
-        //case Opcode::JumpFalsePop: jumpFalsePop(); break;
-        //case Opcode::JumpTrue: jumpTrue(); break;
+        case Opcode::Jump: jump(); break;
+        case Opcode::JumpFalse: jumpFalse(); break;
+        case Opcode::JumpFalsePop: jumpFalsePop(); break;
+        case Opcode::JumpTrue: jumpTrue(); break;
         case Opcode::Less: less(); break;
         case Opcode::LessEqual: lessEqual(); break;
-        //case Opcode::LoadVariable: loadVariable(); break;
-        //case Opcode::LoadVariableExt: loadVariableExt(); break;
+        case Opcode::LoadVariable: loadVariable(); break;
+        case Opcode::LoadVariableExt: loadVariableExt(); break;
         case Opcode::Modulo: modulo(); break;
         case Opcode::Multiply: multiply(); break;
         case Opcode::Negate: negate(); break;
@@ -58,8 +57,8 @@ void Vm::interpret(const Chunk& chunk)
         case Opcode::Power: power(); break;
         case Opcode::Print: print(); break;
         case Opcode::Return: if (return_()) return; break;
-        //case Opcode::StoreVariable: storeVariable(); break;
-        //case Opcode::StoreVariableExt: storeVariableExt(); break;
+        case Opcode::StoreVariable: storeVariable(); break;
+        case Opcode::StoreVariableExt: storeVariableExt(); break;
         case Opcode::Subtract: subtract(); break;
         case Opcode::True: pushTrue(); break;
 
@@ -216,12 +215,6 @@ void Vm::add()
     });
 }
 
-void Vm::assertion()
-{
-    if (!stack.popValue())
-        raise<RuntimeError>("assertion failed");
-}
-
 void Vm::bitwiseAnd()
 {
     binary<promote_lax_t>("&", [](DzValue& dst, auto a, auto b)
@@ -350,13 +343,13 @@ void Vm::bitwiseXor()
 
 void Vm::constant()
 {
-    auto index = read<u8>();
+    const auto index = read<u8>();
     stack.push(chunk->constants[index]);
 }
 
 void Vm::constantExt()
 {
-    auto index = read<u16>();
+    const auto index = read<u16>();
     stack.push(chunk->constants[index]);
 }
 
@@ -462,21 +455,21 @@ void Vm::jump()
 
 void Vm::jumpFalse()
 {
-    auto offset = read<s16>();
+    const auto offset = read<s16>();
     if (!stack.top())
         pc += offset;
 }
 
 void Vm::jumpFalsePop()
 {
-    auto offset = read<s16>();
+    const auto offset = read<s16>();
     if (!stack.popValue())
         pc += offset;
 }
 
 void Vm::jumpTrue()
 {
-    auto offset = read<s16>();
+    const auto offset = read<s16>();
     if (stack.top())
         pc += offset;
 }
@@ -515,13 +508,13 @@ void Vm::lessEqual()
 
 void Vm::loadVariable()
 {
-    auto index = read<u8>();
+    const auto index = read<u8>();
     stack.push(stack[index]);
 }
 
 void Vm::loadVariableExt()
 {
-    auto index = read<u16>();
+    const auto index = read<u16>();
     stack.push(stack[index]);
 }
 
