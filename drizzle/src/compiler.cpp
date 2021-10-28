@@ -57,6 +57,7 @@ void Compiler::compile(const Stmt& stmt)
 
 void Compiler::compile(const Statement::Block& block)
 {
+    // Todo: break, scope
     for (auto& stmt : block.statements)
         compile(stmt);
 }
@@ -64,11 +65,13 @@ void Compiler::compile(const Statement::Block& block)
 void Compiler::compile(const Statement::ExpressionStatement& expression_statement)
 {
     compile(expression_statement.expression);
+    emit(Opcode::Pop);
 }
 
 void Compiler::compile(const Statement::Print& print)
 {
     compile(print.expression);
+    emit(Opcode::Print);
 }
 
 void Compiler::compile(const Statement::Program& program)
@@ -100,13 +103,22 @@ void Compiler::compile(const Expression::Binary& binary)
 {
     static_assert(int(Expression::Binary::Type::LastEnumValue) == 21, "Update");
 
+    if (binary.type == Expression::Binary::Type::And)
+    {
+        return;
+    }
+    
+    if (binary.type == Expression::Binary::Type::Or)
+    {
+        return;
+    }
+
     compile(binary.left);
     compile(binary.right);
 
     switch (binary.type)
     {
     case Expression::Binary::Type::Addition:        emit(Opcode::Add); break;
-    case Expression::Binary::Type::And: /* HANDLE */ break;
     case Expression::Binary::Type::BitwiseAnd:      emit(Opcode::BitwiseAnd); break;
     case Expression::Binary::Type::BitwiseAsr:      emit(Opcode::BitwiseAsr); break;
     case Expression::Binary::Type::BitwiseLsl:      emit(Opcode::BitwiseLsl); break;
@@ -123,7 +135,6 @@ void Compiler::compile(const Expression::Binary& binary)
     case Expression::Binary::Type::Modulo:          emit(Opcode::Modulo); break;
     case Expression::Binary::Type::Multiplication:  emit(Opcode::Multiply); break;
     case Expression::Binary::Type::NotEqual:        emit(Opcode::NotEqual); break;
-    case Expression::Binary::Type::Or: /* HANDLE */ break;
     case Expression::Binary::Type::Power:           emit(Opcode::Power); break;
     case Expression::Binary::Type::Subtraction:     emit(Opcode::Subtract); break;
 
@@ -161,5 +172,18 @@ void Compiler::compile(const Expression::Literal& literal)
 
 void Compiler::compile(const Expression::Unary& unary)
 {
+    static_assert(int(Expression::Unary::Type::LastEnumValue) == 3, "Update");
+
     compile(unary.expression);
+
+    switch (unary.type)
+    {
+    case Expression::Unary::Type::BitwiseComplement: emit(Opcode::BitwiseComplement); break;
+    case Expression::Unary::Type::Minus:             emit(Opcode::Negate); break;
+    case Expression::Unary::Type::Not:               emit(Opcode::Not); break;
+
+    default:
+        SHELL_UNREACHABLE;
+        break;
+    }
 }
