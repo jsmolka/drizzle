@@ -42,7 +42,7 @@ enum class Opcode
     PopMultipleExt,
     Power,
     Print,
-    //Return,
+    Return,
     //StoreVariable,
     //StoreVariableExt,
     Subtract,

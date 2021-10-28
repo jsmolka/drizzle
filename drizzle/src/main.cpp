@@ -2,9 +2,11 @@
 #include <shell/main.h>
 
 #include "astprinter.h"
+#include "compiler.h"
 #include "errors.h"
 #include "parser.h"
 #include "tokenizer.h"
+#include "vm.h"
 
 std::string source;
 
@@ -102,8 +104,11 @@ int main(int argc, char* argv[])
         source.push_back('\n');
 
         const auto tokens = Tokenizer().tokenize(source);
-        auto ast = Parser().parse(tokens);
-        shell::print(AstPrinter().print(ast));
+        const auto ast = Parser().parse(tokens);
+        StringPool pool;
+        Chunk chunk;
+        Compiler(pool).compile(ast, chunk);
+        Vm(pool).interpret(chunk);
 
         return 0;
     }

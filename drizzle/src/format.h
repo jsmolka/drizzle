@@ -201,7 +201,7 @@ struct fmt::formatter<DzValue>
     {
         const auto is_whole = [](double v) 
         {
-            return std::fmod(d, 1.0) == 0.0;
+            return std::fmod(v, 1.0) == 0.0;
         };
 
         switch (value.type)

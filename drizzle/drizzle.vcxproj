@@ -32,6 +32,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\stringpool.cpp" />
     <ClCompile Include="src\tokenizer.cpp" />
+    <ClCompile Include="src\vm.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\astprinter.h" />
@@ -54,6 +55,7 @@
     <ClInclude Include="src\int.h" />
     <ClInclude Include="src\dzprimitives.h" />
     <ClInclude Include="src\tokenizer.h" />
+    <ClInclude Include="src\vm.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

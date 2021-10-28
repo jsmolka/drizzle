@@ -14,6 +14,7 @@ void Compiler::compile(const Stmt& ast, Chunk& chunk)
 {
     this->chunk = &chunk;
     compile(ast);
+    emit(Opcode::Return);
 }
 
 template<typename ...Bytes>
