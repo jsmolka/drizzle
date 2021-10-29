@@ -1,6 +1,7 @@
 #include "compiler.h"
 
 #include <shell/macros.h>
+#include <shell/ranges.h>
 
 #include "errors.h"
 #include "opcode.h"
@@ -34,6 +35,40 @@ void Compiler::emitConstant(DzValue value)
         throw CompilerError(line, "constant limit exceeded");
 
     chunk->constants.push_back(value);
+}
+
+void Compiler::emitVariable(std::size_t index, Opcode opcode)
+{
+    if (index <= std::numeric_limits<u8>::max())
+        emit(opcode, index);
+    else if (index <= std::numeric_limits<u16>::max())
+        emit(Opcode(std::size_t(opcode) + 1), index, index >> 8);
+    else
+        throw CompilerError(line, "variable limit exceeded");
+}
+
+void Compiler::defineVariable(std::string_view identifier)
+{
+    for (const auto& variable : shell::reversed(variables))
+    {
+        if (variable.depth != scope.size())
+            break;
+
+        if (variable.identifier == identifier)
+            throw SyntaxError(identifier.data(), "redefined '{}'", identifier);
+    }
+    variables.push_back({ identifier, scope.size() });
+}
+
+Compiler::Variable& Compiler::resolveVariable(std::string_view identifier)
+{
+    for (auto& variable : shell::reversed(variables))
+    {
+        if (variable.identifier == identifier)
+            return variable;
+    }
+
+    throw SyntaxError(identifier.data(), "undefined variable '{}'", identifier);
 }
 
 void Compiler::compile(const Stmt& stmt)
@@ -84,7 +119,8 @@ void Compiler::compile(const Statement::Program& program)
 
 void Compiler::compile(const Statement::Var& var)
 {
-    // TODO
+    compile(var.initializer);
+    defineVariable(var.identifier);
 }
 
 void Compiler::compile(const Expr& expr)
@@ -110,7 +146,11 @@ void Compiler::compile(const Expr& expr)
 
 void Compiler::compile(const Expression::Assign& assign)
 {
-    // TODO
+    compile(assign.value);
+
+    const auto& var = resolveVariable(assign.identifier);
+    const auto index = std::distance<const Variable*>(variables.data(), &var);
+    emitVariable(index, Opcode::LoadVariable);
 }
 
 void Compiler::compile(const Expression::Binary& binary)
@@ -215,5 +255,7 @@ void Compiler::compile(const Expression::Unary& unary)
 
 void Compiler::compile(const Expression::Variable& variable)
 {
-    // TODO
+    const auto& var = resolveVariable(variable.identifier);
+    const auto index = std::distance<const Variable*>(variables.data(), &var);
+    emitVariable(index, Opcode::LoadVariable);
 }

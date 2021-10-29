@@ -1,6 +1,7 @@
 #pragma once
 
 #include "chunk.h"
+#include "opcode.h"
 #include "statement.h"
 #include "stringpool.h"
 
@@ -12,9 +13,24 @@ public:
     void compile(const Stmt& ast, Chunk& chunk);
 
 private:
+    struct Block
+    {
+
+    };
+
+    struct Variable
+    {
+        std::string_view identifier;
+        std::size_t depth;
+    };
+
     template<typename... Bytes>
     void emit(Bytes... bytes);
     void emitConstant(DzValue value);
+    void emitVariable(std::size_t index, Opcode opcode);
+
+    void defineVariable(std::string_view identifier);
+    Variable& resolveVariable(std::string_view identifier);
 
     void compile(const Stmt& stmt);
     void compile(const Statement::Block& block);
@@ -33,5 +49,7 @@ private:
     StringPool& pool;
     std::size_t line;
     Chunk* chunk;
+    std::vector<Block> scope;
+    std::vector<Variable> variables;
 };
 
