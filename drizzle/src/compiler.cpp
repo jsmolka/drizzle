@@ -38,7 +38,7 @@ void Compiler::emitConstant(DzValue value)
 
 void Compiler::compile(const Stmt& stmt)
 {
-    static_assert(int(Statement::Type::LastEnumValue) == 6, "Update");
+    static_assert(int(Statement::Type::LastEnumValue) == 6);
 
     line = stmt->location.line;
 
@@ -89,7 +89,7 @@ void Compiler::compile(const Statement::Var& var)
 
 void Compiler::compile(const Expr& expr)
 {
-    static_assert(int(Expression::Type::LastEnumValue) == 6, "Update");
+    static_assert(int(Expression::Type::LastEnumValue) == 6);
 
     line = expr->location.line;
 
@@ -115,7 +115,7 @@ void Compiler::compile(const Expression::Assign& assign)
 
 void Compiler::compile(const Expression::Binary& binary)
 {
-    static_assert(int(Expression::Binary::Type::LastEnumValue) == 21, "Update");
+    static_assert(int(Expression::Binary::Type::LastEnumValue) == 21);
 
     if (binary.type == Expression::Binary::Type::And)
     {
@@ -165,7 +165,7 @@ void Compiler::compile(const Expression::Group& group)
 
 void Compiler::compile(const Expression::Literal& literal)
 {
-    static_assert(int(Expression::Literal::Type::LastEnumValue) == 5, "Update");
+    static_assert(int(Expression::Literal::Type::LastEnumValue) == 5);
 
     switch (literal.type)
     {
@@ -197,7 +197,7 @@ void Compiler::compile(const Expression::Literal& literal)
 
 void Compiler::compile(const Expression::Unary& unary)
 {
-    static_assert(int(Expression::Unary::Type::LastEnumValue) == 3, "Update");
+    static_assert(int(Expression::Unary::Type::LastEnumValue) == 3);
 
     compile(unary.expression);
 

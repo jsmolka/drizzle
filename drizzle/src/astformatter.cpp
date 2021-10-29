@@ -12,7 +12,7 @@ std::string AstFormatter::format(Stmt& ast)
 
 void AstFormatter::before(Stmt& stmt)
 {
-    static_assert(int(Statement::Type::LastEnumValue) == 6, "Update");
+    static_assert(int(Statement::Type::LastEnumValue) == 6);
 
     indent();
     fmt::format_to(out, "{}", stmt->type);
@@ -40,7 +40,7 @@ void AstFormatter::after(Stmt& stmt)
 
 void AstFormatter::before(Expr& expr)
 {
-    static_assert(int(Expression::Type::LastEnumValue) == 6, "Update");
+    static_assert(int(Expression::Type::LastEnumValue) == 6);
 
     indent();
     fmt::format_to(out, "{}", expr->type);

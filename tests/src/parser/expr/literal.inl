@@ -1,6 +1,6 @@
 TEST_CASE("parser_expr_literal")
 {
-    static_assert(int(Expression::Literal::Type::LastEnumValue) == 5, "Update");
+    static_assert(int(Expression::Literal::Type::LastEnumValue) == 5);
 
     static constexpr std::string_view kLiterals[] =
     {

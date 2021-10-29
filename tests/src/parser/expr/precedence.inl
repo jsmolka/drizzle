@@ -33,7 +33,7 @@ TEST_CASE("parser_expr_precedence_1")
 
 TEST_CASE("parser_expr_precedence_2")
 {
-    static_assert(int(Expression::Binary::Type::LastEnumValue) == 21, "Update");
+    static_assert(int(Expression::Binary::Type::LastEnumValue) == 21);
 
     std::vector<std::vector<std::string_view>> precedences =
     {

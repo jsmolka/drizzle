@@ -1,4 +1,4 @@
-static_assert(int(Expression::Type::LastEnumValue) == 6, "Update");
+static_assert(int(Expression::Type::LastEnumValue) == 6);
 
 #include "assign.inl"
 #include "binary.inl"

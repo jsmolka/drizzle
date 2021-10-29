@@ -1,4 +1,4 @@
-static_assert(int(Statement::Type::LastEnumValue) == 6, "Update");
+static_assert(int(Statement::Type::LastEnumValue) == 6);
 
 #include "block.inl"
 #include "expression_statement.inl"

@@ -4,7 +4,7 @@
 
 void AstWalker::walk(Stmt& stmt)
 {
-    static_assert(int(Statement::Type::LastEnumValue) == 6, "Update");
+    static_assert(int(Statement::Type::LastEnumValue) == 6);
 
     before(stmt);
 
@@ -45,7 +45,7 @@ void AstWalker::walk(Stmt& stmt)
 
 void AstWalker::walk(Expr& expr)
 {
-    static_assert(int(Expression::Type::LastEnumValue) == 6, "Update");
+    static_assert(int(Expression::Type::LastEnumValue) == 6);
 
     before(expr);
 
