@@ -52,6 +52,29 @@ void Compiler::emitVariable(std::size_t index, Opcode opcode)
         throw CompilerError(line, "variable limit exceeded");
 }
 
+std::size_t Compiler::emitJump(Opcode opcode, std::size_t label)
+{
+    const auto jump = chunk->label();
+
+    s64 offset = static_cast<s64>(label - jump) - 3; 
+    if (offset < std::numeric_limits<s16>::min() || offset > -3)
+        throw CompilerError(line, "bad jump '{}'", offset);
+
+    emit(opcode, offset, offset >> 8);
+
+    return jump;
+}
+
+void Compiler::patchJump(std::size_t jump)
+{
+    s64 offset = static_cast<s64>(chunk->label() - jump) - 3;
+    if (offset < 0 || offset > std::numeric_limits<s16>::max())
+        throw CompilerError(line, "bad jump '{}'", offset);
+
+    chunk->code[jump + 1] = offset;
+    chunk->code[jump + 2] = offset >> 8;
+}
+
 void Compiler::defineVariable(std::string_view identifier)
 {
     for (const auto& variable : shell::reversed(variables))
@@ -198,11 +221,21 @@ void Compiler::compile(const Expression::Binary& binary)
 
     if (binary.type == Expression::Binary::Type::And)
     {
+        compile(binary.left);
+        const auto short_circuit = emitJump(Opcode::JumpFalse);
+        emit(Opcode::Pop);
+        compile(binary.right);
+        patchJump(short_circuit);
         return;
     }
     
     if (binary.type == Expression::Binary::Type::Or)
     {
+        compile(binary.left);
+        const auto short_circuit = emitJump(Opcode::JumpTrue);
+        emit(Opcode::Pop);
+        compile(binary.right);
+        patchJump(short_circuit);
         return;
     }
 

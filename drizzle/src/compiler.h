@@ -31,6 +31,8 @@ private:
     void emit(Bytes... bytes);
     void emitConstant(DzValue value);
     void emitVariable(std::size_t index, Opcode opcode);
+    std::size_t emitJump(Opcode opcode, std::size_t label = 0);
+    void patchJump(std::size_t jump);
 
     void defineVariable(std::string_view identifier);
     Variable& resolveVariable(std::string_view identifier);
