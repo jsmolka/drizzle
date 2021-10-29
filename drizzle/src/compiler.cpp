@@ -42,7 +42,7 @@ void Compiler::emitVariable(std::size_t index, Opcode opcode)
     if (index <= std::numeric_limits<u8>::max())
         emit(opcode, index);
     else if (index <= std::numeric_limits<u16>::max())
-        emit(Opcode(std::size_t(opcode) + 1), index, index >> 8);
+        emit(Opcode(int(opcode) + 1), index, index >> 8);
     else
         throw CompilerError(line, "variable limit exceeded");
 }
@@ -71,6 +71,26 @@ Compiler::Variable& Compiler::resolveVariable(std::string_view identifier)
     throw SyntaxError(identifier.data(), "undefined variable '{}'", identifier);
 }
 
+void Compiler::popVariables(std::size_t depth)
+{
+    auto size = variables.size();
+    while (variables.size() && variables.back().depth > depth)
+        variables.pop_back();
+
+    auto count = size - variables.size();
+    if (count == 0)
+        return;
+
+    if (count == 1)
+        emit(Opcode::Pop);
+    else if (count <= std::numeric_limits<u8>::max())
+        emit(Opcode::PopMultiple, count);
+    else if (count <= std::numeric_limits<u16>::max())
+        emit(Opcode::PopMultipleExt, count, count >> 8);
+    else
+        throw CompilerError(line, "too many variables to pop '{}'", count);
+}
+
 void Compiler::compile(const Stmt& stmt)
 {
     static_assert(int(Statement::Type::LastEnumValue) == 6);
@@ -94,9 +114,23 @@ void Compiler::compile(const Stmt& stmt)
 
 void Compiler::compile(const Statement::Block& block)
 {
-    // Todo: break, scope
-    for (auto& stmt : block.statements)
+    if (block.identifier.size())
+    {
+        for (const auto& scope_block : scope)
+        {
+            if (block.identifier == scope_block.identifier)
+                throw SyntaxError(block.identifier.data(), "redefined block '{}'", block.identifier);
+        }
+    }
+
+    scope.push_back({ Block::Type::Block, block.identifier });
+
+    for (const auto& stmt : block.statements)
         compile(stmt);
+
+    scope.pop_back();
+
+    popVariables(scope.size());
 }
 
 void Compiler::compile(const Statement::ExpressionStatement& expression_statement)
@@ -113,7 +147,7 @@ void Compiler::compile(const Statement::Print& print)
 
 void Compiler::compile(const Statement::Program& program)
 {
-    for (auto& stmt : program.statements)
+    for (const auto& stmt : program.statements)
         compile(stmt);
 }
 
@@ -150,7 +184,7 @@ void Compiler::compile(const Expression::Assign& assign)
 
     const auto& var = resolveVariable(assign.identifier);
     const auto index = std::distance<const Variable*>(variables.data(), &var);
-    emitVariable(index, Opcode::LoadVariable);
+    emitVariable(index, Opcode::StoreVariable);
 }
 
 void Compiler::compile(const Expression::Binary& binary)

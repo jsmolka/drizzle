@@ -15,7 +15,10 @@ public:
 private:
     struct Block
     {
+        enum class Type { Block, Conditional, Loop, Function };
 
+        Type type;
+        std::string_view identifier;
     };
 
     struct Variable
@@ -31,6 +34,7 @@ private:
 
     void defineVariable(std::string_view identifier);
     Variable& resolveVariable(std::string_view identifier);
+    void popVariables(std::size_t depth);
 
     void compile(const Stmt& stmt);
     void compile(const Statement::Block& block);
