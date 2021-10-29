@@ -23,10 +23,12 @@ private:
     void compile(const Statement::Program& program);
     void compile(const Statement::Var& var);
     void compile(const Expr& expr);
+    void compile(const Expression::Assign& assign);
     void compile(const Expression::Binary& binary);
     void compile(const Expression::Group& group);
     void compile(const Expression::Literal& literal);
     void compile(const Expression::Unary& unary);
+    void compile(const Expression::Variable& variable);
 
     StringPool& pool;
     std::size_t line;

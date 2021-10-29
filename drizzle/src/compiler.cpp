@@ -89,21 +89,28 @@ void Compiler::compile(const Statement::Var& var)
 
 void Compiler::compile(const Expr& expr)
 {
-    static_assert(int(Expression::Type::LastEnumValue) == 4, "Update");
+    static_assert(int(Expression::Type::LastEnumValue) == 6, "Update");
 
     line = expr->location.line;
 
     switch (expr->type)
     {
-    case Expression::Type::Binary:  compile(expr->binary); break;
-    case Expression::Type::Group:   compile(expr->group); break;
-    case Expression::Type::Literal: compile(expr->literal); break;
-    case Expression::Type::Unary:   compile(expr->unary); break;
+    case Expression::Type::Assign:   compile(expr->assign); break;
+    case Expression::Type::Binary:   compile(expr->binary); break;
+    case Expression::Type::Group:    compile(expr->group); break;
+    case Expression::Type::Literal:  compile(expr->literal); break;
+    case Expression::Type::Unary:    compile(expr->unary); break;
+    case Expression::Type::Variable: compile(expr->variable); break;
 
     default:
         SHELL_UNREACHABLE;
         break;
     }
+}
+
+void Compiler::compile(const Expression::Assign& assign)
+{
+    // TODO
 }
 
 void Compiler::compile(const Expression::Binary& binary)
@@ -204,4 +211,9 @@ void Compiler::compile(const Expression::Unary& unary)
         SHELL_UNREACHABLE;
         break;
     }
+}
+
+void Compiler::compile(const Expression::Variable& variable)
+{
+    // TODO
 }

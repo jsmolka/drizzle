@@ -31,11 +31,13 @@
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="src\parser\expr\assign.inl" />
     <None Include="src\parser\expr\binary.inl" />
     <None Include="src\parser\expr\group.inl" />
     <None Include="src\parser\expr\literal.inl" />
     <None Include="src\parser\expr\precedence.inl" />
     <None Include="src\parser\expr\unary.inl" />
+    <None Include="src\parser\expr\variable.inl" />
     <None Include="src\parser\expr\_tests.inl" />
     <None Include="src\parser\stmt\block.inl" />
     <None Include="src\parser\stmt\expression_statement.inl" />

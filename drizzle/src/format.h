@@ -20,14 +20,16 @@ struct fmt::formatter<Expression::Type>
 
     static constexpr std::string_view repr(const Expression::Type& value)
     {
-        static_assert(int(Expression::Type::LastEnumValue) == 4);
+        static_assert(int(Expression::Type::LastEnumValue) == 6);
 
         switch (value)
         {
-        case Expression::Type::Binary:  return "binary";
-        case Expression::Type::Group:   return "group";
-        case Expression::Type::Literal: return "literal";
-        case Expression::Type::Unary:   return "unary";
+        case Expression::Type::Assign:   return "assign";
+        case Expression::Type::Binary:   return "binary";
+        case Expression::Type::Group:    return "group";
+        case Expression::Type::Literal:  return "literal";
+        case Expression::Type::Unary:    return "unary";
+        case Expression::Type::Variable: return "variable";
 
         default:
             SHELL_UNREACHABLE;

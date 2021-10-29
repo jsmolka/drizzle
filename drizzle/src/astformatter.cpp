@@ -40,13 +40,17 @@ void AstFormatter::after(Stmt& stmt)
 
 void AstFormatter::before(Expr& expr)
 {
-    static_assert(int(Expression::Type::LastEnumValue) == 4, "Update");
+    static_assert(int(Expression::Type::LastEnumValue) == 6, "Update");
 
     indent();
     fmt::format_to(out, "{}", expr->type);
 
     switch (expr->type)
     {
+    case Expression::Type::Assign:
+        fmt::format_to(out, " {}", expr->assign.identifier);
+        break;
+
     case Expression::Type::Binary:
         fmt::format_to(out, " {}", expr->binary.type);
         break;
@@ -57,6 +61,10 @@ void AstFormatter::before(Expr& expr)
 
     case Expression::Type::Unary:
         fmt::format_to(out, " {}", expr->unary.type);
+        break;
+
+    case Expression::Type::Variable:
+        fmt::format_to(out, " {}", expr->variable.identifier);
         break;
     }
 

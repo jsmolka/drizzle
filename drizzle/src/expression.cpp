@@ -2,6 +2,11 @@
 
 #include <shell/macros.h>
 
+Expression::Assign::Assign(std::string_view identifier, Expr value)
+    : identifier(identifier), value(std::move(value))
+{
+}
+
 Expression::Binary::Binary(Type type, Expr left, Expr right)
     : type(type), left(std::move(left)), right(std::move(right))
 {
@@ -42,6 +47,16 @@ Expression::Unary::Unary(Type type, Expr expression)
 {
 }
 
+Expression::Variable::Variable(std::string_view identifier)
+    : identifier(identifier)
+{
+}
+
+Expression::Expression(Assign assign, const SourceLocation& location)
+    : type(Type::Assign), assign(std::move(assign)), location(location)
+{
+}
+
 Expression::Expression(Binary binary, const SourceLocation& location)
     : type(Type::Binary), binary(std::move(binary)), location(location)
 {
@@ -62,14 +77,21 @@ Expression::Expression(Unary unary, const SourceLocation& location)
 {
 }
 
+Expression::Expression(Variable variable, const SourceLocation& location)
+    : type(Type::Variable), variable(std::move(variable)), location(location)
+{
+}
+
 Expression::~Expression()
 {
     switch (type)
     {
+    case Type::Assign: assign.~Assign(); break;
     case Type::Binary: binary.~Binary(); break;
     case Type::Group: group.~Group(); break;
     case Type::Literal: literal.~Literal(); break;
     case Type::Unary: unary.~Unary(); break;
+    case Type::Variable: variable.~Variable(); break;
 
     default:
         SHELL_UNREACHABLE;

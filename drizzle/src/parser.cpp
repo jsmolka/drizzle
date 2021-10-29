@@ -248,6 +248,16 @@ void Parser::unary(bool)
 
 void Parser::variable(bool assign)
 {
+    const auto identifier = previous->lexeme;
+    if (assign && match(Token::Type::Equal))
+    {
+        auto value = expression();
+        stack.push(newExpr<Expression::Assign>(identifier, std::move(value)));
+    }
+    else
+    {
+        stack.push(newExpr<Expression::Variable>(identifier));
+    }
 }
 
 template<typename T, typename ...Args>

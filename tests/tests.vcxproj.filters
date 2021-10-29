@@ -176,6 +176,12 @@
     <None Include="src\parser\stmt\var.inl">
       <Filter>Header Files</Filter>
     </None>
+    <None Include="src\parser\expr\assign.inl">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="src\parser\expr\variable.inl">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\scanner\whitespace.inl">

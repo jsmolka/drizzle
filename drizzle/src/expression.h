@@ -16,11 +16,21 @@ class Expression
 public:
     enum class Type
     {
+        Assign,
         Binary,
         Group,
         Literal,
         Unary,
+        Variable,
         LastEnumValue,
+    };
+
+    struct Assign
+    {
+        Assign(std::string_view identifier, Expr value);
+
+        std::string_view identifier;
+        Expr value;
     };
 
     struct Binary
@@ -103,19 +113,30 @@ public:
         Expr expression;
     };
 
+    struct Variable
+    {
+        Variable(std::string_view identifier);
+
+        std::string_view identifier;
+    };
+
+    Expression(Assign assign, const SourceLocation& location);
     Expression(Binary binary, const SourceLocation& location);
     Expression(Group group, const SourceLocation& location);
     Expression(Literal literal, const SourceLocation& location);
     Expression(Unary unary, const SourceLocation& location);
+    Expression(Variable variable, const SourceLocation& location);
     ~Expression();
 
     const Type type;
     union
     {
+        Assign assign;
         Binary binary;
         Group group;
         Literal literal;
         Unary unary;
+        Variable variable;
     };
     const SourceLocation location;
 };

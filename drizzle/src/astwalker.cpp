@@ -45,12 +45,16 @@ void AstWalker::walk(Stmt& stmt)
 
 void AstWalker::walk(Expr& expr)
 {
-    static_assert(int(Expression::Type::LastEnumValue) == 4, "Update");
+    static_assert(int(Expression::Type::LastEnumValue) == 6, "Update");
 
     before(expr);
 
     switch (expr->type)
     {
+    case Expression::Type::Assign:
+        walk(expr->assign.value);
+        break;
+
     case Expression::Type::Binary:
         walk(expr->binary.left);
         walk(expr->binary.right);
@@ -65,6 +69,9 @@ void AstWalker::walk(Expr& expr)
 
     case Expression::Type::Unary:
         walk(expr->unary.expression);
+        break;
+
+    case Expression::Type::Variable:
         break;
 
     default:
