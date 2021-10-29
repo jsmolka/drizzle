@@ -14,7 +14,12 @@ Compiler::Compiler(StringPool& pool)
 void Compiler::compile(const Stmt& ast, Chunk& chunk)
 {
     this->chunk = &chunk;
+
+    scope.push_back({ Block::Type::Block });
     compile(ast);
+    scope.pop_back();
+    popVariables(0);
+
     emit(Opcode::Return);
 }
 
