@@ -16,7 +16,7 @@ public:
 private:
     struct Block
     {
-        enum class Type { Block, Conditional, Loop, Function };
+        enum class Type { Block, Branch, Loop, Function };
 
         Type type;
         std::string_view identifier;

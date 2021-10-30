@@ -151,6 +151,27 @@ void Compiler::walk(Statement::ExpressionStatement& expression_statement)
 
 void Compiler::walk(Statement::If& if_)
 {
+    std::vector<std::size_t> exits;
+
+    const auto branch = [this, &exits](Statement::If::Branch& branch)
+    {
+        walk(branch.condition);
+        const auto next = emitJump(Opcode::JumpFalsePop);
+        scope.push_back({ Block::Type::Branch });
+        AstWalker::walk(branch.statements);
+        scope.pop_back();
+        exits.push_back(emitJump(Opcode::Jump));
+        patchJump(next);
+    };
+
+    branch(if_.if_);
+    for (auto& elif : if_.elifs)
+        branch(elif);
+
+    AstWalker::walk(if_.else_);
+
+    for (const auto& exit : exits)
+        patchJump(exit);
 }
 
 void Compiler::walk(Statement::Print& print)
