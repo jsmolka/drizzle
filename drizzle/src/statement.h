@@ -6,7 +6,8 @@
 
 class Statement;
 
-using Stmt = std::shared_ptr<Statement>;
+using Stmt  = std::shared_ptr<Statement>;
+using Stmts = std::vector<Stmt>;
 
 class Statement
 {
@@ -24,10 +25,10 @@ public:
 
     struct Block
     {
-        Block(std::string_view identifier, std::vector<Stmt> statements);
+        Block(std::string_view identifier, Stmts statements);
 
         std::string_view identifier;
-        std::vector<Stmt> statements;
+        Stmts statements;
     };
 
     struct ExpressionStatement
@@ -46,9 +47,9 @@ public:
 
     struct Program
     {
-        Program(std::vector<Stmt> statements);
+        Program(Stmts statements);
 
-        std::vector<Stmt> statements;
+        Stmts statements;
     };
 
     struct Var

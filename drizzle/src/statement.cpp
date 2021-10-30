@@ -2,7 +2,7 @@
 
 #include <shell/macros.h>
 
-Statement::Block::Block(std::string_view identifier, std::vector<Stmt> statements)
+Statement::Block::Block(std::string_view identifier, Stmts statements)
     : identifier(identifier), statements(std::move(statements))
 {
 }
@@ -17,7 +17,7 @@ Statement::Print::Print(Expr expression)
 {
 }
 
-Statement::Program::Program(std::vector<Stmt> statements)
+Statement::Program::Program(Stmts statements)
     : statements(std::move(statements))
 {
 }

@@ -268,7 +268,7 @@ Stmt Parser::newStmt(Args ...args)
 
 Stmt Parser::program()
 {
-    std::vector<Stmt> statements;
+    Stmts statements;
 
     while (!match(Token::Type::Eof))
         statements.push_back(declaration());
@@ -322,7 +322,7 @@ Stmt Parser::statementBlock()
     expectNewLine();
     expectIndent();
 
-    std::vector<Stmt> statements;
+    Stmts statements;
     while (current->type != Token::Type::Dedent)
         statements.push_back(declaration());
 
