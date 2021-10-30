@@ -12,6 +12,16 @@ Statement::ExpressionStatement::ExpressionStatement(Expr expression)
 {
 }
 
+Statement::If::Branch::Branch(Expr condition, Stmts statements)
+    : condition(std::move(condition)), statements(std::move(statements))
+{
+}
+
+Statement::If::If(Branch if_, std::vector<Branch> elifs, Stmts else_)
+    : if_(std::move(if_)), elifs(std::move(elifs)), else_(std::move(else_))
+{
+}
+
 Statement::Print::Print(Expr expression)
     : expression(std::move(expression))
 {
@@ -34,6 +44,11 @@ Statement::Statement(const SourceLocation& location)
 
 Statement::Statement(ExpressionStatement expression, const SourceLocation& location)
     : type(Type::ExpressionStatement), expression_statement(std::move(expression)), location(location)
+{
+}
+
+Statement::Statement(If if_, const SourceLocation& location)
+    : type(Type::If), if_(std::move(if_)), location(location)
 {
 }
 
@@ -63,6 +78,7 @@ Statement::~Statement()
     {
     case Type::Block: block.~Block(); break;
     case Type::ExpressionStatement: expression_statement.~ExpressionStatement(); break;
+    case Type::If: if_.~If(); break;
     case Type::Noop: break;
     case Type::Print: print.~Print(); break;
     case Type::Program: program.~Program(); break;

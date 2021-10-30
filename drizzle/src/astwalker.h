@@ -15,8 +15,10 @@ protected:
     virtual void walk(Expression::Variable& variable);
 
     virtual void walk(Stmt& stmt);
+    virtual void walk(Stmts& stmts);
     virtual void walk(Statement::Block& block);
     virtual void walk(Statement::ExpressionStatement& expression_statement);
+    virtual void walk(Statement::If& if_);
     virtual void walk(Statement::Print& print);
     virtual void walk(Statement::Program& program);
     virtual void walk(Statement::Var& var);

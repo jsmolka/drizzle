@@ -304,6 +304,8 @@ Stmt Parser::statement()
 {
     if (match(Token::Type::Block))
         return statementBlock();
+    if (match(Token::Type::If))
+        return statementIf();
     if (match(Token::Type::Noop))
         return statementNoop();
     if (match(Token::Type::Print))
@@ -329,6 +331,45 @@ Stmt Parser::statementBlock()
     expectDedent();
 
     return newStmt<Statement::Block>(identifier, std::move(statements));
+}
+
+Stmt Parser::statementIf()
+{
+    const auto branch = [this]()
+    {
+        auto condition = expression();
+        expectColon();
+        expectNewLine();
+        expectIndent();
+
+        Stmts statements;
+        while (current->type != Token::Type::Dedent)
+            statements.push_back(declaration());
+
+        expectDedent();
+
+        return Statement::If::Branch(std::move(condition), std::move(statements));
+    };
+
+    auto if_ = branch();
+    std::vector<Statement::If::Branch> elifs;
+    while (match(Token::Type::Elif))
+        elifs.push_back(branch());
+
+    Stmts else_;
+    if (match(Token::Type::Else))
+    {
+        expectColon();
+        expectNewLine();
+        expectIndent();
+
+        while (current->type != Token::Type::Dedent)
+            else_.push_back(declaration());
+
+        expectDedent();
+    }
+
+    return newStmt<Statement::If>(std::move(if_), std::move(elifs), std::move(else_));
 }
 
 Stmt Parser::statementNoop()

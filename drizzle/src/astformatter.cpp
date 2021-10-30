@@ -34,7 +34,7 @@ void AstFormatter::walk(Expr& expr)
 
 void AstFormatter::walk(Stmt& stmt)
 {
-    static_assert(int(Statement::Type::LastEnumValue) == 6);
+    static_assert(int(Statement::Type::LastEnumValue) == 7);
 
     indent();
     fmt::format_to(out, "{}", stmt->type);
@@ -56,6 +56,36 @@ void AstFormatter::walk(Stmt& stmt)
     indentation++;
     AstWalker::walk(stmt);
     indentation--;
+}
+
+void AstFormatter::walk(Statement::If& if_)
+{
+    walk(if_.if_.condition);
+    AstWalker::walk(if_.if_.statements);
+
+    if (if_.elifs.size())
+    {
+        for (auto& elif : if_.elifs)
+        {
+            indentation--;
+            indent();
+            fmt::format_to(out, "elif\n");
+            indentation++;
+
+            walk(elif.condition);
+            AstWalker::walk(elif.statements);
+        }
+    }
+
+    if (if_.else_.size())
+    {
+        indentation--;
+        indent();
+        fmt::format_to(out, "else\n");
+        indentation++;
+
+        AstWalker::walk(if_.else_);
+    }
 }
 
 void AstFormatter::indent()

@@ -16,6 +16,7 @@ public:
     {
         Block,
         ExpressionStatement,
+        If,
         Noop,
         Print,
         Program,
@@ -36,6 +37,23 @@ public:
         ExpressionStatement(Expr expression);
 
         Expr expression;
+    };
+
+    struct If
+    {
+        struct Branch
+        {
+            Branch(Expr condition, Stmts statements);
+
+            Expr condition;
+            Stmts statements;
+        };
+
+        If(Branch if_, std::vector<Branch> elifs, Stmts else_);
+
+        Branch if_;
+        std::vector<Branch> elifs;
+        Stmts else_;
     };
 
     struct Print
@@ -63,6 +81,7 @@ public:
     Statement(const SourceLocation& location);
     Statement(Block block, const SourceLocation& location);
     Statement(ExpressionStatement expression, const SourceLocation& location);
+    Statement(If if_, const SourceLocation& location);
     Statement(Print print, const SourceLocation& location);
     Statement(Program program, const SourceLocation& location);
     Statement(Var var, const SourceLocation& location);
@@ -73,6 +92,7 @@ public:
     {
         Block block;
         ExpressionStatement expression_statement;
+        If if_;
         Print print;
         Program program;
         Var var;

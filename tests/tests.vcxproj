@@ -41,6 +41,7 @@
     <None Include="src\parser\expr\_tests.inl" />
     <None Include="src\parser\stmt\block.inl" />
     <None Include="src\parser\stmt\expression_statement.inl" />
+    <None Include="src\parser\stmt\if.inl" />
     <None Include="src\parser\stmt\noop.inl" />
     <None Include="src\parser\stmt\print.inl" />
     <None Include="src\parser\stmt\program.inl" />

@@ -121,8 +121,6 @@ void Compiler::popVariables(std::size_t depth)
 
 void Compiler::walk(Stmt& stmt)
 {
-    static_assert(int(Statement::Type::LastEnumValue) == 6);
-
     line = stmt->location.line;
     AstWalker::walk(stmt);
 }
@@ -151,6 +149,10 @@ void Compiler::walk(Statement::ExpressionStatement& expression_statement)
     emit(Opcode::Pop);
 }
 
+void Compiler::walk(Statement::If& if_)
+{
+}
+
 void Compiler::walk(Statement::Print& print)
 {
     AstWalker::walk(print);
@@ -165,8 +167,6 @@ void Compiler::walk(Statement::Var& var)
 
 void Compiler::walk(Expr& expr)
 {
-    static_assert(int(Expression::Type::LastEnumValue) == 6);
-
     line = expr->location.line;
     AstWalker::walk(expr);
 }

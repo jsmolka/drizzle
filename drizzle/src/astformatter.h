@@ -11,6 +11,7 @@ public:
 protected:
     void walk(Expr& expr) final;
     void walk(Stmt& stmt) final;
+    void walk(Statement::If& if_) final;
 
 private:
     void indent();

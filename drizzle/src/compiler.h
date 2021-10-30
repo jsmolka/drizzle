@@ -42,6 +42,7 @@ private:
     void walk(Stmt& stmt) final;
     void walk(Statement::Block& block) final;
     void walk(Statement::ExpressionStatement& expression_statement) final;
+    void walk(Statement::If& if_) final;
     void walk(Statement::Print& print) final;
     void walk(Statement::Var& var) final;
     void walk(Expr& expr) final;
