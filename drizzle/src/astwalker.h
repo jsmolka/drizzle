@@ -6,11 +6,18 @@
 class AstWalker
 {
 protected:
-    void walk(Stmt& stmt);
-    void walk(Expr& expr);
+    virtual void walk(Expr& expr);
+    virtual void walk(Expression::Assign& assign);
+    virtual void walk(Expression::Binary& binary);
+    virtual void walk(Expression::Group& group);
+    virtual void walk(Expression::Literal& literal);
+    virtual void walk(Expression::Unary& unary);
+    virtual void walk(Expression::Variable& variable);
 
-    virtual void before(Stmt&) {}
-    virtual void after(Stmt&) {}
-    virtual void before(Expr&) {}
-    virtual void after(Expr&) {}
+    virtual void walk(Stmt& stmt);
+    virtual void walk(Statement::Block& block);
+    virtual void walk(Statement::ExpressionStatement& expression_statement);
+    virtual void walk(Statement::Print& print);
+    virtual void walk(Statement::Program& program);
+    virtual void walk(Statement::Var& var);
 };

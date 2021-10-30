@@ -9,10 +9,8 @@ public:
     std::string format(Stmt& ast);
 
 protected:
-    void before(Stmt& stmt) final;
-    void after(Stmt& stmt) final;
-    void before(Expr& expr) final;
-    void after(Expr& expr) final;
+    void walk(Expr& expr) final;
+    void walk(Stmt& stmt) final;
 
 private:
     void indent();
