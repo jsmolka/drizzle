@@ -3,6 +3,7 @@
 #include <memory>
 #include <string>
 #include <variant>
+#include <vector>
 
 #include "dzprimitives.h"
 #include "sourcelocation.h"
