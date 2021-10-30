@@ -1,4 +1,4 @@
-static_assert(int(Statement::Type::LastEnumValue) == 7);
+static_assert(int(Statement::Type::LastEnumValue) == 8);
 
 #include "block.inl"
 #include "expression_statement.inl"
@@ -7,3 +7,4 @@ static_assert(int(Statement::Type::LastEnumValue) == 7);
 #include "print.inl"
 #include "program.inl"
 #include "var.inl"
+#include "while.inl"

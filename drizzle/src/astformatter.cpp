@@ -34,7 +34,7 @@ void AstFormatter::walk(Expr& expr)
 
 void AstFormatter::walk(Stmt& stmt)
 {
-    static_assert(int(Statement::Type::LastEnumValue) == 7);
+    static_assert(int(Statement::Type::LastEnumValue) == 8);
 
     indent();
     fmt::format_to(out, "{}", stmt->type);

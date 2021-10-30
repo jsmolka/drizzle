@@ -21,6 +21,7 @@ public:
         Print,
         Program,
         Var,
+        While,
         LastEnumValue,
     };
 
@@ -78,6 +79,14 @@ public:
         Expr initializer;
     };
 
+    struct While
+    {
+        While(Expr condition, Stmts statements);
+
+        Expr condition;
+        Stmts statements;
+    };
+
     Statement(const SourceLocation& location);
     Statement(Block block, const SourceLocation& location);
     Statement(ExpressionStatement expression, const SourceLocation& location);
@@ -85,6 +94,7 @@ public:
     Statement(Print print, const SourceLocation& location);
     Statement(Program program, const SourceLocation& location);
     Statement(Var var, const SourceLocation& location);
+    Statement(While while_, const SourceLocation& location);
     ~Statement();
 
     const Type type;
@@ -96,6 +106,7 @@ public:
         Print print;
         Program program;
         Var var;
+        While while_;
     };
     const SourceLocation location;
 };

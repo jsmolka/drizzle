@@ -22,4 +22,5 @@ protected:
     virtual void walk(Statement::Print& print);
     virtual void walk(Statement::Program& program);
     virtual void walk(Statement::Var& var);
+    virtual void walk(Statement::While& while_);
 };

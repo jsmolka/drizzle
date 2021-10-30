@@ -46,6 +46,7 @@
     <None Include="src\parser\stmt\print.inl" />
     <None Include="src\parser\stmt\program.inl" />
     <None Include="src\parser\stmt\var.inl" />
+    <None Include="src\parser\stmt\while.inl" />
     <None Include="src\parser\stmt\_tests.inl" />
     <None Include="src\parser\_tests.inl" />
     <None Include="src\scanner.inl" />

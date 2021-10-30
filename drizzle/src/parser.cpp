@@ -310,6 +310,8 @@ Stmt Parser::statement()
         return statementNoop();
     if (match(Token::Type::Print))
         return statementPrint();
+    if (match(Token::Type::While))
+        return statementWhile();
 
     return expressionStatement();
 }
@@ -383,6 +385,22 @@ Stmt Parser::statementPrint()
     auto expr = expression();
     expectNewLine();
     return newStmt<Statement::Print>(std::move(expr));
+}
+
+Stmt Parser::statementWhile()
+{
+    auto condition = expression();
+    expectColon();
+    expectNewLine();
+    expectIndent();
+
+    Stmts statements;
+    while (current->type != Token::Type::Dedent)
+        statements.push_back(declaration());
+
+    expectDedent();
+
+    return newStmt<Statement::While>(std::move(condition), std::move(statements));
 }
 
 Stmt Parser::expressionStatement()

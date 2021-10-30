@@ -186,6 +186,18 @@ void Compiler::walk(Statement::Var& var)
     defineVariable(var.identifier);
 }
 
+void Compiler::walk(Statement::While& while_)
+{
+    const auto condition = chunk->label();
+    walk(while_.condition);
+    const auto exit = emitJump(Opcode::JumpFalsePop);
+    scope.push_back({ Block::Type::Loop });
+    AstWalker::walk(while_.statements);
+    scope.pop_back();
+    emitJump(Opcode::Jump, condition);
+    patchJump(exit);
+}
+
 void Compiler::walk(Expr& expr)
 {
     line = expr->location.line;

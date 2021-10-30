@@ -45,6 +45,8 @@ private:
     void walk(Statement::If& if_) final;
     void walk(Statement::Print& print) final;
     void walk(Statement::Var& var) final;
+    void walk(Statement::While& while_) final;
+
     void walk(Expr& expr) final;
     void walk(Expression::Assign& assign) final;
     void walk(Expression::Binary& binary) final;

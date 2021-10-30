@@ -74,6 +74,7 @@ private:
     Stmt statementIf();
     Stmt statementNoop();
     Stmt statementPrint();
+    Stmt statementWhile();
     Stmt expressionStatement();
 
     std::vector<Token>::const_iterator current;

@@ -52,7 +52,7 @@ void AstWalker::walk(Expression::Variable& variable)
 
 void AstWalker::walk(Stmt& stmt)
 {
-    static_assert(int(Statement::Type::LastEnumValue) == 7);
+    static_assert(int(Statement::Type::LastEnumValue) == 8);
 
     switch (stmt->type)
     {
@@ -63,6 +63,7 @@ void AstWalker::walk(Stmt& stmt)
     case Statement::Type::Print:               walk(stmt->print); break;
     case Statement::Type::Program:             walk(stmt->program); break;
     case Statement::Type::Var:                 walk(stmt->var); break;
+    case Statement::Type::While:               walk(stmt->while_); break;
 
     default:
         SHELL_UNREACHABLE;
@@ -113,4 +114,10 @@ void AstWalker::walk(Statement::Program& program)
 void AstWalker::walk(Statement::Var& var)
 {
     walk(var.initializer);
+}
+
+void AstWalker::walk(Statement::While& while_)
+{
+    walk(while_.condition);
+    walk(while_.statements);
 }

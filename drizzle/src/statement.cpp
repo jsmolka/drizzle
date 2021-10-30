@@ -37,6 +37,11 @@ Statement::Var::Var(std::string_view identifier, Expr initializer)
 {
 }
 
+Statement::While::While(Expr condition, Stmts statements)
+    : condition(std::move(condition)), statements(std::move(statements))
+{
+}
+
 Statement::Statement(const SourceLocation& location)
     : type(Type::Noop), location(location)
 {
@@ -72,6 +77,11 @@ Statement::Statement(Var var, const SourceLocation& location)
 {
 }
 
+Statement::Statement(While while_, const SourceLocation& location)
+    : type(Type::While), while_(std::move(while_)), location(location)
+{
+}
+
 Statement::~Statement()
 {
     switch (type)
@@ -83,6 +93,7 @@ Statement::~Statement()
     case Type::Print: print.~Print(); break;
     case Type::Program: program.~Program(); break;
     case Type::Var: var.~Var(); break;
+    case Type::While: while_.~While(); break;
 
     default:
         SHELL_UNREACHABLE;
