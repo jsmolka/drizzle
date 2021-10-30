@@ -11,12 +11,12 @@ Compiler::Compiler(StringPool& pool)
 {
 }
 
-void Compiler::compile(const Stmt& ast, Chunk& chunk)
+void Compiler::compile(Stmt& ast, Chunk& chunk)
 {
     this->chunk = &chunk;
 
     scope.push_back({ Block::Type::Block });
-    compile(ast);
+    walk(ast);
     scope.pop_back();
     popVariables(0);
 
@@ -119,28 +119,15 @@ void Compiler::popVariables(std::size_t depth)
         throw CompilerError(line, "too many variables to pop '{}'", count);
 }
 
-void Compiler::compile(const Stmt& stmt)
+void Compiler::walk(Stmt& stmt)
 {
     static_assert(int(Statement::Type::LastEnumValue) == 6);
 
     line = stmt->location.line;
-
-    switch (stmt->type)
-    {
-    case Statement::Type::Noop: break; 
-    case Statement::Type::Block:               compile(stmt->block); break;
-    case Statement::Type::ExpressionStatement: compile(stmt->expression_statement); break;
-    case Statement::Type::Print:               compile(stmt->print); break;
-    case Statement::Type::Program:             compile(stmt->program); break;
-    case Statement::Type::Var:                 compile(stmt->var); break;
-
-    default:
-        SHELL_UNREACHABLE;
-        break;
-    }
+    AstWalker::walk(stmt);
 }
 
-void Compiler::compile(const Statement::Block& block)
+void Compiler::walk(Statement::Block& block)
 {
     if (block.identifier.size())
     {
@@ -152,95 +139,71 @@ void Compiler::compile(const Statement::Block& block)
     }
 
     scope.push_back({ Block::Type::Block, block.identifier });
-
-    for (const auto& stmt : block.statements)
-        compile(stmt);
-
+    AstWalker::walk(block);
     scope.pop_back();
 
     popVariables(scope.size());
 }
 
-void Compiler::compile(const Statement::ExpressionStatement& expression_statement)
+void Compiler::walk(Statement::ExpressionStatement& expression_statement)
 {
-    compile(expression_statement.expression);
+    AstWalker::walk(expression_statement);
     emit(Opcode::Pop);
 }
 
-void Compiler::compile(const Statement::Print& print)
+void Compiler::walk(Statement::Print& print)
 {
-    compile(print.expression);
+    AstWalker::walk(print);
     emit(Opcode::Print);
 }
 
-void Compiler::compile(const Statement::Program& program)
+void Compiler::walk(Statement::Var& var)
 {
-    for (const auto& stmt : program.statements)
-        compile(stmt);
-}
-
-void Compiler::compile(const Statement::Var& var)
-{
-    compile(var.initializer);
+    AstWalker::walk(var);
     defineVariable(var.identifier);
 }
 
-void Compiler::compile(const Expr& expr)
+void Compiler::walk(Expr& expr)
 {
     static_assert(int(Expression::Type::LastEnumValue) == 6);
 
     line = expr->location.line;
-
-    switch (expr->type)
-    {
-    case Expression::Type::Assign:   compile(expr->assign); break;
-    case Expression::Type::Binary:   compile(expr->binary); break;
-    case Expression::Type::Group:    compile(expr->group); break;
-    case Expression::Type::Literal:  compile(expr->literal); break;
-    case Expression::Type::Unary:    compile(expr->unary); break;
-    case Expression::Type::Variable: compile(expr->variable); break;
-
-    default:
-        SHELL_UNREACHABLE;
-        break;
-    }
+    AstWalker::walk(expr);
 }
 
-void Compiler::compile(const Expression::Assign& assign)
+void Compiler::walk(Expression::Assign& assign)
 {
-    compile(assign.value);
-
+    AstWalker::walk(assign);
     const auto& var = resolveVariable(assign.identifier);
     const auto index = std::distance<const Variable*>(variables.data(), &var);
     emitVariable(index, Opcode::StoreVariable);
 }
 
-void Compiler::compile(const Expression::Binary& binary)
+void Compiler::walk(Expression::Binary& binary)
 {
     static_assert(int(Expression::Binary::Type::LastEnumValue) == 21);
 
     if (binary.type == Expression::Binary::Type::And)
     {
-        compile(binary.left);
+        walk(binary.left);
         const auto short_circuit = emitJump(Opcode::JumpFalse);
         emit(Opcode::Pop);
-        compile(binary.right);
+        walk(binary.right);
         patchJump(short_circuit);
         return;
     }
     
     if (binary.type == Expression::Binary::Type::Or)
     {
-        compile(binary.left);
+        walk(binary.left);
         const auto short_circuit = emitJump(Opcode::JumpTrue);
         emit(Opcode::Pop);
-        compile(binary.right);
+        walk(binary.right);
         patchJump(short_circuit);
         return;
     }
 
-    compile(binary.left);
-    compile(binary.right);
+    AstWalker::walk(binary);
 
     switch (binary.type)
     {
@@ -270,12 +233,7 @@ void Compiler::compile(const Expression::Binary& binary)
     }
 }
 
-void Compiler::compile(const Expression::Group& group)
-{
-    compile(group.expression);
-}
-
-void Compiler::compile(const Expression::Literal& literal)
+void Compiler::walk(Expression::Literal& literal)
 {
     static_assert(int(Expression::Literal::Type::LastEnumValue) == 5);
 
@@ -307,11 +265,11 @@ void Compiler::compile(const Expression::Literal& literal)
     }
 }
 
-void Compiler::compile(const Expression::Unary& unary)
+void Compiler::walk(Expression::Unary& unary)
 {
     static_assert(int(Expression::Unary::Type::LastEnumValue) == 3);
 
-    compile(unary.expression);
+    AstWalker::walk(unary);
 
     switch (unary.type)
     {
@@ -325,7 +283,7 @@ void Compiler::compile(const Expression::Unary& unary)
     }
 }
 
-void Compiler::compile(const Expression::Variable& variable)
+void Compiler::walk(Expression::Variable& variable)
 {
     const auto& var = resolveVariable(variable.identifier);
     const auto index = std::distance<const Variable*>(variables.data(), &var);

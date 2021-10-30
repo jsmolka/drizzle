@@ -1,16 +1,17 @@
 #pragma once
 
+#include "astwalker.h"
 #include "chunk.h"
 #include "opcode.h"
 #include "statement.h"
 #include "stringpool.h"
 
-class Compiler
+class Compiler final : public AstWalker
 {
 public:
     Compiler(StringPool& pool);
 
-    void compile(const Stmt& ast, Chunk& chunk);
+    void compile(Stmt& ast, Chunk& chunk);
 
 private:
     struct Block
@@ -38,19 +39,17 @@ private:
     Variable& resolveVariable(std::string_view identifier);
     void popVariables(std::size_t depth);
 
-    void compile(const Stmt& stmt);
-    void compile(const Statement::Block& block);
-    void compile(const Statement::ExpressionStatement& expression_statement);
-    void compile(const Statement::Print& print);
-    void compile(const Statement::Program& program);
-    void compile(const Statement::Var& var);
-    void compile(const Expr& expr);
-    void compile(const Expression::Assign& assign);
-    void compile(const Expression::Binary& binary);
-    void compile(const Expression::Group& group);
-    void compile(const Expression::Literal& literal);
-    void compile(const Expression::Unary& unary);
-    void compile(const Expression::Variable& variable);
+    void walk(Stmt& stmt) final;
+    void walk(Statement::Block& block) final;
+    void walk(Statement::ExpressionStatement& expression_statement) final;
+    void walk(Statement::Print& print) final;
+    void walk(Statement::Var& var) final;
+    void walk(Expr& expr) final;
+    void walk(Expression::Assign& assign) final;
+    void walk(Expression::Binary& binary) final;
+    void walk(Expression::Literal& literal) final;
+    void walk(Expression::Unary& unary) final;
+    void walk(Expression::Variable& variable) final;
 
     StringPool& pool;
     std::size_t line;
