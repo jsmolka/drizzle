@@ -33,8 +33,8 @@ private:
     void bitwiseLsr();
     void bitwiseOr();
     void bitwiseXor();
+    template<typename Integral>
     void constant();
-    void constantExt();
     void divide();
     void divideInt();
     void equal();
@@ -46,24 +46,24 @@ private:
     void jumpTrue();
     void less();
     void lessEqual();
+    template<typename Integral>
     void loadVariable();
-    void loadVariableExt();
     void modulo();
     void multiply();
     void negate();
     void not_();
     void notEqual();
     void pop();
+    template<typename Integral>
     void popMultiple();
-    void popMultipleExt();
     void power();
     void print();
     void pushFalse();
     void pushNull();
     void pushTrue();
     bool return_();
+    template<typename Integral>
     void storeVariable();
-    void storeVariableExt();
     void subtract();
 
     const u8* pc;

@@ -99,17 +99,17 @@ Expr Parser::expression()
 void Parser::parseExpression(Precedence precedence)
 {
     advance();
-    auto prefix = rule(previous->type).prefix;
+    const auto prefix = rule(previous->type).prefix;
     if (!prefix)
         throw SyntaxError(previous->lexeme.data(), "invalid syntax");
 
-    auto assign = precedence <= Precedence::Assignment;
+    const auto assign = precedence <= Precedence::Assignment;
     std::invoke(prefix, this, assign);
 
     while (precedence <= rule(current->type).precedence)
     {
         advance();
-        auto infix = rule(previous->type).infix;
+        const auto infix = rule(previous->type).infix;
         if (!infix)
             throw SyntaxError(previous->lexeme.data(), "invalid syntax");
 
@@ -165,7 +165,7 @@ void Parser::binary(bool)
         }
     };
 
-    auto token = previous->type;
+    const auto token = previous->type;
     parseExpression(Precedence(int(rule(token).precedence) + 1));
 
     auto rhs = stack.popValue();
@@ -240,7 +240,7 @@ void Parser::unary(bool)
         }
     };
 
-    auto token = previous->type;
+    const auto token = previous->type;
     parseExpression(Precedence::Unary);
 
     stack.push(newExpr<Expression::Unary>(type(token), stack.popValue()));

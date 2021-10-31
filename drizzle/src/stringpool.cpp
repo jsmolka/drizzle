@@ -6,7 +6,7 @@ StringPool::~StringPool()
         delete string;
 }
 
-DzString* StringPool::make(std::string&& data)
+DzString* StringPool::make(std::string data)
 {
     auto hash = robin_hood::hash<std::string>()(data);
     auto iter = pool.find(hash);

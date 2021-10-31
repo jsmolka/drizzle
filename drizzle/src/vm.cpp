@@ -29,8 +29,8 @@ void Vm::interpret(const Chunk& chunk)
         case Opcode::BitwiseLsl: bitwiseLsl(); break;
         case Opcode::BitwiseOr: bitwiseOr(); break;
         case Opcode::BitwiseXor: bitwiseXor(); break;
-        case Opcode::Constant: constant(); break;
-        case Opcode::ConstantExt: constantExt(); break;
+        case Opcode::Constant: constant<u8>(); break;
+        case Opcode::ConstantExt: constant<u16>(); break;
         case Opcode::Divide: divide(); break;
         case Opcode::DivideInt: divideInt(); break;
         case Opcode::Equal: equal(); break;
@@ -43,8 +43,8 @@ void Vm::interpret(const Chunk& chunk)
         case Opcode::JumpTrue: jumpTrue(); break;
         case Opcode::Less: less(); break;
         case Opcode::LessEqual: lessEqual(); break;
-        case Opcode::LoadVariable: loadVariable(); break;
-        case Opcode::LoadVariableExt: loadVariableExt(); break;
+        case Opcode::LoadVariable: loadVariable<u8>(); break;
+        case Opcode::LoadVariableExt: loadVariable<u16>(); break;
         case Opcode::Modulo: modulo(); break;
         case Opcode::Multiply: multiply(); break;
         case Opcode::Negate: negate(); break;
@@ -52,13 +52,13 @@ void Vm::interpret(const Chunk& chunk)
         case Opcode::NotEqual: notEqual(); break;
         case Opcode::Null: pushNull(); break;
         case Opcode::Pop: pop(); break;
-        case Opcode::PopMultiple: popMultiple(); break;
-        case Opcode::PopMultipleExt: popMultipleExt(); break;
+        case Opcode::PopMultiple: popMultiple<u8>(); break;
+        case Opcode::PopMultipleExt: popMultiple<u16>(); break;
         case Opcode::Power: power(); break;
         case Opcode::Print: print(); break;
         case Opcode::Return: if (return_()) return; break;
-        case Opcode::StoreVariable: storeVariable(); break;
-        case Opcode::StoreVariableExt: storeVariableExt(); break;
+        case Opcode::StoreVariable: storeVariable<u8>(); break;
+        case Opcode::StoreVariableExt: storeVariable<u16>(); break;
         case Opcode::Subtract: subtract(); break;
         case Opcode::True: pushTrue(); break;
 
@@ -97,7 +97,7 @@ void Vm::unary(std::string_view operation, Handler handler)
 
     auto& value = stack.top();
 
-    auto promote = [handler, &value = value](auto a)
+    const auto promote = [handler, &value = value](auto a)
     {
         using A = decltype(a);
 
@@ -135,7 +135,7 @@ void Vm::binary(std::string_view operation, Handler handler)
     auto  rhs = stack.popValue();
     auto& lhs = stack.top();
 
-    auto promote = [handler, &lhs = lhs](auto a, auto b)
+    const auto promote = [handler, &lhs = lhs](auto a, auto b)
     {
         using A = decltype(a);
         using B = decltype(b);
@@ -207,7 +207,7 @@ void Vm::add()
                 auto aa = static_cast<DzString*>(a);
                 auto bb = static_cast<DzString*>(b);
 
-                dst = pool.make(std::string(aa->data + bb->data));
+                dst = pool.make(aa->data + bb->data);
                 return true;
             }
         }
@@ -341,15 +341,10 @@ void Vm::bitwiseXor()
     });
 }
 
+template<typename Integral>
 void Vm::constant()
 {
-    const auto index = read<u8>();
-    stack.push(chunk->constants[index]);
-}
-
-void Vm::constantExt()
-{
-    const auto index = read<u16>();
+    const auto index = read<Integral>();
     stack.push(chunk->constants[index]);
 }
 
@@ -506,15 +501,10 @@ void Vm::lessEqual()
     });
 }
 
+template<typename Integral>
 void Vm::loadVariable()
 {
-    const auto index = read<u8>();
-    stack.push(stack[index]);
-}
-
-void Vm::loadVariableExt()
-{
-    const auto index = read<u16>();
+    const auto index = read<Integral>();
     stack.push(stack[index]);
 }
 
@@ -603,15 +593,10 @@ void Vm::pop()
     stack.pop();
 }
 
+template<typename Integral>
 void Vm::popMultiple()
 {
-    const auto count = read<u8>();
-    stack.pop(count);
-}
-
-void Vm::popMultipleExt()
-{
-    const auto count = read<u16>();
+    const auto count = read<Integral>();
     stack.pop(count);
 }
 
@@ -656,15 +641,10 @@ bool Vm::return_()
     return true;
 }
 
+template<typename Integral>
 void Vm::storeVariable()
 {
-    const auto index = read<u8>();
-    stack[index] = stack.top();
-}
-
-void Vm::storeVariableExt()
-{
-    const auto index = read<u16>();
+    const auto index = read<Integral>();
     stack[index] = stack.top();
 }
 

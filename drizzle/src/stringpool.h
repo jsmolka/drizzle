@@ -8,7 +8,7 @@ class StringPool
 public:
     ~StringPool();
 
-    DzString* make(std::string&& data);
+    DzString* make(std::string data);
 
 private:
     DzMap<DzString*> pool;
