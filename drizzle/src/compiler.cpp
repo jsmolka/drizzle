@@ -138,13 +138,54 @@ void Compiler::walk(Statement::Block& block)
 
     scope.push_back({ Block::Type::Block, block.identifier });
     AstWalker::walk(block);
+    auto breaks(std::move(scope.back().breaks));
     scope.pop_back();
-
     popVariables(scope.size());
+    for (const auto& break_ : breaks)
+        patchJump(break_);
 }
 
 void Compiler::walk(Statement::Break& break_)
 {
+    if (break_.identifier.empty())
+    {
+        const auto resolve = [this]() -> Block*
+        {
+            for (auto& block : shell::reversed(scope))
+            {
+                if (block.type == Block::Type::Loop)
+                    return &block;
+            }
+            return nullptr;
+        };
+
+        auto block = resolve();
+        if (!block)
+            throw SyntaxError(line, "'break' outside loop");
+
+        popVariables(std::distance(scope.data(), block));
+        block->breaks.push_back(emitJump(Opcode::Jump));
+    }
+    else
+    {
+        const auto resolve = [this](std::string_view identifier) -> Block*
+        {
+            for (auto& block : shell::reversed(scope))
+            {
+                if (block.identifier == identifier)
+                    return &block;
+            }
+            return nullptr;
+        };
+
+        auto identifier = break_.identifier;
+        auto block = resolve(identifier);
+        if (!block)
+            throw SyntaxError(identifier.data(), "no matching block '{}'", identifier);
+
+        popVariables(std::distance(scope.data(), block));
+        block->breaks.push_back(emitJump(Opcode::Jump));
+    }
 }
 
 void Compiler::walk(Statement::Continue& continue_)
@@ -214,14 +255,18 @@ void Compiler::walk(Statement::While& while_)
     const auto condition = chunk->label();
     walk(while_.condition);
     const auto exit = emitJump(Opcode::JumpFalsePop);
+
     scope.push_back({ Block::Type::Loop });
     AstWalker::walk(while_.statements);
     for (const auto& continue_ : scope.back().continues)
         patchJump(continue_);
+    const auto breaks(std::move(scope.back().breaks));
     scope.pop_back();
-    emitJump(Opcode::Jump, condition);
     popVariables(scope.size());
+    emitJump(Opcode::Jump, condition);
     patchJump(exit);
+    for (const auto& break_ : breaks)
+        patchJump(break_);
 }
 
 void Compiler::walk(Expr& expr)
