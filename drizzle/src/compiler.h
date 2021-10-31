@@ -1,5 +1,7 @@
 #pragma once
 
+#include <shell/stack.h>
+
 #include "astwalker.h"
 #include "chunk.h"
 #include "opcode.h"
@@ -14,6 +16,9 @@ public:
     void compile(Stmt& ast, Chunk& chunk);
 
 private:
+    using Label  = std::size_t;
+    using Labels = std::vector<Label>;
+
     struct Block
     {
         enum class Type { Block, Branch, Loop, Function };
@@ -35,11 +40,15 @@ private:
     void emitConstant(DzValue value);
     void emitVariable(std::size_t index, Opcode opcode);
     std::size_t emitJump(Opcode opcode, std::size_t label = 0);
-    void patchJump(std::size_t jump);
+    void patchJump(Label jump);
+    void patchJumps(const Labels& jumps);
 
     void defineVariable(std::string_view identifier);
     Variable& resolveVariable(std::string_view identifier);
     void popVariables(std::size_t depth);
+
+    void increaseScope(Block&& block);
+    Block&& decreaseScope();
 
     void walk(Stmt& stmt) final;
     void walk(Statement::Block& block) final;
@@ -61,7 +70,7 @@ private:
     StringPool& pool;
     std::size_t line;
     Chunk* chunk;
-    std::vector<Block> scope;
+    shell::Stack<Block, 16> scope;
     std::vector<Variable> variables;
 };
 

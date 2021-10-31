@@ -15,10 +15,9 @@ void Compiler::compile(Stmt& ast, Chunk& chunk)
 {
     this->chunk = &chunk;
 
-    scope.push_back({ Block::Type::Block });
+    increaseScope({ Block::Type::Block });
     walk(ast);
-    scope.pop_back();
-    popVariables(0);
+    decreaseScope();
 
     emit(Opcode::Return);
 }
@@ -65,7 +64,7 @@ std::size_t Compiler::emitJump(Opcode opcode, std::size_t label)
     return jump;
 }
 
-void Compiler::patchJump(std::size_t jump)
+void Compiler::patchJump(Label jump)
 {
     s64 offset = static_cast<s64>(chunk->label() - jump) - 3;
     if (offset < 0 || offset > std::numeric_limits<s16>::max())
@@ -73,6 +72,12 @@ void Compiler::patchJump(std::size_t jump)
 
     chunk->code[jump + 1] = offset;
     chunk->code[jump + 2] = offset >> 8;
+}
+
+void Compiler::patchJumps(const Labels& jumps)
+{
+    for (const auto& jump : jumps)
+        patchJump(jump);
 }
 
 void Compiler::defineVariable(std::string_view identifier)
@@ -119,6 +124,18 @@ void Compiler::popVariables(std::size_t depth)
         throw CompilerError(line, "too many variables to pop '{}'", count);
 }
 
+void Compiler::increaseScope(Block&& block)
+{
+    scope.push(std::move(block));
+}
+
+Compiler::Block&& Compiler::decreaseScope()
+{
+    auto block = scope.popValue();
+    popVariables(scope.size());
+    return std::move(block);
+}
+
 void Compiler::walk(Stmt& stmt)
 {
     line = stmt->location.line;
@@ -136,13 +153,10 @@ void Compiler::walk(Statement::Block& block)
         }
     }
 
-    scope.push_back({ Block::Type::Block, block.identifier });
+    increaseScope({ Block::Type::Block, block.identifier });
     AstWalker::walk(block);
-    auto breaks(std::move(scope.back().breaks));
-    scope.pop_back();
-    popVariables(scope.size());
-    for (const auto& break_ : breaks)
-        patchJump(break_);
+    const auto&& closed = decreaseScope();
+    patchJumps(closed.breaks);
 }
 
 void Compiler::walk(Statement::Break& break_)
@@ -221,9 +235,9 @@ void Compiler::walk(Statement::If& if_)
     {
         walk(branch.condition);
         const auto next = emitJump(Opcode::JumpFalsePop);
-        scope.push_back({ Block::Type::Branch });
+        increaseScope({ Block::Type::Branch });
         AstWalker::walk(branch.statements);
-        scope.pop_back();
+        decreaseScope();
         exits.push_back(emitJump(Opcode::Jump));
         patchJump(next);
     };
@@ -234,8 +248,7 @@ void Compiler::walk(Statement::If& if_)
 
     AstWalker::walk(if_.else_);
 
-    for (const auto& exit : exits)
-        patchJump(exit);
+    patchJumps(exits);
 }
 
 void Compiler::walk(Statement::Print& print)
@@ -256,17 +269,14 @@ void Compiler::walk(Statement::While& while_)
     walk(while_.condition);
     const auto exit = emitJump(Opcode::JumpFalsePop);
 
-    scope.push_back({ Block::Type::Loop });
+    increaseScope({ Block::Type::Loop });
     AstWalker::walk(while_.statements);
-    for (const auto& continue_ : scope.back().continues)
-        patchJump(continue_);
-    const auto breaks(std::move(scope.back().breaks));
-    scope.pop_back();
-    popVariables(scope.size());
+    patchJumps(scope.top().continues);
+    const auto&& closed = decreaseScope();
     emitJump(Opcode::Jump, condition);
+
     patchJump(exit);
-    for (const auto& break_ : breaks)
-        patchJump(break_);
+    patchJumps(closed.breaks);
 }
 
 void Compiler::walk(Expr& expr)
