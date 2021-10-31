@@ -20,6 +20,8 @@ private:
 
         Type type;
         std::string_view identifier;
+        std::vector<std::size_t> breaks;
+        std::vector<std::size_t> continues;
     };
 
     struct Variable
@@ -41,6 +43,8 @@ private:
 
     void walk(Stmt& stmt) final;
     void walk(Statement::Block& block) final;
+    void walk(Statement::Break& break_) final;
+    void walk(Statement::Continue& continue_) final;
     void walk(Statement::ExpressionStatement& expression_statement) final;
     void walk(Statement::If& if_) final;
     void walk(Statement::Print& print) final;

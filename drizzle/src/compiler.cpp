@@ -143,6 +143,29 @@ void Compiler::walk(Statement::Block& block)
     popVariables(scope.size());
 }
 
+void Compiler::walk(Statement::Break& break_)
+{
+}
+
+void Compiler::walk(Statement::Continue& continue_)
+{
+    const auto resolve = [this]() -> Block*
+    {
+        for (auto& block : shell::reversed(scope))
+        {
+            if (block.type == Block::Type::Loop)
+                return &block;
+        }
+        return nullptr;
+    };
+
+    auto block = resolve();
+    if (!block)
+        throw SyntaxError(line, "'continue' outside loop");
+
+    block->continues.push_back(emitJump(Opcode::Jump));
+}
+
 void Compiler::walk(Statement::ExpressionStatement& expression_statement)
 {
     AstWalker::walk(expression_statement);
@@ -193,6 +216,8 @@ void Compiler::walk(Statement::While& while_)
     const auto exit = emitJump(Opcode::JumpFalsePop);
     scope.push_back({ Block::Type::Loop });
     AstWalker::walk(while_.statements);
+    for (const auto& continue_ : scope.back().continues)
+        patchJump(continue_);
     scope.pop_back();
     emitJump(Opcode::Jump, condition);
     patchJump(exit);
