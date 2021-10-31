@@ -7,6 +7,11 @@ Statement::Block::Block(std::string_view identifier, Stmts statements)
 {
 }
 
+Statement::Break::Break(std::string_view identifier)
+    : identifier(identifier)
+{
+}
+
 Statement::ExpressionStatement::ExpressionStatement(Expr expression)
     : expression(std::move(expression))
 {
@@ -42,8 +47,18 @@ Statement::While::While(Expr condition, Stmts statements)
 {
 }
 
-Statement::Statement(Noop noop, const SourceLocation& location)
-    : type(Type::Noop), noop(std::move(noop)), location(location)
+Statement::Statement(Block block, const SourceLocation& location)
+    : type(Type::Block), block(std::move(block)), location(location)
+{
+}
+
+Statement::Statement(Break break_, const SourceLocation& location)
+    : type(Type::Break), break_(std::move(break_)), location(location)
+{
+}
+
+Statement::Statement(Continue continue_, const SourceLocation& location)
+    : type(Type::Continue), continue_(std::move(continue_)), location(location)
 {
 }
 
@@ -57,13 +72,13 @@ Statement::Statement(If if_, const SourceLocation& location)
 {
 }
 
-Statement::Statement(Print print, const SourceLocation& location)
-    : type(Type::Print), print(std::move(print)), location(location)
+Statement::Statement(Noop noop, const SourceLocation& location)
+    : type(Type::Noop), noop(std::move(noop)), location(location)
 {
 }
 
-Statement::Statement(Block block, const SourceLocation& location)
-    : type(Type::Block), block(std::move(block)), location(location)
+Statement::Statement(Print print, const SourceLocation& location)
+    : type(Type::Print), print(std::move(print)), location(location)
 {
 }
 
@@ -87,9 +102,11 @@ Statement::~Statement()
     switch (type)
     {
     case Type::Block: block.~Block(); break;
+    case Type::Break: break_.~Break(); break;
+    case Type::Continue: continue_.~Continue(); break;
     case Type::ExpressionStatement: expression_statement.~ExpressionStatement(); break;
     case Type::If: if_.~If(); break;
-    case Type::Noop: break;
+    case Type::Noop: noop.~Noop(); break;
     case Type::Print: print.~Print(); break;
     case Type::Program: program.~Program(); break;
     case Type::Var: var.~Var(); break;

@@ -166,11 +166,13 @@ struct fmt::formatter<Statement::Type>
 
     static constexpr std::string_view repr(const Statement::Type& value)
     {
-        static_assert(int(Statement::Type::LastEnumValue) == 8);
+        static_assert(int(Statement::Type::LastEnumValue) == 10);
 
         switch (value)
         {
         case Statement::Type::Block:               return "block";
+        case Statement::Type::Break:               return "break";
+        case Statement::Type::Continue:            return "continue";
         case Statement::Type::ExpressionStatement: return "expression_statement";
         case Statement::Type::If:                  return "if";
         case Statement::Type::Noop:                return "noop";

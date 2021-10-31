@@ -15,6 +15,7 @@ protected:
 
 private:
     void indent();
+    void identifier(std::string_view identifier);
 
     fmt::memory_buffer out;
     std::size_t indentation;

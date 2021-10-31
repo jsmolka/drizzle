@@ -52,11 +52,13 @@ void AstWalker::walk(Expression::Variable& variable)
 
 void AstWalker::walk(Stmt& stmt)
 {
-    static_assert(int(Statement::Type::LastEnumValue) == 8);
+    static_assert(int(Statement::Type::LastEnumValue) == 10);
 
     switch (stmt->type)
     {
     case Statement::Type::Block:               walk(stmt->block); break;
+    case Statement::Type::Break:               walk(stmt->break_); break;
+    case Statement::Type::Continue:            walk(stmt->continue_); break;
     case Statement::Type::ExpressionStatement: walk(stmt->expression_statement); break;
     case Statement::Type::If:                  walk(stmt->if_); break;
     case Statement::Type::Noop:                walk(stmt->noop); break;
@@ -80,6 +82,14 @@ void AstWalker::walk(Stmts& stmts)
 void AstWalker::walk(Statement::Block& block)
 {
     walk(block.statements);
+}
+
+void AstWalker::walk(Statement::Break& break_)
+{
+}
+
+void AstWalker::walk(Statement::Continue& continue_)
+{
 }
 
 void AstWalker::walk(Statement::ExpressionStatement& expression_statement)

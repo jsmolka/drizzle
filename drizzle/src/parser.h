@@ -71,6 +71,8 @@ private:
     Stmt declarationVar();
     Stmt statement();
     Stmt statementBlock();
+    Stmt statementBreak();
+    Stmt statementContinue();
     Stmt statementIf();
     Stmt statementNoop();
     Stmt statementPrint();

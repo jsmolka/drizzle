@@ -304,6 +304,10 @@ Stmt Parser::statement()
 {
     if (match(Token::Type::Block))
         return statementBlock();
+    if (match(Token::Type::Break))
+        return statementBreak();
+    if (match(Token::Type::Continue))
+        return statementContinue();
     if (match(Token::Type::If))
         return statementIf();
     if (match(Token::Type::Noop))
@@ -333,6 +337,22 @@ Stmt Parser::statementBlock()
     expectDedent();
 
     return newStmt<Statement::Block>(identifier, std::move(statements));
+}
+
+Stmt Parser::statementBreak()
+{
+    std::string_view identifier;
+    if (match(Token::Type::Identifier))
+        identifier = previous->lexeme;
+
+    expectNewLine();
+    return newStmt<Statement::Break>(identifier);
+}
+
+Stmt Parser::statementContinue()
+{
+    expectNewLine();
+    return newStmt<Statement::Continue>();
 }
 
 Stmt Parser::statementIf()

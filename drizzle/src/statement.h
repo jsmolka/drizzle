@@ -15,6 +15,8 @@ public:
     enum class Type
     {
         Block,
+        Break,
+        Continue,
         ExpressionStatement,
         If,
         Noop,
@@ -32,6 +34,15 @@ public:
         std::string_view identifier;
         Stmts statements;
     };
+
+    struct Break
+    {
+        Break(std::string_view identifier);
+
+        std::string_view identifier;
+    };
+
+    struct Continue {};
 
     struct ExpressionStatement
     {
@@ -90,6 +101,8 @@ public:
     };
 
     Statement(Block block, const SourceLocation& location);
+    Statement(Break break_, const SourceLocation& location);
+    Statement(Continue continue_, const SourceLocation& location);
     Statement(ExpressionStatement expression, const SourceLocation& location);
     Statement(If if_, const SourceLocation& location);
     Statement(Noop noop, const SourceLocation& location);
@@ -103,6 +116,8 @@ public:
     union
     {
         Block block;
+        Break break_;
+        Continue continue_;
         ExpressionStatement expression_statement;
         If if_;
         Noop noop;

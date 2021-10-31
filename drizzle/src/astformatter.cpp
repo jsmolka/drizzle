@@ -34,21 +34,16 @@ void AstFormatter::walk(Expr& expr)
 
 void AstFormatter::walk(Stmt& stmt)
 {
-    static_assert(int(Statement::Type::LastEnumValue) == 8);
+    static_assert(int(Statement::Type::LastEnumValue) == 10);
 
     indent();
     fmt::format_to(out, "{}", stmt->type);
 
     switch (stmt->type)
     {
-    case Statement::Type::Block:
-        if (stmt->block.identifier.size())
-            fmt::format_to(out, " {}", stmt->block.identifier);
-        break;
-
-    case Statement::Type::Var:
-        fmt::format_to(out, " {}", stmt->var.identifier);
-        break;
+    case Statement::Type::Block: identifier(stmt->block.identifier); break;
+    case Statement::Type::Break: identifier(stmt->break_.identifier); break;
+    case Statement::Type::Var:   identifier(stmt->var.identifier); break;
     }
 
     fmt::format_to(out, "\n");
@@ -91,4 +86,10 @@ void AstFormatter::walk(Statement::If& if_)
 void AstFormatter::indent()
 {
     fmt::format_to(out, "{:<{}}", "", 2 * indentation);
+}
+
+void AstFormatter::identifier(std::string_view identifier)
+{
+    if (identifier.size())
+        fmt::format_to(out, " {}", identifier);
 }

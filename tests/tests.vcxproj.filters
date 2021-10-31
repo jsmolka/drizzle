@@ -188,6 +188,12 @@
     <None Include="src\parser\stmt\while.inl">
       <Filter>Header Files</Filter>
     </None>
+    <None Include="src\parser\stmt\break.inl">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="src\parser\stmt\continue.inl">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\scanner\whitespace.inl">
