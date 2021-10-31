@@ -220,6 +220,7 @@ void Compiler::walk(Statement::While& while_)
         patchJump(continue_);
     scope.pop_back();
     emitJump(Opcode::Jump, condition);
+    popVariables(scope.size());
     patchJump(exit);
 }
 
