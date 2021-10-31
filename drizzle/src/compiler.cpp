@@ -4,7 +4,6 @@
 #include <shell/ranges.h>
 
 #include "errors.h"
-#include "opcode.h"
 
 Compiler::Compiler(StringPool& pool)
     : pool(pool)
@@ -15,211 +14,79 @@ void Compiler::compile(Stmt& ast, Chunk& chunk)
 {
     this->chunk = &chunk;
 
-    increaseScope({ Block::Type::Block });
+    increaseScope(Level::Type::Block);
     walk(ast);
     decreaseScope();
 
     emit(Opcode::Return);
 }
 
-template<typename ...Bytes>
-void Compiler::emit(Bytes ...bytes)
-{
-    (chunk->write(static_cast<u8>(bytes), line), ...);
-}
-
-void Compiler::emitConstant(DzValue value)
-{
-    const auto index = chunk->constants.size();
-    if (index <= std::numeric_limits<u8>::max())
-        emit(Opcode::Constant, index);
-    else if (index <= std::numeric_limits<u16>::max())
-        emit(Opcode::ConstantExt, index, index >> 8);
-    else
-        throw CompilerError(line, "constant limit exceeded");
-
-    chunk->constants.push_back(value);
-}
-
-void Compiler::emitVariable(std::size_t index, Opcode opcode)
-{
-    if (index <= std::numeric_limits<u8>::max())
-        emit(opcode, index);
-    else if (index <= std::numeric_limits<u16>::max())
-        emit(Opcode(int(opcode) + 1), index, index >> 8);
-    else
-        throw CompilerError(line, "variable limit exceeded");
-}
-
-std::size_t Compiler::emitJump(Opcode opcode, std::size_t label)
-{
-    const auto jump = chunk->label();
-
-    s64 offset = static_cast<s64>(label - jump) - 3; 
-    if (offset < std::numeric_limits<s16>::min() || offset > -3)
-        throw CompilerError(line, "bad jump '{}'", offset);
-
-    emit(opcode, offset, offset >> 8);
-
-    return jump;
-}
-
-void Compiler::patchJump(Label jump)
-{
-    s64 offset = static_cast<s64>(chunk->label() - jump) - 3;
-    if (offset < 0 || offset > std::numeric_limits<s16>::max())
-        throw CompilerError(line, "bad jump '{}'", offset);
-
-    chunk->code[jump + 1] = offset;
-    chunk->code[jump + 2] = offset >> 8;
-}
-
-void Compiler::patchJumps(const Labels& jumps)
-{
-    for (const auto& jump : jumps)
-        patchJump(jump);
-}
-
-void Compiler::defineVariable(std::string_view identifier)
-{
-    for (const auto& variable : shell::reversed(variables))
-    {
-        if (variable.depth != scope.size())
-            break;
-
-        if (variable.identifier == identifier)
-            throw SyntaxError(identifier.data(), "redefined '{}'", identifier);
-    }
-    variables.push_back({ identifier, scope.size() });
-}
-
-Compiler::Variable& Compiler::resolveVariable(std::string_view identifier)
-{
-    for (auto& variable : shell::reversed(variables))
-    {
-        if (variable.identifier == identifier)
-            return variable;
-    }
-
-    throw SyntaxError(identifier.data(), "undefined variable '{}'", identifier);
-}
-
-void Compiler::popVariables(std::size_t depth)
-{
-    const auto size = variables.size();
-    while (variables.size() && variables.back().depth > depth)
-        variables.pop_back();
-
-    const auto count = size - variables.size();
-    if (count == 0)
-        return;
-
-    if (count == 1)
-        emit(Opcode::Pop);
-    else if (count <= std::numeric_limits<u8>::max())
-        emit(Opcode::PopMultiple, count);
-    else if (count <= std::numeric_limits<u16>::max())
-        emit(Opcode::PopMultipleExt, count, count >> 8);
-    else
-        throw CompilerError(line, "too many variables to pop '{}'", count);
-}
-
-void Compiler::increaseScope(Block&& block)
-{
-    scope.push(std::move(block));
-}
-
-Compiler::Labels&& Compiler::decreaseScope()
-{
-    auto&& block = scope.popValue();
-    patchJumps(block.continues);
-    popVariables(scope.size());
-
-    return std::move(block.breaks);
-}
-
 void Compiler::walk(Stmt& stmt)
 {
     line = stmt->location.line;
+
     AstWalker::walk(stmt);
 }
 
 void Compiler::walk(Statement::Block& block)
 {
-    if (block.identifier.size())
+    if (!block.identifier.empty())
     {
-        for (const auto& scope_block : scope)
+        for (const auto& level : scope)
         {
-            if (block.identifier == scope_block.identifier)
-                throw SyntaxError(block.identifier.data(), "redefined block '{}'", block.identifier);
+            if (level.identifier == block.identifier)
+                throw SyntaxError(level.identifier.data(), "redefined block '{}'", level.identifier);
         }
     }
 
-    increaseScope({ Block::Type::Block, block.identifier });
+    increaseScope(Level::Type::Block, block.identifier);
     AstWalker::walk(block);
-    patchJumps(decreaseScope());
+    const auto level = decreaseScope();
+    patchJumps(level.breaks);
 }
 
 void Compiler::walk(Statement::Break& break_)
 {
-    if (break_.identifier.empty())
+    const auto resolve = [this, &break_]() -> Level&
     {
-        const auto resolve = [this]() -> Block*
+        if (break_.identifier.empty())
         {
-            for (auto& block : shell::reversed(scope))
+            for (auto& level : shell::reversed(scope))
             {
-                if (block.type == Block::Type::Loop)
-                    return &block;
+                if (level.type == Level::Type::Loop)
+                    return level;
             }
-            return nullptr;
-        };
-
-        auto block = resolve();
-        if (!block)
-            throw SyntaxError(line, "'break' outside loop");
-
-        popVariables(std::distance(scope.data(), block));
-        block->breaks.push_back(emitJump(Opcode::Jump));
-    }
-    else
-    {
-        const auto resolve = [this](std::string_view identifier) -> Block*
+            throw SyntaxError(line, "no matching loop");
+        }
+        else
         {
-            for (auto& block : shell::reversed(scope))
+            const auto identifier = break_.identifier;
+            for (auto& level : shell::reversed(scope))
             {
-                if (block.identifier == identifier)
-                    return &block;
+                if (level.identifier == identifier)
+                    return level;
             }
-            return nullptr;
-        };
-
-        auto identifier = break_.identifier;
-        auto block = resolve(identifier);
-        if (!block)
             throw SyntaxError(identifier.data(), "no matching block '{}'", identifier);
+        }
+    };
 
-        popVariables(std::distance(scope.data(), block));
-        block->breaks.push_back(emitJump(Opcode::Jump));
-    }
+    auto& level = resolve();
+    popVariables(std::distance(scope.data(), &level));
+    level.breaks.push_back(emitJump(Opcode::Jump));
 }
 
 void Compiler::walk(Statement::Continue& continue_)
 {
-    const auto resolve = [this]() -> Block*
+    const auto resolve = [this]() -> Level&
     {
-        for (auto& block : shell::reversed(scope))
+        for (auto& level : shell::reversed(scope))
         {
-            if (block.type == Block::Type::Loop)
-                return &block;
+            if (level.type == Level::Type::Loop)
+                return level;
         }
-        return nullptr;
+        throw SyntaxError(line, "no matching loop");
     };
-
-    auto block = resolve();
-    if (!block)
-        throw SyntaxError(line, "'continue' outside loop");
-
-    block->continues.push_back(emitJump(Opcode::Jump));
+    resolve().continues.push_back(emitJump(Opcode::Jump));
 }
 
 void Compiler::walk(Statement::ExpressionStatement& expression_statement)
@@ -232,22 +99,21 @@ void Compiler::walk(Statement::If& if_)
 {
     std::vector<std::size_t> exits;
 
-    const auto branch = [this, &exits](Statement::If::Branch& branch)
+    const auto compile = [this, &exits](Statement::If::Branch& branch)
     {
         walk(branch.condition);
         const auto next = emitJump(Opcode::JumpFalsePop);
-        increaseScope({ Block::Type::Branch });
-        AstWalker::walk(branch.statements);
+        increaseScope(Level::Type::Branch);
+        walk(branch.statements);
         decreaseScope();
         exits.push_back(emitJump(Opcode::Jump));
         patchJump(next);
     };
 
-    branch(if_.if_);
+    compile(if_.if_);
     for (auto& elif : if_.elifs)
-        branch(elif);
-
-    AstWalker::walk(if_.else_);
+        compile(elif);
+    walk(if_.else_);
 
     patchJumps(exits);
 }
@@ -270,27 +136,28 @@ void Compiler::walk(Statement::While& while_)
     walk(while_.condition);
     const auto exit = emitJump(Opcode::JumpFalsePop);
 
-    increaseScope({ Block::Type::Loop });
+    increaseScope(Level::Type::Loop);
     walk(while_.statements);
-    const auto&& breaks = decreaseScope();
+    const auto level = decreaseScope();
     emitJump(Opcode::Jump, condition);
 
     patchJump(exit);
-    patchJumps(breaks);
+    patchJumps(level.breaks);
 }
 
 void Compiler::walk(Expr& expr)
 {
     line = expr->location.line;
+
     AstWalker::walk(expr);
 }
 
 void Compiler::walk(Expression::Assign& assign)
 {
     AstWalker::walk(assign);
-    const auto& var = resolveVariable(assign.identifier);
-    const auto index = std::distance<const Variable*>(variables.data(), &var);
-    emitVariable(index, Opcode::StoreVariable);
+
+    auto& var = resolveVariable(assign.identifier);
+    emitVariable(std::distance(variables.data(), &var), Opcode::StoreVariable);
 }
 
 void Compiler::walk(Expression::Binary& binary)
@@ -300,20 +167,20 @@ void Compiler::walk(Expression::Binary& binary)
     if (binary.type == Expression::Binary::Type::And)
     {
         walk(binary.left);
-        const auto short_circuit = emitJump(Opcode::JumpFalse);
+        const auto exit = emitJump(Opcode::JumpFalse);
         emit(Opcode::Pop);
         walk(binary.right);
-        patchJump(short_circuit);
+        patchJump(exit);
         return;
     }
-    
+
     if (binary.type == Expression::Binary::Type::Or)
     {
         walk(binary.left);
-        const auto short_circuit = emitJump(Opcode::JumpTrue);
+        const auto exit = emitJump(Opcode::JumpTrue);
         emit(Opcode::Pop);
         walk(binary.right);
-        patchJump(short_circuit);
+        patchJump(exit);
         return;
     }
 
@@ -364,7 +231,7 @@ void Compiler::walk(Expression::Literal& literal)
     case Expression::Literal::Type::Float:
         emitConstant(std::get<dzfloat>(literal.value));
         break;
-        
+
     case Expression::Literal::Type::Integer:
         emitConstant(std::get<dzint>(literal.value));
         break;
@@ -399,7 +266,122 @@ void Compiler::walk(Expression::Unary& unary)
 
 void Compiler::walk(Expression::Variable& variable)
 {
-    const auto& var = resolveVariable(variable.identifier);
-    const auto index = std::distance<const Variable*>(variables.data(), &var);
-    emitVariable(index, Opcode::LoadVariable);
+    auto& var = resolveVariable(variable.identifier);
+    emitVariable(std::distance(variables.data(), &var), Opcode::LoadVariable);
+}
+
+
+template<typename ...Bytes>
+void Compiler::emit(Bytes ...bytes)
+{
+    (chunk->write(static_cast<u8>(bytes), line), ...);
+}
+
+void Compiler::emitConstant(DzValue value)
+{
+    const auto index = chunk->constants.size();
+    if (index <= std::numeric_limits<u8>::max())
+        emit(Opcode::Constant, index);
+    else if (index <= std::numeric_limits<u16>::max())
+        emit(Opcode::ConstantExt, index, index >> 8);
+    else
+        throw CompilerError(line, "constant limit exceeded");
+
+    chunk->constants.push_back(value);
+}
+
+void Compiler::emitVariable(std::size_t index, Opcode opcode)
+{
+    if (index <= std::numeric_limits<u8>::max())
+        emit(opcode, index);
+    else if (index <= std::numeric_limits<u16>::max())
+        emit(Opcode(int(opcode) + 1), index, index >> 8);
+    else
+        throw CompilerError(line, "variable limit exceeded");
+}
+
+std::size_t Compiler::emitJump(Opcode opcode, std::size_t label)
+{
+    const auto jump = chunk->label();
+
+    s64 offset = static_cast<s64>(label - jump) - 3; 
+    if (offset < std::numeric_limits<s16>::min() || offset > -3)
+        throw CompilerError(line, "bad jump '{}'", offset);
+
+    emit(opcode, offset, offset >> 8);
+
+    return jump;
+}
+
+void Compiler::patchJump(std::size_t jump)
+{
+    s64 offset = static_cast<s64>(chunk->label() - jump) - 3;
+    if (offset < 0 || offset > std::numeric_limits<s16>::max())
+        throw CompilerError(line, "bad jump '{}'", offset);
+
+    chunk->code[jump + 1] = offset;
+    chunk->code[jump + 2] = offset >> 8;
+}
+
+void Compiler::patchJumps(const std::vector<std::size_t>& jumps)
+{
+    for (const auto& jump : jumps)
+        patchJump(jump);
+}
+
+void Compiler::defineVariable(std::string_view identifier)
+{
+    for (const auto& variable : shell::reversed(variables))
+    {
+        if (variable.depth != scope.size())
+            break;
+
+        if (variable.identifier == identifier)
+            throw SyntaxError(identifier.data(), "redefined '{}'", identifier);
+    }
+    variables.push_back({ identifier, scope.size() });
+}
+
+Compiler::Variable& Compiler::resolveVariable(std::string_view identifier)
+{
+    for (auto& variable : shell::reversed(variables))
+    {
+        if (variable.identifier == identifier)
+            return variable;
+    }
+    throw SyntaxError(identifier.data(), "undefined variable '{}'", identifier);
+}
+
+void Compiler::popVariables(std::size_t depth)
+{
+    const auto size = variables.size();
+    while (variables.size() && variables.back().depth > depth)
+        variables.pop_back();
+
+    const auto count = size - variables.size();
+    if (count == 0)
+        return;
+    else if (count == 1)
+        emit(Opcode::Pop);
+    else if (count <= std::numeric_limits<u8>::max())
+        emit(Opcode::PopMultiple, count);
+    else if (count <= std::numeric_limits<u16>::max())
+        emit(Opcode::PopMultipleExt, count, count >> 8);
+    else
+        throw CompilerError(line, "pop count too high '{}'", count);
+}
+
+template<typename... Args>
+void Compiler::increaseScope(Args&&... args)
+{
+    scope.push({ std::forward<Args>(args)... });
+}
+
+Compiler::Level Compiler::decreaseScope()
+{
+    const auto level = scope.popValue();
+    patchJumps(level.continues);
+    popVariables(scope.size());
+
+    return level;
 }

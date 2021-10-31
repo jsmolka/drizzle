@@ -5,7 +5,6 @@
 #include "astwalker.h"
 #include "chunk.h"
 #include "opcode.h"
-#include "statement.h"
 #include "stringpool.h"
 
 class Compiler final : public AstWalker
@@ -15,41 +14,7 @@ public:
 
     void compile(Stmt& ast, Chunk& chunk);
 
-private:
-    using Label  = std::size_t;
-    using Labels = std::vector<Label>;
-
-    struct Block
-    {
-        enum class Type { Block, Branch, Loop, Function };
-
-        Type type;
-        std::string_view identifier;
-        Labels breaks;
-        Labels continues;
-    };
-
-    struct Variable
-    {
-        std::string_view identifier;
-        std::size_t depth;
-    };
-
-    template<typename... Bytes>
-    void emit(Bytes... bytes);
-    void emitConstant(DzValue value);
-    void emitVariable(std::size_t index, Opcode opcode);
-    std::size_t emitJump(Opcode opcode, std::size_t label = 0);
-    void patchJump(Label jump);
-    void patchJumps(const Labels& jumps);
-
-    void defineVariable(std::string_view identifier);
-    Variable& resolveVariable(std::string_view identifier);
-    void popVariables(std::size_t depth);
-
-    void increaseScope(Block&& block);
-    Labels&& decreaseScope();
-
+protected:
     using AstWalker::walk;
 
     void walk(Stmt& stmt) final;
@@ -69,10 +34,44 @@ private:
     void walk(Expression::Unary& unary) final;
     void walk(Expression::Variable& variable) final;
 
+private:
+    struct Level
+    {
+        enum class Type { Block, Branch, Loop, Function };
+
+        Type type;
+        std::string_view identifier;
+        std::vector<std::size_t> breaks;
+        std::vector<std::size_t> continues;
+    };
+
+    struct Variable
+    {
+        std::string_view identifier;
+        std::size_t depth;
+    };
+
+    template<typename... Bytes>
+    void emit(Bytes... bytes);
+    void emitConstant(DzValue value);
+    void emitVariable(std::size_t index, Opcode opcode);
+    
+    std::size_t emitJump(Opcode opcode, std::size_t label = 0);
+    void patchJump(std::size_t jump);
+    void patchJumps(const std::vector<std::size_t>& jumps);
+
+    void defineVariable(std::string_view identifier);
+    Variable& resolveVariable(std::string_view identifier);
+    void popVariables(std::size_t depth);
+
+    template<typename... Args>
+    void increaseScope(Args&&... args);
+    Level decreaseScope();
+
     StringPool& pool;
     std::size_t line;
     Chunk* chunk;
-    shell::Stack<Block, 16> scope;
+    shell::Stack<Level, 16> scope;
     std::vector<Variable> variables;
 };
 
