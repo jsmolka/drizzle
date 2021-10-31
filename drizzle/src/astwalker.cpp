@@ -56,10 +56,10 @@ void AstWalker::walk(Stmt& stmt)
 
     switch (stmt->type)
     {
-    case Statement::Type::Noop: break; 
     case Statement::Type::Block:               walk(stmt->block); break;
     case Statement::Type::ExpressionStatement: walk(stmt->expression_statement); break;
     case Statement::Type::If:                  walk(stmt->if_); break;
+    case Statement::Type::Noop:                walk(stmt->noop); break;
     case Statement::Type::Print:               walk(stmt->print); break;
     case Statement::Type::Program:             walk(stmt->program); break;
     case Statement::Type::Var:                 walk(stmt->var); break;
@@ -99,6 +99,10 @@ void AstWalker::walk(Statement::If& if_)
     }
 
     walk(if_.else_);
+}
+
+void AstWalker::walk(Statement::Noop& noop)
+{
 }
 
 void AstWalker::walk(Statement::Print& print)

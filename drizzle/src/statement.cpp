@@ -42,8 +42,8 @@ Statement::While::While(Expr condition, Stmts statements)
 {
 }
 
-Statement::Statement(const SourceLocation& location)
-    : type(Type::Noop), location(location)
+Statement::Statement(Noop noop, const SourceLocation& location)
+    : type(Type::Noop), noop(std::move(noop)), location(location)
 {
 }
 

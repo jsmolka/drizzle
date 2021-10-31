@@ -377,7 +377,7 @@ Stmt Parser::statementIf()
 Stmt Parser::statementNoop()
 {
     expectNewLine();
-    return std::make_unique<Statement>(previous->line);
+    return newStmt<Statement::Noop>();
 }
 
 Stmt Parser::statementPrint()

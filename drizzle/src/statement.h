@@ -57,6 +57,8 @@ public:
         Stmts else_;
     };
 
+    struct Noop {};
+
     struct Print
     {
         Print(Expr expression);
@@ -87,10 +89,10 @@ public:
         Stmts statements;
     };
 
-    Statement(const SourceLocation& location);
     Statement(Block block, const SourceLocation& location);
     Statement(ExpressionStatement expression, const SourceLocation& location);
     Statement(If if_, const SourceLocation& location);
+    Statement(Noop noop, const SourceLocation& location);
     Statement(Print print, const SourceLocation& location);
     Statement(Program program, const SourceLocation& location);
     Statement(Var var, const SourceLocation& location);
@@ -103,6 +105,7 @@ public:
         Block block;
         ExpressionStatement expression_statement;
         If if_;
+        Noop noop;
         Print print;
         Program program;
         Var var;
