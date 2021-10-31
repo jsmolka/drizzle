@@ -16,9 +16,14 @@ protected:
     void walk(Statement::If& if_) final;
 
 private:
-    void indent();
-    void identifier(std::string_view identifier);
+    template<typename T>
+    void write(std::string_view format, const T& value);
+    void write(std::string_view format);
 
-    fmt::memory_buffer out;
+    template<typename T>
+    void writeIndent(std::string_view format, const T& value);
+    void writeIndent(std::string_view format);
+
+    fmt::memory_buffer buffer;
     std::size_t indentation;
 };

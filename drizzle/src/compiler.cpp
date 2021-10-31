@@ -76,7 +76,8 @@ void Compiler::patchJump(Label jump)
 
 void Compiler::patchJumps(const Labels& jumps)
 {
-    shell::foreach(jumps, patchJump);
+    for (const auto& jump : jumps)
+        patchJump(jump);
 }
 
 void Compiler::defineVariable(std::string_view identifier)
