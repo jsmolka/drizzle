@@ -56,7 +56,7 @@ void AstFormatter::walk(Stmt& stmt)
 void AstFormatter::walk(Statement::If& if_)
 {
     walk(if_.if_.condition);
-    AstWalker::walk(if_.if_.statements);
+    walk(if_.if_.statements);
 
     if (if_.elifs.size())
     {
@@ -68,7 +68,7 @@ void AstFormatter::walk(Statement::If& if_)
             indentation++;
 
             walk(elif.condition);
-            AstWalker::walk(elif.statements);
+            walk(elif.statements);
         }
     }
 
@@ -79,7 +79,7 @@ void AstFormatter::walk(Statement::If& if_)
         fmt::format_to(out, "else\n");
         indentation++;
 
-        AstWalker::walk(if_.else_);
+        walk(if_.else_);
     }
 }
 

@@ -76,8 +76,7 @@ void Compiler::patchJump(Label jump)
 
 void Compiler::patchJumps(const Labels& jumps)
 {
-    for (const auto& jump : jumps)
-        patchJump(jump);
+    shell::foreach(jumps, patchJump);
 }
 
 void Compiler::defineVariable(std::string_view identifier)
@@ -106,11 +105,11 @@ Compiler::Variable& Compiler::resolveVariable(std::string_view identifier)
 
 void Compiler::popVariables(std::size_t depth)
 {
-    auto size = variables.size();
+    const auto size = variables.size();
     while (variables.size() && variables.back().depth > depth)
         variables.pop_back();
 
-    auto count = size - variables.size();
+    const auto count = size - variables.size();
     if (count == 0)
         return;
 
@@ -129,11 +128,13 @@ void Compiler::increaseScope(Block&& block)
     scope.push(std::move(block));
 }
 
-Compiler::Block&& Compiler::decreaseScope()
+Compiler::Labels&& Compiler::decreaseScope()
 {
-    auto block = scope.popValue();
+    auto&& block = scope.popValue();
+    patchJumps(block.continues);
     popVariables(scope.size());
-    return std::move(block);
+
+    return std::move(block.breaks);
 }
 
 void Compiler::walk(Stmt& stmt)
@@ -155,8 +156,7 @@ void Compiler::walk(Statement::Block& block)
 
     increaseScope({ Block::Type::Block, block.identifier });
     AstWalker::walk(block);
-    const auto&& closed = decreaseScope();
-    patchJumps(closed.breaks);
+    patchJumps(decreaseScope());
 }
 
 void Compiler::walk(Statement::Break& break_)
@@ -270,13 +270,12 @@ void Compiler::walk(Statement::While& while_)
     const auto exit = emitJump(Opcode::JumpFalsePop);
 
     increaseScope({ Block::Type::Loop });
-    AstWalker::walk(while_.statements);
-    patchJumps(scope.top().continues);
-    const auto&& closed = decreaseScope();
+    walk(while_.statements);
+    const auto&& breaks = decreaseScope();
     emitJump(Opcode::Jump, condition);
 
     patchJump(exit);
-    patchJumps(closed.breaks);
+    patchJumps(breaks);
 }
 
 void Compiler::walk(Expr& expr)

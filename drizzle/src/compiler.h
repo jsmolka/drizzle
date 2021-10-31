@@ -25,8 +25,8 @@ private:
 
         Type type;
         std::string_view identifier;
-        std::vector<std::size_t> breaks;
-        std::vector<std::size_t> continues;
+        Labels breaks;
+        Labels continues;
     };
 
     struct Variable
@@ -48,7 +48,9 @@ private:
     void popVariables(std::size_t depth);
 
     void increaseScope(Block&& block);
-    Block&& decreaseScope();
+    Labels&& decreaseScope();
+
+    using AstWalker::walk;
 
     void walk(Stmt& stmt) final;
     void walk(Statement::Block& block) final;

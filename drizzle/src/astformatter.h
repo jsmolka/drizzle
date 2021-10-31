@@ -9,6 +9,8 @@ public:
     std::string format(Stmt& ast);
 
 protected:
+    using AstWalker::walk;
+
     void walk(Expr& expr) final;
     void walk(Stmt& stmt) final;
     void walk(Statement::If& if_) final;
