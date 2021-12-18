@@ -1,7 +1,5 @@
 #pragma once
 
-#include <sh/stack.h>
-
 #include "astwalker.h"
 #include "chunk.h"
 #include "opcode.h"
@@ -34,6 +32,8 @@ class Compiler final : public AstWalker {
   void walk(Expression::Variable& variable) final;
 
  private:
+  static constexpr auto kJumpBytes = 3;
+
   struct Level {
     enum class Type { Block, Branch, Loop, Function };
 
@@ -53,21 +53,22 @@ class Compiler final : public AstWalker {
   void emitConstant(DzValue value);
   void emitVariable(std::size_t index, Opcode opcode);
 
-  std::size_t emitJump(Opcode opcode, std::size_t label = 0);
+  auto emitJump(Opcode opcode, std::size_t label = 0) -> std::size_t;
   void patchJump(std::size_t jump);
   void patchJumps(const std::vector<std::size_t>& jumps);
 
   void defineVariable(std::string_view identifier);
-  Variable& resolveVariable(std::string_view identifier);
+  auto resolveVariable(std::string_view identifier) -> Variable&;
   void popVariables(std::size_t depth);
 
   template <typename... Args>
+    requires std::constructible_from<Compiler::Level, Args...>
   void increaseScope(Args&&... args);
-  Level decreaseScope();
+  auto decreaseScope() -> Level;
 
   StringPool& pool;
   std::size_t line;
   Chunk* chunk;
-  sh::stack<Level, 16> scope;
+  std::vector<Level> scope;
   std::vector<Variable> variables;
 };
