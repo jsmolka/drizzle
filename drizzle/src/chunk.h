@@ -1,20 +1,22 @@
 #pragma once
 
+#include <vector>
+
 #include "dzvalue.h"
 
 class Chunk {
  public:
-  void write(u8 byte, std::size_t line);
-
-  auto label() const -> std::size_t;
+  auto size() const -> std::size_t;
   auto line(std::size_t index) const -> std::size_t;
 
-  DzValues constants;
+  void write(u8 byte, std::size_t line);
+
   std::vector<u8> code;
+  std::vector<DzValue> constants;
 
  private:
   struct Line {
-    std::size_t index;
+    std::size_t start;
     std::size_t number;
   };
   std::vector<Line> lines;

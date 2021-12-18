@@ -105,7 +105,7 @@ void Compiler::walk(Statement::Var& var) {
 }
 
 void Compiler::walk(Statement::While& while_) {
-  const auto condition = chunk->label();
+  const auto condition = chunk->size();
   walk(while_.condition);
   const auto exit = emitJump(Opcode::JumpFalsePop);
 
@@ -303,7 +303,7 @@ void Compiler::emitVariable(std::size_t index, Opcode opcode) {
 }
 
 std::size_t Compiler::emitJump(Opcode opcode, std::size_t label) {
-  const auto jump = chunk->label();
+  const auto jump = chunk->size();
 
   s64 offset = static_cast<s64>(label - jump) - 3;
   if (offset < std::numeric_limits<s16>::min() || offset > -3)
@@ -315,7 +315,7 @@ std::size_t Compiler::emitJump(Opcode opcode, std::size_t label) {
 }
 
 void Compiler::patchJump(std::size_t jump) {
-  s64 offset = static_cast<s64>(chunk->label() - jump) - 3;
+  s64 offset = static_cast<s64>(chunk->size() - jump) - 3;
   if (offset < 0 || offset > std::numeric_limits<s16>::max())
     throw CompilerError(line, "bad jump '{}'", offset);
 

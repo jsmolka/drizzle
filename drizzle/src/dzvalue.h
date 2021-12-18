@@ -1,7 +1,5 @@
 #pragma once
 
-#include <vector>
-
 #include "dzobject.h"
 #include "dzprimitives.h"
 
@@ -34,8 +32,6 @@ struct DzValue {
     DzObject* o;
   };
 };
-
-using DzValues = std::vector<DzValue>;
 
 template <typename T>
 DzValue::DzValue(const T& value) {
