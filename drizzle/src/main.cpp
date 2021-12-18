@@ -73,8 +73,8 @@ int main(int argc, char* argv[]) {
   using namespace sh::filesystem;
 
   sh::argument_parser parser("drizzle");
-  parser.add<std::optional<bool>>("-h", "--help") | sh::description("print help");
-  parser.add<std::optional<bool>>("-a", "--ast") | sh::description("print AST");
+  parser.add<bool>("-h", "--help") | sh::description("print help") | false;
+  parser.add<bool>("-a", "--ast") | sh::description("print AST") | false;
   parser.add<path>("file") | sh::description("file to execute");
 
   try {
@@ -84,15 +84,13 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  const auto help = parser.get<std::optional<bool>>("-h");
-  if (help && *help) {
+  if (parser.get<bool>("-h")) {
     fmt::print("{}\n", parser.help());
     return 0;
   }
 
   try {
     const auto file = parser.get<path>("file");
-    const auto print_ast = parser.get<std::optional<bool>>("-a");
 
     const auto status = read(file, source);
     if (status != filesystem::status::ok) {
@@ -106,7 +104,7 @@ int main(int argc, char* argv[]) {
     const auto tokens = Tokenizer().tokenize(source);
     auto ast = Parser().parse(tokens);
 
-    if (print_ast && *print_ast) {
+    if (parser.get<bool>("-a")) {
       fmt::print("{}", AstFormatter().format(ast));
     } else {
       StringPool pool;
