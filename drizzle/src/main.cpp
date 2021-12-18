@@ -94,7 +94,7 @@ int main(int argc, char* argv[]) {
 
     const auto status = read(file, source);
     if (status != filesystem::status::ok) {
-      fmt::print("cannot read file '{}'\n", file);
+      fmt::print("cannot read file: {}\n", file);
       return 1;
     }
 
@@ -105,7 +105,7 @@ int main(int argc, char* argv[]) {
     auto ast = Parser().parse(tokens);
 
     if (parser.get<bool>("-a")) {
-      fmt::print("{}", AstFormatter().format(ast));
+      fmt::print("{}", ast);
     } else {
       StringPool pool;
       Chunk chunk;

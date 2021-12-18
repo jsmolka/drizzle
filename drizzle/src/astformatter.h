@@ -17,12 +17,20 @@ class AstFormatter final : public AstWalker {
  private:
   template <sh::formattable T>
   void write(std::string_view format, const T& value);
-  void write(std::string_view format);
+  void write(std::string_view string);
 
   template <sh::formattable T>
   void writeIndent(std::string_view format, const T& value);
-  void writeIndent(std::string_view format);
+  void writeIndent(std::string_view string);
 
-  std::string buffer;
-  std::size_t indentation;
+  std::string string;
+  std::size_t indent = 0;
+};
+
+template <>
+struct fmt::formatter<Stmt> : fmt::formatter<std::string> {
+  template <typename FormatContext>
+  auto format(Stmt& ast, FormatContext& ctx) {
+    return fmt::formatter<std::string>::format(AstFormatter().format(ast), ctx);
+  }
 };

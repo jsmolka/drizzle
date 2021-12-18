@@ -1,13 +1,8 @@
 #include "astformatter.h"
 
-#include <concepts>
-
 auto AstFormatter::format(Stmt& ast) -> std::string {
-  buffer.clear();
-  indentation = 0;
   walk(ast);
-
-  return buffer;
+  return string;
 }
 
 void AstFormatter::walk(Expr& expr) {
@@ -27,9 +22,9 @@ void AstFormatter::walk(Expr& expr) {
 
   write("\n");
 
-  indentation++;
+  indent++;
   AstWalker::walk(expr);
-  indentation--;
+  indent--;
 }
 
 void AstFormatter::walk(Stmt& stmt) {
@@ -47,9 +42,9 @@ void AstFormatter::walk(Stmt& stmt) {
 
   write("\n");
 
-  indentation++;
+  indent++;
   AstWalker::walk(stmt);
-  indentation--;
+  indent--;
 }
 
 void AstFormatter::walk(Statement::If& if_) {
@@ -57,18 +52,18 @@ void AstFormatter::walk(Statement::If& if_) {
   walk(if_.if_.statements);
 
   for (auto& elif : if_.elifs) {
-    indentation--;
+    indent--;
     writeIndent("elif\n");
-    indentation++;
+    indent++;
 
     walk(elif.condition);
     walk(elif.statements);
   }
 
-  if (if_.else_.size()) {
-    indentation--;
+  if (!if_.else_.empty()) {
+    indent--;
     writeIndent("else\n");
-    indentation++;
+    indent++;
 
     walk(if_.else_);
   }
@@ -81,11 +76,11 @@ void AstFormatter::write(std::string_view format, const T& value) {
       return;
     }
   }
-  fmt::format_to(std::back_inserter(buffer), fmt::runtime(format), value);
+  fmt::format_to(std::back_inserter(string), fmt::runtime(format), value);
 }
 
-void AstFormatter::write(std::string_view format) {
-  write("{}", format);
+void AstFormatter::write(std::string_view string) {
+  write("{}", string);
 }
 
 template <sh::formattable T>
@@ -95,10 +90,10 @@ void AstFormatter::writeIndent(std::string_view format, const T& value) {
       return;
     }
   }
-  fmt::format_to(std::back_inserter(buffer), "{:<{}}", "", 2 * indentation);
-  fmt::format_to(std::back_inserter(buffer), fmt::runtime(format), value);
+  fmt::format_to(std::back_inserter(string), "{:<{}}", "", 2 * indent);
+  fmt::format_to(std::back_inserter(string), fmt::runtime(format), value);
 }
 
-void AstFormatter::writeIndent(std::string_view format) {
-  writeIndent("{}", format);
+void AstFormatter::writeIndent(std::string_view string) {
+  writeIndent("{}", string);
 }
