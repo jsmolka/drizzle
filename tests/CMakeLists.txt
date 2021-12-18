@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.8)
 
 project(tests)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -flto")
 
@@ -10,7 +10,7 @@ include_directories(src)
 include_directories(modules)
 include_directories(../drizzle/src)
 include_directories(../drizzle/modules)
-include_directories(../drizzle/modules/shell/include)
+include_directories(../drizzle/modules/sh/include)
 
 file(GLOB_RECURSE SOURCE_FILES
   ${PROJECT_SOURCE_DIR}/src/*.h

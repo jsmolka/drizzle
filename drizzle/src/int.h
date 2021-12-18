@@ -1,12 +1,12 @@
 #pragma once
 
-#include <shell/int.h>
+#include <sh/int.h>
 
-using s8  = shell::s8;
-using s16 = shell::s16;
-using s32 = shell::s32;
-using s64 = shell::s64;
-using u8  = shell::u8;
-using u16 = shell::u16;
-using u32 = shell::u32;
-using u64 = shell::u64;
+using s8 = sh::s8;
+using s16 = sh::s16;
+using s32 = sh::s32;
+using s64 = sh::s64;
+using u8 = sh::u8;
+using u16 = sh::u16;
+using u32 = sh::u32;
+using u64 = sh::u64;

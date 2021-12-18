@@ -115,9 +115,9 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)modules\;$(SolutionDir)drizzle\src\;$(SolutionDir)drizzle\modules\;$(SolutionDir)drizzle\modules\shell\include\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)modules\;$(SolutionDir)drizzle\src\;$(SolutionDir)drizzle\modules\;$(SolutionDir)drizzle\modules\sh\include\</AdditionalIncludeDirectories>
       <ObjectFileName>$(IntDir)/%(RelativeDir)/</ObjectFileName>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <SupportJustMyCode>true</SupportJustMyCode>
       <BufferSecurityCheck>false</BufferSecurityCheck>
@@ -132,9 +132,9 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
-      <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)modules\;$(SolutionDir)drizzle\src\;$(SolutionDir)drizzle\modules\;$(SolutionDir)drizzle\modules\shell\include\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)modules\;$(SolutionDir)drizzle\src\;$(SolutionDir)drizzle\modules\;$(SolutionDir)drizzle\modules\sh\include\</AdditionalIncludeDirectories>
       <ObjectFileName>$(IntDir)/%(RelativeDir)/</ObjectFileName>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/Ob3</AdditionalOptions>
       <PreprocessorDefinitions>NDEBUG</PreprocessorDefinitions>

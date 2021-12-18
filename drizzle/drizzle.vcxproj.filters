@@ -136,5 +136,8 @@
     <ClInclude Include="src\astwalker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\_traits.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

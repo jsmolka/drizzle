@@ -18,7 +18,7 @@ jobs:
       - name: Build
         run: |
           cd tests/build
-          cmake -DCMAKE_BUILD_TYPE=Debug ..
+          cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=g++-10 ..
           make -j 4
 
       - name: Run

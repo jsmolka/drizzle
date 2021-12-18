@@ -3,13 +3,12 @@
 #include "dzmap.h"
 #include "dzstring.h"
 
-class StringPool
-{
-public:
-    ~StringPool();
+class StringPool {
+ public:
+  ~StringPool();
 
-    DzString* make(std::string data);
+  auto make(std::string data) -> DzString*;
 
-private:
-    DzMap<DzString*> pool;
+ private:
+  DzMap<DzString*> pool;
 };

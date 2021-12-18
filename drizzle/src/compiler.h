@@ -1,77 +1,73 @@
 #pragma once
 
-#include <shell/stack.h>
+#include <sh/stack.h>
 
 #include "astwalker.h"
 #include "chunk.h"
 #include "opcode.h"
 #include "stringpool.h"
 
-class Compiler final : public AstWalker
-{
-public:
-    Compiler(StringPool& pool);
+class Compiler final : public AstWalker {
+ public:
+  Compiler(StringPool& pool);
 
-    void compile(Stmt& ast, Chunk& chunk);
+  void compile(Stmt& ast, Chunk& chunk);
 
-protected:
-    using AstWalker::walk;
+ protected:
+  using AstWalker::walk;
 
-    void walk(Stmt& stmt) final;
-    void walk(Statement::Block& block) final;
-    void walk(Statement::Break& break_) final;
-    void walk(Statement::Continue& continue_) final;
-    void walk(Statement::ExpressionStatement& expression_statement) final;
-    void walk(Statement::If& if_) final;
-    void walk(Statement::Print& print) final;
-    void walk(Statement::Var& var) final;
-    void walk(Statement::While& while_) final;
+  void walk(Stmt& stmt) final;
+  void walk(Statement::Block& block) final;
+  void walk(Statement::Break& break_) final;
+  void walk(Statement::Continue& continue_) final;
+  void walk(Statement::ExpressionStatement& expression_statement) final;
+  void walk(Statement::If& if_) final;
+  void walk(Statement::Print& print) final;
+  void walk(Statement::Var& var) final;
+  void walk(Statement::While& while_) final;
 
-    void walk(Expr& expr) final;
-    void walk(Expression::Assign& assign) final;
-    void walk(Expression::Binary& binary) final;
-    void walk(Expression::Literal& literal) final;
-    void walk(Expression::Unary& unary) final;
-    void walk(Expression::Variable& variable) final;
+  void walk(Expr& expr) final;
+  void walk(Expression::Assign& assign) final;
+  void walk(Expression::Binary& binary) final;
+  void walk(Expression::Literal& literal) final;
+  void walk(Expression::Unary& unary) final;
+  void walk(Expression::Variable& variable) final;
 
-private:
-    struct Level
-    {
-        enum class Type { Block, Branch, Loop, Function };
+ private:
+  struct Level {
+    enum class Type { Block, Branch, Loop, Function };
 
-        Type type;
-        std::string_view identifier;
-        std::vector<std::size_t> breaks;
-        std::vector<std::size_t> continues;
-    };
+    Type type;
+    std::string_view identifier;
+    std::vector<std::size_t> breaks;
+    std::vector<std::size_t> continues;
+  };
 
-    struct Variable
-    {
-        std::string_view identifier;
-        std::size_t depth;
-    };
+  struct Variable {
+    std::string_view identifier;
+    std::size_t depth;
+  };
 
-    template<typename... Bytes>
-    void emit(Bytes... bytes);
-    void emitConstant(DzValue value);
-    void emitVariable(std::size_t index, Opcode opcode);
-    
-    std::size_t emitJump(Opcode opcode, std::size_t label = 0);
-    void patchJump(std::size_t jump);
-    void patchJumps(const std::vector<std::size_t>& jumps);
+  template <typename... Bytes>
+  void emit(Bytes... bytes);
+  void emitConstant(DzValue value);
+  void emitVariable(std::size_t index, Opcode opcode);
 
-    void defineVariable(std::string_view identifier);
-    Variable& resolveVariable(std::string_view identifier);
-    void popVariables(std::size_t depth);
+  std::size_t emitJump(Opcode opcode, std::size_t label = 0);
+  void patchJump(std::size_t jump);
+  void patchJumps(const std::vector<std::size_t>& jumps);
 
-    template<typename... Args>
-    void increaseScope(Args&&... args);
-    Level decreaseScope();
+  void defineVariable(std::string_view identifier);
+  Variable& resolveVariable(std::string_view identifier);
+  void popVariables(std::size_t depth);
 
-    StringPool& pool;
-    std::size_t line;
-    Chunk* chunk;
-    shell::Stack<Level, 16> scope;
-    std::vector<Variable> variables;
+  template <typename... Args>
+  void increaseScope(Args&&... args);
+  Level decreaseScope();
+
+  StringPool& pool;
+  std::size_t line;
+  Chunk* chunk;
+  sh::stack<Level, 16> scope;
+  std::vector<Variable> variables;
 };
-

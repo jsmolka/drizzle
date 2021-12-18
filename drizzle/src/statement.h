@@ -6,125 +6,113 @@
 
 class Statement;
 
-using Stmt  = std::shared_ptr<Statement>;
+using Stmt = std::shared_ptr<Statement>;
 using Stmts = std::vector<Stmt>;
 
-class Statement
-{
-public:
-    enum class Type
-    {
-        Block,
-        Break,
-        Continue,
-        ExpressionStatement,
-        If,
-        Noop,
-        Print,
-        Program,
-        Var,
-        While,
-        LastEnumValue,
+class Statement {
+ public:
+  enum class Type {
+    Block,
+    Break,
+    Continue,
+    ExpressionStatement,
+    If,
+    Noop,
+    Print,
+    Program,
+    Var,
+    While,
+    LastEnumValue,
+  };
+
+  struct Block {
+    Block(std::string_view identifier, Stmts statements);
+
+    std::string_view identifier;
+    Stmts statements;
+  };
+
+  struct Break {
+    Break(std::string_view identifier);
+
+    std::string_view identifier;
+  };
+
+  struct Continue {};
+
+  struct ExpressionStatement {
+    ExpressionStatement(Expr expression);
+
+    Expr expression;
+  };
+
+  struct If {
+    struct Branch {
+      Branch(Expr condition, Stmts statements);
+
+      Expr condition;
+      Stmts statements;
     };
 
-    struct Block
-    {
-        Block(std::string_view identifier, Stmts statements);
+    If(Branch if_, std::vector<Branch> elifs, Stmts else_);
 
-        std::string_view identifier;
-        Stmts statements;
-    };
+    Branch if_;
+    std::vector<Branch> elifs;
+    Stmts else_;
+  };
 
-    struct Break
-    {
-        Break(std::string_view identifier);
+  struct Noop {};
 
-        std::string_view identifier;
-    };
+  struct Print {
+    Print(Expr expression);
 
-    struct Continue {};
+    Expr expression;
+  };
 
-    struct ExpressionStatement
-    {
-        ExpressionStatement(Expr expression);
+  struct Program {
+    Program(Stmts statements);
 
-        Expr expression;
-    };
+    Stmts statements;
+  };
 
-    struct If
-    {
-        struct Branch
-        {
-            Branch(Expr condition, Stmts statements);
+  struct Var {
+    Var(std::string_view identifier, Expr initializer);
 
-            Expr condition;
-            Stmts statements;
-        };
+    std::string_view identifier;
+    Expr initializer;
+  };
 
-        If(Branch if_, std::vector<Branch> elifs, Stmts else_);
+  struct While {
+    While(Expr condition, Stmts statements);
 
-        Branch if_;
-        std::vector<Branch> elifs;
-        Stmts else_;
-    };
+    Expr condition;
+    Stmts statements;
+  };
 
-    struct Noop {};
+  Statement(Block block, const SourceLocation& location);
+  Statement(Break break_, const SourceLocation& location);
+  Statement(Continue continue_, const SourceLocation& location);
+  Statement(ExpressionStatement expression, const SourceLocation& location);
+  Statement(If if_, const SourceLocation& location);
+  Statement(Noop noop, const SourceLocation& location);
+  Statement(Print print, const SourceLocation& location);
+  Statement(Program program, const SourceLocation& location);
+  Statement(Var var, const SourceLocation& location);
+  Statement(While while_, const SourceLocation& location);
+  ~Statement();
 
-    struct Print
-    {
-        Print(Expr expression);
-
-        Expr expression;
-    };
-
-    struct Program
-    {
-        Program(Stmts statements);
-
-        Stmts statements;
-    };
-
-    struct Var
-    {
-        Var(std::string_view identifier, Expr initializer);
-
-        std::string_view identifier;
-        Expr initializer;
-    };
-
-    struct While
-    {
-        While(Expr condition, Stmts statements);
-
-        Expr condition;
-        Stmts statements;
-    };
-
-    Statement(Block block, const SourceLocation& location);
-    Statement(Break break_, const SourceLocation& location);
-    Statement(Continue continue_, const SourceLocation& location);
-    Statement(ExpressionStatement expression, const SourceLocation& location);
-    Statement(If if_, const SourceLocation& location);
-    Statement(Noop noop, const SourceLocation& location);
-    Statement(Print print, const SourceLocation& location);
-    Statement(Program program, const SourceLocation& location);
-    Statement(Var var, const SourceLocation& location);
-    Statement(While while_, const SourceLocation& location);
-    ~Statement();
-
-    const Type type;
-    union
-    {
-        Block block;
-        Break break_;
-        Continue continue_;
-        ExpressionStatement expression_statement;
-        If if_;
-        Noop noop;
-        Print print;
-        Program program;
-        Var var;
-        While while_;
-    };
-    const SourceLocation location;
+  const Type type;
+  union {
+    Block block;
+    Break break_;
+    Continue continue_;
+    ExpressionStatement expression_statement;
+    If if_;
+    Noop noop;
+    Print print;
+    Program program;
+    Var var;
+    While while_;
+  };
+  const SourceLocation location;
 };

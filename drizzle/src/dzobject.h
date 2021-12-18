@@ -1,31 +1,32 @@
 #pragma once
 
 #include <string_view>
-#include <shell/traits.h>
 
-class DzObject
-{
-public:
-    enum class Type { String };
+#include "_traits.h"
 
-    DzObject(Type type);
+class DzObject {
+ public:
+  enum class Type { String };
 
-    std::string_view typeName() const;
+  DzObject(Type type);
 
-    operator bool() const;
-    bool operator==(const DzObject& other) const;
-    bool operator!=(const DzObject& other) const;
+  auto typeName() const -> std::string_view;
 
-    const Type type;
+  operator bool() const;
+  auto operator==(const DzObject& other) const -> bool;
+  auto operator!=(const DzObject& other) const -> bool;
 
-private:
-    template<typename T>
-    const T& as() const;
+  const Type type;
+
+ private:
+  template <typename T>
+    requires std::is_base_of_v<DzObject, T>
+  auto as() const -> const T&;
 };
 
-template<typename... Ts>
-inline constexpr auto is_dz_object_v = std::conjunction_v<std::is_pointer<Ts>...>
-    && std::conjunction_v<std::is_base_of<DzObject, shell::unqualified_t<Ts>>...>;
+template <typename... Ts>
+inline constexpr auto is_dz_object_v = std::conjunction_v<std::is_pointer<Ts>...>&&
+    std::conjunction_v<std::is_base_of<DzObject, shell::unqualified_t<Ts>>...>;
 
-template<typename... Ts>
+template <typename... Ts>
 struct is_dz_object : std::bool_constant<is_dz_object_v<Ts...>> {};

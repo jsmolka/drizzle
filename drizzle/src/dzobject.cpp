@@ -1,54 +1,45 @@
 #include "dzobject.h"
 
-#include <shell/macros.h>
+#include <sh/utility.h>
 
 #include "dzstring.h"
 
-DzObject::DzObject(DzObject::Type type)
-    : type(type)
-{
-}
+DzObject::DzObject(DzObject::Type type) : type(type) {}
 
-std::string_view DzObject::typeName() const
-{
-    switch (type)
-    {
-    case Type::String:
-        return as<DzString>().typeName();
-
-    default:
-        SHELL_UNREACHABLE;
-        return "unreachable";
+std::string_view DzObject::typeName() const {
+  switch (type) {
+    case Type::String: {
+      return as<DzString>().typeName();
     }
-}
-
-DzObject::operator bool() const
-{
-    switch (type)
-    {
-    case Type::String:
-        return static_cast<bool>(as<DzString>());
-
-    default:
-        SHELL_UNREACHABLE;
-        return false;
+    default: {
+      SH_UNREACHABLE;
+      return "unreachable";
     }
+  }
 }
 
-bool DzObject::operator==(const DzObject& other) const
-{
-    return this == &other;
+DzObject::operator bool() const {
+  switch (type) {
+    case Type::String: {
+      return static_cast<bool>(as<DzString>());
+    }
+    default: {
+      SH_UNREACHABLE;
+      return false;
+    }
+  }
 }
 
-bool DzObject::operator!=(const DzObject& other) const
-{
-    return !(this == &other);
+auto DzObject::operator==(const DzObject& other) const -> bool {
+  return this == &other;
 }
 
-template<typename T>
-const T& DzObject::as() const
-{
-    static_assert(std::is_base_of_v<DzObject, T>);
+auto DzObject::operator!=(const DzObject& other) const -> bool {
+  return !(this == &other);
+}
 
-    return *static_cast<const T*>(this);
+template <typename T>
+  requires std::is_base_of_v<DzObject, T>
+auto DzObject::as() const -> const T& {
+  return *static_cast<const T*>(this);
 }

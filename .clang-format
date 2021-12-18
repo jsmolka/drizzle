@@ -1,0 +1,21 @@
+﻿---
+BasedOnStyle: Google
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortLambdasOnASingleLine: Empty
+AllowShortLoopsOnASingleLine: 'false'
+ColumnLimit: '100'
+IndentPPDirectives: AfterHash
+IndentRequires: 'true'
+IndentWidth: '2'
+Language: Cpp
+SortUsingDeclarations: 'false'
+TabWidth: '2'
+UseTab: Never
+IncludeCategories:
+  - Regex:           '^<.*\..*>$'
+    Priority:        2
+  - Regex:           '^<.*>$'
+    Priority:        1
+  - Regex:           '.*'
+    Priority:        3
+...

@@ -2,10 +2,9 @@
 
 #include <cstddef>
 
-class SourceLocation
-{
-public:
-    SourceLocation(std::size_t line);
+class SourceLocation {
+ public:
+  SourceLocation(std::size_t line);
 
-    const std::size_t line;
+  const std::size_t line;
 };

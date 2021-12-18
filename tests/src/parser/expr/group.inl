@@ -1,8 +1,7 @@
-TEST_CASE("parser_expr_group_1")
-{
-    constexpr auto kSource = "(1 * 2) + (3 * 4)\n";
+TEST_CASE("parser_expr_group_1") {
+  constexpr auto kSource = "(1 * 2) + (3 * 4)\n";
 
-    parse(kSource, R"(program
+  parse(kSource, R"(program
   expression_statement
     binary +
       binary *
@@ -14,11 +13,10 @@ TEST_CASE("parser_expr_group_1")
 )");
 }
 
-TEST_CASE("parser_expr_group_2")
-{
-    constexpr auto kSource = "1 * (2 + 3) * 4\n";
+TEST_CASE("parser_expr_group_2") {
+  constexpr auto kSource = "1 * (2 + 3) * 4\n";
 
-    parse(kSource, R"(program
+  parse(kSource, R"(program
   expression_statement
     binary *
       binary *

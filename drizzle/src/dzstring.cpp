@@ -1,13 +1,8 @@
 #include "dzstring.h"
 
 DzString::DzString(std::string&& data, std::size_t hash)
-    : DzObject(Type::String)
-    , data(std::move(data))
-    , hash(hash)
-{
-}
+    : DzObject(Type::String), data(std::move(data)), hash(hash) {}
 
-DzString::operator bool() const
-{
-    return data.size() > 0;
+DzString::operator bool() const {
+  return data.size() > 0;
 }

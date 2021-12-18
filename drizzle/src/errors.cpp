@@ -1,36 +1,23 @@
 #include "errors.h"
 
-Error::Location::Location()
-    : type(Type::None)
-{
+Error::Location::Location() : type(Type::None) {}
+
+Error::Location::Location(std::size_t line) : type(Type::Line), line(line) {}
+
+Error::Location::Location(const char* location) : type(Type::Location), location(location) {}
+
+const char* Error::what() const noexcept {
+  return message.c_str();
 }
 
-Error::Location::Location(std::size_t line)
-    : type(Type::Line), line(line)
-{
+const char* SyntaxError::name() const noexcept {
+  return "SyntaxError";
 }
 
-Error::Location::Location(const char* location)
-    : type(Type::Location), location(location)
-{
+const char* CompilerError::name() const noexcept {
+  return "CompilerError";
 }
 
-const char* Error::what() const noexcept
-{
-    return message.c_str();
-}
-
-const char* SyntaxError::name() const noexcept
-{
-    return "SyntaxError";
-}
-
-const char* CompilerError::name() const noexcept
-{
-    return "CompilerError";
-}
-
-const char* RuntimeError::name() const noexcept
-{
-    return "RuntimeError";
+const char* RuntimeError::name() const noexcept {
+  return "RuntimeError";
 }
