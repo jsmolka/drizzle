@@ -1,8 +1,7 @@
 #pragma once
 
 #include <string_view>
-
-#include "_traits.h"
+#include <type_traits>
 
 class DzObject {
  public:
@@ -25,8 +24,5 @@ class DzObject {
 };
 
 template <typename... Ts>
-inline constexpr auto is_dz_object_v = std::conjunction_v<std::is_pointer<Ts>...>&&
-    std::conjunction_v<std::is_base_of<DzObject, shell::unqualified_t<Ts>>...>;
-
-template <typename... Ts>
-struct is_dz_object : std::bool_constant<is_dz_object_v<Ts...>> {};
+concept dz_object = std::conjunction_v<std::is_pointer<Ts>...> &&
+    std::conjunction_v<std::is_base_of<DzObject, std::remove_pointer_t<Ts>>...>;

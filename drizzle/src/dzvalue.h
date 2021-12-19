@@ -40,7 +40,7 @@ DzValue::DzValue(const T& value) {
 
 template <typename T>
 auto DzValue::operator=(const T& value) -> DzValue& {
-  static_assert(is_dz_primitive_v<T> || is_dz_object_v<T>);
+  static_assert(is_dz_primitive_v<T> || dz_object<T>);
 
   if constexpr (is_dz_bool_v<T>) {
     b = value;
@@ -51,7 +51,7 @@ auto DzValue::operator=(const T& value) -> DzValue& {
   } else if constexpr (is_dz_float_v<T>) {
     f = value;
     type = Type::Float;
-  } else if constexpr (is_dz_object_v<T>) {
+  } else if constexpr (dz_object<T>) {
     o = value;
     type = Type::Object;
   }

@@ -306,7 +306,7 @@ void Vm::add() {
       dst = a + b;
       return true;
     }
-    if constexpr (is_dz_object_v<A, B>) {
+    if constexpr (dz_object<A, B>) {
       if (a->type == DzObject::Type::String && b->type == DzObject::Type::String) {
         auto aa = static_cast<DzString*>(a);
         auto bb = static_cast<DzString*>(b);
@@ -469,7 +469,7 @@ void Vm::equal() {
       dst = a == b;
       return true;
     }
-    if constexpr (is_dz_object_v<A, B>) {
+    if constexpr (dz_object<A, B>) {
       dst = *a == *b;
       return true;
     }
@@ -611,7 +611,7 @@ void Vm::notEqual() {
       dst = a != b;
       return true;
     }
-    if constexpr (is_dz_object_v<A, B>) {
+    if constexpr (dz_object<A, B>) {
       dst = *a != *b;
       return true;
     }

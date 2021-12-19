@@ -8,25 +8,21 @@ DzObject::DzObject(DzObject::Type type) : type(type) {}
 
 std::string_view DzObject::typeName() const {
   switch (type) {
-    case Type::String: {
+    case Type::String:
       return as<DzString>().typeName();
-    }
-    default: {
+    default:
       SH_UNREACHABLE;
       return "unreachable";
-    }
   }
 }
 
 DzObject::operator bool() const {
   switch (type) {
-    case Type::String: {
+    case Type::String:
       return static_cast<bool>(as<DzString>());
-    }
-    default: {
+    default:
       SH_UNREACHABLE;
       return false;
-    }
   }
 }
 
