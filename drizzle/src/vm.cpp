@@ -169,7 +169,7 @@ void Vm::unary(std::string_view operation, Handler handler) {
 #define DZ_EVAL(a)                                      \
   {                                                     \
     using A = decltype(a);                              \
-    if constexpr (is_dz_primitive_v<A>) {               \
+    if constexpr (dz_primitive<A>) {                    \
       if (handler(value, static_cast<Promote<A>>(a))) { \
         return;                                         \
       } else {                                          \
@@ -218,7 +218,7 @@ void Vm::binary(std::string_view operation, Handler handler) {
   {                                                                                     \
     using A = decltype(a);                                                              \
     using B = decltype(b);                                                              \
-    if constexpr (is_dz_primitive_v<A, B>) {                                            \
+    if constexpr (dz_primitive<A, B>) {                                                 \
       if (handler(lhs, static_cast<Promote<A, B>>(a), static_cast<Promote<A, B>>(b))) { \
         return;                                                                         \
       } else {                                                                          \
@@ -302,7 +302,7 @@ void Vm::binary(std::string_view operation, Handler handler) {
 
 void Vm::add() {
   binary("+", [this]<typename A, typename B>(DzValue& dst, const A& a, const B& b) {
-    if constexpr (is_dz_int_v<A, B> || is_dz_float_v<A, B>) {
+    if constexpr (dz_int<A, B> || dz_float<A, B>) {
       dst = a + b;
       return true;
     }
@@ -324,11 +324,11 @@ void Vm::bitwiseAnd() {
     using A = decltype(a);
     using B = decltype(b);
 
-    if constexpr (is_dz_bool_v<A, B>) {
+    if constexpr (dz_bool<A, B>) {
       dst = static_cast<dzbool>(a & b);
       return true;
     }
-    if constexpr (is_dz_int_v<A, B>) {
+    if constexpr (dz_int<A, B>) {
       dst = a & b;
       return true;
     }
@@ -341,7 +341,7 @@ void Vm::bitwiseAsr() {
     using A = decltype(a);
     using B = decltype(b);
 
-    if constexpr (is_dz_int_v<A, B>) {
+    if constexpr (dz_int<A, B>) {
       dst = a >> b;
       return true;
     }
@@ -353,7 +353,7 @@ void Vm::bitwiseComplement() {
   unary("~", [](DzValue& dst, auto a) {
     using A = decltype(a);
 
-    if constexpr (is_dz_int_v<A>) {
+    if constexpr (dz_int<A>) {
       dst = ~a;
       return true;
     }
@@ -366,7 +366,7 @@ void Vm::bitwiseLsl() {
     using A = decltype(a);
     using B = decltype(b);
 
-    if constexpr (is_dz_int_v<A, B>) {
+    if constexpr (dz_int<A, B>) {
       dst = a << b;
       return true;
     }
@@ -379,7 +379,7 @@ void Vm::bitwiseLsr() {
     using A = decltype(a);
     using B = decltype(b);
 
-    if constexpr (is_dz_int_v<A, B>) {
+    if constexpr (dz_int<A, B>) {
       dst = static_cast<dzint>(static_cast<std::make_unsigned_t<dzint>>(a) >> b);
       return true;
     }
@@ -392,11 +392,11 @@ void Vm::bitwiseOr() {
     using A = decltype(a);
     using B = decltype(b);
 
-    if constexpr (is_dz_bool_v<A, B>) {
+    if constexpr (dz_bool<A, B>) {
       dst = static_cast<dzbool>(a | b);
       return true;
     }
-    if constexpr (is_dz_int_v<A, B>) {
+    if constexpr (dz_int<A, B>) {
       dst = a | b;
       return true;
     }
@@ -409,11 +409,11 @@ void Vm::bitwiseXor() {
     using A = decltype(a);
     using B = decltype(b);
 
-    if constexpr (is_dz_bool_v<A, B>) {
+    if constexpr (dz_bool<A, B>) {
       dst = static_cast<dzbool>(a ^ b);
       return true;
     }
-    if constexpr (is_dz_int_v<A, B>) {
+    if constexpr (dz_int<A, B>) {
       dst = a ^ b;
       return true;
     }
@@ -432,7 +432,7 @@ void Vm::divide() {
     using A = decltype(a);
     using B = decltype(b);
 
-    if constexpr (is_dz_int_v<A, B> || is_dz_float_v<A, B>) {
+    if constexpr (dz_int<A, B> || dz_float<A, B>) {
       if (b == static_cast<B>(0)) raise<RuntimeError>("division by zero");
 
       dst = static_cast<dzfloat>(a) / static_cast<dzfloat>(b);
@@ -447,10 +447,10 @@ void Vm::divideInt() {
     using A = decltype(a);
     using B = decltype(b);
 
-    if constexpr (is_dz_int_v<A, B> || is_dz_float_v<A, B>) {
+    if constexpr (dz_int<A, B> || dz_float<A, B>) {
       if (b == static_cast<B>(0)) raise<RuntimeError>("integer division by zero");
 
-      if constexpr (is_dz_int_v<A, B>)
+      if constexpr (dz_int<A, B>)
         dst = a / b;
       else
         dst = std::floor(a / b);
@@ -465,7 +465,7 @@ void Vm::equal() {
     using A = decltype(a);
     using B = decltype(b);
 
-    if constexpr (is_dz_primitive_v<A, B>) {
+    if constexpr (dz_primitive<A, B>) {
       dst = a == b;
       return true;
     }
@@ -473,7 +473,7 @@ void Vm::equal() {
       dst = *a == *b;
       return true;
     }
-    dst = is_dz_null_v<A, B>;
+    dst = dz_null<A, B>;
     return true;
   });
 }
@@ -483,7 +483,7 @@ void Vm::greater() {
     using A = decltype(a);
     using B = decltype(b);
 
-    if constexpr (is_dz_int_v<A, B> || is_dz_float_v<A, B>) {
+    if constexpr (dz_int<A, B> || dz_float<A, B>) {
       dst = a > b;
       return true;
     }
@@ -496,7 +496,7 @@ void Vm::greaterEqual() {
     using A = decltype(a);
     using B = decltype(b);
 
-    if constexpr (is_dz_int_v<A, B> || is_dz_float_v<A, B>) {
+    if constexpr (dz_int<A, B> || dz_float<A, B>) {
       dst = a >= b;
       return true;
     }
@@ -528,7 +528,7 @@ void Vm::less() {
     using A = decltype(a);
     using B = decltype(b);
 
-    if constexpr (is_dz_int_v<A, B> || is_dz_float_v<A, B>) {
+    if constexpr (dz_int<A, B> || dz_float<A, B>) {
       dst = a < b;
       return true;
     }
@@ -541,7 +541,7 @@ void Vm::lessEqual() {
     using A = decltype(a);
     using B = decltype(b);
 
-    if constexpr (is_dz_int_v<A, B> || is_dz_float_v<A, B>) {
+    if constexpr (dz_int<A, B> || dz_float<A, B>) {
       dst = a <= b;
       return true;
     }
@@ -560,10 +560,10 @@ void Vm::modulo() {
     using A = decltype(a);
     using B = decltype(b);
 
-    if constexpr (is_dz_int_v<A, B> || is_dz_float_v<A, B>) {
+    if constexpr (dz_int<A, B> || dz_float<A, B>) {
       if (b == static_cast<B>(0)) raise<RuntimeError>("modulo by zero");
 
-      if constexpr (is_dz_int_v<A, B>)
+      if constexpr (dz_int<A, B>)
         dst = a % b;
       else
         dst = std::fmod(a, b);
@@ -578,7 +578,7 @@ void Vm::multiply() {
     using A = decltype(a);
     using B = decltype(b);
 
-    if constexpr (is_dz_int_v<A, B> || is_dz_float_v<A, B>) {
+    if constexpr (dz_int<A, B> || dz_float<A, B>) {
       dst = a * b;
       return true;
     }
@@ -590,7 +590,7 @@ void Vm::negate() {
   unary("-", [](DzValue& dst, auto a) {
     using A = decltype(a);
 
-    if constexpr (is_dz_int_v<A> || is_dz_float_v<A>) {
+    if constexpr (dz_int<A> || dz_float<A>) {
       dst = -a;
       return true;
     }
@@ -607,7 +607,7 @@ void Vm::notEqual() {
     using A = decltype(a);
     using B = decltype(b);
 
-    if constexpr (is_dz_primitive_v<A, B>) {
+    if constexpr (dz_primitive<A, B>) {
       dst = a != b;
       return true;
     }
@@ -615,7 +615,7 @@ void Vm::notEqual() {
       dst = *a != *b;
       return true;
     }
-    dst = !is_dz_null_v<A, B>;
+    dst = !dz_null<A, B>;
     return true;
   });
 }
@@ -635,7 +635,7 @@ void Vm::power() {
     using A = decltype(a);
     using B = decltype(b);
 
-    if constexpr (is_dz_int_v<A, B> || is_dz_float_v<A, B>) {
+    if constexpr (dz_int<A, B> || dz_float<A, B>) {
       dst = std::pow(a, b);
       return true;
     }
@@ -674,7 +674,7 @@ void Vm::subtract() {
     using A = decltype(a);
     using B = decltype(b);
 
-    if constexpr (is_dz_int_v<A, B> || is_dz_float_v<A, B>) {
+    if constexpr (dz_int<A, B> || dz_float<A, B>) {
       dst = a - b;
       return true;
     }

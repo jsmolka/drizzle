@@ -4,5 +4,5 @@ DzString::DzString(std::string&& data, std::size_t hash)
     : DzObject(Type::String), data(std::move(data)), hash(hash) {}
 
 DzString::operator bool() const {
-  return data.size() > 0;
+  return !data.empty();
 }

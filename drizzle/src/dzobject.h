@@ -9,11 +9,11 @@ class DzObject {
 
   DzObject(Type type);
 
-  auto typeName() const -> std::string_view;
-
   operator bool() const;
   auto operator==(const DzObject& other) const -> bool;
   auto operator!=(const DzObject& other) const -> bool;
+
+  auto typeName() const -> std::string_view;
 
   const Type type;
 
