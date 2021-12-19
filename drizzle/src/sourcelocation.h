@@ -4,7 +4,7 @@
 
 class SourceLocation {
  public:
-  SourceLocation(std::size_t line);
+  SourceLocation(std::size_t line) : line(line) {}
 
   const std::size_t line;
 };

@@ -7,7 +7,7 @@
 
 class Parser {
  public:
-  Stmt parse(const std::vector<Token>& tokens);
+  auto parse(const std::vector<Token>& tokens) -> Stmt;
 
  private:
   enum class Precedence {
@@ -35,10 +35,10 @@ class Parser {
     Precedence precedence;
   };
 
-  static const Parser::Rule& rule(Token::Type type);
+  static auto rule(Token::Type type) -> const Parser::Rule&;
 
   void advance();
-  bool match(Token::Type type);
+  auto match(Token::Type type) -> bool;
   void expect(Token::Type type, std::string_view error);
   void expectColon();
   void expectDedent();
@@ -49,8 +49,9 @@ class Parser {
   void expectParenRight();
 
   template <typename T, typename... Args>
-  Expr newExpr(Args... args);
-  Expr expression();
+    requires std::constructible_from<T, Args...>
+  auto newExpr(Args... args) -> Expr;
+  auto expression() -> Expr;
   void parseExpression(Precedence precedence);
   void and_(bool);
   void binary(bool);
@@ -62,21 +63,22 @@ class Parser {
   void variable(bool assign);
 
   template <typename T, typename... Args>
-  Stmt newStmt(Args... args);
-  Stmt program();
-  Stmt declaration();
-  Stmt declarationVar();
-  Stmt statement();
-  Stmt statementBlock();
-  Stmt statementBreak();
-  Stmt statementContinue();
-  Stmt statementIf();
-  Stmt statementNoop();
-  Stmt statementPrint();
-  Stmt statementWhile();
-  Stmt expressionStatement();
+    requires std::constructible_from<T, Args...>
+  auto newStmt(Args... args) -> Stmt;
+  auto program() -> Stmt;
+  auto declaration() -> Stmt;
+  auto declarationVar() -> Stmt;
+  auto statement() -> Stmt;
+  auto statementBlock() -> Stmt;
+  auto statementBreak() -> Stmt;
+  auto statementContinue() -> Stmt;
+  auto statementIf() -> Stmt;
+  auto statementNoop() -> Stmt;
+  auto statementPrint() -> Stmt;
+  auto statementWhile() -> Stmt;
+  auto expressionStatement() -> Stmt;
 
   std::vector<Token>::const_iterator current;
   std::vector<Token>::const_iterator previous;
-  sh::stack<Expr, 32> stack;
+  sh::stack<Expr> stack;
 };
