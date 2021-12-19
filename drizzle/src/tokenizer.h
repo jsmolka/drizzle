@@ -6,17 +6,17 @@
 
 class Tokenizer {
  public:
-  std::vector<Token> tokenize(const std::string& source);
+  auto tokenize(const std::string& source) -> std::vector<Token>;
 
  private:
   template <char kBase = 10>
-  static bool isDigit(char c);
-  static bool isAlpha(char c);
+  static auto isDigit(char c) -> bool;
+  static auto isAlpha(char c) -> bool;
 
-  char next();
-  bool next(char match);
-  bool next(std::string_view match);
-  char peek() const;
+  auto next() -> char;
+  auto next(char match) -> bool;
+  auto next(std::string_view match) -> bool;
+  auto peek() const -> char;
 
   void emit(Token::Type type);
   void scanIndentation();

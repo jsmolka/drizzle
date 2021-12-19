@@ -26,8 +26,7 @@ class Expression {
   };
 
   struct Assign {
-    Assign(std::string_view identifier, Expr value)
-        : identifier(identifier), value(std::move(value)) {}
+    Assign(std::string_view identifier, Expr value);
 
     std::string_view identifier;
     Expr value;
@@ -59,8 +58,7 @@ class Expression {
       LastEnumValue,
     };
 
-    Binary(Type type, Expr left, Expr right)
-        : type(type), left(std::move(left)), right(std::move(right)) {}
+    Binary(Type type, Expr left, Expr right);
 
     Type type;
     Expr left;
@@ -68,7 +66,7 @@ class Expression {
   };
 
   struct Group {
-    Group(Expr expression) : expression(std::move(expression)) {}
+    Group(Expr expression);
 
     Expr expression;
   };
@@ -83,11 +81,11 @@ class Expression {
       LastEnumValue,
     };
 
-    Literal() : type(Type::Null) {}
-    Literal(dzbool value) : type(Type::Boolean), value(value) {}
-    Literal(dzint value) : type(Type::Integer), value(value) {}
-    Literal(dzfloat value) : type(Type::Float), value(value) {}
-    Literal(const std::string& value) : type(Type::String), value(value) {}
+    Literal();
+    Literal(dzbool value);
+    Literal(dzint value);
+    Literal(dzfloat value);
+    Literal(const std::string& value);
 
     Type type;
     std::variant<dzbool, dzint, dzfloat, std::string> value;
@@ -101,30 +99,24 @@ class Expression {
       LastEnumValue,
     };
 
-    Unary(Type type, Expr expression) : type(type), expression(std::move(expression)) {}
+    Unary(Type type, Expr expression);
 
     Type type;
     Expr expression;
   };
 
   struct Variable {
-    Variable(std::string_view identifier) : identifier(identifier) {}
+    Variable(std::string_view identifier);
 
     std::string_view identifier;
   };
 
-  Expression(Assign assign, const SourceLocation& location)
-      : type(Type::Assign), assign(std::move(assign)), location(location) {}
-  Expression(Binary binary, const SourceLocation& location)
-      : type(Type::Binary), binary(std::move(binary)), location(location) {}
-  Expression(Group group, const SourceLocation& location)
-      : type(Type::Group), group(std::move(group)), location(location) {}
-  Expression(Literal literal, const SourceLocation& location)
-      : type(Type::Literal), literal(std::move(literal)), location(location) {}
-  Expression(Unary unary, const SourceLocation& location)
-      : type(Type::Unary), unary(std::move(unary)), location(location) {}
-  Expression(Variable variable, const SourceLocation& location)
-      : type(Type::Variable), variable(std::move(variable)), location(location) {}
+  Expression(Assign assign, const SourceLocation& location);
+  Expression(Binary binary, const SourceLocation& location);
+  Expression(Group group, const SourceLocation& location);
+  Expression(Literal literal, const SourceLocation& location);
+  Expression(Unary unary, const SourceLocation& location);
+  Expression(Variable variable, const SourceLocation& location);
   ~Expression();
 
   const Type type;

@@ -13,130 +13,52 @@ void Vm::interpret(const Chunk& chunk) {
 
   while (true) {
     switch (static_cast<Opcode>(read<u8>())) {
-      case Opcode::Add:
-        add();
-        break;
-      case Opcode::BitwiseAnd:
-        bitwiseAnd();
-        break;
-      case Opcode::BitwiseAsr:
-        bitwiseAsr();
-        break;
-      case Opcode::BitwiseComplement:
-        bitwiseComplement();
-        break;
-      case Opcode::BitwiseLsr:
-        bitwiseLsr();
-        break;
-      case Opcode::BitwiseLsl:
-        bitwiseLsl();
-        break;
-      case Opcode::BitwiseOr:
-        bitwiseOr();
-        break;
-      case Opcode::BitwiseXor:
-        bitwiseXor();
-        break;
-      case Opcode::Constant:
-        constant<u8>();
-        break;
-      case Opcode::ConstantExt:
-        constant<u16>();
-        break;
-      case Opcode::Divide:
-        divide();
-        break;
-      case Opcode::DivideInt:
-        divideInt();
-        break;
-      case Opcode::Equal:
-        equal();
-        break;
-      case Opcode::False:
-        pushFalse();
-        break;
-      case Opcode::Greater:
-        greater();
-        break;
-      case Opcode::GreaterEqual:
-        greaterEqual();
-        break;
-      case Opcode::Jump:
-        jump();
-        break;
-      case Opcode::JumpFalse:
-        jumpFalse();
-        break;
-      case Opcode::JumpFalsePop:
-        jumpFalsePop();
-        break;
-      case Opcode::JumpTrue:
-        jumpTrue();
-        break;
-      case Opcode::Less:
-        less();
-        break;
-      case Opcode::LessEqual:
-        lessEqual();
-        break;
-      case Opcode::LoadVariable:
-        loadVariable<u8>();
-        break;
-      case Opcode::LoadVariableExt:
-        loadVariable<u16>();
-        break;
-      case Opcode::Modulo:
-        modulo();
-        break;
-      case Opcode::Multiply:
-        multiply();
-        break;
-      case Opcode::Negate:
-        negate();
-        break;
-      case Opcode::Not:
-        not_();
-        break;
-      case Opcode::NotEqual:
-        notEqual();
-        break;
-      case Opcode::Null:
-        pushNull();
-        break;
-      case Opcode::Pop:
-        pop();
-        break;
-      case Opcode::PopMultiple:
-        popMultiple<u8>();
-        break;
-      case Opcode::PopMultipleExt:
-        popMultiple<u16>();
-        break;
-      case Opcode::Power:
-        power();
-        break;
-      case Opcode::Print:
-        print();
-        break;
+      case Opcode::Add: add(); break;
+      case Opcode::BitwiseAnd: bitwiseAnd(); break;
+      case Opcode::BitwiseAsr: bitwiseAsr(); break;
+      case Opcode::BitwiseComplement: bitwiseComplement(); break;
+      case Opcode::BitwiseLsr: bitwiseLsr(); break;
+      case Opcode::BitwiseLsl: bitwiseLsl(); break;
+      case Opcode::BitwiseOr: bitwiseOr(); break;
+      case Opcode::BitwiseXor: bitwiseXor(); break;
+      case Opcode::Constant: constant<u8>(); break;
+      case Opcode::ConstantExt: constant<u16>(); break;
+      case Opcode::Divide: divide(); break;
+      case Opcode::DivideInt: divideInt(); break;
+      case Opcode::Equal: equal(); break;
+      case Opcode::False: pushFalse(); break;
+      case Opcode::Greater: greater(); break;
+      case Opcode::GreaterEqual: greaterEqual(); break;
+      case Opcode::Jump: jump(); break;
+      case Opcode::JumpFalse: jumpFalse(); break;
+      case Opcode::JumpFalsePop: jumpFalsePop(); break;
+      case Opcode::JumpTrue: jumpTrue(); break;
+      case Opcode::Less: less(); break;
+      case Opcode::LessEqual: lessEqual(); break;
+      case Opcode::LoadVariable: loadVariable<u8>(); break;
+      case Opcode::LoadVariableExt: loadVariable<u16>(); break;
+      case Opcode::Modulo: modulo(); break;
+      case Opcode::Multiply: multiply(); break;
+      case Opcode::Negate: negate(); break;
+      case Opcode::Not: not_(); break;
+      case Opcode::NotEqual: notEqual(); break;
+      case Opcode::Null: pushNull(); break;
+      case Opcode::Pop: pop(); break;
+      case Opcode::PopMultiple: popMultiple<u8>(); break;
+      case Opcode::PopMultipleExt: popMultiple<u16>(); break;
+      case Opcode::Power: power(); break;
+      case Opcode::Print: print(); break;
       case Opcode::Return:
-        if (return_()) return;
+        if (return_()) {
+          return;
+        }
         break;
-      case Opcode::StoreVariable:
-        storeVariable<u8>();
-        break;
-      case Opcode::StoreVariableExt:
-        storeVariable<u16>();
-        break;
-      case Opcode::Subtract:
-        subtract();
-        break;
-      case Opcode::True:
-        pushTrue();
-        break;
+      case Opcode::StoreVariable: storeVariable<u8>(); break;
+      case Opcode::StoreVariableExt: storeVariable<u16>(); break;
+      case Opcode::Subtract: subtract(); break;
+      case Opcode::True: pushTrue(); break;
 
-      default:
-        SH_UNREACHABLE;
-        break;
+      default: SH_UNREACHABLE; break;
     }
   }
 }
@@ -186,20 +108,13 @@ void Vm::unary(std::string_view operation, Handler handler) {
   }
 
   switch (value.type) {
-    case DzValue::Type::Bool:
-      DZ_EVAL(value.b);
-    case DzValue::Type::Int:
-      DZ_EVAL(value.i);
-    case DzValue::Type::Float:
-      DZ_EVAL(value.f);
-    case DzValue::Type::Null:
-      DZ_EVAL(DzNull{});
-    case DzValue::Type::Object:
-      DZ_EVAL(value.o);
+    case DzValue::Type::Bool: DZ_EVAL(value.b);
+    case DzValue::Type::Int: DZ_EVAL(value.i);
+    case DzValue::Type::Float: DZ_EVAL(value.f);
+    case DzValue::Type::Null: DZ_EVAL(DzNull{});
+    case DzValue::Type::Object: DZ_EVAL(value.o);
 
-    default:
-      SH_UNREACHABLE;
-      break;
+    default: SH_UNREACHABLE; break;
   }
 
 #undef DZ_EVAL
@@ -237,60 +152,33 @@ void Vm::binary(std::string_view operation, Handler handler) {
 #define DZ_HASH(a, b) (int(DzValue::Type::LastEnumValue) * int(a) + int(b))
 
   switch (DZ_HASH(lhs.type, rhs.type)) {
-    case DZ_HASH(DzValue::Type::Bool, DzValue::Type::Bool):
-      DZ_EVAL(lhs.b, rhs.b);
-    case DZ_HASH(DzValue::Type::Bool, DzValue::Type::Int):
-      DZ_EVAL(lhs.b, rhs.i);
-    case DZ_HASH(DzValue::Type::Bool, DzValue::Type::Float):
-      DZ_EVAL(lhs.b, rhs.f);
-    case DZ_HASH(DzValue::Type::Bool, DzValue::Type::Null):
-      DZ_EVAL(lhs.b, DzNull{});
-    case DZ_HASH(DzValue::Type::Bool, DzValue::Type::Object):
-      DZ_EVAL(lhs.b, rhs.o);
-    case DZ_HASH(DzValue::Type::Int, DzValue::Type::Bool):
-      DZ_EVAL(lhs.i, rhs.b);
-    case DZ_HASH(DzValue::Type::Int, DzValue::Type::Int):
-      DZ_EVAL(lhs.i, rhs.i);
-    case DZ_HASH(DzValue::Type::Int, DzValue::Type::Float):
-      DZ_EVAL(lhs.i, rhs.f);
-    case DZ_HASH(DzValue::Type::Int, DzValue::Type::Null):
-      DZ_EVAL(lhs.i, DzNull{});
-    case DZ_HASH(DzValue::Type::Int, DzValue::Type::Object):
-      DZ_EVAL(lhs.i, rhs.o);
-    case DZ_HASH(DzValue::Type::Float, DzValue::Type::Bool):
-      DZ_EVAL(lhs.f, rhs.b);
-    case DZ_HASH(DzValue::Type::Float, DzValue::Type::Int):
-      DZ_EVAL(lhs.f, rhs.i);
-    case DZ_HASH(DzValue::Type::Float, DzValue::Type::Float):
-      DZ_EVAL(lhs.f, rhs.f);
-    case DZ_HASH(DzValue::Type::Float, DzValue::Type::Null):
-      DZ_EVAL(lhs.f, DzNull{});
-    case DZ_HASH(DzValue::Type::Float, DzValue::Type::Object):
-      DZ_EVAL(lhs.f, rhs.o);
-    case DZ_HASH(DzValue::Type::Null, DzValue::Type::Bool):
-      DZ_EVAL(DzNull{}, rhs.b);
-    case DZ_HASH(DzValue::Type::Null, DzValue::Type::Int):
-      DZ_EVAL(DzNull{}, rhs.i);
-    case DZ_HASH(DzValue::Type::Null, DzValue::Type::Float):
-      DZ_EVAL(DzNull{}, rhs.f);
-    case DZ_HASH(DzValue::Type::Null, DzValue::Type::Null):
-      DZ_EVAL(DzNull{}, DzNull{});
-    case DZ_HASH(DzValue::Type::Null, DzValue::Type::Object):
-      DZ_EVAL(DzNull{}, rhs.o);
-    case DZ_HASH(DzValue::Type::Object, DzValue::Type::Bool):
-      DZ_EVAL(lhs.o, rhs.b);
-    case DZ_HASH(DzValue::Type::Object, DzValue::Type::Int):
-      DZ_EVAL(lhs.o, rhs.i);
-    case DZ_HASH(DzValue::Type::Object, DzValue::Type::Float):
-      DZ_EVAL(lhs.o, rhs.f);
-    case DZ_HASH(DzValue::Type::Object, DzValue::Type::Null):
-      DZ_EVAL(lhs.o, DzNull{});
-    case DZ_HASH(DzValue::Type::Object, DzValue::Type::Object):
-      DZ_EVAL(lhs.o, rhs.o);
+    case DZ_HASH(DzValue::Type::Bool, DzValue::Type::Bool): DZ_EVAL(lhs.b, rhs.b);
+    case DZ_HASH(DzValue::Type::Bool, DzValue::Type::Int): DZ_EVAL(lhs.b, rhs.i);
+    case DZ_HASH(DzValue::Type::Bool, DzValue::Type::Float): DZ_EVAL(lhs.b, rhs.f);
+    case DZ_HASH(DzValue::Type::Bool, DzValue::Type::Null): DZ_EVAL(lhs.b, DzNull{});
+    case DZ_HASH(DzValue::Type::Bool, DzValue::Type::Object): DZ_EVAL(lhs.b, rhs.o);
+    case DZ_HASH(DzValue::Type::Int, DzValue::Type::Bool): DZ_EVAL(lhs.i, rhs.b);
+    case DZ_HASH(DzValue::Type::Int, DzValue::Type::Int): DZ_EVAL(lhs.i, rhs.i);
+    case DZ_HASH(DzValue::Type::Int, DzValue::Type::Float): DZ_EVAL(lhs.i, rhs.f);
+    case DZ_HASH(DzValue::Type::Int, DzValue::Type::Null): DZ_EVAL(lhs.i, DzNull{});
+    case DZ_HASH(DzValue::Type::Int, DzValue::Type::Object): DZ_EVAL(lhs.i, rhs.o);
+    case DZ_HASH(DzValue::Type::Float, DzValue::Type::Bool): DZ_EVAL(lhs.f, rhs.b);
+    case DZ_HASH(DzValue::Type::Float, DzValue::Type::Int): DZ_EVAL(lhs.f, rhs.i);
+    case DZ_HASH(DzValue::Type::Float, DzValue::Type::Float): DZ_EVAL(lhs.f, rhs.f);
+    case DZ_HASH(DzValue::Type::Float, DzValue::Type::Null): DZ_EVAL(lhs.f, DzNull{});
+    case DZ_HASH(DzValue::Type::Float, DzValue::Type::Object): DZ_EVAL(lhs.f, rhs.o);
+    case DZ_HASH(DzValue::Type::Null, DzValue::Type::Bool): DZ_EVAL(DzNull{}, rhs.b);
+    case DZ_HASH(DzValue::Type::Null, DzValue::Type::Int): DZ_EVAL(DzNull{}, rhs.i);
+    case DZ_HASH(DzValue::Type::Null, DzValue::Type::Float): DZ_EVAL(DzNull{}, rhs.f);
+    case DZ_HASH(DzValue::Type::Null, DzValue::Type::Null): DZ_EVAL(DzNull{}, DzNull{});
+    case DZ_HASH(DzValue::Type::Null, DzValue::Type::Object): DZ_EVAL(DzNull{}, rhs.o);
+    case DZ_HASH(DzValue::Type::Object, DzValue::Type::Bool): DZ_EVAL(lhs.o, rhs.b);
+    case DZ_HASH(DzValue::Type::Object, DzValue::Type::Int): DZ_EVAL(lhs.o, rhs.i);
+    case DZ_HASH(DzValue::Type::Object, DzValue::Type::Float): DZ_EVAL(lhs.o, rhs.f);
+    case DZ_HASH(DzValue::Type::Object, DzValue::Type::Null): DZ_EVAL(lhs.o, DzNull{});
+    case DZ_HASH(DzValue::Type::Object, DzValue::Type::Object): DZ_EVAL(lhs.o, rhs.o);
 
-    default:
-      SH_UNREACHABLE;
-      break;
+    default: SH_UNREACHABLE; break;
   }
 
 #undef DZ_HASH
@@ -433,7 +321,8 @@ void Vm::divide() {
     using B = decltype(b);
 
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
-      if (b == static_cast<B>(0)) raise<RuntimeError>("division by zero");
+      if (b == static_cast<B>(0))
+        raise<RuntimeError>("division by zero");
 
       dst = static_cast<dzfloat>(a) / static_cast<dzfloat>(b);
       return true;
@@ -448,7 +337,8 @@ void Vm::divideInt() {
     using B = decltype(b);
 
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
-      if (b == static_cast<B>(0)) raise<RuntimeError>("integer division by zero");
+      if (b == static_cast<B>(0))
+        raise<RuntimeError>("integer division by zero");
 
       if constexpr (dz_int<A, B>)
         dst = a / b;
@@ -510,17 +400,20 @@ void Vm::jump() {
 
 void Vm::jumpFalse() {
   const auto offset = read<s16>();
-  if (!stack.top()) pc += offset;
+  if (!stack.top())
+    pc += offset;
 }
 
 void Vm::jumpFalsePop() {
   const auto offset = read<s16>();
-  if (!stack.pop_value()) pc += offset;
+  if (!stack.pop_value())
+    pc += offset;
 }
 
 void Vm::jumpTrue() {
   const auto offset = read<s16>();
-  if (stack.top()) pc += offset;
+  if (stack.top())
+    pc += offset;
 }
 
 void Vm::less() {
@@ -561,7 +454,8 @@ void Vm::modulo() {
     using B = decltype(b);
 
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
-      if (b == static_cast<B>(0)) raise<RuntimeError>("modulo by zero");
+      if (b == static_cast<B>(0))
+        raise<RuntimeError>("modulo by zero");
 
       if constexpr (dz_int<A, B>)
         dst = a % b;
@@ -670,10 +564,7 @@ void Vm::storeVariable() {
 }
 
 void Vm::subtract() {
-  binary("-", [this](DzValue& dst, auto a, auto b) {
-    using A = decltype(a);
-    using B = decltype(b);
-
+  binary("-", [this]<typename A, typename B>(DzValue& dst, const A& a, const B& b) {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       dst = a - b;
       return true;

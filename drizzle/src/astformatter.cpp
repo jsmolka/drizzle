@@ -18,7 +18,6 @@ void AstFormatter::walk(Expr& expr) {
     case Expression::Type::Unary:    write(" {}", expr->unary.type); break;
     case Expression::Type::Variable: write(" {}", expr->variable.identifier); break;
   }
-  // clang-format on
 
   write("\n");
 
@@ -32,13 +31,17 @@ void AstFormatter::walk(Stmt& stmt) {
 
   writeIndent("{}", stmt->type);
 
-  // clang-format off
   switch (stmt->type) {
-    case Statement::Type::Block: write(" {}", stmt->block.identifier); break;
-    case Statement::Type::Break: write(" {}", stmt->break_.identifier); break;
-    case Statement::Type::Var:   write(" {}", stmt->var.identifier); break;
+    case Statement::Type::Block:
+      write(" {}", stmt->block.identifier);
+      break;
+    case Statement::Type::Break:
+      write(" {}", stmt->break_.identifier);
+      break;
+    case Statement::Type::Var:
+      write(" {}", stmt->var.identifier);
+      break;
   }
-  // clang-format on
 
   write("\n");
 

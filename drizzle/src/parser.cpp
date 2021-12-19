@@ -147,32 +147,49 @@ void Parser::and_(bool) {
 
 void Parser::binary(bool) {
   auto type = [](Token::Type token) -> Expression::Binary::Type {
-    // clang-format off
     switch (token) {
-      case Token::Type::And:          return Expression::Binary::Type::BitwiseAnd;
-      case Token::Type::BangEqual:    return Expression::Binary::Type::NotEqual;
-      case Token::Type::Caret:        return Expression::Binary::Type::BitwiseXor;
-      case Token::Type::Equal2:       return Expression::Binary::Type::Equal;
-      case Token::Type::Greater:      return Expression::Binary::Type::Greater;
-      case Token::Type::Greater2:     return Expression::Binary::Type::BitwiseAsr;
-      case Token::Type::Greater3:     return Expression::Binary::Type::BitwiseLsr;
-      case Token::Type::GreaterEqual: return Expression::Binary::Type::GreaterEqual;
-      case Token::Type::Less:         return Expression::Binary::Type::Less;
-      case Token::Type::Less2:        return Expression::Binary::Type::BitwiseLsl;
-      case Token::Type::LessEqual:    return Expression::Binary::Type::LessEqual;
-      case Token::Type::Minus:        return Expression::Binary::Type::Subtraction;
-      case Token::Type::Plus:         return Expression::Binary::Type::Addition;
-      case Token::Type::Percent:      return Expression::Binary::Type::Modulo;
-      case Token::Type::Pipe:         return Expression::Binary::Type::BitwiseOr;
-      case Token::Type::Slash:        return Expression::Binary::Type::Division;
-      case Token::Type::Slash2:       return Expression::Binary::Type::IntegerDivision;
-      case Token::Type::Star:         return Expression::Binary::Type::Multiplication;
-      case Token::Type::Star2:        return Expression::Binary::Type::Power;
+      case Token::Type::And:
+        return Expression::Binary::Type::BitwiseAnd;
+      case Token::Type::BangEqual:
+        return Expression::Binary::Type::NotEqual;
+      case Token::Type::Caret:
+        return Expression::Binary::Type::BitwiseXor;
+      case Token::Type::Equal2:
+        return Expression::Binary::Type::Equal;
+      case Token::Type::Greater:
+        return Expression::Binary::Type::Greater;
+      case Token::Type::Greater2:
+        return Expression::Binary::Type::BitwiseAsr;
+      case Token::Type::Greater3:
+        return Expression::Binary::Type::BitwiseLsr;
+      case Token::Type::GreaterEqual:
+        return Expression::Binary::Type::GreaterEqual;
+      case Token::Type::Less:
+        return Expression::Binary::Type::Less;
+      case Token::Type::Less2:
+        return Expression::Binary::Type::BitwiseLsl;
+      case Token::Type::LessEqual:
+        return Expression::Binary::Type::LessEqual;
+      case Token::Type::Minus:
+        return Expression::Binary::Type::Subtraction;
+      case Token::Type::Plus:
+        return Expression::Binary::Type::Addition;
+      case Token::Type::Percent:
+        return Expression::Binary::Type::Modulo;
+      case Token::Type::Pipe:
+        return Expression::Binary::Type::BitwiseOr;
+      case Token::Type::Slash:
+        return Expression::Binary::Type::Division;
+      case Token::Type::Slash2:
+        return Expression::Binary::Type::IntegerDivision;
+      case Token::Type::Star:
+        return Expression::Binary::Type::Multiplication;
+      case Token::Type::Star2:
+        return Expression::Binary::Type::Power;
       default:
         SH_UNREACHABLE;
         return Expression::Binary::Type(-1);
     }
-    // clang-format on
   };
 
   const auto token = previous->type;
@@ -185,16 +202,20 @@ void Parser::binary(bool) {
 }
 
 void Parser::constant(bool) {
-  // clang-format off
   switch (previous->value.index()) {
-    case 0: stack.push(newExpr<Expression::Literal>(std::get<0>(previous->value))); break;
-    case 1: stack.push(newExpr<Expression::Literal>(std::get<1>(previous->value))); break;
-    case 2: stack.push(newExpr<Expression::Literal>(std::get<2>(previous->value))); break;
+    case 0:
+      stack.push(newExpr<Expression::Literal>(std::get<0>(previous->value)));
+      break;
+    case 1:
+      stack.push(newExpr<Expression::Literal>(std::get<1>(previous->value)));
+      break;
+    case 2:
+      stack.push(newExpr<Expression::Literal>(std::get<2>(previous->value)));
+      break;
     default:
       SH_UNREACHABLE;
       break;
   }
-  // clang-format on
 }
 
 void Parser::group(bool) {
@@ -203,16 +224,20 @@ void Parser::group(bool) {
 }
 
 void Parser::literal(bool) {
-  // clang-format off
   switch (previous->type) {
-    case Token::Type::False: stack.push(newExpr<Expression::Literal>(false)); break;
-    case Token::Type::Null:  stack.push(newExpr<Expression::Literal>()); break;
-    case Token::Type::True:  stack.push(newExpr<Expression::Literal>(true)); break;
+    case Token::Type::False:
+      stack.push(newExpr<Expression::Literal>(false));
+      break;
+    case Token::Type::Null:
+      stack.push(newExpr<Expression::Literal>());
+      break;
+    case Token::Type::True:
+      stack.push(newExpr<Expression::Literal>(true));
+      break;
     default:
       SH_UNREACHABLE;
       break;
   }
-  // clang-format on
 }
 
 void Parser::or_(bool) {
@@ -227,16 +252,17 @@ void Parser::or_(bool) {
 
 void Parser::unary(bool) {
   const auto type = [](Token::Type token) -> Expression::Unary::Type {
-    // clang-format off
     switch (token) {
-      case Token::Type::Bang:  return Expression::Unary::Type::Not;
-      case Token::Type::Minus: return Expression::Unary::Type::Minus;
-      case Token::Type::Tilde: return Expression::Unary::Type::BitwiseComplement;
+      case Token::Type::Bang:
+        return Expression::Unary::Type::Not;
+      case Token::Type::Minus:
+        return Expression::Unary::Type::Minus;
+      case Token::Type::Tilde:
+        return Expression::Unary::Type::BitwiseComplement;
       default:
         SH_UNREACHABLE;
         return Expression::Unary::Type(-1);
     }
-    // clang-format on
   };
 
   const auto token = previous->type;

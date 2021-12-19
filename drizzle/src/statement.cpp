@@ -90,7 +90,6 @@ Statement::~Statement() {
     case Type::While:
       while_.~While();
       break;
-
     default:
       SH_UNREACHABLE;
       break;

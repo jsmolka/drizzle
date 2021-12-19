@@ -5,19 +5,15 @@
 void AstWalker::walk(Expr& expr) {
   static_assert(int(Expression::Type::LastEnumValue) == 6);
 
-  // clang-format off
   switch (expr->type) {
-    case Expression::Type::Assign:   walk(expr->assign); break;
-    case Expression::Type::Binary:   walk(expr->binary); break;
-    case Expression::Type::Group:    walk(expr->group); break;
-    case Expression::Type::Literal:  walk(expr->literal); break;
-    case Expression::Type::Unary:    walk(expr->unary); break;
+    case Expression::Type::Assign: walk(expr->assign); break;
+    case Expression::Type::Binary: walk(expr->binary); break;
+    case Expression::Type::Group: walk(expr->group); break;
+    case Expression::Type::Literal: walk(expr->literal); break;
+    case Expression::Type::Unary: walk(expr->unary); break;
     case Expression::Type::Variable: walk(expr->variable); break;
-    default:
-      SH_UNREACHABLE;
-      break;
+    default: SH_UNREACHABLE; break;
   }
-  // clang-format on
 }
 
 void AstWalker::walk(Expression::Assign& assign) {
@@ -48,23 +44,19 @@ void AstWalker::walk(Expression::Variable& variable) {
 void AstWalker::walk(Stmt& stmt) {
   static_assert(int(Statement::Type::LastEnumValue) == 10);
 
-  // clang-format off
   switch (stmt->type) {
-    case Statement::Type::Block:               walk(stmt->block); break;
-    case Statement::Type::Break:               walk(stmt->break_); break;
-    case Statement::Type::Continue:            walk(stmt->continue_); break;
+    case Statement::Type::Block: walk(stmt->block); break;
+    case Statement::Type::Break: walk(stmt->break_); break;
+    case Statement::Type::Continue: walk(stmt->continue_); break;
     case Statement::Type::ExpressionStatement: walk(stmt->expression_statement); break;
-    case Statement::Type::If:                  walk(stmt->if_); break;
-    case Statement::Type::Noop:                walk(stmt->noop); break;
-    case Statement::Type::Print:               walk(stmt->print); break;
-    case Statement::Type::Program:             walk(stmt->program); break;
-    case Statement::Type::Var:                 walk(stmt->var); break;
-    case Statement::Type::While:               walk(stmt->while_); break;
-    default:
-      SH_UNREACHABLE;
-      break;
+    case Statement::Type::If: walk(stmt->if_); break;
+    case Statement::Type::Noop: walk(stmt->noop); break;
+    case Statement::Type::Print: walk(stmt->print); break;
+    case Statement::Type::Program: walk(stmt->program); break;
+    case Statement::Type::Var: walk(stmt->var); break;
+    case Statement::Type::While: walk(stmt->while_); break;
+    default: SH_UNREACHABLE; break;
   }
-  // clang-format on
 }
 
 void AstWalker::walk(Stmts& stmts) {

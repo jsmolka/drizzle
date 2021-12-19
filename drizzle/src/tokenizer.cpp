@@ -6,7 +6,7 @@
 
 #include "errors.h"
 
-std::vector<Token> Tokenizer::tokenize(const std::string& source) {
+auto Tokenizer::tokenize(const std::string& source) -> std::vector<Token> {
   cursor = source.data();
   lexeme = source.data();
   line = 0;
@@ -28,26 +28,26 @@ std::vector<Token> Tokenizer::tokenize(const std::string& source) {
 }
 
 template <char kBase>
-bool Tokenizer::isDigit(char c) {
+auto Tokenizer::isDigit(char c) -> bool {
   static_assert(kBase <= 36);
-
-  if constexpr (kBase <= 10) return (c >= '0') && (c < ('0' + kBase));
-
-  if constexpr (kBase <= 36)
+  if constexpr (kBase <= 10) {
+    return (c >= '0') && (c < ('0' + kBase));
+  } else if constexpr (kBase <= 36) {
     return (c >= '0' && c <= '9') || (c >= 'a' && c < ('a' + kBase - 10)) ||
            (c >= 'A' && c < ('A' + kBase - 10));
+  }
 }
 
-bool Tokenizer::isAlpha(char c) {
+auto Tokenizer::isAlpha(char c) -> bool {
   return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c == '_');
 }
 
-char Tokenizer::next() {
+auto Tokenizer::next() -> char {
   cursor++;
   return cursor[-1];
 }
 
-bool Tokenizer::next(char match) {
+auto Tokenizer::next(char match) -> bool {
   if (*cursor && *cursor == match) {
     cursor++;
     return true;
@@ -55,7 +55,7 @@ bool Tokenizer::next(char match) {
   return false;
 }
 
-bool Tokenizer::next(std::string_view match) {
+auto Tokenizer::next(std::string_view match) -> bool {
   const char* position = cursor;
   for (const auto& c : match) {
     if (!(*cursor && *cursor == c)) {
@@ -67,7 +67,7 @@ bool Tokenizer::next(std::string_view match) {
   return true;
 }
 
-char Tokenizer::peek() const {
+auto Tokenizer::peek() const -> char {
   return *cursor ? cursor[1] : *cursor;
 }
 
@@ -89,7 +89,6 @@ void Tokenizer::scanIndentation() {
     case '\r':
     case '\t':
       break;
-
     default:
       while (indentation > 0) {
         emit(Token::Type::Dedent);
@@ -100,7 +99,7 @@ void Tokenizer::scanIndentation() {
 
   const char* error = cursor;
 
-  const auto count_spaces = [this, error]() -> int {
+  auto count_spaces = [this, error]() -> int {
     int spaces = 0;
     while (true) {
       switch (*cursor) {
@@ -108,14 +107,11 @@ void Tokenizer::scanIndentation() {
           next();
           spaces++;
           break;
-
         case '\r':
           next();
           break;
-
         case '\t':
           throw SyntaxError(error, "tabs used for indent");
-
         default:
           return spaces;
       }
@@ -123,12 +119,15 @@ void Tokenizer::scanIndentation() {
   };
 
   int spaces = count_spaces();
-  if (spaces % kSpacesPerIndentation)
+  if (spaces % kSpacesPerIndentation) {
     throw SyntaxError(error, "indent spaces must be a multiple of {}", kSpacesPerIndentation);
+  }
 
   int indent = spaces / kSpacesPerIndentation;
   if (indent > indentation) {
-    if ((indent - indentation) > 1) throw SyntaxError(error, "multiple indents at once");
+    if ((indent - indentation) > 1) {
+      throw SyntaxError(error, "multiple indents at once");
+    }
 
     emit(Token::Type::Indent);
     indentation++;
@@ -141,7 +140,7 @@ void Tokenizer::scanIndentation() {
 }
 
 void Tokenizer::scanBlankLines() {
-  const auto skip_line = [this]() {
+  auto skip_line = [this]() {
     const char* position = cursor;
     while (*cursor) {
       switch (*cursor) {
@@ -150,16 +149,13 @@ void Tokenizer::scanBlankLines() {
         case '\t':
           next();
           break;
-
         case '#':
           scanComment();
           break;
-
         case '\n':
           next();
           line++;
           return true;
-
         default:
           cursor = position;
           return false;
@@ -168,8 +164,7 @@ void Tokenizer::scanBlankLines() {
     return false;
   };
 
-  while (skip_line())
-    ;
+  while (skip_line()) {}
 }
 
 void Tokenizer::scanWhitespace() {
@@ -180,11 +175,9 @@ void Tokenizer::scanWhitespace() {
       case '\t':
         next();
         break;
-
       case '#':
         scanComment();
         break;
-
       case '\n':
         next();
         emit(Token::Type::NewLine);
@@ -192,7 +185,6 @@ void Tokenizer::scanWhitespace() {
         scanBlankLines();
         scanIndentation();
         return;
-
       default:
         return;
     }
@@ -200,8 +192,9 @@ void Tokenizer::scanWhitespace() {
 }
 
 void Tokenizer::scanComment() {
-  while (*cursor && *cursor != '\n')
+  while (*cursor && *cursor != '\n') {
     next();
+  }
 }
 
 void Tokenizer::scanString() {
@@ -214,7 +207,9 @@ void Tokenizer::scanString() {
         break;
       }
 
-      if (next() == '\n') line++;
+      if (next() == '\n') {
+        line++;
+      }
     }
   } else {
     next();
@@ -228,7 +223,6 @@ void Tokenizer::scanString() {
       switch (*cursor) {
         case '\n':
           throw SyntaxError(cursor, "unexpected line break");
-
         case '\\':
           next();
           switch (*cursor) {
@@ -243,12 +237,10 @@ void Tokenizer::scanString() {
             case 'v':
               next();
               break;
-
             default:
               throw SyntaxError(cursor, "unknown escape sequence");
           }
           break;
-
         default:
           next();
           break;
@@ -256,7 +248,8 @@ void Tokenizer::scanString() {
     }
   }
 
-  if (error) throw SyntaxError(error, "unterminated string");
+  if (error)
+    throw SyntaxError(error, "unterminated string");
 
   emit(Token::Type::String);
 
@@ -269,10 +262,13 @@ void Tokenizer::scanNumber() {
   const auto is_hex = isDigit<16>;
 
   if (next("0b")) {
-    if (!is_bin(*cursor)) throw SyntaxError(cursor, "expected bin digit");
+    if (!is_bin(*cursor)) {
+      throw SyntaxError(cursor, "expected bin digit");
+    }
 
-    while (is_bin(*cursor))
+    while (is_bin(*cursor)) {
       next();
+    }
 
     emit(Token::Type::Integer);
     parseInt(2);
@@ -280,26 +276,35 @@ void Tokenizer::scanNumber() {
   }
 
   if (next("0x")) {
-    if (!is_hex(*cursor)) throw SyntaxError(cursor, "expected hex digit");
+    if (!is_hex(*cursor)) {
+      throw SyntaxError(cursor, "expected hex digit");
+    }
 
-    while (is_hex(*cursor))
+    while (is_hex(*cursor)) {
       next();
+    }
 
     emit(Token::Type::Integer);
     parseInt(16);
     return;
   }
 
-  if (*cursor == '0' && is_dec(peek())) throw SyntaxError(cursor, "unexpected zero");
+  if (*cursor == '0' && is_dec(peek())) {
+    throw SyntaxError(cursor, "unexpected zero");
+  }
 
-  while (is_dec(*cursor))
+  while (is_dec(*cursor)) {
     next();
+  }
 
   if (next('.')) {
-    if (!is_dec(*cursor)) throw SyntaxError(cursor, "expected digit");
+    if (!is_dec(*cursor)) {
+      throw SyntaxError(cursor, "expected digit");
+    }
 
-    while (is_dec(*cursor))
+    while (is_dec(*cursor)) {
       next();
+    }
 
     emit(Token::Type::Float);
     parseFloat();
@@ -440,10 +445,12 @@ void Tokenizer::parseInt(int base) {
 
   auto& token = tokens.back();
   auto lexeme = token.lexeme;
-  if (base == 2 || base == 16) lexeme.remove_prefix(2);
+  if (base == 2 || base == 16)
+    lexeme.remove_prefix(2);
 
   token.value = static_cast<dzint>(std::strtoull(lexeme.data(), nullptr, base));
-  if (errno == ERANGE) throw SyntaxError(token.lexeme.data(), "cannot parse int");
+  if (errno == ERANGE)
+    throw SyntaxError(token.lexeme.data(), "cannot parse int");
 }
 
 void Tokenizer::parseFloat() {
@@ -451,7 +458,8 @@ void Tokenizer::parseFloat() {
   auto lexeme = token.lexeme;
 
   token.value = static_cast<dzfloat>(std::strtod(lexeme.data(), nullptr));
-  if (errno == ERANGE) throw SyntaxError(lexeme.data(), "cannot parse float");
+  if (errno == ERANGE)
+    throw SyntaxError(lexeme.data(), "cannot parse float");
 }
 
 void Tokenizer::parseString() {

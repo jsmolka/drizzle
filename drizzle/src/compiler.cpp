@@ -161,56 +161,44 @@ void Compiler::walk(Expression::Binary& binary) {
 
   AstWalker::walk(binary);
 
-  // clang-format off
   switch (binary.type) {
-    case Expression::Binary::Type::Addition:        emit(Opcode::Add); break;
-    case Expression::Binary::Type::BitwiseAnd:      emit(Opcode::BitwiseAnd); break;
-    case Expression::Binary::Type::BitwiseAsr:      emit(Opcode::BitwiseAsr); break;
-    case Expression::Binary::Type::BitwiseLsl:      emit(Opcode::BitwiseLsl); break;
-    case Expression::Binary::Type::BitwiseLsr:      emit(Opcode::BitwiseLsr); break;
-    case Expression::Binary::Type::BitwiseOr:       emit(Opcode::BitwiseOr); break;
-    case Expression::Binary::Type::BitwiseXor:      emit(Opcode::BitwiseXor); break;
-    case Expression::Binary::Type::Division:        emit(Opcode::Divide); break;
-    case Expression::Binary::Type::Equal:           emit(Opcode::Equal); break;
-    case Expression::Binary::Type::Greater:         emit(Opcode::Greater); break;
-    case Expression::Binary::Type::GreaterEqual:    emit(Opcode::GreaterEqual); break;
+    case Expression::Binary::Type::Addition: emit(Opcode::Add); break;
+    case Expression::Binary::Type::BitwiseAnd: emit(Opcode::BitwiseAnd); break;
+    case Expression::Binary::Type::BitwiseAsr: emit(Opcode::BitwiseAsr); break;
+    case Expression::Binary::Type::BitwiseLsl: emit(Opcode::BitwiseLsl); break;
+    case Expression::Binary::Type::BitwiseLsr: emit(Opcode::BitwiseLsr); break;
+    case Expression::Binary::Type::BitwiseOr: emit(Opcode::BitwiseOr); break;
+    case Expression::Binary::Type::BitwiseXor: emit(Opcode::BitwiseXor); break;
+    case Expression::Binary::Type::Division: emit(Opcode::Divide); break;
+    case Expression::Binary::Type::Equal: emit(Opcode::Equal); break;
+    case Expression::Binary::Type::Greater: emit(Opcode::Greater); break;
+    case Expression::Binary::Type::GreaterEqual: emit(Opcode::GreaterEqual); break;
     case Expression::Binary::Type::IntegerDivision: emit(Opcode::DivideInt); break;
-    case Expression::Binary::Type::Less:            emit(Opcode::Less); break;
-    case Expression::Binary::Type::LessEqual:       emit(Opcode::LessEqual); break;
-    case Expression::Binary::Type::Modulo:          emit(Opcode::Modulo); break;
-    case Expression::Binary::Type::Multiplication:  emit(Opcode::Multiply); break;
-    case Expression::Binary::Type::NotEqual:        emit(Opcode::NotEqual); break;
-    case Expression::Binary::Type::Power:           emit(Opcode::Power); break;
-    case Expression::Binary::Type::Subtraction:     emit(Opcode::Subtract); break;
-    default:
-      SH_UNREACHABLE;
-      break;
+    case Expression::Binary::Type::Less: emit(Opcode::Less); break;
+    case Expression::Binary::Type::LessEqual: emit(Opcode::LessEqual); break;
+    case Expression::Binary::Type::Modulo: emit(Opcode::Modulo); break;
+    case Expression::Binary::Type::Multiplication: emit(Opcode::Multiply); break;
+    case Expression::Binary::Type::NotEqual: emit(Opcode::NotEqual); break;
+    case Expression::Binary::Type::Power: emit(Opcode::Power); break;
+    case Expression::Binary::Type::Subtraction: emit(Opcode::Subtract); break;
+    default: SH_UNREACHABLE; break;
   }
-  // clang-format on
 }
 
 void Compiler::walk(Expression::Literal& literal) {
   static_assert(int(Expression::Literal::Type::LastEnumValue) == 5);
 
   switch (literal.type) {
-    case Expression::Literal::Type::Null:
-      emit(Opcode::Null);
-      break;
+    case Expression::Literal::Type::Null: emit(Opcode::Null); break;
     case Expression::Literal::Type::Boolean:
       emit(std::get<dzbool>(literal.value) ? Opcode::True : Opcode::False);
       break;
-    case Expression::Literal::Type::Float:
-      emitConstant(std::get<dzfloat>(literal.value));
-      break;
-    case Expression::Literal::Type::Integer:
-      emitConstant(std::get<dzint>(literal.value));
-      break;
+    case Expression::Literal::Type::Float: emitConstant(std::get<dzfloat>(literal.value)); break;
+    case Expression::Literal::Type::Integer: emitConstant(std::get<dzint>(literal.value)); break;
     case Expression::Literal::Type::String:
       emitConstant(pool.make(std::get<std::string>(literal.value)));
       break;
-    default:
-      SH_UNREACHABLE;
-      break;
+    default: SH_UNREACHABLE; break;
   }
 }
 
@@ -219,16 +207,12 @@ void Compiler::walk(Expression::Unary& unary) {
 
   AstWalker::walk(unary);
 
-  // clang-format off
   switch (unary.type) {
     case Expression::Unary::Type::BitwiseComplement: emit(Opcode::BitwiseComplement); break;
-    case Expression::Unary::Type::Minus:             emit(Opcode::Negate); break;
-    case Expression::Unary::Type::Not:               emit(Opcode::Not); break;
-    default:
-      SH_UNREACHABLE;
-      break;
+    case Expression::Unary::Type::Minus: emit(Opcode::Negate); break;
+    case Expression::Unary::Type::Not: emit(Opcode::Not); break;
+    default: SH_UNREACHABLE; break;
   }
-  // clang-format on
 }
 
 void Compiler::walk(Expression::Variable& variable) {
