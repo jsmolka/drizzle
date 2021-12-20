@@ -4,7 +4,7 @@
 #include "statement.h"
 
 class AstWalker {
- protected:
+protected:
   virtual void walk(Expr& expr);
   virtual void walk(Expression::Assign& assign);
   virtual void walk(Expression::Binary& binary);

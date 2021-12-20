@@ -5,7 +5,7 @@
 #include "dzvalue.h"
 
 class Chunk {
- public:
+public:
   auto size() const -> std::size_t;
   auto line(std::size_t index) const -> std::size_t;
 
@@ -14,7 +14,7 @@ class Chunk {
   std::vector<u8> code;
   std::vector<DzValue> constants;
 
- private:
+private:
   struct Line {
     std::size_t start;
     std::size_t number;

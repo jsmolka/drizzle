@@ -9,8 +9,6 @@ void AstFormatter::walk(Expr& expr) {
   static_assert(int(Expression::Type::LastEnumValue) == 6);
 
   writeIndent("{}", expr->type);
-
-  // clang-format off
   switch (expr->type) {
     case Expression::Type::Assign:   write(" {}", expr->assign.identifier); break;
     case Expression::Type::Binary:   write(" {}", expr->binary.type); break;
@@ -18,7 +16,6 @@ void AstFormatter::walk(Expr& expr) {
     case Expression::Type::Unary:    write(" {}", expr->unary.type); break;
     case Expression::Type::Variable: write(" {}", expr->variable.identifier); break;
   }
-
   write("\n");
 
   indent++;
@@ -30,19 +27,11 @@ void AstFormatter::walk(Stmt& stmt) {
   static_assert(int(Statement::Type::LastEnumValue) == 10);
 
   writeIndent("{}", stmt->type);
-
   switch (stmt->type) {
-    case Statement::Type::Block:
-      write(" {}", stmt->block.identifier);
-      break;
-    case Statement::Type::Break:
-      write(" {}", stmt->break_.identifier);
-      break;
-    case Statement::Type::Var:
-      write(" {}", stmt->var.identifier);
-      break;
+    case Statement::Type::Block: write(" {}", stmt->block.identifier); break;
+    case Statement::Type::Break: write(" {}", stmt->break_.identifier); break;
+    case Statement::Type::Var:   write(" {}", stmt->var.identifier); break;
   }
-
   write("\n");
 
   indent++;
