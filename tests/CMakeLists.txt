@@ -9,8 +9,8 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -flto")
 include_directories(src)
 include_directories(modules)
 include_directories(../drizzle/src)
-include_directories(../drizzle/modules)
-include_directories(../drizzle/modules/sh/include)
+include_directories(../drizzle/deps/robin-map/include)
+include_directories(../drizzle/deps/sh/include)
 
 file(GLOB_RECURSE SOURCE_FILES
   ${PROJECT_SOURCE_DIR}/src/*.h
