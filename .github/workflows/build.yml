@@ -1,0 +1,33 @@
+name: Build
+
+on: push
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@master
+        with:
+          submodules: recursive
+
+      - name: Setup
+        run: |
+          mkdir drizzle/build
+
+      - name: Build
+        run: |
+          cd drizzle/build
+          cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=g++-10 ..
+          make -j 4
+
+      - name: Collect
+        run: |
+          mkdir upload
+          mv drizzle/build/drizzle upload
+
+      - name: Upload
+        uses: actions/upload-artifact@master
+        with:
+          name: drizzle-linux
+          path: upload
