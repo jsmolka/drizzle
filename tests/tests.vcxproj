@@ -115,7 +115,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)modules\;$(SolutionDir)drizzle\src\;$(SolutionDir)drizzle\modules\;$(SolutionDir)drizzle\modules\sh\include\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)modules\;$(SolutionDir)drizzle\src\;$(SolutionDir)drizzle\deps\robin-map\include\;$(SolutionDir)drizzle\deps\sh\include\</AdditionalIncludeDirectories>
       <ObjectFileName>$(IntDir)/%(RelativeDir)/</ObjectFileName>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -132,7 +132,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
-      <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)modules\;$(SolutionDir)drizzle\src\;$(SolutionDir)drizzle\modules\;$(SolutionDir)drizzle\modules\sh\include\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)modules\;$(SolutionDir)drizzle\src\;$(SolutionDir)drizzle\deps\robin-map\include\;$(SolutionDir)drizzle\deps\sh\include\</AdditionalIncludeDirectories>
       <ObjectFileName>$(IntDir)/%(RelativeDir)/</ObjectFileName>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>

@@ -7,8 +7,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -flto")
 
 include_directories(src)
-include_directories(modules)
-include_directories(modules/sh/include)
+include_directories(deps/robin-map/include)
+include_directories(deps/sh/include)
 
 file(GLOB_RECURSE SOURCE_FILES
   ${PROJECT_SOURCE_DIR}/src/*.h

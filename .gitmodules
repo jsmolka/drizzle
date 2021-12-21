@@ -1,3 +1,6 @@
-[submodule "drizzle/modules/sh"]
-  path = drizzle/modules/sh
+[submodule "drizzle/deps/robin-map"]
+  path = drizzle/deps/robin-map
+  url = https://github.com/Tessil/robin-map
+[submodule "drizzle/deps/sh"]
+  path = drizzle/deps/sh
   url = https://github.com/jsmolka/sh

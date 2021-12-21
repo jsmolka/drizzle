@@ -7,7 +7,7 @@ StringPool::~StringPool() {
 }
 
 auto StringPool::make(std::string data) -> DzString* {
-  auto hash = robin_hood::hash<std::string>()(data);
+  auto hash = std::hash<std::string>{}(data);
   auto iter = pool.find(hash);
   if (iter != pool.end()) {
     return iter->second;
