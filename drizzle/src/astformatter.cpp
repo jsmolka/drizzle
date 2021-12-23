@@ -61,7 +61,7 @@ void AstFormatter::walk(Statement::If& if_) {
   }
 }
 
-template <sh::formattable T>
+template<sh::formattable T>
 void AstFormatter::write(std::string_view format, const T& value) {
   if constexpr (std::same_as<T, std::string_view>) {
     if (value.empty()) {
@@ -75,7 +75,7 @@ void AstFormatter::write(std::string_view string) {
   write("{}", string);
 }
 
-template <sh::formattable T>
+template<sh::formattable T>
 void AstFormatter::writeIndent(std::string_view format, const T& value) {
   if constexpr (std::same_as<T, std::string_view>) {
     if (value.empty()) {

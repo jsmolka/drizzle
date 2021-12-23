@@ -6,12 +6,12 @@
 #include "stringpool.h"
 
 class Compiler final : public AstWalker {
- public:
+public:
   Compiler(StringPool& pool);
 
   void compile(Stmt& ast, Chunk& chunk);
 
- protected:
+protected:
   using AstWalker::walk;
 
   void walk(Stmt& stmt) final;
@@ -31,7 +31,7 @@ class Compiler final : public AstWalker {
   void walk(Expression::Unary& unary) final;
   void walk(Expression::Variable& variable) final;
 
- private:
+private:
   static constexpr auto kJumpBytes = 3;
 
   struct Level {
@@ -48,10 +48,10 @@ class Compiler final : public AstWalker {
     std::size_t depth;
   };
 
-  template <typename... Bytes>
+  template<typename... Bytes>
   void emit(Bytes... bytes);
   void emitConstant(DzValue value);
-  void emitVariable(std::size_t index, Opcode opcode);
+  void emitVariable(Opcode opcode, std::size_t index);
 
   auto emitJump(Opcode opcode, std::size_t label = 0) -> std::size_t;
   void patchJump(std::size_t jump);
@@ -61,14 +61,14 @@ class Compiler final : public AstWalker {
   auto resolveVariable(std::string_view identifier) -> Variable&;
   void popVariables(std::size_t depth);
 
-  template <typename... Args>
+  template<typename... Args>
     requires std::constructible_from<Compiler::Level, Args...>
   void increaseScope(Args&&... args);
   auto decreaseScope() -> Level;
 
-  StringPool& pool;
-  std::size_t line;
   Chunk* chunk;
+  std::size_t line;
   std::vector<Level> scope;
   std::vector<Variable> variables;
+  StringPool& pool;
 };
