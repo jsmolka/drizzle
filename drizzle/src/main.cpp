@@ -1,4 +1,4 @@
-#include <sh/argparse.h>
+#include <sh/clap.h>
 #include <sh/filesystem.h>
 #include <sh/main.h>
 
@@ -69,33 +69,20 @@ void printError(const Error& error) {
 }
 
 int main(int argc, char* argv[]) {
-  using namespace sh;
-  using namespace sh::filesystem;
+  std::optional<bool> print = false;
+  std::filesystem::path file;
 
-  sh::argument_parser parser("drizzle");
-  parser.add<bool>("-h", "--help") | sh::description("print help") | false;
-  parser.add<bool>("-a", "--ast") | sh::description("print AST") | false;
-  parser.add<path>("file") | sh::description("file to execute");
-
-  try {
-    parser.parse(argc, argv);
-  } catch (const std::runtime_error& error) {
-    fmt::print("{}\n\n{}\n", error.what(), parser.help());
-    return 1;
-  }
-
-  if (parser.get<bool>("-h")) {
-    fmt::print("{}\n", parser.help());
-    return 0;
-  }
+  sh::clap parser("drizzle");
+  parser.add_help();
+  parser.add<decltype(print)>("-a", "--ast") << &print << sh::desc("print ast");
+  parser.add<decltype(file)>("file") << &file << sh::desc("script file");
+  parser.try_parse(argc, argv);
 
   try {
-    const auto file = parser.get<path>("file");
-
-    const auto status = read(file, source);
-    if (status != filesystem::status::ok) {
+    const auto status = sh::filesystem::read(file, source);
+    if (status != sh::filesystem::status::ok) {
       fmt::print("cannot read file: {}\n", file);
-      return 1;
+      return 0;
     }
 
     source.push_back('\n');
@@ -104,7 +91,7 @@ int main(int argc, char* argv[]) {
     const auto tokens = Tokenizer().tokenize(source);
     auto ast = Parser().parse(tokens);
 
-    if (parser.get<bool>("-a")) {
+    if (*print) {
       fmt::print("{}", ast);
     } else {
       StringPool pool;
