@@ -45,7 +45,7 @@ enum class Opcode {
   StoreVariableExt,
   Subtract,
   True,
-  LastEnumValue
+  LastEnumValue,
 };
 
 static_assert(int(Opcode::LastEnumValue) <= std::numeric_limits<u8>::max());
