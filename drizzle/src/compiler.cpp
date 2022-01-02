@@ -6,7 +6,7 @@
 #include "errors.h"
 
 Compiler::Compiler(StringPool& pool)
-    : pool(pool) {}
+  : pool(pool) {}
 
 void Compiler::compile(Stmt& ast, Chunk& chunk) {
   this->chunk = &chunk;

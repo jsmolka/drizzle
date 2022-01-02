@@ -7,7 +7,8 @@ struct DzNull {};
 template <typename... Ts>
 concept dz_null = std::conjunction_v<std::is_same<DzNull, Ts>...>;
 
-struct DzValue {
+class DzValue {
+public:
   enum class Type { Bool, Int, Float, Null, Object, LastEnumValue };
 
   DzValue();

@@ -18,7 +18,7 @@ template <typename... Ts>
 concept dz_float = std::conjunction_v<std::is_same<dzfloat, Ts>...>;
 
 template <typename... Ts>
-concept dz_primitive = std::conjunction_v<sh::is_any_of<Ts, dzint, dzfloat, dzbool>...>;
+concept dz_primitive = std::conjunction_v<sh::is_any_of<Ts, dzbool, dzint, dzfloat>...>;
 
 template <dz_primitive T, dz_primitive U = T>
 struct promote {

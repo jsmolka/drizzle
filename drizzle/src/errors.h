@@ -5,9 +5,9 @@
 #include <sh/fmt.h>
 
 class Error : public std::exception {
- public:
+public:
   class Location {
-   public:
+  public:
     enum class Type { None, Line, Location };
 
     Location();
@@ -23,34 +23,33 @@ class Error : public std::exception {
 
   template <typename... Args>
   Error(const Location& location, std::string_view format, Args&&... args)
-      : location(location),
-        message(fmt::format(fmt::runtime(format), std::forward<Args>(args)...)) {}
+    : location(location), message(fmt::format(fmt::runtime(format), std::forward<Args>(args)...)) {}
 
   virtual const char* name() const noexcept = 0;
   virtual const char* what() const noexcept final;
 
   const Location location;
 
- private:
+private:
   const std::string message;
 };
 
 class SyntaxError : public Error {
- public:
+public:
   using Error::Error;
 
   const char* name() const noexcept final;
 };
 
 class CompilerError : public Error {
- public:
+public:
   using Error::Error;
 
   const char* name() const noexcept final;
 };
 
 class RuntimeError : public Error {
- public:
+public:
   using Error::Error;
 
   const char* name() const noexcept final;

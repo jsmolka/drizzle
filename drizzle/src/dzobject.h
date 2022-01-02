@@ -4,7 +4,7 @@
 #include <type_traits>
 
 class DzObject {
- public:
+public:
   enum class Type { String };
 
   DzObject(Type type);
@@ -17,7 +17,7 @@ class DzObject {
 
   const Type type;
 
- private:
+private:
   template <typename T>
     requires std::is_base_of_v<DzObject, T>
   auto as() const -> const T&;

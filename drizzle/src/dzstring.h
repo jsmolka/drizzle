@@ -5,7 +5,7 @@
 #include "dzobject.h"
 
 class DzString : public DzObject {
- public:
+public:
   DzString(std::string&& data, std::size_t hash);
 
   operator bool() const;

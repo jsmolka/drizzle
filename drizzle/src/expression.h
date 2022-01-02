@@ -10,11 +10,11 @@
 
 class Expression;
 
-using Expr = std::unique_ptr<Expression>;
+using Expr  = std::unique_ptr<Expression>;
 using Exprs = std::vector<Expr>;
 
 class Expression {
- public:
+public:
   enum class Type {
     Assign,
     Binary,

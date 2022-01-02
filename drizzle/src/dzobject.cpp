@@ -4,7 +4,8 @@
 
 #include "dzstring.h"
 
-DzObject::DzObject(DzObject::Type type) : type(type) {}
+DzObject::DzObject(DzObject::Type type)
+  : type(type) {}
 
 DzObject::operator bool() const {
   switch (type) {
