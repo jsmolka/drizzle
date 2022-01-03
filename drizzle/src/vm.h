@@ -7,21 +7,21 @@
 #include "token.h"
 
 class Vm {
- public:
+public:
   Vm(StringPool& pool);
 
   void interpret(const Chunk& chunk);
 
- private:
-  template <typename Integral>
+private:
+  template<typename Integral>
   Integral read();
 
-  template <typename Error, typename... Args>
+  template<typename Error, typename... Args>
   void raise(std::string_view message, Args&&... args);
 
-  template <template <typename T> typename Promote = promote_t, typename Handler>
+  template<template<typename T> typename Promote = promote_t, typename Handler>
   void unary(std::string_view operation, Handler callback);
-  template <template <typename T, typename U> typename Promote = promote_t, typename Handler>
+  template<template<typename T, typename U> typename Promote = promote_t, typename Handler>
   void binary(std::string_view operation, Handler callback);
 
   void add();
@@ -32,7 +32,7 @@ class Vm {
   void bitwiseLsr();
   void bitwiseOr();
   void bitwiseXor();
-  template <typename Integral>
+  template<typename Integral>
   void constant();
   void divide();
   void divideInt();
@@ -45,7 +45,7 @@ class Vm {
   void jumpTrue();
   void less();
   void lessEqual();
-  template <typename Integral>
+  template<typename Integral>
   void loadVariable();
   void modulo();
   void multiply();
@@ -53,7 +53,7 @@ class Vm {
   void not_();
   void notEqual();
   void pop();
-  template <typename Integral>
+  template<typename Integral>
   void popMultiple();
   void power();
   void print();
@@ -61,7 +61,7 @@ class Vm {
   void pushNull();
   void pushTrue();
   bool return_();
-  template <typename Integral>
+  template<typename Integral>
   void storeVariable();
   void subtract();
 

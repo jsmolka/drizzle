@@ -5,7 +5,8 @@
 #include "format.h"
 #include "opcode.h"
 
-Vm::Vm(StringPool& pool) : pool(pool) {}
+Vm::Vm(StringPool& pool)
+  : pool(pool) {}
 
 void Vm::interpret(const Chunk& chunk) {
   this->chunk = &chunk;
@@ -48,22 +49,19 @@ void Vm::interpret(const Chunk& chunk) {
       case Opcode::PopMultipleExt: popMultiple<u16>(); break;
       case Opcode::Power: power(); break;
       case Opcode::Print: print(); break;
-      case Opcode::Return:
-        if (return_()) {
-          return;
-        }
-        break;
+      case Opcode::Return: if (return_()) { return; } break;
       case Opcode::StoreVariable: storeVariable<u8>(); break;
       case Opcode::StoreVariableExt: storeVariable<u16>(); break;
       case Opcode::Subtract: subtract(); break;
       case Opcode::True: pushTrue(); break;
-
-      default: SH_UNREACHABLE; break;
+      default:
+        SH_UNREACHABLE;
+        break;
     }
   }
 }
 
-template <typename Integral>
+template<typename Integral>
 Integral Vm::read() {
   static_assert(std::is_integral_v<Integral>);
 
@@ -72,7 +70,7 @@ Integral Vm::read() {
   return value;
 }
 
-template <typename Error, typename... Args>
+template<typename Error, typename... Args>
 void Vm::raise(std::string_view message, Args&&... args) {
   static_assert(std::is_base_of_v<RuntimeError, Error>);
 
@@ -82,13 +80,13 @@ void Vm::raise(std::string_view message, Args&&... args) {
   throw Error(line, message, std::forward<Args>(args)...);
 }
 
-template <template <typename T> typename Promote, typename Handler>
+template<template<typename T> typename Promote, typename Handler>
 void Vm::unary(std::string_view operation, Handler handler) {
   static_assert(int(DzValue::Type::LastEnumValue) == 5);
 
   auto& value = stack.top();
 
-#define DZ_EVAL(a)                                      \
+  #define DZ_EVAL(a)                                    \
   {                                                     \
     using A = decltype(a);                              \
     if constexpr (dz_primitive<A>) {                    \
@@ -108,28 +106,29 @@ void Vm::unary(std::string_view operation, Handler handler) {
   }
 
   switch (value.type) {
-    case DzValue::Type::Bool: DZ_EVAL(value.b);
-    case DzValue::Type::Int: DZ_EVAL(value.i);
-    case DzValue::Type::Float: DZ_EVAL(value.f);
-    case DzValue::Type::Null: DZ_EVAL(DzNull{});
+    case DzValue::Type::Bool:   DZ_EVAL(value.b);
+    case DzValue::Type::Int:    DZ_EVAL(value.i);
+    case DzValue::Type::Float:  DZ_EVAL(value.f);
+    case DzValue::Type::Null:   DZ_EVAL(DzNull{});
     case DzValue::Type::Object: DZ_EVAL(value.o);
-
-    default: SH_UNREACHABLE; break;
+    default:
+      SH_UNREACHABLE;
+      break;
   }
 
-#undef DZ_EVAL
+  #undef DZ_EVAL
 
   raise<RuntimeError>("bad operand type for '{}': '{}'", operation, value.typeName());
 }
 
-template <template <typename T, typename U> typename Promote, typename Handler>
+template<template<typename T, typename U> typename Promote, typename Handler>
 void Vm::binary(std::string_view operation, Handler handler) {
   static_assert(int(DzValue::Type::LastEnumValue) == 5);
 
   auto rhs = stack.pop_value();
   auto& lhs = stack.top();
 
-#define DZ_EVAL(a, b)                                                                   \
+  #define DZ_EVAL(a, b)                                                                 \
   {                                                                                     \
     using A = decltype(a);                                                              \
     using B = decltype(b);                                                              \
@@ -149,43 +148,43 @@ void Vm::binary(std::string_view operation, Handler handler) {
     break;                                                                              \
   }
 
-#define DZ_HASH(a, b) (int(DzValue::Type::LastEnumValue) * int(a) + int(b))
+  #define DZ_HASH(a, b) (int(DzValue::Type::LastEnumValue) * int(a) + int(b))
 
   switch (DZ_HASH(lhs.type, rhs.type)) {
-    case DZ_HASH(DzValue::Type::Bool, DzValue::Type::Bool): DZ_EVAL(lhs.b, rhs.b);
-    case DZ_HASH(DzValue::Type::Bool, DzValue::Type::Int): DZ_EVAL(lhs.b, rhs.i);
-    case DZ_HASH(DzValue::Type::Bool, DzValue::Type::Float): DZ_EVAL(lhs.b, rhs.f);
-    case DZ_HASH(DzValue::Type::Bool, DzValue::Type::Null): DZ_EVAL(lhs.b, DzNull{});
-    case DZ_HASH(DzValue::Type::Bool, DzValue::Type::Object): DZ_EVAL(lhs.b, rhs.o);
-    case DZ_HASH(DzValue::Type::Int, DzValue::Type::Bool): DZ_EVAL(lhs.i, rhs.b);
-    case DZ_HASH(DzValue::Type::Int, DzValue::Type::Int): DZ_EVAL(lhs.i, rhs.i);
-    case DZ_HASH(DzValue::Type::Int, DzValue::Type::Float): DZ_EVAL(lhs.i, rhs.f);
-    case DZ_HASH(DzValue::Type::Int, DzValue::Type::Null): DZ_EVAL(lhs.i, DzNull{});
-    case DZ_HASH(DzValue::Type::Int, DzValue::Type::Object): DZ_EVAL(lhs.i, rhs.o);
-    case DZ_HASH(DzValue::Type::Float, DzValue::Type::Bool): DZ_EVAL(lhs.f, rhs.b);
-    case DZ_HASH(DzValue::Type::Float, DzValue::Type::Int): DZ_EVAL(lhs.f, rhs.i);
-    case DZ_HASH(DzValue::Type::Float, DzValue::Type::Float): DZ_EVAL(lhs.f, rhs.f);
-    case DZ_HASH(DzValue::Type::Float, DzValue::Type::Null): DZ_EVAL(lhs.f, DzNull{});
-    case DZ_HASH(DzValue::Type::Float, DzValue::Type::Object): DZ_EVAL(lhs.f, rhs.o);
-    case DZ_HASH(DzValue::Type::Null, DzValue::Type::Bool): DZ_EVAL(DzNull{}, rhs.b);
-    case DZ_HASH(DzValue::Type::Null, DzValue::Type::Int): DZ_EVAL(DzNull{}, rhs.i);
-    case DZ_HASH(DzValue::Type::Null, DzValue::Type::Float): DZ_EVAL(DzNull{}, rhs.f);
-    case DZ_HASH(DzValue::Type::Null, DzValue::Type::Null): DZ_EVAL(DzNull{}, DzNull{});
-    case DZ_HASH(DzValue::Type::Null, DzValue::Type::Object): DZ_EVAL(DzNull{}, rhs.o);
-    case DZ_HASH(DzValue::Type::Object, DzValue::Type::Bool): DZ_EVAL(lhs.o, rhs.b);
-    case DZ_HASH(DzValue::Type::Object, DzValue::Type::Int): DZ_EVAL(lhs.o, rhs.i);
-    case DZ_HASH(DzValue::Type::Object, DzValue::Type::Float): DZ_EVAL(lhs.o, rhs.f);
-    case DZ_HASH(DzValue::Type::Object, DzValue::Type::Null): DZ_EVAL(lhs.o, DzNull{});
+    case DZ_HASH(DzValue::Type::Bool,   DzValue::Type::Bool  ): DZ_EVAL(lhs.b, rhs.b);
+    case DZ_HASH(DzValue::Type::Bool,   DzValue::Type::Int   ): DZ_EVAL(lhs.b, rhs.i);
+    case DZ_HASH(DzValue::Type::Bool,   DzValue::Type::Float ): DZ_EVAL(lhs.b, rhs.f);
+    case DZ_HASH(DzValue::Type::Bool,   DzValue::Type::Null  ): DZ_EVAL(lhs.b, DzNull{});
+    case DZ_HASH(DzValue::Type::Bool,   DzValue::Type::Object): DZ_EVAL(lhs.b, rhs.o);
+    case DZ_HASH(DzValue::Type::Int,    DzValue::Type::Bool  ): DZ_EVAL(lhs.i, rhs.b);
+    case DZ_HASH(DzValue::Type::Int,    DzValue::Type::Int   ): DZ_EVAL(lhs.i, rhs.i);
+    case DZ_HASH(DzValue::Type::Int,    DzValue::Type::Float ): DZ_EVAL(lhs.i, rhs.f);
+    case DZ_HASH(DzValue::Type::Int,    DzValue::Type::Null  ): DZ_EVAL(lhs.i, DzNull{});
+    case DZ_HASH(DzValue::Type::Int,    DzValue::Type::Object): DZ_EVAL(lhs.i, rhs.o);
+    case DZ_HASH(DzValue::Type::Float,  DzValue::Type::Bool  ): DZ_EVAL(lhs.f, rhs.b);
+    case DZ_HASH(DzValue::Type::Float,  DzValue::Type::Int   ): DZ_EVAL(lhs.f, rhs.i);
+    case DZ_HASH(DzValue::Type::Float,  DzValue::Type::Float ): DZ_EVAL(lhs.f, rhs.f);
+    case DZ_HASH(DzValue::Type::Float,  DzValue::Type::Null  ): DZ_EVAL(lhs.f, DzNull{});
+    case DZ_HASH(DzValue::Type::Float,  DzValue::Type::Object): DZ_EVAL(lhs.f, rhs.o);
+    case DZ_HASH(DzValue::Type::Null,   DzValue::Type::Bool  ): DZ_EVAL(DzNull{}, rhs.b);
+    case DZ_HASH(DzValue::Type::Null,   DzValue::Type::Int   ): DZ_EVAL(DzNull{}, rhs.i);
+    case DZ_HASH(DzValue::Type::Null,   DzValue::Type::Float ): DZ_EVAL(DzNull{}, rhs.f);
+    case DZ_HASH(DzValue::Type::Null,   DzValue::Type::Null  ): DZ_EVAL(DzNull{}, DzNull{});
+    case DZ_HASH(DzValue::Type::Null,   DzValue::Type::Object): DZ_EVAL(DzNull{}, rhs.o);
+    case DZ_HASH(DzValue::Type::Object, DzValue::Type::Bool  ): DZ_EVAL(lhs.o, rhs.b);
+    case DZ_HASH(DzValue::Type::Object, DzValue::Type::Int   ): DZ_EVAL(lhs.o, rhs.i);
+    case DZ_HASH(DzValue::Type::Object, DzValue::Type::Float ): DZ_EVAL(lhs.o, rhs.f);
+    case DZ_HASH(DzValue::Type::Object, DzValue::Type::Null  ): DZ_EVAL(lhs.o, DzNull{});
     case DZ_HASH(DzValue::Type::Object, DzValue::Type::Object): DZ_EVAL(lhs.o, rhs.o);
-
-    default: SH_UNREACHABLE; break;
+    default:
+      SH_UNREACHABLE;
+      break;
   }
 
-#undef DZ_HASH
-#undef DZ_EVAL
+  #undef DZ_HASH
+  #undef DZ_EVAL
 
-  raise<RuntimeError>("bad operand types for '{}': '{}' and '{}'", operation, lhs.typeName(),
-                      rhs.typeName());
+  raise<RuntimeError>("bad operand types for '{}': '{}' and '{}'", operation, lhs.typeName(), rhs.typeName());
 }
 
 void Vm::add() {
@@ -193,12 +192,10 @@ void Vm::add() {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       dst = a + b;
       return true;
-    }
-    if constexpr (dz_object<A, B>) {
+    } else if constexpr (dz_object<A, B>) {
       if (a->type == DzObject::Type::String && b->type == DzObject::Type::String) {
         auto aa = static_cast<DzString*>(a);
         auto bb = static_cast<DzString*>(b);
-
         dst = pool.make(aa->data + bb->data);
         return true;
       }
@@ -208,15 +205,11 @@ void Vm::add() {
 }
 
 void Vm::bitwiseAnd() {
-  binary<promote_lax_t>("&", [](DzValue& dst, auto a, auto b) {
-    using A = decltype(a);
-    using B = decltype(b);
-
+  binary<promote_lax_t>("&", []<typename A, typename B>(DzValue& dst, const A& a, const B& b) {
     if constexpr (dz_bool<A, B>) {
       dst = static_cast<dzbool>(a & b);
       return true;
-    }
-    if constexpr (dz_int<A, B>) {
+    } else if constexpr (dz_int<A, B>) {
       dst = a & b;
       return true;
     }
@@ -225,10 +218,7 @@ void Vm::bitwiseAnd() {
 }
 
 void Vm::bitwiseAsr() {
-  binary(">>", [](DzValue& dst, auto a, auto b) {
-    using A = decltype(a);
-    using B = decltype(b);
-
+  binary(">>", []<typename A, typename B>(DzValue& dst, const A& a, const B& b) {
     if constexpr (dz_int<A, B>) {
       dst = a >> b;
       return true;
@@ -238,9 +228,7 @@ void Vm::bitwiseAsr() {
 }
 
 void Vm::bitwiseComplement() {
-  unary("~", [](DzValue& dst, auto a) {
-    using A = decltype(a);
-
+  unary("~", []<typename A>(DzValue& dst, const A& a) {
     if constexpr (dz_int<A>) {
       dst = ~a;
       return true;
@@ -250,10 +238,7 @@ void Vm::bitwiseComplement() {
 }
 
 void Vm::bitwiseLsl() {
-  binary("<<", [](DzValue& dst, auto a, auto b) {
-    using A = decltype(a);
-    using B = decltype(b);
-
+  binary("<<", []<typename A, typename B>(DzValue& dst, const A& a, const B& b) {
     if constexpr (dz_int<A, B>) {
       dst = a << b;
       return true;
@@ -263,10 +248,7 @@ void Vm::bitwiseLsl() {
 }
 
 void Vm::bitwiseLsr() {
-  binary(">>>", [](DzValue& dst, auto a, auto b) {
-    using A = decltype(a);
-    using B = decltype(b);
-
+  binary(">>>", []<typename A, typename B>(DzValue& dst, const A& a, const B& b) {
     if constexpr (dz_int<A, B>) {
       dst = static_cast<dzint>(static_cast<std::make_unsigned_t<dzint>>(a) >> b);
       return true;
@@ -276,15 +258,11 @@ void Vm::bitwiseLsr() {
 }
 
 void Vm::bitwiseOr() {
-  binary<promote_lax_t>("|", [](DzValue& dst, auto a, auto b) {
-    using A = decltype(a);
-    using B = decltype(b);
-
+  binary<promote_lax_t>("|", []<typename A, typename B>(DzValue& dst, const A& a, const B& b) {
     if constexpr (dz_bool<A, B>) {
       dst = static_cast<dzbool>(a | b);
       return true;
-    }
-    if constexpr (dz_int<A, B>) {
+    } else if constexpr (dz_int<A, B>) {
       dst = a | b;
       return true;
     }
@@ -293,15 +271,11 @@ void Vm::bitwiseOr() {
 }
 
 void Vm::bitwiseXor() {
-  binary<promote_lax_t>("^", [](DzValue& dst, auto a, auto b) {
-    using A = decltype(a);
-    using B = decltype(b);
-
+  binary<promote_lax_t>("^", []<typename A, typename B>(DzValue& dst, const A& a, const B& b) {
     if constexpr (dz_bool<A, B>) {
       dst = static_cast<dzbool>(a ^ b);
       return true;
-    }
-    if constexpr (dz_int<A, B>) {
+    } else if constexpr (dz_int<A, B>) {
       dst = a ^ b;
       return true;
     }
@@ -309,21 +283,18 @@ void Vm::bitwiseXor() {
   });
 }
 
-template <typename Integral>
+template<typename Integral>
 void Vm::constant() {
   const auto index = read<Integral>();
   stack.push(chunk->constants[index]);
 }
 
 void Vm::divide() {
-  binary("/", [this](DzValue& dst, auto a, auto b) {
-    using A = decltype(a);
-    using B = decltype(b);
-
+  binary("/", [this]<typename A, typename B>(DzValue& dst, const A& a, const B& b) {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
-      if (b == static_cast<B>(0))
+      if (b == static_cast<B>(0)) {
         raise<RuntimeError>("division by zero");
-
+      }
       dst = static_cast<dzfloat>(a) / static_cast<dzfloat>(b);
       return true;
     }
@@ -332,18 +303,16 @@ void Vm::divide() {
 }
 
 void Vm::divideInt() {
-  binary("//", [this](DzValue& dst, auto a, auto b) {
-    using A = decltype(a);
-    using B = decltype(b);
-
+  binary("//", [this]<typename A, typename B>(DzValue& dst, const A& a, const B& b) {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
-      if (b == static_cast<B>(0))
+      if (b == static_cast<B>(0)) {
         raise<RuntimeError>("integer division by zero");
-
-      if constexpr (dz_int<A, B>)
+      }
+      if constexpr (dz_int<A, B>) {
         dst = a / b;
-      else
+      } else {
         dst = std::floor(a / b);
+      }
       return true;
     }
     return false;
@@ -351,28 +320,20 @@ void Vm::divideInt() {
 }
 
 void Vm::equal() {
-  binary("==", [](DzValue& dst, auto a, auto b) {
-    using A = decltype(a);
-    using B = decltype(b);
-
+  binary("==", []<typename A, typename B>(DzValue& dst, const A& a, const B& b) {
     if constexpr (dz_primitive<A, B>) {
       dst = a == b;
-      return true;
-    }
-    if constexpr (dz_object<A, B>) {
+    } else if constexpr (dz_object<A, B>) {
       dst = *a == *b;
-      return true;
+    } else {
+      dst = dz_null<A, B>;
     }
-    dst = dz_null<A, B>;
     return true;
   });
 }
 
 void Vm::greater() {
-  binary(">", [](DzValue& dst, auto a, auto b) {
-    using A = decltype(a);
-    using B = decltype(b);
-
+  binary(">", []<typename A, typename B>(DzValue& dst, const A& a, const B& b) {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       dst = a > b;
       return true;
@@ -382,10 +343,7 @@ void Vm::greater() {
 }
 
 void Vm::greaterEqual() {
-  binary(">=", [](DzValue& dst, auto a, auto b) {
-    using A = decltype(a);
-    using B = decltype(b);
-
+  binary(">=", []<typename A, typename B>(DzValue& dst, const A& a, const B& b) {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       dst = a >= b;
       return true;
@@ -400,27 +358,27 @@ void Vm::jump() {
 
 void Vm::jumpFalse() {
   const auto offset = read<s16>();
-  if (!stack.top())
+  if (!stack.top()) {
     pc += offset;
+  }
 }
 
 void Vm::jumpFalsePop() {
   const auto offset = read<s16>();
-  if (!stack.pop_value())
+  if (!stack.pop_value()) {
     pc += offset;
+  }
 }
 
 void Vm::jumpTrue() {
   const auto offset = read<s16>();
-  if (stack.top())
+  if (stack.top()) {
     pc += offset;
+  }
 }
 
 void Vm::less() {
-  binary("<", [](DzValue& dst, auto a, auto b) {
-    using A = decltype(a);
-    using B = decltype(b);
-
+  binary("<", []<typename A, typename B>(DzValue& dst, const A& a, const B& b) {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       dst = a < b;
       return true;
@@ -430,10 +388,7 @@ void Vm::less() {
 }
 
 void Vm::lessEqual() {
-  binary("<=", [](DzValue& dst, auto a, auto b) {
-    using A = decltype(a);
-    using B = decltype(b);
-
+  binary("<=", []<typename A, typename B>(DzValue& dst, const A& a, const B& b) {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       dst = a <= b;
       return true;
@@ -442,25 +397,23 @@ void Vm::lessEqual() {
   });
 }
 
-template <typename Integral>
+template<typename Integral>
 void Vm::loadVariable() {
   const auto index = read<Integral>();
   stack.push(stack[index]);
 }
 
 void Vm::modulo() {
-  binary("%", [this](DzValue& dst, auto a, auto b) {
-    using A = decltype(a);
-    using B = decltype(b);
-
+  binary("%", [this]<typename A, typename B>(DzValue& dst, const A& a, const B& b) {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
-      if (b == static_cast<B>(0))
+      if (b == static_cast<B>(0)) {
         raise<RuntimeError>("modulo by zero");
-
-      if constexpr (dz_int<A, B>)
+      }
+      if constexpr (dz_int<A, B>) {
         dst = a % b;
-      else
+      } else {
         dst = std::fmod(a, b);
+      }
       return true;
     }
     return false;
@@ -468,10 +421,7 @@ void Vm::modulo() {
 }
 
 void Vm::multiply() {
-  binary("*", [](DzValue& dst, auto a, auto b) {
-    using A = decltype(a);
-    using B = decltype(b);
-
+  binary("*", []<typename A, typename B>(DzValue& dst, const A& a, const B& b) {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       dst = a * b;
       return true;
@@ -481,9 +431,7 @@ void Vm::multiply() {
 }
 
 void Vm::negate() {
-  unary("-", [](DzValue& dst, auto a) {
-    using A = decltype(a);
-
+  unary("-", []<typename A>(DzValue& dst, const A& a) {
     if constexpr (dz_int<A> || dz_float<A>) {
       dst = -a;
       return true;
@@ -497,19 +445,14 @@ void Vm::not_() {
 }
 
 void Vm::notEqual() {
-  binary("!=", [](DzValue& dst, auto a, auto b) {
-    using A = decltype(a);
-    using B = decltype(b);
-
+  binary("!=", []<typename A, typename B>(DzValue& dst, const A& a, const B& b) {
     if constexpr (dz_primitive<A, B>) {
       dst = a != b;
-      return true;
-    }
-    if constexpr (dz_object<A, B>) {
+    } else if constexpr (dz_object<A, B>) {
       dst = *a != *b;
-      return true;
+    } else {
+      dst = !dz_null<A, B>;
     }
-    dst = !dz_null<A, B>;
     return true;
   });
 }
@@ -518,17 +461,14 @@ void Vm::pop() {
   stack.pop();
 }
 
-template <typename Integral>
+template<typename Integral>
 void Vm::popMultiple() {
   const auto count = read<Integral>();
   stack.pop(count);
 }
 
 void Vm::power() {
-  binary("**", [](DzValue& dst, auto a, auto b) {
-    using A = decltype(a);
-    using B = decltype(b);
-
+  binary("**", []<typename  A, typename B>(DzValue& dst, const A& a, const B& b) {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       dst = std::pow(a, b);
       return true;
@@ -557,14 +497,14 @@ bool Vm::return_() {
   return true;
 }
 
-template <typename Integral>
+template<typename Integral>
 void Vm::storeVariable() {
   const auto index = read<Integral>();
   stack[index] = stack.top();
 }
 
 void Vm::subtract() {
-  binary("-", [this]<typename A, typename B>(DzValue& dst, const A& a, const B& b) {
+  binary("-", []<typename A, typename B>(DzValue& dst, const A& a, const B& b) {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       dst = a - b;
       return true;
