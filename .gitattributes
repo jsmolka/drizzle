@@ -4,7 +4,3 @@
 # Linguist language
 *.h    text diff=cpp linguist-language=cpp
 *.cpp  text diff=cpp linguist-language=cpp
-
-# Linguist
-drizzle/modules/**/* linguist-vendored
-tests/modules/**/* linguist-vendored
