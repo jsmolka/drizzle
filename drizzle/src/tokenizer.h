@@ -5,11 +5,12 @@
 #include "token.h"
 
 class Tokenizer {
- public:
+public:
   auto tokenize(const std::string& source) -> std::vector<Token>;
 
- private:
-  template <char kBase = 10>
+private:
+  template<char kBase = 10>
+    requires(kBase <= 36)
   static auto isDigit(char c) -> bool;
   static auto isAlpha(char c) -> bool;
 

@@ -27,19 +27,22 @@ auto Tokenizer::tokenize(const std::string& source) -> std::vector<Token> {
   return tokens;
 }
 
-template <char kBase>
+template<char kBase>
+  requires(kBase <= 36)
 auto Tokenizer::isDigit(char c) -> bool {
-  static_assert(kBase <= 36);
   if constexpr (kBase <= 10) {
     return (c >= '0') && (c < ('0' + kBase));
   } else if constexpr (kBase <= 36) {
-    return (c >= '0' && c <= '9') || (c >= 'a' && c < ('a' + kBase - 10)) ||
-           (c >= 'A' && c < ('A' + kBase - 10));
+    return (c >= '0' && c <= '9')
+        || (c >= 'a' && c < ('a' + kBase - 10))
+        || (c >= 'A' && c < ('A' + kBase - 10));
   }
 }
 
 auto Tokenizer::isAlpha(char c) -> bool {
-  return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c == '_');
+  return (c >= 'a' && c <= 'z')
+      || (c >= 'A' && c <= 'Z')
+      || (c == '_');
 }
 
 auto Tokenizer::next() -> char {
@@ -48,11 +51,11 @@ auto Tokenizer::next() -> char {
 }
 
 auto Tokenizer::next(char match) -> bool {
-  if (*cursor && *cursor == match) {
+  const auto matched = *cursor && *cursor == match;
+  if (matched) {
     cursor++;
-    return true;
   }
-  return false;
+  return matched;
 }
 
 auto Tokenizer::next(std::string_view match) -> bool {
@@ -118,12 +121,12 @@ void Tokenizer::scanIndentation() {
     }
   };
 
-  int spaces = count_spaces();
+  const auto spaces = count_spaces();
   if (spaces % kSpacesPerIndentation) {
     throw SyntaxError(error, "indent spaces must be a multiple of {}", kSpacesPerIndentation);
   }
 
-  int indent = spaces / kSpacesPerIndentation;
+  const auto indent = spaces / kSpacesPerIndentation;
   if (indent > indentation) {
     if ((indent - indentation) > 1) {
       throw SyntaxError(error, "multiple indents at once");
@@ -248,8 +251,9 @@ void Tokenizer::scanString() {
     }
   }
 
-  if (error)
+  if (error) {
     throw SyntaxError(error, "unterminated string");
+  }
 
   emit(Token::Type::String);
 
@@ -257,9 +261,9 @@ void Tokenizer::scanString() {
 }
 
 void Tokenizer::scanNumber() {
-  const auto is_bin = isDigit<2>;
-  const auto is_dec = isDigit<10>;
-  const auto is_hex = isDigit<16>;
+  auto is_bin = isDigit<2>;
+  auto is_dec = isDigit<10>;
+  auto is_hex = isDigit<16>;
 
   if (next("0b")) {
     if (!is_bin(*cursor)) {
@@ -316,18 +320,26 @@ void Tokenizer::scanNumber() {
 
 void Tokenizer::scanIdentifier() {
   static constexpr std::tuple<std::string_view, Token::Type> kKeywords[] = {
-      {"block", Token::Type::Block},       {"break", Token::Type::Break},
-      {"continue", Token::Type::Continue}, {"def", Token::Type::Def},
-      {"elif", Token::Type::Elif},         {"else", Token::Type::Else},
-      {"false", Token::Type::False},       {"if", Token::Type::If},
-      {"noop", Token::Type::Noop},         {"null", Token::Type::Null},
-      {"print", Token::Type::Print},       {"return", Token::Type::Return},
-      {"true", Token::Type::True},         {"var", Token::Type::Var},
-      {"while", Token::Type::While},
+    {"block",    Token::Type::Block   },
+    {"break",    Token::Type::Break   },
+    {"continue", Token::Type::Continue},
+    {"def",      Token::Type::Def     },
+    {"elif",     Token::Type::Elif    },
+    {"else",     Token::Type::Else    },
+    {"false",    Token::Type::False   },
+    {"if",       Token::Type::If      },
+    {"noop",     Token::Type::Noop    },
+    {"null",     Token::Type::Null    },
+    {"print",    Token::Type::Print   },
+    {"return",   Token::Type::Return  },
+    {"true",     Token::Type::True    },
+    {"var",      Token::Type::Var     },
+    {"while",    Token::Type::While   },
   };
 
-  while (isAlpha(*cursor) || isDigit(*cursor))
+  while (isAlpha(*cursor) || isDigit(*cursor)) {
     next();
+  }
 
   std::string_view identifier(lexeme, std::distance(lexeme, cursor));
   for (const auto& [keyword, token] : kKeywords) {
@@ -357,68 +369,28 @@ void Tokenizer::scanToken() {
   }
 
   switch (next()) {
-    case '{':
-      emit(Token::Type::BraceLeft);
-      break;
-    case '}':
-      emit(Token::Type::BraceRight);
-      break;
-    case '[':
-      emit(Token::Type::BracketLeft);
-      break;
-    case ']':
-      emit(Token::Type::BracketRight);
-      break;
-    case '^':
-      emit(Token::Type::Caret);
-      break;
-    case ':':
-      emit(Token::Type::Colon);
-      break;
-    case ',':
-      emit(Token::Type::Comma);
-      break;
-    case '.':
-      emit(Token::Type::Dot);
-      break;
-    case '-':
-      emit(Token::Type::Minus);
-      break;
-    case '(':
-      emit(Token::Type::ParenLeft);
-      break;
-    case ')':
-      emit(Token::Type::ParenRight);
-      break;
-    case '%':
-      emit(Token::Type::Percent);
-      break;
-    case '+':
-      emit(Token::Type::Plus);
-      break;
-    case '~':
-      emit(Token::Type::Tilde);
-      break;
+    case '{': emit(Token::Type::BraceLeft); break; 
+    case '}': emit(Token::Type::BraceRight); break;
+    case '[': emit(Token::Type::BracketLeft); break;
+    case ']': emit(Token::Type::BracketRight); break;
+    case '^': emit(Token::Type::Caret); break;
+    case ':': emit(Token::Type::Colon); break;
+    case ',': emit(Token::Type::Comma); break;
+    case '.': emit(Token::Type::Dot); break;
+    case '-': emit(Token::Type::Minus); break;
+    case '(': emit(Token::Type::ParenLeft); break;
+    case ')': emit(Token::Type::ParenRight); break;
+    case '%': emit(Token::Type::Percent); break;
+    case '+': emit(Token::Type::Plus); break;
+    case '~': emit(Token::Type::Tilde); break;
 
-    case '&':
-      emit(next('&') ? Token::Type::And2 : Token::Type::And);
-      break;
-    case '!':
-      emit(next('=') ? Token::Type::BangEqual : Token::Type::Bang);
-      break;
-    case '=':
-      emit(next('=') ? Token::Type::Equal2 : Token::Type::Equal);
-      break;
-    case '|':
-      emit(next('|') ? Token::Type::Pipe2 : Token::Type::Pipe);
-      break;
-    case '/':
-      emit(next('/') ? Token::Type::Slash2 : Token::Type::Slash);
-      break;
-    case '*':
-      emit(next('*') ? Token::Type::Star2 : Token::Type::Star);
-      break;
-
+    case '&': emit(next('&') ? Token::Type::And2 : Token::Type::And); break;
+    case '!': emit(next('=') ? Token::Type::BangEqual : Token::Type::Bang); break;
+    case '=': emit(next('=') ? Token::Type::Equal2 : Token::Type::Equal); break;
+    case '|': emit(next('|') ? Token::Type::Pipe2 : Token::Type::Pipe); break;
+    case '/': emit(next('/') ? Token::Type::Slash2 : Token::Type::Slash); break;
+    case '*': emit(next('*') ? Token::Type::Star2 : Token::Type::Star); break;
+       
     case '>':
       if (next('>'))
         emit(next('>') ? Token::Type::Greater3 : Token::Type::Greater2);
@@ -477,40 +449,20 @@ void Tokenizer::parseString() {
       switch (*iter) {
         case '\\':
           switch (*(++iter)) {
-            case '\\':
-              value.push_back('\\');
-              break;
-            case '\"':
-              value.push_back('\"');
-              break;
-            case 'a':
-              value.push_back('\a');
-              break;
-            case 'b':
-              value.push_back('\b');
-              break;
-            case 'f':
-              value.push_back('\f');
-              break;
-            case 'n':
-              value.push_back('\n');
-              break;
-            case 'r':
-              value.push_back('\r');
-              break;
-            case 't':
-              value.push_back('\t');
-              break;
-            case 'v':
-              value.push_back('\v');
-              break;
-
+            case '\\': value.push_back('\\'); break;
+            case '\"': value.push_back('\"'); break;
+            case 'a':  value.push_back('\a'); break;
+            case 'b':  value.push_back('\b'); break;
+            case 'f':  value.push_back('\f'); break;
+            case 'n':  value.push_back('\n'); break;
+            case 'r':  value.push_back('\r'); break;
+            case 't':  value.push_back('\t'); break;
+            case 'v':  value.push_back('\v'); break;
             default:
               SH_UNREACHABLE;
               break;
           }
           break;
-
         default:
           value.push_back(*iter);
           break;

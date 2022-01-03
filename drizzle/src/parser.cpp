@@ -12,45 +12,42 @@ auto Parser::parse(const std::vector<Token>& tokens) -> Stmt {
 
 auto Parser::rule(Token::Type type) -> const Parser::Rule& {
   static constexpr auto kRulesSize = std::size_t(Token::Type::LastEnumValue);
-  static constexpr auto kRules =
-      sh::make_array<Parser::Rule, kRulesSize>([](std::size_t type) -> Parser::Rule {
-        // clang-format off
-        switch (Token::Type(type)) {
-          case Token::Type::And:          return {nullptr,           &Parser::binary, Precedence::BitAnd    };
-          case Token::Type::And2:         return {nullptr,           &Parser::and_,   Precedence::And       };
-          case Token::Type::Bang:         return {&Parser::unary,    nullptr,         Precedence::Term      };
-          case Token::Type::BangEqual:    return {nullptr,           &Parser::binary, Precedence::Equality  };
-          case Token::Type::Caret:        return {nullptr,           &Parser::binary, Precedence::BitXor    };
-          case Token::Type::Equal2:       return {nullptr,           &Parser::binary, Precedence::Equality  };
-          case Token::Type::False:        return {&Parser::literal,  nullptr,         Precedence::None      };
-          case Token::Type::Float:        return {&Parser::constant, nullptr,         Precedence::Term      };
-          case Token::Type::Greater:      return {nullptr,           &Parser::binary, Precedence::Comparison};
-          case Token::Type::Greater2:     return {nullptr,           &Parser::binary, Precedence::BitShift  };
-          case Token::Type::Greater3:     return {nullptr,           &Parser::binary, Precedence::BitShift  };
-          case Token::Type::GreaterEqual: return {nullptr,           &Parser::binary, Precedence::Comparison};
-          case Token::Type::Identifier:   return {&Parser::variable, nullptr,         Precedence::None      };
-          case Token::Type::Integer:      return {&Parser::constant, nullptr,         Precedence::Term      };
-          case Token::Type::Less:         return {nullptr,           &Parser::binary, Precedence::Comparison};
-          case Token::Type::Less2:        return {nullptr,           &Parser::binary, Precedence::BitShift  };
-          case Token::Type::LessEqual:    return {nullptr,           &Parser::binary, Precedence::Comparison};
-          case Token::Type::Minus:        return {&Parser::unary,    &Parser::binary, Precedence::Term      };
-          case Token::Type::Null:         return {&Parser::literal,  nullptr,         Precedence::None      };
-          case Token::Type::ParenLeft:    return {&Parser::group,    nullptr,         Precedence::None      };
-          case Token::Type::Percent:      return {nullptr,           &Parser::binary, Precedence::Factor    };
-          case Token::Type::Pipe:         return {nullptr,           &Parser::binary, Precedence::BitOr     };
-          case Token::Type::Pipe2:        return {nullptr,           &Parser::or_,    Precedence::Or        };
-          case Token::Type::Plus:         return {nullptr,           &Parser::binary, Precedence::Term      };
-          case Token::Type::Slash:        return {nullptr,           &Parser::binary, Precedence::Factor    };
-          case Token::Type::Slash2:       return {nullptr,           &Parser::binary, Precedence::Factor    };
-          case Token::Type::Star:         return {nullptr,           &Parser::binary, Precedence::Factor    };
-          case Token::Type::Star2:        return {nullptr,           &Parser::binary, Precedence::Factor    };
-          case Token::Type::String:       return {&Parser::constant, nullptr,         Precedence::None      };
-          case Token::Type::Tilde:        return {&Parser::unary,    nullptr,         Precedence::Unary     };
-          case Token::Type::True:         return {&Parser::literal,  nullptr,         Precedence::None      };
-        }
-        // clang-format on
-        return {nullptr, nullptr, Precedence::None};
-      });
+  static constexpr auto kRules = sh::make_array<Parser::Rule, kRulesSize>([](std::size_t type) -> Parser::Rule {
+    switch (Token::Type(type)) {
+      case Token::Type::And:          return {nullptr,           &Parser::binary, Precedence::BitAnd    };
+      case Token::Type::And2:         return {nullptr,           &Parser::and_,   Precedence::And       };
+      case Token::Type::Bang:         return {&Parser::unary,    nullptr,         Precedence::Term      };
+      case Token::Type::BangEqual:    return {nullptr,           &Parser::binary, Precedence::Equality  };
+      case Token::Type::Caret:        return {nullptr,           &Parser::binary, Precedence::BitXor    };
+      case Token::Type::Equal2:       return {nullptr,           &Parser::binary, Precedence::Equality  };
+      case Token::Type::False:        return {&Parser::literal,  nullptr,         Precedence::None      };
+      case Token::Type::Float:        return {&Parser::constant, nullptr,         Precedence::Term      };
+      case Token::Type::Greater:      return {nullptr,           &Parser::binary, Precedence::Comparison};
+      case Token::Type::Greater2:     return {nullptr,           &Parser::binary, Precedence::BitShift  };
+      case Token::Type::Greater3:     return {nullptr,           &Parser::binary, Precedence::BitShift  };
+      case Token::Type::GreaterEqual: return {nullptr,           &Parser::binary, Precedence::Comparison};
+      case Token::Type::Identifier:   return {&Parser::variable, nullptr,         Precedence::None      };
+      case Token::Type::Integer:      return {&Parser::constant, nullptr,         Precedence::Term      };
+      case Token::Type::Less:         return {nullptr,           &Parser::binary, Precedence::Comparison};
+      case Token::Type::Less2:        return {nullptr,           &Parser::binary, Precedence::BitShift  };
+      case Token::Type::LessEqual:    return {nullptr,           &Parser::binary, Precedence::Comparison};
+      case Token::Type::Minus:        return {&Parser::unary,    &Parser::binary, Precedence::Term      };
+      case Token::Type::Null:         return {&Parser::literal,  nullptr,         Precedence::None      };
+      case Token::Type::ParenLeft:    return {&Parser::group,    nullptr,         Precedence::None      };
+      case Token::Type::Percent:      return {nullptr,           &Parser::binary, Precedence::Factor    };
+      case Token::Type::Pipe:         return {nullptr,           &Parser::binary, Precedence::BitOr     };
+      case Token::Type::Pipe2:        return {nullptr,           &Parser::or_,    Precedence::Or        };
+      case Token::Type::Plus:         return {nullptr,           &Parser::binary, Precedence::Term      };
+      case Token::Type::Slash:        return {nullptr,           &Parser::binary, Precedence::Factor    };
+      case Token::Type::Slash2:       return {nullptr,           &Parser::binary, Precedence::Factor    };
+      case Token::Type::Star:         return {nullptr,           &Parser::binary, Precedence::Factor    };
+      case Token::Type::Star2:        return {nullptr,           &Parser::binary, Precedence::Factor    };
+      case Token::Type::String:       return {&Parser::constant, nullptr,         Precedence::None      };
+      case Token::Type::Tilde:        return {&Parser::unary,    nullptr,         Precedence::Unary     };
+      case Token::Type::True:         return {&Parser::literal,  nullptr,         Precedence::None      };
+    }
+    return {nullptr, nullptr, Precedence::None};
+  });
   return kRules[std::size_t(type)];
 }
 
@@ -59,11 +56,11 @@ void Parser::advance() {
 }
 
 auto Parser::match(Token::Type type) -> bool {
-  if (current->type == type) {
+  const auto matched = current->type == type;
+  if (matched) {
     advance();
-    return true;
   }
-  return false;
+  return matched;
 }
 
 void Parser::expect(Token::Type type, std::string_view error) {
@@ -141,51 +138,31 @@ void Parser::and_(bool) {
   auto rhs = stack.pop_value();
   auto lhs = stack.pop_value();
 
-  stack.push(
-      newExpr<Expression::Binary>(Expression::Binary::Type::And, std::move(lhs), std::move(rhs)));
+  stack.push(newExpr<Expression::Binary>(Expression::Binary::Type::And, std::move(lhs), std::move(rhs)));
 }
 
 void Parser::binary(bool) {
   auto type = [](Token::Type token) -> Expression::Binary::Type {
     switch (token) {
-      case Token::Type::And:
-        return Expression::Binary::Type::BitwiseAnd;
-      case Token::Type::BangEqual:
-        return Expression::Binary::Type::NotEqual;
-      case Token::Type::Caret:
-        return Expression::Binary::Type::BitwiseXor;
-      case Token::Type::Equal2:
-        return Expression::Binary::Type::Equal;
-      case Token::Type::Greater:
-        return Expression::Binary::Type::Greater;
-      case Token::Type::Greater2:
-        return Expression::Binary::Type::BitwiseAsr;
-      case Token::Type::Greater3:
-        return Expression::Binary::Type::BitwiseLsr;
-      case Token::Type::GreaterEqual:
-        return Expression::Binary::Type::GreaterEqual;
-      case Token::Type::Less:
-        return Expression::Binary::Type::Less;
-      case Token::Type::Less2:
-        return Expression::Binary::Type::BitwiseLsl;
-      case Token::Type::LessEqual:
-        return Expression::Binary::Type::LessEqual;
-      case Token::Type::Minus:
-        return Expression::Binary::Type::Subtraction;
-      case Token::Type::Plus:
-        return Expression::Binary::Type::Addition;
-      case Token::Type::Percent:
-        return Expression::Binary::Type::Modulo;
-      case Token::Type::Pipe:
-        return Expression::Binary::Type::BitwiseOr;
-      case Token::Type::Slash:
-        return Expression::Binary::Type::Division;
-      case Token::Type::Slash2:
-        return Expression::Binary::Type::IntegerDivision;
-      case Token::Type::Star:
-        return Expression::Binary::Type::Multiplication;
-      case Token::Type::Star2:
-        return Expression::Binary::Type::Power;
+      case Token::Type::And:          return Expression::Binary::Type::BitwiseAnd;
+      case Token::Type::BangEqual:    return Expression::Binary::Type::NotEqual;
+      case Token::Type::Caret:        return Expression::Binary::Type::BitwiseXor;
+      case Token::Type::Equal2:       return Expression::Binary::Type::Equal;
+      case Token::Type::Greater:      return Expression::Binary::Type::Greater;
+      case Token::Type::Greater2:     return Expression::Binary::Type::BitwiseAsr;
+      case Token::Type::Greater3:     return Expression::Binary::Type::BitwiseLsr;
+      case Token::Type::GreaterEqual: return Expression::Binary::Type::GreaterEqual;
+      case Token::Type::Less:         return Expression::Binary::Type::Less;
+      case Token::Type::Less2:        return Expression::Binary::Type::BitwiseLsl;
+      case Token::Type::LessEqual:    return Expression::Binary::Type::LessEqual;
+      case Token::Type::Minus:        return Expression::Binary::Type::Subtraction;
+      case Token::Type::Plus:         return Expression::Binary::Type::Addition;
+      case Token::Type::Percent:      return Expression::Binary::Type::Modulo;
+      case Token::Type::Pipe:         return Expression::Binary::Type::BitwiseOr;
+      case Token::Type::Slash:        return Expression::Binary::Type::Division;
+      case Token::Type::Slash2:       return Expression::Binary::Type::IntegerDivision;
+      case Token::Type::Star:         return Expression::Binary::Type::Multiplication;
+      case Token::Type::Star2:        return Expression::Binary::Type::Power;
       default:
         SH_UNREACHABLE;
         return Expression::Binary::Type(-1);
@@ -203,15 +180,9 @@ void Parser::binary(bool) {
 
 void Parser::constant(bool) {
   switch (previous->value.index()) {
-    case 0:
-      stack.push(newExpr<Expression::Literal>(std::get<0>(previous->value)));
-      break;
-    case 1:
-      stack.push(newExpr<Expression::Literal>(std::get<1>(previous->value)));
-      break;
-    case 2:
-      stack.push(newExpr<Expression::Literal>(std::get<2>(previous->value)));
-      break;
+    case 0: stack.push(newExpr<Expression::Literal>(std::get<0>(previous->value))); break;
+    case 1: stack.push(newExpr<Expression::Literal>(std::get<1>(previous->value))); break;
+    case 2: stack.push(newExpr<Expression::Literal>(std::get<2>(previous->value))); break;
     default:
       SH_UNREACHABLE;
       break;
@@ -225,15 +196,9 @@ void Parser::group(bool) {
 
 void Parser::literal(bool) {
   switch (previous->type) {
-    case Token::Type::False:
-      stack.push(newExpr<Expression::Literal>(false));
-      break;
-    case Token::Type::Null:
-      stack.push(newExpr<Expression::Literal>());
-      break;
-    case Token::Type::True:
-      stack.push(newExpr<Expression::Literal>(true));
-      break;
+    case Token::Type::False: stack.push(newExpr<Expression::Literal>(false)); break;
+    case Token::Type::Null:  stack.push(newExpr<Expression::Literal>()); break;
+    case Token::Type::True:  stack.push(newExpr<Expression::Literal>(true)); break;
     default:
       SH_UNREACHABLE;
       break;
@@ -246,19 +211,15 @@ void Parser::or_(bool) {
   auto rhs = stack.pop_value();
   auto lhs = stack.pop_value();
 
-  stack.push(
-      newExpr<Expression::Binary>(Expression::Binary::Type::Or, std::move(lhs), std::move(rhs)));
+  stack.push(newExpr<Expression::Binary>(Expression::Binary::Type::Or, std::move(lhs), std::move(rhs)));
 }
 
 void Parser::unary(bool) {
   const auto type = [](Token::Type token) -> Expression::Unary::Type {
     switch (token) {
-      case Token::Type::Bang:
-        return Expression::Unary::Type::Not;
-      case Token::Type::Minus:
-        return Expression::Unary::Type::Minus;
-      case Token::Type::Tilde:
-        return Expression::Unary::Type::BitwiseComplement;
+      case Token::Type::Bang:  return Expression::Unary::Type::Not;
+      case Token::Type::Minus: return Expression::Unary::Type::Minus;
+      case Token::Type::Tilde: return Expression::Unary::Type::BitwiseComplement;
       default:
         SH_UNREACHABLE;
         return Expression::Unary::Type(-1);
@@ -368,7 +329,7 @@ auto Parser::statementContinue() -> Stmt {
 }
 
 auto Parser::statementIf() -> Stmt {
-  auto branch = [this]() {
+  auto branch = [this] {
     auto condition = expression();
     expectColon();
     expectNewLine();

@@ -6,10 +6,10 @@
 #include "token.h"
 
 class Parser {
- public:
+public:
   auto parse(const std::vector<Token>& tokens) -> Stmt;
 
- private:
+private:
   enum class Precedence {
     None,
     Assignment,

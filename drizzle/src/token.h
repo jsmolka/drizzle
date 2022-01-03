@@ -6,7 +6,7 @@
 #include "dzprimitives.h"
 
 class Token {
- public:
+public:
   enum class Type {
     And,
     And2,

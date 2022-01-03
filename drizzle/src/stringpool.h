@@ -4,11 +4,11 @@
 #include "dzstring.h"
 
 class StringPool {
- public:
+public:
   ~StringPool();
 
   auto make(std::string data) -> DzString*;
 
- private:
+private:
   DzMap<DzString*> pool;
 };
