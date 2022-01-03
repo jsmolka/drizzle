@@ -6,7 +6,7 @@
 
 class Statement;
 
-using Stmt  = std::shared_ptr<Statement>;
+using Stmt  = std::unique_ptr<Statement>;
 using Stmts = std::vector<Stmt>;
 
 class Statement {
