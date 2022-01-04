@@ -3,8 +3,25 @@
 #include <sh/stack.h>
 
 #include "chunk.h"
+#include "errors.h"
 #include "stringpool.h"
 #include "token.h"
+
+template<typename T>
+concept UnaryHandler = requires(T&& handler, DzValue& dst, DzObject* obj) {
+  { std::invoke(std::forward<T>(handler), dst, obj) } -> std::same_as<bool>;
+  { std::invoke(std::forward<T>(handler), dst, dzint{}) } -> std::same_as<bool>;
+  { std::invoke(std::forward<T>(handler), dst, dzbool{}) } -> std::same_as<bool>;
+  { std::invoke(std::forward<T>(handler), dst, dzfloat{}) } -> std::same_as<bool>;
+};
+
+template<typename T>
+concept BinaryHandler = requires(T&& handler, DzValue& dst, DzObject* obj) {
+  { std::invoke(std::forward<T>(handler), dst, obj, obj) } -> std::same_as<bool>;
+  { std::invoke(std::forward<T>(handler), dst, dzint{}, dzint{}) } -> std::same_as<bool>;
+  { std::invoke(std::forward<T>(handler), dst, dzbool{}, dzbool{}) } -> std::same_as<bool>;
+  { std::invoke(std::forward<T>(handler), dst, dzfloat{}, dzfloat{}) } -> std::same_as<bool>;
+};
 
 class Vm {
 public:
@@ -13,15 +30,16 @@ public:
   void interpret(const Chunk& chunk);
 
 private:
-  template<typename Integral>
+  template<std::integral Integral>
   Integral read();
 
   template<typename Error, typename... Args>
+    requires std::is_base_of_v<RuntimeError, Error>
   void raise(std::string_view message, Args&&... args);
 
-  template<template<typename T> typename Promote = promote_t, typename Handler>
+  template<template<typename T> typename Promote = promote_t, UnaryHandler Handler>
   void unary(std::string_view operation, Handler callback);
-  template<template<typename T, typename U> typename Promote = promote_t, typename Handler>
+  template<template<typename T, typename U> typename Promote = promote_t, BinaryHandler Handler>
   void binary(std::string_view operation, Handler callback);
 
   void add();

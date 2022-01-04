@@ -1,7 +1,6 @@
 #include "vm.h"
 
 #include "dzstring.h"
-#include "errors.h"
 #include "format.h"
 #include "opcode.h"
 
@@ -61,26 +60,23 @@ void Vm::interpret(const Chunk& chunk) {
   }
 }
 
-template<typename Integral>
+template<std::integral Integral>
 Integral Vm::read() {
-  static_assert(std::is_integral_v<Integral>);
-
   const auto value = sh::cast<Integral>(*pc);
   pc += sizeof(Integral);
   return value;
 }
 
 template<typename Error, typename... Args>
+  requires std::is_base_of_v<RuntimeError, Error>
 void Vm::raise(std::string_view message, Args&&... args) {
-  static_assert(std::is_base_of_v<RuntimeError, Error>);
-
   const auto index = pc - chunk->code.data();
   const auto line = chunk->line(index);
 
   throw Error(line, message, std::forward<Args>(args)...);
 }
 
-template<template<typename T> typename Promote, typename Handler>
+template<template<typename T> typename Promote, UnaryHandler Handler>
 void Vm::unary(std::string_view operation, Handler handler) {
   static_assert(int(DzValue::Type::LastEnumValue) == 5);
 
@@ -121,7 +117,7 @@ void Vm::unary(std::string_view operation, Handler handler) {
   raise<RuntimeError>("bad operand type for '{}': '{}'", operation, value.typeName());
 }
 
-template<template<typename T, typename U> typename Promote, typename Handler>
+template<template<typename T, typename U> typename Promote, BinaryHandler Handler>
 void Vm::binary(std::string_view operation, Handler handler) {
   static_assert(int(DzValue::Type::LastEnumValue) == 5);
 
