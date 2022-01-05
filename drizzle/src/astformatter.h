@@ -5,7 +5,7 @@
 
 class AstFormatter final : public AstWalker {
 public:
-  auto format(Stmt& ast) -> std::string;
+  auto format(const Stmt& ast) -> std::string;
 
 protected:
   using AstWalker::walk;
@@ -30,7 +30,7 @@ private:
 template<>
 struct fmt::formatter<Stmt> : fmt::formatter<std::string> {
   template<typename FormatContext>
-  auto format(Stmt& ast, FormatContext& ctx) {
+  auto format(const Stmt& ast, FormatContext& ctx) {
     return fmt::formatter<std::string>::format(AstFormatter().format(ast), ctx);
   }
 };

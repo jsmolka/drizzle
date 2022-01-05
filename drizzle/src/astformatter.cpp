@@ -1,7 +1,8 @@
 #include "astformatter.h"
 
-auto AstFormatter::format(Stmt& ast) -> std::string {
-  walk(ast);
+auto AstFormatter::format(const Stmt& ast) -> std::string {
+  walk(const_cast<Stmt&>(ast));
+  string.pop_back();
   return string;
 }
 

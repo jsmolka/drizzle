@@ -92,7 +92,7 @@ int main(int argc, char* argv[]) {
     auto ast = Parser().parse(tokens);
 
     if (*print) {
-      fmt::print("{}", ast);
+      fmt::print("{}\n", ast);
     } else {
       StringPool pool;
       Chunk chunk;

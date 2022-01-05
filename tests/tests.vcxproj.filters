@@ -101,97 +101,79 @@
     <None Include="src\vm\unary.inl">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\tokenizer\eof.inl">
+    <None Include="src\tests\tokenizer\blank_lines.h">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\tokenizer\blank_lines.inl">
+    <None Include="src\tests\tokenizer\comments.h">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\tokenizer\comments.inl">
+    <None Include="src\tests\tokenizer\identifiers.h">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\tokenizer\identifiers.inl">
+    <None Include="src\tests\tokenizer\types.h">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\tokenizer\types.inl">
+    <None Include="src\tests\tokenizer\indentation.h">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\tokenizer\indentation.inl">
+    <None Include="src\tests\tokenizer\number.h">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\tokenizer\number.inl">
+    <None Include="src\tests\tokenizer\string.h">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\tokenizer\string.inl">
+    <None Include="src\tests\tokenizer\whitespace.h">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\tokenizer\whitespace.inl">
+    <None Include="src\tests\parser\expr\binary.h">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\parser\_tests.inl">
+    <None Include="src\tests\parser\expr\unary.h">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\parser\expr\binary.inl">
+    <None Include="src\tests\parser\expr\literal.h">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\parser\expr\unary.inl">
+    <None Include="src\tests\parser\expr\precedence.h">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\parser\expr\literal.inl">
+    <None Include="src\tests\parser\expr\group.h">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\parser\expr\precedence.inl">
+    <None Include="src\tests\parser\stmt\program.h">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\parser\expr\_tests.inl">
+    <None Include="src\tests\parser\stmt\expression_statement.h">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\parser\expr\group.inl">
+    <None Include="src\tests\parser\stmt\print.h">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\parser\stmt\program.inl">
+    <None Include="src\tests\parser\stmt\noop.h">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\parser\stmt\expression_statement.inl">
+    <None Include="src\tests\parser\stmt\block.h">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\parser\stmt\_tests.inl">
+    <None Include="src\tests\parser\stmt\var.h">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\tokenizer\_tests.inl">
+    <None Include="src\tests\parser\expr\assign.h">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\tokenizer\_utils.inl">
+    <None Include="src\tests\parser\expr\variable.h">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\parser\stmt\print.inl">
+    <None Include="src\tests\parser\stmt\if.h">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\parser\stmt\noop.inl">
+    <None Include="src\tests\parser\stmt\while.h">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\parser\stmt\block.inl">
+    <None Include="src\tests\parser\stmt\break.h">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\parser\stmt\var.inl">
-      <Filter>Header Files</Filter>
-    </None>
-    <None Include="src\parser\expr\assign.inl">
-      <Filter>Header Files</Filter>
-    </None>
-    <None Include="src\parser\expr\variable.inl">
-      <Filter>Header Files</Filter>
-    </None>
-    <None Include="src\parser\stmt\if.inl">
-      <Filter>Header Files</Filter>
-    </None>
-    <None Include="src\parser\stmt\while.inl">
-      <Filter>Header Files</Filter>
-    </None>
-    <None Include="src\parser\stmt\break.inl">
-      <Filter>Header Files</Filter>
-    </None>
-    <None Include="src\parser\stmt\continue.inl">
+    <None Include="src\tests\parser\stmt\continue.h">
       <Filter>Header Files</Filter>
     </None>
   </ItemGroup>
@@ -199,7 +181,13 @@
     <ClInclude Include="src\scanner\whitespace.inl">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\parser\_utils.inl">
+    <ClInclude Include="src\ut.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tests\tokenizer\eof.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -4,3 +4,6 @@
 [submodule "drizzle/deps/sh"]
   path = drizzle/deps/sh
   url = https://github.com/jsmolka/sh
+[submodule "tests/deps/ut"]
+  path = tests/deps/ut
+  url = https://github.com/boost-ext/ut

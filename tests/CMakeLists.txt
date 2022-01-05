@@ -7,7 +7,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -flto")
 
 include_directories(src)
-include_directories(modules)
+include_directories(deps/ut/include)
 include_directories(../drizzle/src)
 include_directories(../drizzle/deps/robin-map/include)
 include_directories(../drizzle/deps/sh/include)
