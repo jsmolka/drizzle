@@ -32,7 +32,8 @@ inline suite _ = [] {
       tokenizeValue<std::string>(kSource, "\\ \" \a \b \f \n \r \t \v");
     }
     {
-      constexpr auto kSource = "\"\n\"";
+      constexpr auto kSource = R"("
+")";
       tokenizeThrows(kSource);
     }
     {
@@ -54,7 +55,7 @@ inline suite _ = [] {
       }
 
       for (const auto& c : chars) {
-        const auto source = fmt::format("\"\\{}\"", c);
+        const auto source = fmt::format(R"("\{}")", c);
         tokenizeThrows(source);
       }
     }

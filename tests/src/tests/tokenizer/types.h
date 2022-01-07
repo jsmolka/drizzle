@@ -80,7 +80,7 @@ while
       tokenize(kSource, expected);
     }
     {
-      constexpr auto kSource = "&&&\n";
+      constexpr auto kSource = "&&&";
       tokenize(kSource, {
         Token::Type::And2,
         Token::Type::And,

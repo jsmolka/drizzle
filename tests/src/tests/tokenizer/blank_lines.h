@@ -7,7 +7,7 @@ namespace tests_tokenizer_blank_lines {
 inline suite _ = [] {
   "tokenizer_blank_lines"_test = [] {
     {
-      constexpr auto kSource = "noop\n\nnoop\n";
+      constexpr auto kSource = "noop\n\nnoop";
       tokenize(kSource, {
         Token::Type::Noop,
         Token::Type::NewLine,
@@ -17,7 +17,7 @@ inline suite _ = [] {
       });
     }
     {
-      constexpr auto kSource = "noop\n  \nnoop\n";
+      constexpr auto kSource = "noop\n  \nnoop";
       tokenize(kSource, {
         Token::Type::Noop,
         Token::Type::NewLine,
@@ -27,7 +27,7 @@ inline suite _ = [] {
       });
     }
     {
-      constexpr auto kSource = "noop\n\t\nnoop\n";
+      constexpr auto kSource = "noop\n\t\nnoop";
       tokenize(kSource, {
         Token::Type::Noop,
         Token::Type::NewLine,
@@ -37,7 +37,7 @@ inline suite _ = [] {
       });
     }
     {
-      constexpr auto kSource = "noop\n\r\nnoop\n";
+      constexpr auto kSource = "noop\n\r\nnoop";
       tokenize(kSource, {
         Token::Type::Noop,
         Token::Type::NewLine,
@@ -47,7 +47,7 @@ inline suite _ = [] {
       });
     }
     {
-      constexpr auto kSource = "noop\n# Comment\nnoop\n";
+      constexpr auto kSource = "noop\n# Comment\nnoop";
       tokenize(kSource, {
         Token::Type::Noop,
         Token::Type::NewLine,

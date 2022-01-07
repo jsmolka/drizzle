@@ -13,7 +13,7 @@ inline suite _ = [] {
       });
     }
     {
-      constexpr auto kSource = "noop# Comment\n";
+      constexpr auto kSource = "noop# Comment";
       tokenize(kSource, {
         Token::Type::Noop,
         Token::Type::NewLine,
@@ -24,8 +24,7 @@ inline suite _ = [] {
       constexpr auto kSource = R"(
 # Comment
 noop  # Comment
-noop
-)";
+noop)";
       tokenize(kSource, {
         Token::Type::Noop,
         Token::Type::NewLine,

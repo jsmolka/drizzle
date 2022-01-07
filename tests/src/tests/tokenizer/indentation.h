@@ -12,8 +12,7 @@ noop # 1
   noop # 2
     noop # 3
   noop # 4
-noop # 5
-)";
+noop # 5)";
       tokenize(kSource, { 
         Token::Type::Noop,  // 1
         Token::Type::NewLine,
@@ -37,8 +36,7 @@ noop # 5
 noop # 1
   noop # 2
   noop # 3
-noop # 4
-)";
+noop # 4)";
       tokenize(kSource, { 
         Token::Type::Noop,  // 1
         Token::Type::NewLine,
@@ -57,8 +55,7 @@ noop # 4
       constexpr auto kSource = R"(
 noop # 1
   noop # 2
-    noop # 3
-)";
+    noop # 3)";
       tokenize(kSource, { 
         Token::Type::Noop,  // 1
         Token::Type::NewLine,
@@ -78,8 +75,7 @@ noop # 1
 noop # 1
   noop # 2
     noop # 3
-    noop # 4
-)";
+    noop # 4)";
       tokenize(kSource, { 
         Token::Type::Noop,  // 1
         Token::Type::NewLine,
@@ -97,13 +93,13 @@ noop # 1
       });
     }
     {
-      constexpr auto kSource = "\r  noop\n";
+      constexpr auto kSource = "\r  noop";
       tokenize(kSource, { 
         Token::Type::Indent,
         Token::Type::Noop,
         Token::Type::NewLine,
         Token::Type::Dedent,
-        Token::Type::Eof 
+        Token::Type::Eof
       });
     }
     {

@@ -7,7 +7,7 @@ namespace tests_tokenizer_identifiers {
 inline suite _ = [] {
   "tokenizer_identifiers"_test = [] {
     {
-      constexpr auto kSource = "break breaking\n";
+      constexpr auto kSource = "break breaking";
       tokenize(kSource, {
         Token::Type::Break,
         Token::Type::Identifier,
@@ -16,7 +16,7 @@ inline suite _ = [] {
       });
     }
     {
-      constexpr auto kSource = "continue continued\n";
+      constexpr auto kSource = "continue continued";
       tokenize(kSource, {
         Token::Type::Continue,
         Token::Type::Identifier,
@@ -25,7 +25,7 @@ inline suite _ = [] {
       });
     }
     {
-      constexpr auto kSource = "0noop\n";
+      constexpr auto kSource = "0noop";
       tokenize(kSource, {
         Token::Type::Integer,
         Token::Type::Noop,
@@ -34,7 +34,7 @@ inline suite _ = [] {
       });
     }
     {
-      constexpr auto kSource = "0identifier\n";
+      constexpr auto kSource = "0identifier";
       tokenize(kSource, {
         Token::Type::Integer,
         Token::Type::Identifier,

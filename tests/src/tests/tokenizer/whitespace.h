@@ -7,7 +7,7 @@ namespace tests_tokenizer_whitespace {
 inline suite _ = [] {
   "tokenizer_whitespace"_test = [] {
     {
-      constexpr auto kSource = "noop noop\n";
+      constexpr auto kSource = "noop noop";
       tokenize(kSource, {
         Token::Type::Noop,
         Token::Type::Noop,
@@ -16,7 +16,7 @@ inline suite _ = [] {
       });
     }
     {
-      constexpr auto kSource = "noop\tnoop\n";
+      constexpr auto kSource = "noop\tnoop";
       tokenize(kSource, {
         Token::Type::Noop,
         Token::Type::Noop,
@@ -25,7 +25,7 @@ inline suite _ = [] {
       });
     }
     {
-      constexpr auto kSource = "noop\rnoop\n";
+      constexpr auto kSource = "noop\rnoop";
       tokenize(kSource, {
         Token::Type::Noop,
         Token::Type::Noop,

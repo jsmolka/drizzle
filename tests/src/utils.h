@@ -7,22 +7,24 @@
 
 #include "ut.h"
 
-auto operator<<(std::ostream& out, const Token::Type& type) -> std::ostream& {
+inline auto operator<<(std::ostream& out, const Token::Type& type) -> std::ostream& {
   return out << int(type);
 }
 
-void tokenize(const std::string& source, const std::vector<Token::Type>& expected) {
+inline void tokenize(std::string source, const std::vector<Token::Type>& expected,
+    const reflection::source_location& location = reflection::source_location::current()) {
+  source.append("\n\n");
   const auto tokens = Tokenizer().tokenize(source);
-  const auto size = std::min(tokens.size(), expected.size());
-
-  for (int i = 0; i < size; ++i) {
-    expect(eq(tokens[i].type, expected[i]));
+  expect(eq(tokens.size(), expected.size()), location);
+  for (int i = 0; i < std::min(tokens.size(), expected.size()); ++i) {
+    expect(eq(tokens[i].type, expected[i]), location);
   }
-  expect(eq(tokens.size(), expected.size()));
 }
 
 template<sh::any_of<dzint, dzfloat, std::string> T>
-void tokenizeValue(const std::string& source, const T& value) {
+inline void tokenizeValue(std::string source, const T& value,
+    const reflection::source_location& location = reflection::source_location::current()) {
+  source.append("\n\n");
   const auto tokens = Tokenizer().tokenize(source);
   for (const auto& token : tokens) {
     auto expected_token = []() constexpr -> Token::Type {
@@ -36,17 +38,19 @@ void tokenizeValue(const std::string& source, const T& value) {
     };
 
     if (token.type == expected_token()) {
-      expect(eq(std::get<T>(token.value), value));
+      expect(eq(std::get<T>(token.value), value), location);
       return;
     }
   }
   expect(false);
 }
 
-void tokenizeThrows(const std::string& source) {
+inline void tokenizeThrows(std::string source,
+    const reflection::source_location& location = reflection::source_location::current()) {
+  source.append("\n\n");
   expect(throws<SyntaxError>([&] {
     Tokenizer().tokenize(source);
-  }));
+  }), location);
 }
 
 inline void parse(std::string source, const std::string& expected,
