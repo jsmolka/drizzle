@@ -9,38 +9,89 @@ inline suite _ = [] {
     {
       constexpr auto kSource = R"(
 if true:
-  noop
-)";
-      parse(kSource, R"(program
+  noop)";
+      constexpr auto kExpect = R"(program
   if
     literal true
-    noop)");
+    noop)";
+      parse(kSource, kExpect);
     }
     {
       constexpr auto kSource = R"(
 if 1 == 1:
-  noop
-)";
-      parse(kSource, R"(program
+  noop)";
+      constexpr auto kExpect = R"(program
   if
     binary ==
       literal 1
       literal 1
-    noop)");
+    noop)";
+      parse(kSource, kExpect);
     }
     {
       constexpr auto kSource = R"(
 if 1 == 1:
   noop
-  noop
-)";
-      parse(kSource, R"(program
+  noop)";
+      constexpr auto kExpect = R"(program
   if
     binary ==
       literal 1
       literal 1
     noop
-    noop)");
+    noop)";
+      parse(kSource, kExpect);
+    }
+    {
+      constexpr auto kSource = R"(
+if true:
+  noop
+elif true:
+  noop)";
+      constexpr auto kExpect = R"(program
+  if
+    literal true
+    noop
+  elif
+    literal true
+    noop)";
+      parse(kSource, kExpect);
+    }
+    {
+      constexpr auto kSource = R"(
+if true:
+  noop
+elif 1 == 1:
+  noop)";
+      constexpr auto kExpect = R"(program
+  if
+    literal true
+    noop
+  elif
+    binary ==
+      literal 1
+      literal 1
+    noop)";
+      parse(kSource, kExpect);
+    }
+    {
+      constexpr auto kSource = R"(
+if true:
+  noop
+elif 1 == 1:
+  noop
+  noop)";
+      constexpr auto kExpect = R"(program
+  if
+    literal true
+    noop
+  elif
+    binary ==
+      literal 1
+      literal 1
+    noop
+    noop)";
+      parse(kSource, kExpect);
     }
     {
       constexpr auto kSource = R"(
@@ -48,50 +99,18 @@ if true:
   noop
 elif true:
   noop
-)";
-      parse(kSource, R"(program
+else:
+  noop)";
+      constexpr auto kExpect = R"(program
   if
     literal true
     noop
   elif
     literal true
-    noop)");
-    }
-    {
-      constexpr auto kSource = R"(
-if true:
-  noop
-elif 1 == 1:
-  noop
-)";
-      parse(kSource, R"(program
-  if
-    literal true
     noop
-  elif
-    binary ==
-      literal 1
-      literal 1
-    noop)");
-    }
-    {
-      constexpr auto kSource = R"(
-if true:
-  noop
-elif 1 == 1:
-  noop
-  noop
-)";
-      parse(kSource, R"(program
-  if
-    literal true
-    noop
-  elif
-    binary ==
-      literal 1
-      literal 1
-    noop
-    noop)");
+  else
+    noop)";
+      parse(kSource, kExpect);
     }
     {
       constexpr auto kSource = R"(
@@ -101,28 +120,8 @@ elif true:
   noop
 else:
   noop
-)";
-      parse(kSource, R"(program
-  if
-    literal true
-    noop
-  elif
-    literal true
-    noop
-  else
-    noop)");
-    }
-    {
-      constexpr auto kSource = R"(
-if true:
-  noop
-elif true:
-  noop
-else:
-  noop
-  noop
-)";
-      parse(kSource, R"(program
+  noop)";
+      constexpr auto kExpect = R"(program
   if
     literal true
     noop
@@ -131,41 +130,29 @@ else:
     noop
   else
     noop
-    noop)");
+    noop)";
+      parse(kSource, kExpect);
     }
     {
       constexpr auto kSource = R"(
 if:
-  noop
-)";
+  noop)";
       parseThrows(kSource);
     }
     {
       constexpr auto kSource = R"(
 if true
-  noop
-)";
+  noop)";
       parseThrows(kSource);
     }
     {
       constexpr auto kSource = R"(
-if true:
-)";
+if true:)";
       parseThrows(kSource);
     }
     {
       constexpr auto kSource = R"(
-if true: pass
-)";
-      parseThrows(kSource);
-    }
-    {
-      constexpr auto kSource = R"(
-if true:
-  noop
-elif:
-  noop
-)";
+if true: pass)";
       parseThrows(kSource);
     }
     {
@@ -173,24 +160,21 @@ elif:
 if true:
   noop
 elif true
-  noop
-)";
+  noop)";
       parseThrows(kSource);
     }
     {
       constexpr auto kSource = R"(
 if true:
   noop
-elif true:
-)";
+elif true:)";
       parseThrows(kSource);
     }
     {
       constexpr auto kSource = R"(
 if true:
   noop
-elif true: noop
-)";
+elif true: noop)";
       parseThrows(kSource);
     }
     {
@@ -200,8 +184,7 @@ if true:
 elif true:
   noop
 else
-  noop
-)";
+  noop)";
       parseThrows(kSource);
     }
     {
@@ -210,8 +193,7 @@ if true:
   noop
 elif true:
   noop
-else:
-)";
+else:)";
       parseThrows(kSource);
     }
     {
@@ -220,16 +202,21 @@ if true:
   noop
 elif true:
   noop
-elif: noop
-)";
+elif: noop)";
       parseThrows(kSource);
     }
     {
-      constexpr auto kSource = "elif\n";
+      constexpr auto kSource = R"(elif)";
       parseThrows(kSource);
     }
     {
-      constexpr auto kSource = "else\n";
+      constexpr auto kSource = R"(else)";
+      parseThrows(kSource);
+    }
+    {
+      constexpr auto kSource = R"(
+else true:
+  pass)";
       parseThrows(kSource);
     }
   };

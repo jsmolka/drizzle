@@ -10,7 +10,7 @@ inline suite _ = [] {
       for (int i = 0; i < int(Expression::Unary::Type::LastEnumValue); ++i) {
         const auto type = Expression::Unary::Type(i);
         {
-          const auto source = fmt::format("{}1 * 2\n", type);
+          const auto source = fmt::format(R"({}1 * 2)", type);
           const auto expect = fmt::format(R"(program
   expression_statement
     binary *
@@ -20,7 +20,7 @@ inline suite _ = [] {
           parse(source, expect);
         }
         {
-          const auto source = fmt::format("{}(1 * 2)\n", type);
+          const auto source = fmt::format(R"({}(1 * 2))", type);
           const auto expect = fmt::format(R"(program
   expression_statement
     unary {}
@@ -48,31 +48,31 @@ inline suite _ = [] {
       };
 
       for (int i = 0; i < precedences.size() - 1; ++i) {
-        const auto& uppers = precedences[i];
-        const auto& lowers = precedences[i + 1];
+        const auto& highs = precedences[i];
+        const auto& lows  = precedences[i + 1];
 
-        for (const auto& upper : uppers) {
-          for (const auto& lower : lowers) {
+        for (const auto& high : highs) {
+          for (const auto& low : lows) {
             {
-              const auto source = fmt::format("1 {} 2 {} 3\n", lower, upper);
+              const auto source = fmt::format(R"(1 {} 2 {} 3)", low, high);
               const auto expect = fmt::format(R"(program
   expression_statement
     binary {}
       literal 1
       binary {}
         literal 2
-        literal 3)", lower, upper);
+        literal 3)", low, high);
               parse(source, expect);
             }
             {
-              const auto source = fmt::format("(1 {} 2) {} 3\n", lower, upper);
+              const auto source = fmt::format(R"((1 {} 2) {} 3)", low, high);
               const auto expect = fmt::format(R"(program
   expression_statement
     binary {}
       binary {}
         literal 1
         literal 2
-      literal 3)", upper, lower);
+      literal 3)", high, low);
               parse(source, expect);
             }
           }

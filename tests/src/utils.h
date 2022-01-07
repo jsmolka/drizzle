@@ -49,16 +49,20 @@ void tokenizeThrows(const std::string& source) {
   }));
 }
 
-void parse(const std::string& source, const std::string& expected) {
+inline void parse(std::string source, const std::string& expected,
+    const reflection::source_location& location = reflection::source_location::current()) {
+  source.append("\n\n");
   const auto tokens = Tokenizer().tokenize(source);
   const auto ast = Parser().parse(tokens);
-  expect(eq(fmt::to_string(ast), expected));
+  expect(eq(fmt::to_string(ast), expected), location);
 }
 
-void parseThrows(const std::string& source) {
+inline void parseThrows(std::string source,
+    const reflection::source_location& location = reflection::source_location::current()) {
+  source.append("\n\n");
   const auto tokens = Tokenizer().tokenize(source);
   expect(throws<SyntaxError>([&] {
     Parser().parse(tokens);
-  }));
+  }), location);
 }
 

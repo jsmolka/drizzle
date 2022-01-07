@@ -7,25 +7,20 @@ namespace tests_parser_stmt_continue {
 inline suite _ = [] {
   "parser_stmt_continue"_test = [] {
     {
-      constexpr auto kSource = R"(
-continue
-)";
-      parse(kSource, R"(program
-  continue)");
+      constexpr auto kSource = R"(continue)";
+      constexpr auto kExpect = R"(program
+  continue)";
+      parse(kSource, kExpect);
     }
     {
       constexpr auto kSource = R"(
 while true:
-  continue
-)";
-      parse(kSource, R"(program
+  continue)";
+      constexpr auto kExpect = R"(program
   while
     literal true
-    continue)");
-    }
-    {
-      constexpr auto kSource = "continue";
-      parseThrows(kSource);
+    continue)";
+      parse(kSource, kExpect);
     }
   };
 };

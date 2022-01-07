@@ -7,8 +7,8 @@ namespace tests_parser_expr_group {
 inline suite _ = [] {
   "parser_expr_group"_test = [] {
     {
-      constexpr auto kSource = "(1 * 2) + (3 * 4)\n";
-      parse(kSource, R"(program
+      constexpr auto kSource = R"((1 * 2) + (3 * 4))";
+      constexpr auto kExpect = R"(program
   expression_statement
     binary +
       binary *
@@ -16,11 +16,12 @@ inline suite _ = [] {
         literal 2
       binary *
         literal 3
-        literal 4)");
+        literal 4)";
+      parse(kSource, kExpect);
     }
     {
-      constexpr auto kSource = "1 * (2 + 3) * 4\n";
-      parse(kSource, R"(program
+      constexpr auto kSource = R"(1 * (2 + 3) * 4)";
+      constexpr auto kExpect = R"(program
   expression_statement
     binary *
       binary *
@@ -28,7 +29,8 @@ inline suite _ = [] {
         binary +
           literal 2
           literal 3
-      literal 4)");
+      literal 4)";
+      parse(kSource, kExpect);
     }
   };
 };

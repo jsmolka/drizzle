@@ -9,49 +9,43 @@ inline suite _ = [] {
     {
       constexpr auto kSource = R"(
 while true:
-  noop
-)";
-      parse(kSource, R"(program
+  noop)";
+      constexpr auto kExpect = R"(program
   while
     literal true
-    noop)");
+    noop)";
+      parse(kSource, kExpect);
     }
     {
       constexpr auto kSource = R"(
 while 1 == 1:
-  noop
-)";
-      parse(kSource, R"(program
+  noop)";
+      constexpr auto kExpect = R"(program
   while
     binary ==
       literal 1
       literal 1
-    noop)");
+    noop)";
+      parse(kSource, kExpect);
     }
     {
       constexpr auto kSource = R"(
 while:
-  noop
-)";
+  noop)";
       parseThrows(kSource);
     }
     {
       constexpr auto kSource = R"(
 while true
-  noop
-)";
+  noop)";
       parseThrows(kSource);
     }
     {
-      constexpr auto kSource = R"(
-while true: noop
-)";
+      constexpr auto kSource = R"(while true: noop)";
       parseThrows(kSource);
     }
     {
-      constexpr auto kSource = R"(
-while true:
-)";
+      constexpr auto kSource = R"(while true:)";
       parseThrows(kSource);
     }
   };

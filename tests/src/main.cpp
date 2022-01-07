@@ -29,7 +29,6 @@ static_assert(int(Statement::Type::LastEnumValue) == 10);
 #include "tests/tokenizer/types.h"
 #include "tests/tokenizer/whitespace.h"
 
-
 auto main() -> int {
   return 0;
 }
