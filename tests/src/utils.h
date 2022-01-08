@@ -1,10 +1,9 @@
 #pragma once
 
-#include <astformatter.h>
-#include <errors.h>
-#include <parser.h>
-#include <tokenizer.h>
-
+#include "astformatter.h"
+#include "errors.h"
+#include "parser.h"
+#include "tokenizer.h"
 #include "ut.h"
 
 inline auto operator<<(std::ostream& out, const Token::Type& type) -> std::ostream& {

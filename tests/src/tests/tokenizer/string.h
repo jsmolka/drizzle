@@ -60,11 +60,11 @@ inline suite _ = [] {
       }
     }
     {
-      constexpr auto kSource = "\"string";
+      constexpr auto kSource = R"("string)";
       tokenizeThrows(kSource);
     }
     {
-      constexpr auto kSource = "\"\"\"string";
+      constexpr auto kSource = R"("""string)";;
       tokenizeThrows(kSource);
     }
   };
