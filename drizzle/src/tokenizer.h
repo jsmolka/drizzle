@@ -29,7 +29,7 @@ private:
   void scanIdentifier();
   void scanToken();
 
-  void parseInt(int base);
+  void parseInt();
   void parseFloat();
   void parseString();
 

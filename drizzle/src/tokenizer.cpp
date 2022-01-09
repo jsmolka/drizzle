@@ -2,6 +2,7 @@
 
 #include <tuple>
 
+#include <sh/parse.h>
 #include <sh/utility.h>
 
 #include "errors.h"
@@ -275,7 +276,7 @@ void Tokenizer::scanNumber() {
     }
 
     emit(Token::Type::Integer);
-    parseInt(2);
+    parseInt();
     return;
   }
 
@@ -289,7 +290,7 @@ void Tokenizer::scanNumber() {
     }
 
     emit(Token::Type::Integer);
-    parseInt(16);
+    parseInt();
     return;
   }
 
@@ -314,7 +315,7 @@ void Tokenizer::scanNumber() {
     parseFloat();
   } else {
     emit(Token::Type::Integer);
-    parseInt(10);
+    parseInt();
   }
 }
 
@@ -412,26 +413,22 @@ void Tokenizer::scanToken() {
   }
 }
 
-void Tokenizer::parseInt(int base) {
-  assert(base == 2 || base == 10 || base == 16);
-
+void Tokenizer::parseInt() {
   auto& token = tokens.back();
-  auto lexeme = token.lexeme;
-  if (base == 2 || base == 16)
-    lexeme.remove_prefix(2);
-
-  token.value = static_cast<dzint>(std::strtoull(lexeme.data(), nullptr, base));
-  if (errno == ERANGE)
+  if (const auto value = sh::parse<std::make_unsigned_t<dzint>>(token.lexeme)) {
+    token.value = static_cast<dzint>(*value);
+  } else {
     throw SyntaxError(token.lexeme.data(), "cannot parse int");
+  }
 }
 
 void Tokenizer::parseFloat() {
   auto& token = tokens.back();
-  auto lexeme = token.lexeme;
-
-  token.value = static_cast<dzfloat>(std::strtod(lexeme.data(), nullptr));
-  if (errno == ERANGE)
-    throw SyntaxError(lexeme.data(), "cannot parse float");
+  if (const auto value = sh::parse<dzfloat>(token.lexeme)) {
+    token.value = *value;
+  } else {
+    throw SyntaxError(token.lexeme.data(), "cannot parse float");
+  }
 }
 
 void Tokenizer::parseString() {
