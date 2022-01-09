@@ -85,9 +85,6 @@ int main(int argc, char* argv[]) {
       return 0;
     }
 
-    source.push_back('\n');
-    source.push_back('\n');
-
     const auto tokens = Tokenizer().tokenize(source);
     auto ast = Parser().parse(tokens);
 

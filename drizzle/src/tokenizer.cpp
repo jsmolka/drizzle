@@ -184,6 +184,8 @@ void Tokenizer::scanWhitespace() {
         break;
       case '\n':
         next();
+        [[fallthrough]];
+      case '\0':
         emit(Token::Type::NewLine);
         line++;
         scanBlankLines();

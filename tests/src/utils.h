@@ -10,9 +10,8 @@ inline auto operator<<(std::ostream& out, const Token::Type& type) -> std::ostre
   return out << int(type);
 }
 
-inline void tokenize(std::string source, const std::vector<Token::Type>& expected,
+inline void tokenize(const std::string& source, const std::vector<Token::Type>& expected,
     const reflection::source_location& location = reflection::source_location::current()) {
-  source.append("\n\n");
   const auto tokens = Tokenizer().tokenize(source);
   expect(eq(tokens.size(), expected.size()), location);
   for (int i = 0; i < std::min(tokens.size(), expected.size()); ++i) {
@@ -21,9 +20,8 @@ inline void tokenize(std::string source, const std::vector<Token::Type>& expecte
 }
 
 template<sh::any_of<dzint, dzfloat, std::string> T>
-inline void tokenizeValue(std::string source, const T& value,
+inline void tokenizeValue(const std::string& source, const T& value,
     const reflection::source_location& location = reflection::source_location::current()) {
-  source.append("\n\n");
   const auto tokens = Tokenizer().tokenize(source);
   for (const auto& token : tokens) {
     auto expected_token = []() constexpr -> Token::Type {
@@ -44,25 +42,22 @@ inline void tokenizeValue(std::string source, const T& value,
   expect(false);
 }
 
-inline void tokenizeThrows(std::string source,
+inline void tokenizeThrows(const std::string& source,
     const reflection::source_location& location = reflection::source_location::current()) {
-  source.append("\n\n");
   expect(throws<SyntaxError>([&] {
     Tokenizer().tokenize(source);
   }), location);
 }
 
-inline void parse(std::string source, const std::string& expected,
+inline void parse(const std::string& source, const std::string& expected,
     const reflection::source_location& location = reflection::source_location::current()) {
-  source.append("\n\n");
   const auto tokens = Tokenizer().tokenize(source);
   const auto ast = Parser().parse(tokens);
   expect(eq(fmt::to_string(ast), expected), location);
 }
 
-inline void parseThrows(std::string source,
+inline void parseThrows(const std::string& source,
     const reflection::source_location& location = reflection::source_location::current()) {
-  source.append("\n\n");
   const auto tokens = Tokenizer().tokenize(source);
   expect(throws<SyntaxError>([&] {
     Parser().parse(tokens);
