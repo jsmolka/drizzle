@@ -63,7 +63,6 @@
     <None Include="src\tests\tokenizer\identifiers.h" />
     <None Include="src\tests\tokenizer\number.h" />
     <None Include="src\tests\tokenizer\types.h" />
-    <None Include="src\tests\tokenizer\string.h" />
     <None Include="src\tests\tokenizer\whitespace.h" />
     <None Include="src\vm.inl" />
     <None Include="src\vm\unary.inl" />
@@ -72,6 +71,7 @@
   <ItemGroup>
     <ClInclude Include="src\scanner\whitespace.inl" />
     <ClInclude Include="src\tests\tokenizer\eof.h" />
+    <ClInclude Include="src\tests\tokenizer\string.h" />
     <ClInclude Include="src\utils.h" />
     <ClInclude Include="src\ut.h" />
   </ItemGroup>

@@ -61,13 +61,9 @@ In raw string literals, unescaped sequences are allowed and retained, except tha
 |:----------------|:----------------------|
 | `\\`            | Backslash             |
 | `\"`            | Double quote          |
-| `\a`            | ASCII Bell            |
-| `\b`            | ASCII Backspace       |
-| `\f`            | ASCII Formfeed        |
 | `\n`            | ASCII Linefeed        |
 | `\r`            | ASCII Carriage Return |
 | `\t`            | ASCII Horizontal Tab  |
-| `\v`            | ASCII Vertical Tab    |
 
 ### Identifiers
 ```

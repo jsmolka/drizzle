@@ -20,7 +20,6 @@ auto Tokenizer::tokenize(const std::string& source) -> std::vector<Token> {
 }
 
 template<char kBase>
-  requires(kBase <= 36)
 auto Tokenizer::isDigit(char c) -> bool {
   if constexpr (kBase <= 10) {
     return (c >= '0') && (c < ('0' + kBase));
@@ -145,7 +144,6 @@ void Tokenizer::scanBlankLines() {
 
 void Tokenizer::scanIndentation() {
   constexpr auto kIndentSpaces = 2;
-
   assert(begin == cursor);
 
   scanBlankLines();

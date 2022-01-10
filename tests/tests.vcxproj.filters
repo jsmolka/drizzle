@@ -119,9 +119,6 @@
     <None Include="src\tests\tokenizer\number.h">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\tests\tokenizer\string.h">
-      <Filter>Header Files</Filter>
-    </None>
     <None Include="src\tests\tokenizer\whitespace.h">
       <Filter>Header Files</Filter>
     </None>
@@ -188,6 +185,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\tests\tokenizer\eof.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tests\tokenizer\string.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

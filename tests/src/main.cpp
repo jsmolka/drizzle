@@ -26,8 +26,8 @@ static_assert(int(Statement::Type::LastEnumValue) == 10);
 #include "tests/tokenizer/eof.h"
 #include "tests/tokenizer/identifiers.h"
 #include "tests/tokenizer/indentation.h"
-//#include "tests/tokenizer/number.h"
-//#include "tests/tokenizer/string.h"
+#include "tests/tokenizer/number.h"
+#include "tests/tokenizer/string.h"
 #include "tests/tokenizer/types.h"
 #include "tests/tokenizer/whitespace.h"
 

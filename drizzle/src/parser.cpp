@@ -430,13 +430,9 @@ void Parser::parseString() {
           switch (*(++iter)) {
             case '\\': value.push_back('\\'); break;
             case '\"': value.push_back('\"'); break;
-            case 'a':  value.push_back('\a'); break;
-            case 'b':  value.push_back('\b'); break;
-            case 'f':  value.push_back('\f'); break;
             case 'n':  value.push_back('\n'); break;
             case 'r':  value.push_back('\r'); break;
             case 't':  value.push_back('\t'); break;
-            case 'v':  value.push_back('\v'); break;
             default:
               SH_UNREACHABLE;
               break;
