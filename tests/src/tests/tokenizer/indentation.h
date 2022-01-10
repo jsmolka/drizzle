@@ -93,16 +93,6 @@ noop # 1
       });
     }
     {
-      constexpr auto kSource = "\r  noop";
-      tokenize(kSource, { 
-        Token::Type::Indent,
-        Token::Type::Noop,
-        Token::Type::NewLine,
-        Token::Type::Dedent,
-        Token::Type::Eof
-      });
-    }
-    {
       constexpr auto kSource = "\tnoop";
       tokenizeThrows(kSource);
     }

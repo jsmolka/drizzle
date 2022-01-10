@@ -1,22 +1,14 @@
 #include "tokenizer.h"
 
-#include <tuple>
-
-#include <sh/parse.h>
 #include <sh/utility.h>
+#include <sh/parse.h>
 
 #include "errors.h"
 
 auto Tokenizer::tokenize(const std::string& source) -> std::vector<Token> {
-  cursor = source.data();
-  lexeme = source.data();
-  line = 0;
-  indentation = 0;
-  tokens.clear();
+  begin = cursor = lexeme = source.data();
 
-  scanBlankLines();
   scanIndentation();
-
   while (*cursor) {
     lexeme = cursor;
     scanToken();
@@ -60,10 +52,10 @@ auto Tokenizer::next(char match) -> bool {
 }
 
 auto Tokenizer::next(std::string_view match) -> bool {
-  const char* position = cursor;
+  const char* previous = cursor;
   for (const auto& c : match) {
     if (!(*cursor && *cursor == c)) {
-      cursor = position;
+      cursor = previous;
       return false;
     }
     cursor++;
@@ -73,6 +65,14 @@ auto Tokenizer::next(std::string_view match) -> bool {
 
 auto Tokenizer::peek() const -> char {
   return *cursor ? cursor[1] : *cursor;
+}
+
+void Tokenizer::newLine(bool emit) {
+  if (emit) {
+    this->emit(Token::Type::NewLine);
+  }
+  begin = cursor;
+  line++;
 }
 
 void Tokenizer::emit(Token::Type type) {
@@ -85,67 +85,40 @@ void Tokenizer::emit(Token::Type type) {
   lexeme = cursor;
 }
 
-void Tokenizer::scanIndentation() {
-  constexpr auto kSpacesPerIndentation = 2;
-
-  switch (*cursor) {
-    case ' ':
-    case '\r':
-    case '\t':
-      break;
-    default:
-      while (indentation > 0) {
-        emit(Token::Type::Dedent);
-        indentation--;
-      }
-      return;
+void Tokenizer::scanComment() {
+  while (*cursor && *cursor != '\n') {
+    next();
   }
+}
 
-  const char* error = cursor;
-
-  auto count_spaces = [this, error]() -> int {
-    int spaces = 0;
-    while (true) {
-      switch (*cursor) {
-        case ' ':
-          next();
-          spaces++;
-          break;
-        case '\r':
-          next();
-          break;
-        case '\t':
-          throw SyntaxError(error, "tabs used for indent");
-        default:
-          return spaces;
-      }
-    }
-  };
-
-  const auto spaces = count_spaces();
-  if (spaces % kSpacesPerIndentation) {
-    throw SyntaxError(error, "indent spaces must be a multiple of {}", kSpacesPerIndentation);
-  }
-
-  const auto indent = spaces / kSpacesPerIndentation;
-  if (indent > indentation) {
-    if ((indent - indentation) > 1) {
-      throw SyntaxError(error, "multiple indents at once");
-    }
-
-    emit(Token::Type::Indent);
-    indentation++;
-  } else {
-    while (indent < indentation) {
-      emit(Token::Type::Dedent);
-      indentation--;
+void Tokenizer::scanWhitespace() {
+  while (true) {
+    switch (*cursor) {
+      case ' ':
+      case '\t':
+      case '\r':
+        next();
+        break;
+      case '#':
+        scanComment();
+        break;
+      case '\n':
+        next();
+        [[fallthrough]];
+      case '\0':
+        newLine();
+        scanIndentation();
+        [[fallthrough]];
+      default:
+        return;
     }
   }
 }
 
 void Tokenizer::scanBlankLines() {
-  auto skip_line = [this]() {
-    const char* position = cursor;
+  assert(begin == cursor);
+
+  auto skip = [this] {
     while (*cursor) {
       switch (*cursor) {
         case ' ':
@@ -158,48 +131,62 @@ void Tokenizer::scanBlankLines() {
           break;
         case '\n':
           next();
-          line++;
+          newLine(false);
           return true;
         default:
-          cursor = position;
+          cursor = begin;
           return false;
       }
     }
     return false;
   };
 
-  while (skip_line()) {}
+  while (skip()) {}
 }
 
-void Tokenizer::scanWhitespace() {
-  while (true) {
-    switch (*cursor) {
-      case ' ':
-      case '\r':
-      case '\t':
-        next();
-        break;
-      case '#':
-        scanComment();
-        break;
-      case '\n':
-        next();
-        [[fallthrough]];
-      case '\0':
-        emit(Token::Type::NewLine);
-        line++;
-        scanBlankLines();
-        scanIndentation();
-        return;
-      default:
-        return;
-    }
+void Tokenizer::scanIndentation() {
+  constexpr auto kIndentSpaces = 2;
+
+  assert(begin == cursor);
+
+  scanBlankLines();
+
+  switch (*cursor) {
+    case ' ':
+      break;
+    case '\t':
+      throw SyntaxError(cursor, "tabs used for indent");
+    default:
+      while (indentation > 0) {
+        emit(Token::Type::Dedent);
+        indentation--;
+      }
+      return;
   }
-}
 
-void Tokenizer::scanComment() {
-  while (*cursor && *cursor != '\n') {
+  auto spaces = 0;
+  while (*cursor == ' ') {
+    spaces++;
     next();
+  }
+
+  if (spaces % kIndentSpaces) {
+    throw SyntaxError(cursor, "indent spaces must be a multiple of {}", kIndentSpaces);
+  }
+
+  const auto indent = spaces / kIndentSpaces;
+  if (indent > indentation) {
+    if ((indent - indentation) > 1) {
+      throw SyntaxError(cursor, "multiple indents at once");
+    }
+
+    emit(Token::Type::Indent);
+    indentation++;
+  } else {
+    while (indent < indentation) {
+      emit(Token::Type::Dedent);
+      indentation--;
+    }
   }
 }
 
@@ -393,21 +380,23 @@ void Tokenizer::scanToken() {
     case '|': emit(next('|') ? Token::Type::Pipe2 : Token::Type::Pipe); break;
     case '/': emit(next('/') ? Token::Type::Slash2 : Token::Type::Slash); break;
     case '*': emit(next('*') ? Token::Type::Star2 : Token::Type::Star); break;
-       
+
     case '>':
-      if (next('>'))
+      if (next('>')) {
         emit(next('>') ? Token::Type::Greater3 : Token::Type::Greater2);
-      else
+      } else {
         emit(next('=') ? Token::Type::GreaterEqual : Token::Type::Greater);
+      }
       break;
 
     case '<':
-      if (next('<'))
+      if (next('<')) {
         emit(Token::Type::Less2);
-      else if (next('='))
+      } else if (next('=')) {
         emit(Token::Type::LessEqual);
-      else
+      } else {
         emit(Token::Type::Less);
+      }
       break;
 
     default:

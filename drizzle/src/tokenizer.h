@@ -18,12 +18,13 @@ private:
   auto next(char match) -> bool;
   auto next(std::string_view match) -> bool;
   auto peek() const -> char;
+  void newLine(bool emit = true);
 
   void emit(Token::Type type);
-  void scanIndentation();
-  void scanBlankLines();
-  void scanWhitespace();
   void scanComment();
+  void scanWhitespace();
+  void scanBlankLines();
+  void scanIndentation();
   void scanString();
   void scanNumber();
   void scanIdentifier();
@@ -33,9 +34,10 @@ private:
   void parseFloat();
   void parseString();
 
+  const char* begin;
   const char* cursor;
   const char* lexeme;
-  std::size_t line;
-  std::size_t indentation;
+  std::size_t line = 0;
+  std::size_t indentation = 0;
   std::vector<Token> tokens;
 };

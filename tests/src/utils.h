@@ -39,7 +39,7 @@ inline void tokenizeValue(const std::string& source, const T& value,
       return;
     }
   }
-  expect(false);
+  expect(false, location);
 }
 
 inline void tokenizeThrows(const std::string& source,
