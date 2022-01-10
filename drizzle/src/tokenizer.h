@@ -30,10 +30,6 @@ private:
   void scanIdentifier();
   void scanToken();
 
-  void parseInt();
-  void parseFloat();
-  void parseString();
-
   const char* begin;
   const char* cursor;
   const char* lexeme;

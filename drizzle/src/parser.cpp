@@ -1,6 +1,7 @@
 #include "parser.h"
 
 #include <sh/array.h>
+#include <sh/parse.h>
 #include <sh/utility.h>
 
 #include "errors.h"
@@ -179,10 +180,10 @@ void Parser::binary(bool) {
 }
 
 void Parser::constant(bool) {
-  switch (previous->value.index()) {
-    case 0: stack.push(newExpr<Expression::Literal>(std::get<0>(previous->value))); break;
-    case 1: stack.push(newExpr<Expression::Literal>(std::get<1>(previous->value))); break;
-    case 2: stack.push(newExpr<Expression::Literal>(std::get<2>(previous->value))); break;
+  switch (previous->type) {
+    case Token::Type::Integer: parseInt(); break;
+    case Token::Type::Float:   parseFloat(); break;
+    case Token::Type::String:  parseString(); break;
     default:
       SH_UNREACHABLE;
       break;
@@ -392,4 +393,62 @@ auto Parser::expressionStatement() -> Stmt {
   auto expr = expression();
   expectNewLine();
   return newStmt<Statement::ExpressionStatement>(std::move(expr));
+}
+
+void Parser::parseInt() {
+  const auto& token = *previous;
+  if (const auto value = sh::parse<std::make_unsigned_t<dzint>>(token.lexeme)) {
+    stack.push(newExpr<Expression::Literal>(static_cast<dzint>(*value)));
+  } else {
+    throw SyntaxError(token.lexeme.data(), "cannot parse int");
+  }
+}
+
+void Parser::parseFloat() {
+  const auto& token = *previous;
+  if (const auto value = sh::parse<double>(token.lexeme)) {
+    stack.push(newExpr<Expression::Literal>(*value));
+  } else {
+    throw SyntaxError(token.lexeme.data(), "cannot parse int");
+  }
+}
+
+void Parser::parseString() {
+  const auto& token = *previous;
+  auto lexeme = token.lexeme;
+  auto quotes = lexeme.starts_with(R"(""")") ? 3 : 1;
+  lexeme.remove_prefix(quotes);
+  lexeme.remove_suffix(quotes);
+
+  std::string value;
+  value.reserve(lexeme.size());
+
+  if (quotes == 1) {
+    for (auto iter = lexeme.begin(); iter != lexeme.end(); ++iter) {
+      switch (*iter) {
+        case '\\':
+          switch (*(++iter)) {
+            case '\\': value.push_back('\\'); break;
+            case '\"': value.push_back('\"'); break;
+            case 'a':  value.push_back('\a'); break;
+            case 'b':  value.push_back('\b'); break;
+            case 'f':  value.push_back('\f'); break;
+            case 'n':  value.push_back('\n'); break;
+            case 'r':  value.push_back('\r'); break;
+            case 't':  value.push_back('\t'); break;
+            case 'v':  value.push_back('\v'); break;
+            default:
+              SH_UNREACHABLE;
+              break;
+          }
+          break;
+        default:
+          value.push_back(*iter);
+          break;
+      }
+    }
+  } else {
+    value = lexeme;
+  }
+  stack.push(newExpr<Expression::Literal>(std::move(value)));
 }

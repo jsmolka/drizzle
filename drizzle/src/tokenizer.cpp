@@ -1,7 +1,6 @@
 #include "tokenizer.h"
 
 #include <sh/utility.h>
-#include <sh/parse.h>
 
 #include "errors.h"
 
@@ -246,8 +245,6 @@ void Tokenizer::scanString() {
   }
 
   emit(Token::Type::String);
-
-  parseString();
 }
 
 void Tokenizer::scanNumber() {
@@ -265,7 +262,6 @@ void Tokenizer::scanNumber() {
     }
 
     emit(Token::Type::Integer);
-    parseInt();
     return;
   }
 
@@ -279,7 +275,6 @@ void Tokenizer::scanNumber() {
     }
 
     emit(Token::Type::Integer);
-    parseInt();
     return;
   }
 
@@ -301,10 +296,8 @@ void Tokenizer::scanNumber() {
     }
 
     emit(Token::Type::Float);
-    parseFloat();
   } else {
     emit(Token::Type::Integer);
-    parseInt();
   }
 }
 
@@ -402,62 +395,4 @@ void Tokenizer::scanToken() {
     default:
       throw SyntaxError(cursor - 1, "unexpected character");
   }
-}
-
-void Tokenizer::parseInt() {
-  auto& token = tokens.back();
-  if (const auto value = sh::parse<std::make_unsigned_t<dzint>>(token.lexeme)) {
-    token.value = static_cast<dzint>(*value);
-  } else {
-    throw SyntaxError(token.lexeme.data(), "cannot parse int");
-  }
-}
-
-void Tokenizer::parseFloat() {
-  auto& token = tokens.back();
-  if (const auto value = sh::parse<dzfloat>(token.lexeme)) {
-    token.value = *value;
-  } else {
-    throw SyntaxError(token.lexeme.data(), "cannot parse float");
-  }
-}
-
-void Tokenizer::parseString() {
-  auto& token = tokens.back();
-  auto lexeme = token.lexeme;
-  auto quotes = lexeme.starts_with(R"(""")") ? 3 : 1;
-  lexeme.remove_prefix(quotes);
-  lexeme.remove_suffix(quotes);
-
-  std::string value;
-  value.reserve(lexeme.size());
-
-  if (quotes == 1) {
-    for (auto iter = lexeme.begin(); iter != lexeme.end(); ++iter) {
-      switch (*iter) {
-        case '\\':
-          switch (*(++iter)) {
-            case '\\': value.push_back('\\'); break;
-            case '\"': value.push_back('\"'); break;
-            case 'a':  value.push_back('\a'); break;
-            case 'b':  value.push_back('\b'); break;
-            case 'f':  value.push_back('\f'); break;
-            case 'n':  value.push_back('\n'); break;
-            case 'r':  value.push_back('\r'); break;
-            case 't':  value.push_back('\t'); break;
-            case 'v':  value.push_back('\v'); break;
-            default:
-              SH_UNREACHABLE;
-              break;
-          }
-          break;
-        default:
-          value.push_back(*iter);
-          break;
-      }
-    }
-  } else {
-    value = lexeme;
-  }
-  token.value = std::move(value);
 }

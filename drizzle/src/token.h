@@ -70,5 +70,4 @@ public:
   Type type;
   std::size_t line;
   std::string_view lexeme;
-  std::variant<dzint, dzfloat, std::string> value;
 };

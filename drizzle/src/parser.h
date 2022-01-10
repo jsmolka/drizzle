@@ -78,6 +78,10 @@ private:
   auto statementWhile() -> Stmt;
   auto expressionStatement() -> Stmt;
 
+  void parseInt();
+  void parseFloat();
+  void parseString();
+
   std::vector<Token>::const_iterator current;
   std::vector<Token>::const_iterator previous;
   sh::stack<Expr> stack;
