@@ -19,29 +19,6 @@ inline void tokenize(const std::string& source, const std::vector<Token::Type>& 
   }
 }
 
-template<sh::any_of<dzint, dzfloat, std::string> T>
-inline void tokenizeValue(const std::string& source, const T& value,
-    const reflection::source_location& location = reflection::source_location::current()) {
-  const auto tokens = Tokenizer().tokenize(source);
-  for (const auto& token : tokens) {
-    auto expected_token = []() constexpr -> Token::Type {
-      if constexpr (dz_int<T>) {
-        return Token::Type::Integer;
-      } else if (dz_float<T>) {
-        return Token::Type::Float;
-      } else {
-        return Token::Type::String;
-      }
-    };
-
-    if (token.type == expected_token()) {
-      expect(eq(std::get<T>(token.value), value), location);
-      return;
-    }
-  }
-  expect(false, location);
-}
-
 inline void tokenizeThrows(const std::string& source,
     const reflection::source_location& location = reflection::source_location::current()) {
   expect(throws<SyntaxError>([&] {
