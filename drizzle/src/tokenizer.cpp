@@ -36,6 +36,12 @@ auto Tokenizer::isAlpha(char c) -> bool {
       || (c == '_');
 }
 
+auto Tokenizer::isAlnum(char c) -> bool {
+  return (c >= 'a' && c <= 'z')
+      || (c >= 'A' && c <= 'Z')
+      || (c >= '0' && c <= '9');
+}
+
 auto Tokenizer::next() -> char {
   cursor++;
   return cursor[-1];
@@ -218,13 +224,9 @@ void Tokenizer::scanString() {
           switch (*cursor) {
             case '\\':
             case '\"':
-            case 'a':
-            case 'b':
-            case 'f':
             case 'n':
             case 'r':
             case 't':
-            case 'v':
               next();
               break;
             default:
@@ -246,53 +248,33 @@ void Tokenizer::scanString() {
 }
 
 void Tokenizer::scanNumber() {
-  auto is_bin = isDigit<2>;
-  auto is_dec = isDigit<10>;
-  auto is_hex = isDigit<16>;
+  using IsDigit = bool(*)(char);
 
+  IsDigit is_digit;
   if (next("0b")) {
-    if (!is_bin(*cursor)) {
-      throw SyntaxError(cursor, "expected bin digit");
+    is_digit = isDigit<2>;
+  } else if (next("0x")) {
+    is_digit = isDigit<16>;
+  } else {
+    is_digit = isDigit<10>;
+    if (*cursor == '0' && isAlnum(peek())) {
+      throw SyntaxError(cursor, "unexpected leading zero");
     }
+  }
 
-    while (is_bin(*cursor)) {
+  auto scan = [&] {
+    do {
+      if (!is_digit(*cursor)) {
+        throw SyntaxError(cursor, "expected digit");
+      }
       next();
-    }
+    } while (isAlnum(*cursor));
+  };
 
-    emit(Token::Type::Integer);
-    return;
-  }
+  scan();
 
-  if (next("0x")) {
-    if (!is_hex(*cursor)) {
-      throw SyntaxError(cursor, "expected hex digit");
-    }
-
-    while (is_hex(*cursor)) {
-      next();
-    }
-
-    emit(Token::Type::Integer);
-    return;
-  }
-
-  if (*cursor == '0' && is_dec(peek())) {
-    throw SyntaxError(cursor, "unexpected zero");
-  }
-
-  while (is_dec(*cursor)) {
-    next();
-  }
-
-  if (next('.')) {
-    if (!is_dec(*cursor)) {
-      throw SyntaxError(cursor, "expected digit");
-    }
-
-    while (is_dec(*cursor)) {
-      next();
-    }
-
+  if (is_digit == isDigit<10> && next('.')) {
+    scan();
     emit(Token::Type::Float);
   } else {
     emit(Token::Type::Integer);

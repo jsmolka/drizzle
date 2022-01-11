@@ -5,42 +5,97 @@
 namespace tests_tokenizer_number {
 
 inline suite _ = [] {
-  "tokenizer_number"_test = [] {
+  "tokenizer_number_integer"_test = [] {
     {
-      constexpr auto kSource = "0b";
-      tokenizeThrows(kSource);
+      constexpr const char* kSources[] = {
+        "0b0",
+        "0b10",
+        "0b010",
+        "0x0",
+        "0x10",
+        "0x010",
+        "0xabcdef",
+        "0xABCDEF",
+        "0x0123456789",
+        "0",
+        "123",
+        "123456789",
+      };
+
+      for (const auto& source : kSources) {
+        tokenize(source, {
+          Token::Type::Integer,
+          Token::Type::NewLine,
+          Token::Type::Eof,
+        });
+      }
     }
     {
-      constexpr auto kSource = "0b2";
-      tokenizeThrows(kSource);
+      constexpr const char* kSources[] = {
+        "0b",
+        "0b2",
+        "0x",
+        "0xx",
+        "0xX",
+        "00",
+        "10x",
+      };
+
+      for (const auto& source : kSources) {
+        tokenizeThrows(source);
+      }
+    }
+  };
+
+  "tokenize_number_float"_test = [] {
+    {
+      constexpr const char* kSources[] = {
+        "0.0",
+        "0.123456789",
+        "12343.56789",
+      };
+
+      for (const auto& source : kSources) {
+        tokenize(source, {
+          Token::Type::Float,
+          Token::Type::NewLine,
+          Token::Type::Eof,
+        });
+      }
     }
     {
-      constexpr auto kSource = "0b_";
-      tokenizeThrows(kSource);
+      constexpr const char* kSources[] = {
+        "0.",
+        "0.X",
+      };
+
+      for (const auto& source : kSources) {
+        tokenizeThrows(source);
+      }
+    }
+  };
+
+  "tokenize_number_leading_zero"_test = [] {
+    {
+      tokenize("(0)", {
+        Token::Type::ParenLeft,
+        Token::Type::Integer,
+        Token::Type::ParenRight,
+        Token::Type::NewLine,
+        Token::Type::Eof,
+      });
     }
     {
-      constexpr auto kSource = "0x";
-      tokenizeThrows(kSource);
-    }
-    {
-      constexpr auto kSource = "0xn";
-      tokenizeThrows(kSource);
-    }
-    {
-      constexpr auto kSource = "0x_";
-      tokenizeThrows(kSource);
-    }
-    {
-      constexpr auto kSource = "01";
-      tokenizeThrows(kSource);
-    }
-    {
-      constexpr auto kSource = "01.1";
-      tokenizeThrows(kSource);
-    }
-    {
-      constexpr auto kSource = "01.x1";
-      tokenizeThrows(kSource);
+      constexpr const char* kSources[] = {
+        "00",
+        "0.",
+        "00.",
+        "0a"
+      };
+
+      for (const auto& source : kSources) {
+        tokenizeThrows(source);
+      }
     }
   };
 };

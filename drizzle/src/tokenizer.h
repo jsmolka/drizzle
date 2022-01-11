@@ -12,6 +12,7 @@ private:
   template<char kBase = 10>
   static auto isDigit(char c) -> bool;
   static auto isAlpha(char c) -> bool;
+  static auto isAlnum(char c) -> bool;
 
   auto next() -> char;
   auto next(char match) -> bool;

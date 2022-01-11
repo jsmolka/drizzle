@@ -24,24 +24,6 @@ inline suite _ = [] {
         Token::Type::Eof
       });
     }
-    {
-      constexpr auto kSource = "0noop";
-      tokenize(kSource, {
-        Token::Type::Integer,
-        Token::Type::Noop,
-        Token::Type::NewLine,
-        Token::Type::Eof
-      });
-    }
-    {
-      constexpr auto kSource = "0identifier";
-      tokenize(kSource, {
-        Token::Type::Integer,
-        Token::Type::Identifier,
-        Token::Type::NewLine,
-        Token::Type::Eof
-      });
-    }
   };
 };
 
