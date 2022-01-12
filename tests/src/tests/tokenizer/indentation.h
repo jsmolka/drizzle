@@ -93,16 +93,18 @@ noop # 1
       });
     }
     {
-      constexpr auto kSource = "\tnoop";
-      tokenizeThrows(kSource);
-    }
-    {
-      constexpr auto kSource = " noop";
-      tokenizeThrows(kSource);
-    }
-    {
-      constexpr auto kSource = "    noop";
-      tokenizeThrows(kSource);
+      constexpr const char* kSources[] = {
+        " noop",
+        "  noop",
+        "   noop",
+        "    noop",
+        "\tnoop",
+        "\t\tnoop",
+      };
+
+      for (const auto& source : kSources) {
+        tokenizeThrows(source);
+      }
     }
   };
 };

@@ -23,7 +23,7 @@ inline void tokenizeThrows(const std::string& source,
     const reflection::source_location& location = reflection::source_location::current()) {
   expect(throws<SyntaxError>([&] {
     Tokenizer().tokenize(source);
-  }), location);
+  }), location) << source;
 }
 
 inline void parse(const std::string& source, const std::string& expected,
@@ -38,6 +38,6 @@ inline void parseThrows(const std::string& source,
   expect(throws<SyntaxError>([&] {
     const auto tokens = Tokenizer().tokenize(source);
     Parser().parse(tokens);
-  }), location);
+  }), location) << source;
 }
 

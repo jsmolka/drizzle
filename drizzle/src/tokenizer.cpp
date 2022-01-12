@@ -8,6 +8,10 @@ auto Tokenizer::tokenize(const std::string& source) -> std::vector<Token> {
   begin = cursor = lexeme = source.data();
 
   scanIndentation();
+  if (indentation > 0) {
+    throw SyntaxError(begin, "indent in first line");
+  }
+
   while (*cursor) {
     lexeme = cursor;
     scanToken();
@@ -216,26 +220,21 @@ void Tokenizer::scanString() {
         break;
       }
 
-      switch (*cursor) {
-        case '\n':
-          throw SyntaxError(cursor, "unexpected line break");
-        case '\\':
-          next();
-          switch (*cursor) {
-            case '\\':
-            case '\"':
-            case 'n':
-            case 'r':
-            case 't':
-              next();
-              break;
-            default:
-              throw SyntaxError(cursor, "unknown escape sequence");
-          }
-          break;
-        default:
-          next();
-          break;
+      if (!std::isprint(*cursor)) {
+        throw SyntaxError(cursor, "non-printable character");
+      }
+
+      if (next() == '\\') {
+        switch (next()) {
+          case '\\':
+          case '\"':
+          case 'n':
+          case 'r':
+          case 't':
+            break;
+          default:
+            throw SyntaxError(cursor - 1, "unknown escape sequence");
+        }
       }
     }
   }
@@ -311,68 +310,60 @@ void Tokenizer::scanIdentifier() {
       return;
     }
   }
-
   emit(Token::Type::Identifier);
 }
 
 void Tokenizer::scanToken() {
   if (isAlpha(*cursor)) {
     scanIdentifier();
-    return;
-  }
-
-  if (isDigit(*cursor)) {
+  } else if (isDigit(*cursor)) {
     scanNumber();
-    return;
-  }
-
-  if (*cursor == '"') {
+  } else if (*cursor == '"') {
     scanString();
-    return;
-  }
+  } else {
+    switch (next()) {
+      case '{': emit(Token::Type::BraceLeft); break; 
+      case '}': emit(Token::Type::BraceRight); break;
+      case '[': emit(Token::Type::BracketLeft); break;
+      case ']': emit(Token::Type::BracketRight); break;
+      case '^': emit(Token::Type::Caret); break;
+      case ':': emit(Token::Type::Colon); break;
+      case ',': emit(Token::Type::Comma); break;
+      case '.': emit(Token::Type::Dot); break;
+      case '-': emit(Token::Type::Minus); break;
+      case '(': emit(Token::Type::ParenLeft); break;
+      case ')': emit(Token::Type::ParenRight); break;
+      case '%': emit(Token::Type::Percent); break;
+      case '+': emit(Token::Type::Plus); break;
+      case '~': emit(Token::Type::Tilde); break;
 
-  switch (next()) {
-    case '{': emit(Token::Type::BraceLeft); break; 
-    case '}': emit(Token::Type::BraceRight); break;
-    case '[': emit(Token::Type::BracketLeft); break;
-    case ']': emit(Token::Type::BracketRight); break;
-    case '^': emit(Token::Type::Caret); break;
-    case ':': emit(Token::Type::Colon); break;
-    case ',': emit(Token::Type::Comma); break;
-    case '.': emit(Token::Type::Dot); break;
-    case '-': emit(Token::Type::Minus); break;
-    case '(': emit(Token::Type::ParenLeft); break;
-    case ')': emit(Token::Type::ParenRight); break;
-    case '%': emit(Token::Type::Percent); break;
-    case '+': emit(Token::Type::Plus); break;
-    case '~': emit(Token::Type::Tilde); break;
+      case '&': emit(next('&') ? Token::Type::And2 : Token::Type::And); break;
+      case '!': emit(next('=') ? Token::Type::BangEqual : Token::Type::Bang); break;
+      case '=': emit(next('=') ? Token::Type::Equal2 : Token::Type::Equal); break;
+      case '|': emit(next('|') ? Token::Type::Pipe2 : Token::Type::Pipe); break;
+      case '/': emit(next('/') ? Token::Type::Slash2 : Token::Type::Slash); break;
+      case '*': emit(next('*') ? Token::Type::Star2 : Token::Type::Star); break;
 
-    case '&': emit(next('&') ? Token::Type::And2 : Token::Type::And); break;
-    case '!': emit(next('=') ? Token::Type::BangEqual : Token::Type::Bang); break;
-    case '=': emit(next('=') ? Token::Type::Equal2 : Token::Type::Equal); break;
-    case '|': emit(next('|') ? Token::Type::Pipe2 : Token::Type::Pipe); break;
-    case '/': emit(next('/') ? Token::Type::Slash2 : Token::Type::Slash); break;
-    case '*': emit(next('*') ? Token::Type::Star2 : Token::Type::Star); break;
+      case '>':
+        if (next('>')) {
+          emit(next('>') ? Token::Type::Greater3 : Token::Type::Greater2);
+        } else {
+          emit(next('=') ? Token::Type::GreaterEqual : Token::Type::Greater);
+        }
+        break;
 
-    case '>':
-      if (next('>')) {
-        emit(next('>') ? Token::Type::Greater3 : Token::Type::Greater2);
-      } else {
-        emit(next('=') ? Token::Type::GreaterEqual : Token::Type::Greater);
-      }
-      break;
+      case '<':
+        if (next('<')) {
+          emit(Token::Type::Less2);
+        } else if (next('=')) {
+          emit(Token::Type::LessEqual);
+        } else {
+          emit(Token::Type::Less);
+        }
+        break;
 
-    case '<':
-      if (next('<')) {
-        emit(Token::Type::Less2);
-      } else if (next('=')) {
-        emit(Token::Type::LessEqual);
-      } else {
-        emit(Token::Type::Less);
-      }
-      break;
-
-    default:
-      throw SyntaxError(cursor - 1, "unexpected character");
+      default:
+        throw SyntaxError(cursor - 1, "unexpected character");
+    }
   }
 }

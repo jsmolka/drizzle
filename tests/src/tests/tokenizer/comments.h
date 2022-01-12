@@ -6,28 +6,14 @@ namespace tests_tokenizer_comments {
 
 inline suite _ = [] {
   "tokenizer_comments"_test = [] {
-    {
-      constexpr auto kSource = "# Comment";
-      tokenize(kSource, {
-        Token::Type::Eof
-      });
-    }
-    {
-      constexpr auto kSource = "noop# Comment";
-      tokenize(kSource, {
-        Token::Type::Noop,
-        Token::Type::NewLine,
-        Token::Type::Eof
-      });
-    }
-    {
-      constexpr auto kSource = R"(
-# Comment
-noop  # Comment
-noop)";
-      tokenize(kSource, {
-        Token::Type::Noop,
-        Token::Type::NewLine,
+    constexpr const char* kSources[] = {
+      "noop#Comment",
+      "noop # Comment",
+      "noop  #  Comment",
+    };
+
+    for (const auto& source : kSources) {
+      tokenize(source, {
         Token::Type::Noop,
         Token::Type::NewLine,
         Token::Type::Eof
