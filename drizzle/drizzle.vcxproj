@@ -26,7 +26,6 @@
     <ClCompile Include="src\dzvalue.cpp" />
     <ClCompile Include="src\errors.cpp" />
     <ClCompile Include="src\parser.cpp" />
-    <ClCompile Include="src\sourcelocation.cpp" />
     <ClCompile Include="src\statement.cpp" />
     <ClCompile Include="src\expression.cpp" />
     <ClCompile Include="src\main.cpp" />

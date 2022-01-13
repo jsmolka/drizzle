@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <vector>
 
 #include "token.h"
@@ -20,7 +21,8 @@ private:
   auto peek() const -> char;
   void newLine(bool emit = true);
 
-  void emit(Token::Type type);
+  auto current() const -> SourceLocation;
+  void emit(Token::Type type, std::optional<SourceLocation> location = std::nullopt);
   void scanComment();
   void scanWhitespace();
   void scanBlankLines();

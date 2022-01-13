@@ -60,9 +60,6 @@
     <ClCompile Include="..\drizzle\src\astformatter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\drizzle\src\sourcelocation.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\scanner.inl">

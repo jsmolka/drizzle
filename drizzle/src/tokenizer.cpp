@@ -7,14 +7,16 @@
 auto Tokenizer::tokenize(const std::string& source) -> std::vector<Token> {
   begin = cursor = lexeme = source.data();
 
+  const auto location = current();
   scanIndentation();
   if (indentation > 0) {
-    throw SyntaxError(begin, "indent in first line");
+    throw SyntaxError(location, "indent in first line");
   }
 
   while (*cursor) {
     lexeme = cursor;
     scanToken();
+    lexeme = cursor;
     scanWhitespace();
   }
 
@@ -83,14 +85,20 @@ void Tokenizer::newLine(bool emit) {
   line++;
 }
 
-void Tokenizer::emit(Token::Type type) {
+auto Tokenizer::current() const -> SourceLocation {
+  return SourceLocation{
+    .line = int(this->line),
+    .column = int(cursor - begin)
+  };
+}
+
+void Tokenizer::emit(Token::Type type, std::optional<SourceLocation> location) {
   Token token;
   token.type = type;
   token.line = line;
   token.lexeme = std::string_view(lexeme, std::distance(lexeme, cursor));
+  token.location = location.value_or(this->current());
   tokens.push_back(token);
-
-  lexeme = cursor;
 }
 
 void Tokenizer::scanComment() {
@@ -162,7 +170,7 @@ void Tokenizer::scanIndentation() {
     case ' ':
       break;
     case '\t':
-      throw SyntaxError(cursor, "tabs used for indent");
+      throw SyntaxError(current(), "tabs used for indent");
     default:
       while (indentation > 0) {
         emit(Token::Type::Dedent);
@@ -178,13 +186,13 @@ void Tokenizer::scanIndentation() {
   }
 
   if (spaces % kIndentSpaces) {
-    throw SyntaxError(cursor, "indent spaces must be a multiple of {}", kIndentSpaces);
+    throw SyntaxError(current(), "indent spaces must be a multiple of {}", kIndentSpaces);
   }
 
   const auto indent = spaces / kIndentSpaces;
   if (indent > indentation) {
     if ((indent - indentation) > 1) {
-      throw SyntaxError(cursor, "multiple indents at once");
+      throw SyntaxError(current(), "multiple indents at once");
     }
 
     emit(Token::Type::Indent);
@@ -198,12 +206,12 @@ void Tokenizer::scanIndentation() {
 }
 
 void Tokenizer::scanString() {
-  const char* error = cursor;
+  const auto location = current();
 
+  auto terminated = false;
   if (next(R"(""")")) {
     while (*cursor) {
-      if (next(R"(""")")) {
-        error = nullptr;
+      if (terminated = next(R"(""")")) {
         break;
       }
 
@@ -215,16 +223,16 @@ void Tokenizer::scanString() {
     next();
 
     while (*cursor) {
-      if (next('"')) {
-        error = nullptr;
+      if (terminated = next('"')) {
         break;
       }
 
       if (!std::isprint(*cursor)) {
-        throw SyntaxError(cursor, "non-printable character");
+        throw SyntaxError(current(), "non-printable character");
       }
 
       if (next() == '\\') {
+        const auto location = current();
         switch (next()) {
           case '\\':
           case '\"':
@@ -233,17 +241,17 @@ void Tokenizer::scanString() {
           case 't':
             break;
           default:
-            throw SyntaxError(cursor - 1, "unknown escape sequence");
+            throw SyntaxError(location, "unknown escape sequence");
         }
       }
     }
   }
 
-  if (error) {
-    throw SyntaxError(error, "unterminated string");
+  if (!terminated) {
+    throw SyntaxError(location, "unterminated string");
   }
 
-  emit(Token::Type::String);
+  emit(Token::Type::String, location);
 }
 
 void Tokenizer::scanNumber() {
@@ -257,14 +265,14 @@ void Tokenizer::scanNumber() {
   } else {
     is_digit = isDigit<10>;
     if (*cursor == '0' && isAlnum(peek())) {
-      throw SyntaxError(cursor, "unexpected leading zero");
+      throw SyntaxError(current(), "unexpected leading zero");
     }
   }
 
   auto scan = [&] {
     do {
       if (!is_digit(*cursor)) {
-        throw SyntaxError(cursor, "expected digit");
+        throw SyntaxError(current(), "expected digit");
       }
       next();
     } while (isAlnum(*cursor));
@@ -321,6 +329,7 @@ void Tokenizer::scanToken() {
   } else if (*cursor == '"') {
     scanString();
   } else {
+    const auto location = current();
     switch (next()) {
       case '{': emit(Token::Type::BraceLeft); break; 
       case '}': emit(Token::Type::BraceRight); break;
@@ -363,7 +372,7 @@ void Tokenizer::scanToken() {
         break;
 
       default:
-        throw SyntaxError(cursor - 1, "unexpected character");
+        throw SyntaxError(location, "unexpected character");
     }
   }
 }

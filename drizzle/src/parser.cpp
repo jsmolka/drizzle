@@ -66,7 +66,7 @@ auto Parser::match(Token::Type type) -> bool {
 
 void Parser::expect(Token::Type type, std::string_view error) {
   if (!match(type)) {
-    throw SyntaxError(current->lexeme.data(), error);
+    throw SyntaxError(current->location, error);
   }
 }
 
@@ -101,7 +101,10 @@ void Parser::expectParenRight() {
 template <typename T, typename... Args>
   requires std::constructible_from<T, Args...>
 auto Parser::newExpr(Args... args) -> Expr {
-  return std::make_unique<Expression>(T(std::forward<Args>(args)...), previous->line);
+  // Todo: cleanup
+  return std::make_unique<Expression>(
+    T(std::forward<Args>(args)...),
+    SourceLocation{int(previous->line), -1});
 }
 
 auto Parser::expression() -> Expr {
@@ -113,7 +116,7 @@ void Parser::parseExpression(Precedence precedence) {
   advance();
   const auto prefix = rule(previous->type).prefix;
   if (!prefix) {
-    throw SyntaxError(previous->lexeme.data(), "invalid syntax");
+    throw SyntaxError(previous->location, "invalid syntax");
   }
 
   const auto assign = precedence <= Precedence::Assignment;
@@ -123,13 +126,13 @@ void Parser::parseExpression(Precedence precedence) {
     advance();
     const auto infix = rule(previous->type).infix;
     if (!infix) {
-      throw SyntaxError(previous->lexeme.data(), "invalid syntax");
+      throw SyntaxError(previous->location, "invalid syntax");
     }
     std::invoke(infix, this, assign);
   }
 
   if (assign && match(Token::Type::Equal)) {
-    throw SyntaxError(previous->lexeme.data(), "bad assignment");
+    throw SyntaxError(previous->location, "bad assignment");
   }
 }
 
@@ -246,7 +249,10 @@ void Parser::variable(bool assign) {
 template <typename T, typename... Args>
   requires std::constructible_from<T, Args...>
 auto Parser::newStmt(Args... args) -> Stmt {
-  return std::make_unique<Statement>(T(std::forward<Args>(args)...), previous->line);
+  // Todo: cleanup
+  return std::make_unique<Statement>(
+    T(std::forward<Args>(args)...),
+    SourceLocation{int(previous->line), -1});
 }
 
 auto Parser::program() -> Stmt {
@@ -400,7 +406,7 @@ void Parser::parseInt() {
   if (const auto value = sh::parse<std::make_unsigned_t<dzint>>(token.lexeme)) {
     stack.push(newExpr<Expression::Literal>(static_cast<dzint>(*value)));
   } else {
-    throw SyntaxError(token.lexeme.data(), "cannot parse int");
+    throw SyntaxError(token.location, "cannot parse int");
   }
 }
 
@@ -409,7 +415,7 @@ void Parser::parseFloat() {
   if (const auto value = sh::parse<double>(token.lexeme)) {
     stack.push(newExpr<Expression::Literal>(*value));
   } else {
-    throw SyntaxError(token.lexeme.data(), "cannot parse int");
+    throw SyntaxError(token.location, "cannot parse int");
   }
 }
 

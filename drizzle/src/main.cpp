@@ -61,9 +61,11 @@ void printErrorLocation(const char* location) {
 }
 
 void printError(const Error& error) {
-  if (error.location.type == Error::Location::Type::Line) printErrorLine(error.location.line);
-  if (error.location.type == Error::Location::Type::Location)
-    printErrorLocation(error.location.location);
+
+
+  //if (error.location.type == Error::Location::Type::Line) printErrorLine(error.location.line);
+  //if (error.location.type == Error::Location::Type::Location)
+  //  printErrorLocation(error.location.location);
 
   fmt::print("{}: {}\n", error.name(), error.what());
 }

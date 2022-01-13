@@ -2,10 +2,8 @@
 
 #include <cstddef>
 
-class SourceLocation {
-public:
-  SourceLocation(std::size_t line);
-
-  const std::size_t line;
-  const std::size_t column;
+struct SourceLocation {
+  // Todo: find optimal types
+  int line = 0;
+  int column = 0;
 };

@@ -73,7 +73,8 @@ void Vm::raise(std::string_view message, Args&&... args) {
   const auto index = pc - chunk->code.data();
   const auto line = chunk->line(index);
 
-  throw Error(line, message, std::forward<Args>(args)...);
+  // Todo: arg
+  throw Error(SourceLocation{int(line), -1}, message, std::forward<Args>(args)...);
 }
 
 template<template<typename T> typename Promote, UnaryHandler Handler>

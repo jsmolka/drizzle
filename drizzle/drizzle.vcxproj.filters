@@ -60,9 +60,6 @@
     <ClCompile Include="src\astwalker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\sourcelocation.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\tokenizer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
