@@ -6,8 +6,7 @@
 #include "dzprimitives.h"
 #include "sourcelocation.h"
 
-class Token {
-public:
+struct Token {
   enum class Type {
     And,
     And2,
@@ -69,8 +68,6 @@ public:
   };
 
   Type type;
-  std::size_t line;
   std::string_view lexeme;
-  std::string lexeme2;
   SourceLocation location;
 };

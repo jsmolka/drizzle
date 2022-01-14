@@ -101,10 +101,7 @@ void Parser::expectParenRight() {
 template <typename T, typename... Args>
   requires std::constructible_from<T, Args...>
 auto Parser::newExpr(Args... args) -> Expr {
-  // Todo: cleanup
-  return std::make_unique<Expression>(
-    T(std::forward<Args>(args)...),
-    SourceLocation{int(previous->line), -1});
+  return std::make_unique<Expression>(T(std::forward<Args>(args)...), previous->location);
 }
 
 auto Parser::expression() -> Expr {
@@ -249,10 +246,7 @@ void Parser::variable(bool assign) {
 template <typename T, typename... Args>
   requires std::constructible_from<T, Args...>
 auto Parser::newStmt(Args... args) -> Stmt {
-  // Todo: cleanup
-  return std::make_unique<Statement>(
-    T(std::forward<Args>(args)...),
-    SourceLocation{int(previous->line), -1});
+  return std::make_unique<Statement>(T(std::forward<Args>(args)...), previous->location);
 }
 
 auto Parser::program() -> Stmt {

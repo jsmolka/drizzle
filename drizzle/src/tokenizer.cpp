@@ -87,18 +87,17 @@ void Tokenizer::newLine(bool emit) {
 
 auto Tokenizer::current() const -> SourceLocation {
   return SourceLocation{
-    .line = int(this->line),
+    .line = int(line),
     .column = int(cursor - begin)
   };
 }
 
 void Tokenizer::emit(Token::Type type, std::optional<SourceLocation> location) {
-  Token token;
-  token.type = type;
-  token.line = line;
-  token.lexeme = std::string_view(lexeme, std::distance(lexeme, cursor));
-  token.location = location.value_or(this->current());
-  tokens.push_back(token);
+  tokens.push_back(Token{
+    .type = type,
+    .lexeme = std::string_view(lexeme, std::distance(lexeme, cursor)),
+    .location = location.value_or(current())
+  });
 }
 
 void Tokenizer::scanComment() {
