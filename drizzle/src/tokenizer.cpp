@@ -86,9 +86,10 @@ void Tokenizer::newLine(bool emit) {
 }
 
 auto Tokenizer::current() const -> SourceLocation {
+  assert(cursor - begin >= 0);
   return SourceLocation{
-    .line = int(line),
-    .column = int(cursor - begin)
+    .line = line,
+    .column = cursor - begin
   };
 }
 

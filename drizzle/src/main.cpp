@@ -23,10 +23,10 @@ void report(const Error& error, const std::string& source) {
   const auto info = fmt::format("Line {} | ", error.location.line + 1);
   fmt::print("{}{}\n", info, line);
 
-  if (error.location.column != -1) {
+  if (error.location.column) {
     std::string whitespace(info.size(), ' ');
     for (const auto [i, c] : sh::enumerate(line)) {
-      if (i == error.location.column) {
+      if (i == *error.location.column) {
         break;
       } else if (c == '\t') {
         whitespace.push_back('\t');
@@ -51,10 +51,9 @@ auto main(int argc, char* argv[]) -> int {
 
   std::string source;
   try {
-    const auto status = sh::filesystem::read(file, source);
-    if (status != sh::filesystem::status::ok) {
+    if (sh::filesystem::read(file, source) != sh::filesystem::status::ok) {
       fmt::print("cannot read file: {}\n", file);
-      return 0;
+      return 1;
     }
 
     auto tokens = Tokenizer().tokenize(source);
