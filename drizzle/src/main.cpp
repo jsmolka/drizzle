@@ -9,70 +9,39 @@
 #include "tokenizer.h"
 #include "vm.h"
 
-std::string source;
-
-std::size_t sourceLine(const char* location) {
-  if (location < source.data() || location >= source.data() + source.size()) return -1;
-
-  std::size_t line = 0;
-  for (const char* c = source.data(); c != location; ++c)
-    line += *c == '\n';
-
-  return line;
+auto sourceLine(const std::string& source, std::size_t line) -> std::string {
+  std::stringstream stream(source);
+  std::string data;
+  do {
+    std::getline(stream, data);
+  } while (line--);
+  return data;
 }
 
-std::string_view sourceView(std::size_t line) {
-  const char* b = source.data();
-  const char* c = source.data();
+void report(const Error& error, const std::string& source) {
+  const auto line = sourceLine(source, error.location.line);
+  const auto info = fmt::format("Line {} | ", error.location.line + 1);
+  fmt::print("{}{}\n", info, line);
 
-  for (; *c; ++c) {
-    if (!(*c == '\n' || *c == '\0')) continue;
-
-    if (line--)
-      b = c + 1;
-    else
-      return std::string_view(b, c - b);
+  if (error.location.column != -1) {
+    std::string whitespace(info.size(), ' ');
+    for (const auto [i, c] : sh::enumerate(line)) {
+      if (i == error.location.column) {
+        break;
+      } else if (c == '\t') {
+        whitespace.push_back('\t');
+      } else if (std::isprint(c)) {
+        whitespace.push_back(' ');
+      }
+    }
+    fmt::print("{}^\n", whitespace);
   }
-  return "<error>";
-}
-
-void printErrorLine(std::size_t line) {
-  const auto view = sourceView(line);
-  const auto info = fmt::format("Line {} | ", line + 1);
-
-  fmt::print("{}{}\n\n", info, view);
-}
-
-void printErrorLocation(const char* location) {
-  const auto line = sourceLine(location);
-  const auto view = sourceView(line);
-  const auto info = fmt::format("Line {} | ", line + 1);
-
-  std::string whitespace(info.size(), ' ');
-  for (const auto& c : view) {
-    if (&c == location) break;
-
-    if (c == '\t') whitespace.push_back('\t');
-    if (std::isprint(c)) whitespace.push_back(' ');
-  }
-
-  fmt::print("{}{}\n", info, view);
-  fmt::print("{}^\n", whitespace);
-}
-
-void printError(const Error& error) {
-
-
-  //if (error.location.type == Error::Location::Type::Line) printErrorLine(error.location.line);
-  //if (error.location.type == Error::Location::Type::Location)
-  //  printErrorLocation(error.location.location);
-
   fmt::print("{}: {}\n", error.name(), error.what());
 }
 
-int main(int argc, char* argv[]) {
-  std::optional<bool> print = false;
+auto main(int argc, char* argv[]) -> int {
   std::filesystem::path file;
+  std::optional<bool> print = false;
 
   sh::clap parser("drizzle");
   parser.add_help();
@@ -80,6 +49,7 @@ int main(int argc, char* argv[]) {
   parser.add<decltype(file)>("file") << &file << sh::desc("script file");
   parser.try_parse(argc, argv);
 
+  std::string source;
   try {
     const auto status = sh::filesystem::read(file, source);
     if (status != sh::filesystem::status::ok) {
@@ -87,20 +57,20 @@ int main(int argc, char* argv[]) {
       return 0;
     }
 
-    const auto tokens = Tokenizer().tokenize(source);
+    auto tokens = Tokenizer().tokenize(source);
     auto ast = Parser().parse(tokens);
 
     if (*print) {
       fmt::print("{}\n", ast);
     } else {
-      StringPool pool;
       Chunk chunk;
+      StringPool pool;
       Compiler(pool).compile(ast, chunk);
       Vm(pool).interpret(chunk);
     }
     return 0;
   } catch (const Error& error) {
-    printError(error);
+    report(error, source);
     return 1;
   } catch (const std::exception& error) {
     fmt::print("unknown error: {}\n", error.what());
