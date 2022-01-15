@@ -133,10 +133,10 @@ void Tokenizer::scanWhitespace() {
 }
 
 void Tokenizer::scanBlankLines() {
-  assert(begin == cursor);
+  assert(cursor == begin);
 
   auto skip = [this] {
-    while (*cursor) {
+    while (true) {
       switch (*cursor) {
         case ' ':
         case '\r':
@@ -148,22 +148,24 @@ void Tokenizer::scanBlankLines() {
           break;
         case '\n':
           next();
+          [[fallthrough]];
+        case '\0':
           newLine(false);
           return true;
         default:
-          cursor = begin;
           return false;
       }
     }
-    return false;
   };
 
-  while (skip()) {}
+  while (*cursor && skip()) {}
+
+  cursor = begin;
 }
 
 void Tokenizer::scanIndentation() {
   constexpr auto kIndentSpaces = 2;
-  assert(begin == cursor);
+  assert(cursor == begin);
 
   scanBlankLines();
   const auto location = current();
