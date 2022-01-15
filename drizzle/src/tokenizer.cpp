@@ -7,6 +7,7 @@
 auto Tokenizer::tokenize(const std::string& source) -> std::vector<Token> {
   begin = cursor = lexeme = source.data();
 
+  scanBlankLines();
   const auto location = current();
   scanIndentation();
   if (indentation > 0) {
@@ -165,12 +166,13 @@ void Tokenizer::scanIndentation() {
   assert(begin == cursor);
 
   scanBlankLines();
+  const auto location = current();
 
   switch (*cursor) {
     case ' ':
       break;
     case '\t':
-      throw SyntaxError(current(), "tabs used for indent");
+      throw SyntaxError(location, "tab used for indent");
     default:
       while (indentation > 0) {
         emit(Token::Type::Dedent);
@@ -186,13 +188,13 @@ void Tokenizer::scanIndentation() {
   }
 
   if (spaces % kIndentSpaces) {
-    throw SyntaxError(current(), "indent spaces must be a multiple of {}", kIndentSpaces);
+    throw SyntaxError(location, "indent spaces must be a multiple of {}", kIndentSpaces);
   }
 
   const auto indent = spaces / kIndentSpaces;
   if (indent > indentation) {
     if ((indent - indentation) > 1) {
-      throw SyntaxError(current(), "multiple indents at once");
+      throw SyntaxError(location, "multiple indents at once");
     }
 
     emit(Token::Type::Indent);
@@ -206,31 +208,19 @@ void Tokenizer::scanIndentation() {
 }
 
 void Tokenizer::scanString() {
+  constexpr std::string_view kQuote1 = R"(")";
+  constexpr std::string_view kQuote3 = R"(""")";
+
   const auto location = current();
+  const auto quote = next(kQuote3) ? kQuote3 : kQuote1;
+
+  if (quote.size() == 1) {
+    next();
+  }
 
   auto terminated = false;
-  if (next(R"(""")")) {
-    while (*cursor) {
-      if (terminated = next(R"(""")")) {
-        break;
-      }
-
-      if (next() == '\n') {
-        line++;
-      }
-    }
-  } else {
-    next();
-
-    while (*cursor) {
-      if (terminated = next('"')) {
-        break;
-      }
-
-      if (!std::isprint(*cursor)) {
-        throw SyntaxError(current(), "non-printable character");
-      }
-
+  while (*cursor && !(terminated = next(quote))) {
+    if (quote.size() == 1) {
       if (next() == '\\') {
         const auto location = current();
         switch (next()) {
@@ -243,6 +233,10 @@ void Tokenizer::scanString() {
           default:
             throw SyntaxError(location, "unknown escape sequence");
         }
+      }
+    } else {
+      if (next() == '\n') {
+        newLine(false);
       }
     }
   }

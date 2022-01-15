@@ -7,15 +7,18 @@
 #include "ut.h"
 
 inline auto operator<<(std::ostream& out, const Token::Type& type) -> std::ostream& {
-  return out << int(type);
+  return out << fmt::to_string(type);
 }
 
 inline void tokenize(const std::string& source, const std::vector<Token::Type>& expected,
     const reflection::source_location& location = reflection::source_location::current()) {
-  const auto tokens = Tokenizer().tokenize(source);
-  expect(eq(tokens.size(), expected.size()), location);
-  for (int i = 0; i < std::min(tokens.size(), expected.size()); ++i) {
-    expect(eq(tokens[i].type, expected[i]), location);
+  std::vector<Token> tokens;
+  expect(!throws([&] {
+    tokens = Tokenizer().tokenize(source);
+  }), location) << source;
+  expect(eq(tokens.size(), expected.size()), location) << source;
+  for (std::size_t i = 0; i < std::min(tokens.size(), expected.size()); ++i) {
+    expect(eq(tokens[i].type, expected[i]), location) << source;
   }
 }
 
@@ -28,9 +31,12 @@ inline void tokenizeThrows(const std::string& source,
 
 inline void parse(const std::string& source, const std::string& expected,
     const reflection::source_location& location = reflection::source_location::current()) {
-  const auto tokens = Tokenizer().tokenize(source);
-  const auto ast = Parser().parse(tokens);
-  expect(eq(fmt::to_string(ast), expected), location);
+  Stmt ast;
+  expect(!throws([&] {
+    const auto tokens = Tokenizer().tokenize(source);
+    ast = Parser().parse(tokens);
+  }), location) << source;
+  expect(eq(fmt::to_string(ast), expected), location) << source;
 }
 
 inline void parseThrows(const std::string& source,
@@ -40,4 +46,3 @@ inline void parseThrows(const std::string& source,
     Parser().parse(tokens);
   }), location) << source;
 }
-
