@@ -214,27 +214,21 @@ void Tokenizer::scanString() {
   constexpr std::string_view kQuote3 = R"(""")";
 
   const auto location = current();
-  const auto quote = next(kQuote3) ? kQuote3 : kQuote1;
 
-  if (quote.size() == 1) {
-    next();
+  std::string_view quote;
+  if (next(kQuote3)) {
+    quote = kQuote3;
+  } else if (next(kQuote1)) {
+    quote = kQuote1;
+  } else {
+    SH_UNREACHABLE;
   }
 
   auto terminated = false;
   while (*cursor && !(terminated = next(quote))) {
     if (quote.size() == 1) {
       if (next() == '\\') {
-        const auto location = current();
-        switch (next()) {
-          case '\\':
-          case '\"':
-          case 'n':
-          case 'r':
-          case 't':
-            break;
-          default:
-            throw SyntaxError(location, "unknown escape sequence");
-        }
+        next();
       }
     } else {
       if (next() == '\n') {

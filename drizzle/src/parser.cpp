@@ -414,6 +414,7 @@ void Parser::parseFloat() {
 }
 
 void Parser::parseString() {
+  // Todo: handle utf8
   const auto& token = *previous;
   auto lexeme = token.lexeme;
   auto quotes = lexeme.starts_with(R"(""")") ? 3 : 1;
@@ -434,7 +435,8 @@ void Parser::parseString() {
             case 'r':  value.push_back('\r'); break;
             case 't':  value.push_back('\t'); break;
             default:
-              SH_UNREACHABLE;
+              // Todo: proper location
+              throw SyntaxError(token.location, "unexpected escape sequence");
               break;
           }
           break;

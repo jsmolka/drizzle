@@ -37,6 +37,7 @@ inline suite _ = [] {
       }
     }
     {
+      // Todo: test cases which don't throw
       for (int c = 0; c < 256; ++c) {
         switch (c) {
           case '\\':
