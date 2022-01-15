@@ -7,17 +7,13 @@
 auto Tokenizer::tokenize(const std::string& source) -> std::vector<Token> {
   begin = cursor = lexeme = source.data();
 
-  scanBlankLines();
-  const auto location = current();
   scanIndentation();
   if (indentation > 0) {
-    throw SyntaxError(location, "indent in first line");
+    throw SyntaxError(tokens.back().location, "indent in first line");
   }
 
   while (*cursor) {
-    lexeme = cursor;
     scanToken();
-    lexeme = cursor;
     scanWhitespace();
   }
 
@@ -63,7 +59,7 @@ auto Tokenizer::next(char match) -> bool {
 }
 
 auto Tokenizer::next(std::string_view match) -> bool {
-  const char* previous = cursor;
+  const auto previous = cursor;
   for (const auto& c : match) {
     if (!(*cursor && *cursor == c)) {
       cursor = previous;
@@ -78,15 +74,7 @@ auto Tokenizer::peek() const -> char {
   return *cursor ? cursor[1] : *cursor;
 }
 
-void Tokenizer::newLine(bool emit) {
-  if (emit) {
-    this->emit(Token::Type::NewLine);
-  }
-  begin = cursor;
-  line++;
-}
-
-auto Tokenizer::current() const -> SourceLocation {
+auto Tokenizer::cursorLocation() const -> SourceLocation {
   assert(cursor - begin >= 0);
   return SourceLocation{
     .line = line,
@@ -94,12 +82,21 @@ auto Tokenizer::current() const -> SourceLocation {
   };
 }
 
+auto Tokenizer::lexemeLocation() const -> SourceLocation {
+  assert(lexeme - begin >= 0);
+  return SourceLocation{
+    .line = line,
+    .column = lexeme - begin
+  };
+}
+
 void Tokenizer::emit(Token::Type type, std::optional<SourceLocation> location) {
   tokens.push_back(Token{
     .type = type,
     .lexeme = std::string_view(lexeme, std::distance(lexeme, cursor)),
-    .location = location.value_or(current())
+    .location = location ? *location : lexemeLocation()
   });
+  lexeme = cursor;
 }
 
 void Tokenizer::scanComment() {
@@ -109,27 +106,35 @@ void Tokenizer::scanComment() {
 }
 
 void Tokenizer::scanWhitespace() {
-  while (true) {
-    switch (*cursor) {
-      case ' ':
-      case '\t':
-      case '\r':
-        next();
-        break;
-      case '#':
-        scanComment();
-        break;
-      case '\n':
-        next();
-        [[fallthrough]];
-      case '\0':
-        newLine();
-        scanIndentation();
-        [[fallthrough]];
-      default:
-        return;
+  auto skip = [this] {
+    while (true) {
+      switch (*cursor) {
+        case ' ':
+        case '\t':
+        case '\r':
+          next();
+          break;
+        case '#':
+          scanComment();
+          break;
+        case '\n':
+          next();
+          [[fallthrough]];
+        case '\0':
+          emit(Token::Type::NewLine);
+          begin = cursor;
+          line++;
+          scanIndentation();
+          [[fallthrough]];
+        default:
+          return;
+      }
     }
-  }
+  };
+
+  skip();
+
+  lexeme = cursor;
 }
 
 void Tokenizer::scanBlankLines() {
@@ -150,7 +155,8 @@ void Tokenizer::scanBlankLines() {
           next();
           [[fallthrough]];
         case '\0':
-          newLine(false);
+          begin = cursor;
+          line++;
           return true;
         default:
           return false;
@@ -160,7 +166,7 @@ void Tokenizer::scanBlankLines() {
 
   while (*cursor && skip()) {}
 
-  cursor = begin;
+  cursor = lexeme = begin;
 }
 
 void Tokenizer::scanIndentation() {
@@ -168,13 +174,12 @@ void Tokenizer::scanIndentation() {
   assert(cursor == begin);
 
   scanBlankLines();
-  const auto location = current();
 
   switch (*cursor) {
     case ' ':
       break;
     case '\t':
-      throw SyntaxError(location, "tab used for indent");
+      throw SyntaxError(lexemeLocation(), "tab used for indent");
     default:
       while (indentation > 0) {
         emit(Token::Type::Dedent);
@@ -190,13 +195,13 @@ void Tokenizer::scanIndentation() {
   }
 
   if (spaces % kIndentSpaces) {
-    throw SyntaxError(location, "indent spaces must be a multiple of {}", kIndentSpaces);
+    throw SyntaxError(lexemeLocation(), "indent spaces must be a multiple of {}", kIndentSpaces);
   }
 
   const auto indent = spaces / kIndentSpaces;
   if (indent > indentation) {
     if ((indent - indentation) > 1) {
-      throw SyntaxError(location, "multiple indents at once");
+      throw SyntaxError(lexemeLocation(), "multiple indents at once");
     }
 
     emit(Token::Type::Indent);
@@ -213,28 +218,33 @@ void Tokenizer::scanString() {
   constexpr std::string_view kQuote1 = R"(")";
   constexpr std::string_view kQuote3 = R"(""")";
 
-  const auto location = current();
-
-  std::string_view quote;
-  if (next(kQuote3)) {
-    quote = kQuote3;
-  } else if (next(kQuote1)) {
-    quote = kQuote1;
-  } else {
-    SH_UNREACHABLE;
-  }
+  const auto location = lexemeLocation();
 
   auto terminated = false;
-  while (*cursor && !(terminated = next(quote))) {
-    if (quote.size() == 1) {
-      if (next() == '\\') {
-        next();
-      }
-    } else {
+  if (next(kQuote3)) {
+    while (*cursor && !(terminated = next(kQuote3))) {
       if (next() == '\n') {
-        newLine(false);
+        line++;
       }
     }
+  } else if (next(kQuote1)) {
+    while (*cursor && !(terminated = next(kQuote1))) {
+      if (next() == '\\') {
+        switch (*cursor) {
+          case '\\':
+          case '"':
+          case 'n':
+          case 'r':
+          case 't':
+            next();
+            break;
+          default:
+            throw SyntaxError(cursorLocation(), "unexpected escape sequence");
+        }
+      }
+    }
+  } else {
+    SH_UNREACHABLE;
   }
 
   if (!terminated) {
@@ -255,14 +265,14 @@ void Tokenizer::scanNumber() {
   } else {
     is_digit = isDigit<10>;
     if (*cursor == '0' && isAlnum(peek())) {
-      throw SyntaxError(current(), "unexpected leading zero");
+      throw SyntaxError(cursorLocation(), "unexpected leading zero");
     }
   }
 
   auto scan = [&] {
     do {
       if (!is_digit(*cursor)) {
-        throw SyntaxError(current(), "expected digit");
+        throw SyntaxError(cursorLocation(), "expected digit");
       }
       next();
     } while (isAlnum(*cursor));
@@ -319,7 +329,6 @@ void Tokenizer::scanToken() {
   } else if (*cursor == '"') {
     scanString();
   } else {
-    const auto location = current();
     switch (next()) {
       case '{': emit(Token::Type::BraceLeft); break; 
       case '}': emit(Token::Type::BraceRight); break;
@@ -362,7 +371,7 @@ void Tokenizer::scanToken() {
         break;
 
       default:
-        throw SyntaxError(location, "unexpected character");
+        throw SyntaxError(lexemeLocation(), "unexpected character");
     }
   }
 }

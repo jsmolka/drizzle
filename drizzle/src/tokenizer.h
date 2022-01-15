@@ -19,9 +19,9 @@ private:
   auto next(char match) -> bool;
   auto next(std::string_view match) -> bool;
   auto peek() const -> char;
-  void newLine(bool emit = true);
 
-  auto current() const -> SourceLocation;
+  auto cursorLocation() const -> SourceLocation;
+  auto lexemeLocation() const -> SourceLocation;
   void emit(Token::Type type, std::optional<SourceLocation> location = std::nullopt);
   void scanComment();
   void scanWhitespace();

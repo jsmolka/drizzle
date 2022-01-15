@@ -11,9 +11,9 @@ namespace {
 inline auto tokenizeThrowsNot(const std::string& source,
     const reflection::source_location& location) -> std::vector<Token> {
   std::vector<Token> tokens;
-  expect(!throws([&] {
+  expect((!throws([&] {
     tokens = Tokenizer().tokenize(source);
-  }), location) << "tokenize" << source;
+  }) >> fatal), location) << "tokenize" << source;
   return tokens;
 }
 
@@ -21,9 +21,9 @@ inline auto parseThrowsNot(const std::string& source,
     const reflection::source_location& location) -> Stmt {
   const auto tokens = tokenizeThrowsNot(source, location);
   Stmt ast;
-  expect(!throws([&] {
+  expect((!throws([&] {
     ast = Parser().parse(tokens);
-  }), location) << "parse" << source;
+  }) >> fatal), location) << "parse" << source;
   return ast;
 }
 

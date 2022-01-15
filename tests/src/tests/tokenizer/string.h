@@ -28,6 +28,27 @@ inline suite _ = [] {
       }
     }
     {
+      for (int c = 0; c < 256; ++c) {
+        const auto source = fmt::format(R"("\{}")", char(c));
+        switch (c) {
+          case '\\':
+          case '"':
+          case 'n':
+          case 't':
+          case 'r':
+            tokenize(source, {
+              Token::Type::String,
+              Token::Type::NewLine,
+              Token::Type::Eof,
+            });
+            break;
+          default:
+            tokenizeThrows(source);
+            break;
+        }
+      }
+    }
+    {
       constexpr const char* kSources[] = {
         R"(")",
         R"(""")",

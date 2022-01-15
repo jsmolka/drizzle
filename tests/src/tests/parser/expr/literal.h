@@ -36,20 +36,6 @@ inline suite _ = [] {
         parse(source, expect);
       }
     }
-    {
-      // Todo: test cases which don't throw
-      for (int c = 0; c < 256; ++c) {
-        switch (c) {
-          case '\\':
-          case '"':
-          case 'n':
-          case 'r':
-          case 't':
-            continue;
-        }
-        parseThrows(fmt::format(R"("\{}")", c));
-      }
-    }
   };
 
   "parser_expr_literal_integer"_test = [] {
