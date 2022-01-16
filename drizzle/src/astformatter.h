@@ -1,8 +1,8 @@
 #pragma once
 
-#include "astwalker.h"
-
 #include <sh/fmt.h>
+
+#include "astwalker.h"
 
 class AstFormatter final : public AstWalker {
 public:

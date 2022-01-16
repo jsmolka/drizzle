@@ -48,7 +48,7 @@ private:
   void expectParenLeft();
   void expectParenRight();
 
-  template <typename T, typename... Args>
+  template<typename T, typename... Args>
     requires std::constructible_from<T, Args...>
   auto newExpr(Args... args) -> Expr;
   auto expression() -> Expr;
@@ -62,7 +62,7 @@ private:
   void unary(bool);
   void variable(bool assign);
 
-  template <typename T, typename... Args>
+  template<typename T, typename... Args>
     requires std::constructible_from<T, Args...>
   auto newStmt(Args... args) -> Stmt;
   auto program() -> Stmt;
