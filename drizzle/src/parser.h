@@ -65,6 +65,7 @@ private:
   template<typename T, typename... Args>
     requires std::constructible_from<T, Args...>
   auto newStmt(Args... args) -> Stmt;
+  void pushLocation();
   auto program() -> Stmt;
   auto declaration() -> Stmt;
   auto declarationVar() -> Stmt;
@@ -84,5 +85,6 @@ private:
 
   std::vector<Token>::const_iterator current;
   std::vector<Token>::const_iterator previous;
-  sh::stack<Expr> stack;
+  sh::stack<Expr> expressions;
+  sh::stack<Location> locations;
 };
