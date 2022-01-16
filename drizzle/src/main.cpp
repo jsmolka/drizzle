@@ -51,12 +51,13 @@ auto main(int argc, char* argv[]) -> int {
 
   std::string source;
   try {
-    if (sh::filesystem::read(file, source) != sh::filesystem::status::ok) {
+    const auto status = sh::filesystem::read(file, source);
+    if (status != sh::filesystem::status::ok) {
       fmt::print("cannot read file: {}\n", file);
       return 1;
     }
 
-    auto tokens = Tokenizer().tokenize(source);
+    const auto tokens = Tokenizer().tokenize(source);
     auto ast = Parser().parse(tokens);
 
     if (*print) {

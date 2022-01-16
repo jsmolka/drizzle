@@ -95,7 +95,6 @@ noop # 1
     {
       constexpr const char* kSources[] = {
         " noop",
-        "  noop",
         "   noop",
         "    noop",
         "\tnoop",

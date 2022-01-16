@@ -1,9 +1,7 @@
 #pragma once
 
-#include <string>
-#include <variant>
+#include <string_view>
 
-#include "dzprimitives.h"
 #include "sourcelocation.h"
 
 struct Token {

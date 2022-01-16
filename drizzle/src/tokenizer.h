@@ -23,9 +23,9 @@ private:
   auto cursorLocation() const -> SourceLocation;
   auto lexemeLocation() const -> SourceLocation;
   void emit(Token::Type type, std::optional<SourceLocation> location = std::nullopt);
-  void scanComment();
-  void scanWhitespace();
-  void scanBlankLines();
+  void skipComment();
+  void skipWhitespace();
+  void skipBlankLines();
   void scanIndentation();
   void scanString();
   void scanNumber();

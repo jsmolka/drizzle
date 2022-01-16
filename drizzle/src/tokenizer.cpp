@@ -8,15 +8,10 @@ auto Tokenizer::tokenize(const std::string& source) -> std::vector<Token> {
   begin = cursor = lexeme = source.data();
 
   scanIndentation();
-  if (indentation > 0) {
-    throw SyntaxError(tokens.back().location, "indent in first line");
-  }
-
   while (*cursor) {
     scanToken();
-    scanWhitespace();
+    skipWhitespace();
   }
-
   emit(Token::Type::Eof);
 
   return tokens;
@@ -99,13 +94,13 @@ void Tokenizer::emit(Token::Type type, std::optional<SourceLocation> location) {
   lexeme = cursor;
 }
 
-void Tokenizer::scanComment() {
+void Tokenizer::skipComment() {
   while (*cursor && *cursor != '\n') {
     next();
   }
 }
 
-void Tokenizer::scanWhitespace() {
+void Tokenizer::skipWhitespace() {
   auto skip = [this] {
     while (true) {
       switch (*cursor) {
@@ -115,7 +110,7 @@ void Tokenizer::scanWhitespace() {
           next();
           break;
         case '#':
-          scanComment();
+          skipComment();
           break;
         case '\n':
           next();
@@ -133,11 +128,10 @@ void Tokenizer::scanWhitespace() {
   };
 
   skip();
-
   lexeme = cursor;
 }
 
-void Tokenizer::scanBlankLines() {
+void Tokenizer::skipBlankLines() {
   assert(cursor == begin);
 
   auto skip = [this] {
@@ -149,7 +143,7 @@ void Tokenizer::scanBlankLines() {
           next();
           break;
         case '#':
-          scanComment();
+          skipComment();
           break;
         case '\n':
           next();
@@ -164,16 +158,14 @@ void Tokenizer::scanBlankLines() {
     }
   };
 
-  while (*cursor && skip()) {}
-
-  cursor = lexeme = begin;
+  while (*cursor && skip());
+  lexeme = cursor = begin;
 }
 
 void Tokenizer::scanIndentation() {
-  constexpr auto kIndentSpaces = 2;
   assert(cursor == begin);
 
-  scanBlankLines();
+  skipBlankLines();
 
   switch (*cursor) {
     case ' ':
@@ -194,13 +186,13 @@ void Tokenizer::scanIndentation() {
     next();
   }
 
-  if (spaces % kIndentSpaces) {
-    throw SyntaxError(lexemeLocation(), "indent spaces must be a multiple of {}", kIndentSpaces);
+  if (spaces % 2) {
+    throw SyntaxError(lexemeLocation(), "indent spaces must be a multiple of two");
   }
 
-  const auto indent = spaces / kIndentSpaces;
+  const auto indent = spaces / 2;
   if (indent > indentation) {
-    if ((indent - indentation) > 1) {
+    if (indent - indentation > 1) {
       throw SyntaxError(lexemeLocation(), "multiple indents at once");
     }
 
@@ -215,32 +207,33 @@ void Tokenizer::scanIndentation() {
 }
 
 void Tokenizer::scanString() {
-  constexpr std::string_view kQuote1 = R"(")";
-  constexpr std::string_view kQuote3 = R"(""")";
-
   const auto location = lexemeLocation();
 
   auto terminated = false;
-  if (next(kQuote3)) {
-    while (*cursor && !(terminated = next(kQuote3))) {
-      if (next() == '\n') {
-        line++;
-      }
+  if (next(R"(""")")) {
+    while (*cursor && !(terminated = next(R"(""")"))) {
+      line += next() == '\n';
     }
-  } else if (next(kQuote1)) {
-    while (*cursor && !(terminated = next(kQuote1))) {
-      if (next() == '\\') {
-        switch (*cursor) {
-          case '\\':
-          case '"':
-          case 'n':
-          case 'r':
-          case 't':
-            next();
-            break;
-          default:
-            throw SyntaxError(cursorLocation(), "unexpected escape sequence");
-        }
+  } else if (next(R"(")")) {
+    while (*cursor && !(terminated = next(R"(")"))) {
+      switch (next()) {
+        case '\0':
+        case '\n':
+          throw SyntaxError(cursorLocation(), "expected closing quote");
+
+        case '\\':
+          switch (*cursor) {
+            case '\\':
+            case '"':
+            case 'n':
+            case 'r':
+            case 't':
+              next();
+              break;
+            default:
+              throw SyntaxError(cursorLocation(), "unexpected escape sequence");
+          }
+          break;
       }
     }
   } else {

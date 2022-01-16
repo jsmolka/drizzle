@@ -16,7 +16,7 @@ inline suite _ = [] {
       tokenize(source, {
         Token::Type::Noop,
         Token::Type::NewLine,
-        Token::Type::Eof
+        Token::Type::Eof,
       });
     }
   };

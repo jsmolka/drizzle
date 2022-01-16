@@ -5,7 +5,7 @@
 namespace tests_tokenizer_string {
 
 inline suite _ = [] {
-  "tokenize_string"_test = [] {
+  "tokenizer_string"_test = [] {
     {
       constexpr const char* kSources[] = {
         R"("")",
@@ -54,6 +54,8 @@ inline suite _ = [] {
         R"(""")",
         R"("""")",
         R"("string)",
+        R"("string
+)",
         R"("""string")",
         R"("""string"")",
       };

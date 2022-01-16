@@ -47,7 +47,7 @@ inline suite _ = [] {
     }
   };
 
-  "tokenize_number_float"_test = [] {
+  "tokenizer_number_float"_test = [] {
     {
       constexpr const char* kSources[] = {
         "0.0",
@@ -75,7 +75,7 @@ inline suite _ = [] {
     }
   };
 
-  "tokenize_number_leading_zero"_test = [] {
+  "tokenizer_number_leading_zero"_test = [] {
     {
       tokenize("(0)", {
         Token::Type::ParenLeft,
