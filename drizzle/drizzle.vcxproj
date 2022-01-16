@@ -24,7 +24,6 @@
     <ClCompile Include="src\astformatter.cpp" />
     <ClCompile Include="src\dzobject.cpp" />
     <ClCompile Include="src\dzvalue.cpp" />
-    <ClCompile Include="src\error.cpp" />
     <ClCompile Include="src\parser.cpp" />
     <ClCompile Include="src\statement.cpp" />
     <ClCompile Include="src\expression.cpp" />

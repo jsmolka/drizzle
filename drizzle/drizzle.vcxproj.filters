@@ -33,9 +33,6 @@
     <ClCompile Include="src\astformatter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\error.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\dzobject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
