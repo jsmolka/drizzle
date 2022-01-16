@@ -2,6 +2,7 @@
 
 #include <sh/array.h>
 #include <sh/parse.h>
+#include <sh/ranges.h>
 #include <sh/utility.h>
 
 #include "error.h"
@@ -396,57 +397,52 @@ auto Parser::expressionStatement() -> Stmt {
 }
 
 void Parser::parseInt() {
-  const auto& token = *previous;
-  if (const auto value = sh::parse<std::make_unsigned_t<dzint>>(token.lexeme)) {
+  if (const auto value = sh::parse<std::make_unsigned_t<dzint>>(previous->lexeme)) {
     stack.push(newExpr<Expression::Literal>(static_cast<dzint>(*value)));
   } else {
-    throw SyntaxError(token.location, "cannot parse int");
+    throw SyntaxError(previous->location, "cannot parse int");
   }
 }
 
 void Parser::parseFloat() {
-  const auto& token = *previous;
-  if (const auto value = sh::parse<double>(token.lexeme)) {
+  if (const auto value = sh::parse<double>(previous->lexeme)) {
     stack.push(newExpr<Expression::Literal>(*value));
   } else {
-    throw SyntaxError(token.location, "cannot parse int");
+    throw SyntaxError(previous->location, "cannot parse int");
   }
 }
 
 void Parser::parseString() {
-  // Todo: handle utf8
-  const auto& token = *previous;
-  auto lexeme = token.lexeme;
+  auto lexeme = previous->lexeme;
   auto quotes = lexeme.starts_with(R"(""")") ? 3 : 1;
   lexeme.remove_prefix(quotes);
   lexeme.remove_suffix(quotes);
 
-  std::string value;
-  value.reserve(lexeme.size());
-
+  std::string string;
+  string.reserve(lexeme.size());
   if (quotes == 1) {
-    for (auto iter = lexeme.begin(); iter != lexeme.end(); ++iter) {
-      switch (*iter) {
-        case '\\':
-          switch (*(++iter)) {
-            case '\\': value.push_back('\\'); break;
-            case '\"': value.push_back('\"'); break;
-            case 'n':  value.push_back('\n'); break;
-            case 'r':  value.push_back('\r'); break;
-            case 't':  value.push_back('\t'); break;
-            default:
-              // Todo: proper location
-              throw SyntaxError(token.location, "unexpected escape sequence");
-              break;
-          }
-          break;
-        default:
-          value.push_back(*iter);
-          break;
+    auto escape = false;
+    for (const auto& c : lexeme) {
+      if (escape) {
+        switch (c) {
+          case '\\': string.push_back('\\'); break;
+          case '\"': string.push_back('\"'); break;
+          case 'n':  string.push_back('\n'); break;
+          case 'r':  string.push_back('\r'); break;
+          case 't':  string.push_back('\t'); break;
+          default:
+            SH_UNREACHABLE;
+            break;
+        }
+        escape = false;
+      } else if (c == '\\') {
+        escape = true;
+      } else {
+        string.push_back(c);
       }
     }
   } else {
-    value = lexeme;
+    string = lexeme;
   }
-  stack.push(newExpr<Expression::Literal>(std::move(value)));
+  stack.push(newExpr<Expression::Literal>(std::move(string)));
 }
