@@ -224,10 +224,10 @@ void Parser::variable(bool assign) {
   }
 }
 
-template<typename T, typename... Args>
-  requires std::constructible_from<T, Args...>
-auto Parser::newStmt(Args... args) -> Stmt {
-  return std::make_unique<Statement>(T(std::forward<Args>(args)...), locations.pop_value());
+template<typename T>
+  requires std::constructible_from<Statement, T, Location>
+auto Parser::newStmt(T statement) -> Stmt {
+  return std::make_unique<Statement>(std::move(statement), locations.pop_value());
 }
 
 void Parser::pushLocation() {
@@ -240,7 +240,9 @@ auto Parser::program() -> Stmt {
   while (!match(Token::Type::Eof)) {
     statements.push_back(declaration());
   }
-  return newStmt<Statement::Program>(std::move(statements));
+  return newStmt(Statement::Program{
+    .statements = std::move(statements)
+  });
 }
 
 auto Parser::declaration() -> Stmt {
@@ -262,7 +264,10 @@ auto Parser::declarationVar() -> Stmt {
     initializer = newExpr<Expression::Literal>();
   }
   expectNewLine();
-  return newStmt<Statement::Var>(identifier, std::move(initializer));
+  return newStmt(Statement::Var{
+    .identifier = identifier,
+    .initializer = std::move(initializer)
+  });
 }
 
 auto Parser::statement() -> Stmt {
@@ -300,7 +305,10 @@ auto Parser::statementBlock() -> Stmt {
     statements.push_back(declaration());
   }
   expectDedent();
-  return newStmt<Statement::Block>(identifier, std::move(statements));
+  return newStmt(Statement::Block{
+    .identifier = identifier,
+    .statements = std::move(statements)
+  });
 }
 
 auto Parser::statementBreak() -> Stmt {
@@ -310,13 +318,15 @@ auto Parser::statementBreak() -> Stmt {
     identifier = previous->lexeme;
   }
   expectNewLine();
-  return newStmt<Statement::Break>(identifier);
+  return newStmt(Statement::Break{
+    .identifier = identifier
+  });
 }
 
 auto Parser::statementContinue() -> Stmt {
   pushLocation();
   expectNewLine();
-  return newStmt<Statement::Continue>();
+  return newStmt(Statement::Continue{});
 }
 
 auto Parser::statementIf() -> Stmt {
@@ -352,20 +362,26 @@ auto Parser::statementIf() -> Stmt {
     }
     expectDedent();
   }
-  return newStmt<Statement::If>(std::move(if_), std::move(elifs), std::move(else_));
+  return newStmt(Statement::If{
+    .if_ = std::move(if_),
+    .elifs = std::move(elifs),
+    .else_ = std::move(else_)
+  });
 }
 
 auto Parser::statementNoop() -> Stmt {
   pushLocation();
   expectNewLine();
-  return newStmt<Statement::Noop>();
+  return newStmt(Statement::Noop{});
 }
 
 auto Parser::statementPrint() -> Stmt {
   pushLocation();
   auto expr = expression();
   expectNewLine();
-  return newStmt<Statement::Print>(std::move(expr));
+  return newStmt(Statement::Print{
+    .expression = std::move(expr)
+  });
 }
 
 auto Parser::statementWhile() -> Stmt {
@@ -380,14 +396,19 @@ auto Parser::statementWhile() -> Stmt {
     statements.push_back(declaration());
   }
   expectDedent();
-  return newStmt<Statement::While>(std::move(condition), std::move(statements));
+  return newStmt(Statement::While{
+    .condition = std::move(condition),
+    .statements = std::move(statements)
+  });
 }
 
 auto Parser::expressionStatement() -> Stmt {
   pushLocation();
   auto expr = expression();
   expectNewLine();
-  return newStmt<Statement::ExpressionStatement>(std::move(expr));
+  return newStmt(Statement::ExpressionStatement{
+    .expression = std::move(expr)
+  });
 }
 
 void Parser::parseInt() {

@@ -62,9 +62,9 @@ private:
   void unary(bool);
   void variable(bool assign);
 
-  template<typename T, typename... Args>
-    requires std::constructible_from<T, Args...>
-  auto newStmt(Args... args) -> Stmt;
+  template<typename T>
+    requires std::constructible_from<Statement, T, Location>
+  auto newStmt(T statement) -> Stmt;
   void pushLocation();
   auto program() -> Stmt;
   auto declaration() -> Stmt;

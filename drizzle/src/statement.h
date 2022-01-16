@@ -26,35 +26,25 @@ public:
   };
 
   struct Block {
-    Block(std::string_view identifier, Stmts statements);
-
     std::string_view identifier;
     Stmts statements;
   };
 
   struct Break {
-    Break(std::string_view identifier);
-
     std::string_view identifier;
   };
 
   struct Continue {};
 
   struct ExpressionStatement {
-    ExpressionStatement(Expr expression);
-
     Expr expression;
   };
 
   struct If {
     struct Branch {
-      Branch(Expr condition, Stmts statements);
-
       Expr condition;
       Stmts statements;
     };
-
-    If(Branch if_, std::vector<Branch> elifs, Stmts else_);
 
     Branch if_;
     std::vector<Branch> elifs;
@@ -64,27 +54,19 @@ public:
   struct Noop {};
 
   struct Print {
-    Print(Expr expression);
-
     Expr expression;
   };
 
   struct Program {
-    Program(Stmts statements);
-
     Stmts statements;
   };
 
   struct Var {
-    Var(std::string_view identifier, Expr initializer);
-
     std::string_view identifier;
     Expr initializer;
   };
 
   struct While {
-    While(Expr condition, Stmts statements);
-
     Expr condition;
     Stmts statements;
   };
@@ -101,7 +83,7 @@ public:
   Statement(While while_, const Location& location);
   ~Statement();
 
-  const Type type;
+  Type type;
   union {
     Block block;
     Break break_;
@@ -114,13 +96,13 @@ public:
     Var var;
     While while_;
   };
-  const Location location;
+  Location location;
 };
 
 template<>
 struct fmt::formatter<Statement::Type> : fmt::formatter<std::string_view> {
   template<typename FormatContext>
-  auto format(const Statement::Type& value, FormatContext& ctx) {
+  auto format(const Statement::Type& value, FormatContext& ctx) const {
     auto repr = [](const Statement::Type& value) {
       static_assert(int(Statement::Type::LastEnumValue) == 10);
       switch (value) {

@@ -2,33 +2,6 @@
 
 #include <sh/utility.h>
 
-Statement::Block::Block(std::string_view identifier, Stmts statements)
-  : identifier(identifier), statements(std::move(statements)) {}
-
-Statement::Break::Break(std::string_view identifier)
-  : identifier(identifier) {}
-
-Statement::ExpressionStatement::ExpressionStatement(Expr expression)
-  : expression(std::move(expression)) {}
-
-Statement::If::Branch::Branch(Expr condition, Stmts statements)
-  : condition(std::move(condition)), statements(std::move(statements)) {}
-
-Statement::If::If(Branch if_, std::vector<Branch> elifs, Stmts else_)
-  : if_(std::move(if_)), elifs(std::move(elifs)), else_(std::move(else_)) {}
-
-Statement::Print::Print(Expr expression)
-  : expression(std::move(expression)) {}
-
-Statement::Program::Program(Stmts statements)
-  : statements(std::move(statements)) {}
-
-Statement::Var::Var(std::string_view identifier, Expr initializer)
-  : identifier(identifier), initializer(std::move(initializer)) {}
-
-Statement::While::While(Expr condition, Stmts statements)
-  : condition(std::move(condition)), statements(std::move(statements)) {}
-
 Statement::Statement(Block block, const Location& location)
   : type(Type::Block), block(std::move(block)), location(location) {}
 
@@ -61,16 +34,16 @@ Statement::Statement(While while_, const Location& location)
 
 Statement::~Statement() {
   switch (type) {
-    case Type::Block:               block.~Block(); break;
-    case Type::Break:               break_.~Break(); break;
-    case Type::Continue:            continue_.~Continue(); break;
-    case Type::ExpressionStatement: expression_statement.~ExpressionStatement(); break;
-    case Type::If:                  if_.~If(); break;
-    case Type::Noop:                noop.~Noop(); break;
-    case Type::Print:               print.~Print(); break;
-    case Type::Program:             program.~Program(); break;
-    case Type::Var:                 var.~Var(); break;
-    case Type::While:               while_.~While(); break;
+    case Type::Block:               std::destroy_at(&block); break;
+    case Type::Break:               std::destroy_at(&break_); break;
+    case Type::Continue:            std::destroy_at(&continue_); break;
+    case Type::ExpressionStatement: std::destroy_at(&expression_statement); break;
+    case Type::If:                  std::destroy_at(&if_); break;
+    case Type::Noop:                std::destroy_at(&noop); break;
+    case Type::Print:               std::destroy_at(&print); break;
+    case Type::Program:             std::destroy_at(&program); break;
+    case Type::Var:                 std::destroy_at(&var); break;
+    case Type::While:               std::destroy_at(&while_); break;
     default:
       SH_UNREACHABLE;
       break;
