@@ -113,7 +113,7 @@ void Vm::unary(std::string_view operation, Handler handler) {
 
   #undef DZ_EVAL
 
-  raise<RuntimeError>("bad operand type for '{}': '{}'", operation, value.typeName());
+  raise<RuntimeError>("bad operand type for '{}': '{}'", operation, value.name());
 }
 
 template<template<typename T, typename U> typename Promote, BinaryHandler Handler>
@@ -179,7 +179,7 @@ void Vm::binary(std::string_view operation, Handler handler) {
   #undef DZ_HASH
   #undef DZ_EVAL
 
-  raise<RuntimeError>("bad operand types for '{}': '{}' and '{}'", operation, lhs.typeName(), rhs.typeName());
+  raise<RuntimeError>("bad operand types for '{}': '{}' and '{}'", operation, lhs.name(), rhs.name());
 }
 
 void Vm::add() {

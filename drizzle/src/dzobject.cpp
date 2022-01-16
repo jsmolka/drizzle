@@ -4,13 +4,13 @@
 
 #include "dzstring.h"
 
-DzObject::DzObject(DzObject::Type type)
+DzObject::DzObject(Type type)
   : type(type) {}
 
 DzObject::operator bool() const {
   switch (type) {
     case Type::String:
-      return static_cast<bool>(as<DzString>());
+      return as<DzString>();
     default:
       SH_UNREACHABLE;
       return false;
@@ -22,31 +22,30 @@ auto DzObject::operator==(const DzObject& other) const -> bool {
 }
 
 auto DzObject::operator!=(const DzObject& other) const -> bool {
-  return !(this == &other);
+  return this != &other;
 }
 
 auto DzObject::repr() const -> std::string {
   switch (type) {
     case Type::String:
-      return as<DzString>().data;
+      return as<DzString>().repr();
     default:
       SH_UNREACHABLE;
       return "unreachable";
   }
 }
 
-std::string_view DzObject::typeName() const {
+auto DzObject::name() const -> std::string_view {
   switch (type) {
     case Type::String:
-      return as<DzString>().typeName();
+      return as<DzString>().name();
     default:
       SH_UNREACHABLE;
       return "unreachable";
   }
 }
 
-template <typename T>
-  requires std::is_base_of_v<DzObject, T>
+template<typename T>
 auto DzObject::as() const -> const T& {
   return *static_cast<const T*>(this);
 }

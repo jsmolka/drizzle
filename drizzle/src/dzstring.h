@@ -1,7 +1,5 @@
 #pragma once
 
-#include <string>
-
 #include "dzobject.h"
 
 class DzString : public DzObject {
@@ -10,10 +8,9 @@ public:
 
   operator bool() const;
 
-  constexpr auto typeName() const -> std::string_view {
-    return "string";
-  }
+  auto repr() const -> std::string;
+  auto name() const -> std::string_view;
 
-  const std::string data;
-  const std::size_t hash;
+  std::string data;
+  std::size_t hash;
 };

@@ -1,7 +1,7 @@
 #pragma once
 
+#include <string>
 #include <string_view>
-#include <type_traits>
 
 class DzObject {
 public:
@@ -14,16 +14,16 @@ public:
   auto operator!=(const DzObject& other) const -> bool;
 
   auto repr() const -> std::string;
-  auto typeName() const -> std::string_view;
+  auto name() const -> std::string_view;
 
-  const Type type;
+  Type type;
 
 private:
-  template <typename T>
-    requires std::is_base_of_v<DzObject, T>
+  template<typename T>
   auto as() const -> const T&;
 };
 
-template <typename... Ts>
-concept dz_object = std::conjunction_v<std::is_pointer<Ts>...> &&
+template<typename... Ts>
+concept dz_object =
+    std::conjunction_v<std::is_pointer<Ts>...> &&
     std::conjunction_v<std::is_base_of<DzObject, std::remove_pointer_t<Ts>>...>;

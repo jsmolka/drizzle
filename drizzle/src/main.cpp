@@ -35,6 +35,8 @@ void report(const Error& error, const std::string& source) {
       }
     }
     fmt::print("{}^\n", whitespace);
+  } else {
+    fmt::print("\n");
   }
   fmt::print("{}: {}\n", error.name(), error.what());
 }

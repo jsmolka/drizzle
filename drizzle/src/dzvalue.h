@@ -6,7 +6,8 @@
 #include "dzprimitives.h"
 
 struct DzNull {};
-template <typename... Ts>
+
+template<typename... Ts>
 concept dz_null = std::conjunction_v<std::is_same<DzNull, Ts>...>;
 
 class DzValue {
@@ -14,14 +15,13 @@ public:
   enum class Type { Bool, Int, Float, Null, Object, LastEnumValue };
 
   DzValue();
-
-  template <typename T>
-    requires(dz_primitive<T> || dz_object<T>)
+  template<typename T>
+    requires dz_primitive<T> || dz_object<T>
   DzValue(const T& value) {
     *this = value;
   }
 
-  template <typename T>
+  template<typename T>
     requires dz_primitive<T> || dz_object<T>
   auto operator=(const T& value) -> DzValue& {
     if constexpr (dz_bool<T>) {
@@ -43,7 +43,7 @@ public:
   operator bool() const;
 
   auto repr() const -> std::string;
-  auto typeName() const -> std::string_view;
+  auto name() const -> std::string_view;
 
   Type type;
   union {
