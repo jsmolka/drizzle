@@ -116,3 +116,29 @@ public:
   };
   const Location location;
 };
+
+template<>
+struct fmt::formatter<Statement::Type> : fmt::formatter<std::string_view> {
+  template<typename FormatContext>
+  auto format(const Statement::Type& value, FormatContext& ctx) {
+    auto repr = [](const Statement::Type& value) {
+      static_assert(int(Statement::Type::LastEnumValue) == 10);
+      switch (value) {
+        case Statement::Type::Block:               return "block";
+        case Statement::Type::Break:               return "break";
+        case Statement::Type::Continue:            return "continue";
+        case Statement::Type::ExpressionStatement: return "expression_statement";
+        case Statement::Type::If:                  return "if";
+        case Statement::Type::Noop:                return "noop";
+        case Statement::Type::Print:               return "print";
+        case Statement::Type::Program:             return "program";
+        case Statement::Type::Var:                 return "var";
+        case Statement::Type::While:               return "while";
+        default:
+          SH_UNREACHABLE;
+          return "unreachable";
+      }
+    };
+    return fmt::formatter<std::string_view>::format(repr(value), ctx);
+  }
+};

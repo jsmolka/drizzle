@@ -1,7 +1,6 @@
 #include "vm.h"
 
 #include "dzstring.h"
-#include "format.h"
 #include "opcode.h"
 
 Vm::Vm(StringPool& pool)

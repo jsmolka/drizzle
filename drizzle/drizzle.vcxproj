@@ -49,7 +49,6 @@
     <ClInclude Include="src\token.h" />
     <ClInclude Include="src\error.h" />
     <ClInclude Include="src\expression.h" />
-    <ClInclude Include="src\format.h" />
     <ClInclude Include="src\int.h" />
     <ClInclude Include="src\dzprimitives.h" />
     <ClInclude Include="src\tokenizer.h" />

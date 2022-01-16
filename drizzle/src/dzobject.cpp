@@ -25,6 +25,16 @@ auto DzObject::operator!=(const DzObject& other) const -> bool {
   return !(this == &other);
 }
 
+auto DzObject::repr() const -> std::string {
+  switch (type) {
+    case Type::String:
+      return as<DzString>().data;
+    default:
+      SH_UNREACHABLE;
+      return "unreachable";
+  }
+}
+
 std::string_view DzObject::typeName() const {
   switch (type) {
     case Type::String:

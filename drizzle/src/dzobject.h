@@ -13,6 +13,7 @@ public:
   auto operator==(const DzObject& other) const -> bool;
   auto operator!=(const DzObject& other) const -> bool;
 
+  auto repr() const -> std::string;
   auto typeName() const -> std::string_view;
 
   const Type type;

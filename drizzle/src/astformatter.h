@@ -1,7 +1,8 @@
 #pragma once
 
 #include "astwalker.h"
-#include "format.h"
+
+#include <sh/fmt.h>
 
 class AstFormatter final : public AstWalker {
 public:
@@ -30,7 +31,7 @@ private:
 template<>
 struct fmt::formatter<Stmt> : fmt::formatter<std::string> {
   template<typename FormatContext>
-  auto format(const Stmt& ast, FormatContext& ctx) {
+  auto format(const Stmt& ast, FormatContext& ctx) const {
     return fmt::formatter<std::string>::format(AstFormatter().format(ast), ctx);
   }
 };

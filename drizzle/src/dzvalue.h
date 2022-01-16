@@ -1,5 +1,7 @@
 #pragma once
 
+#include <sh/fmt.h>
+
 #include "dzobject.h"
 #include "dzprimitives.h"
 
@@ -40,6 +42,7 @@ public:
 
   operator bool() const;
 
+  auto repr() const -> std::string;
   auto typeName() const -> std::string_view;
 
   Type type;
@@ -49,4 +52,12 @@ public:
     dzfloat f;
     DzObject* o;
   };
+};
+
+template<>
+struct fmt::formatter<DzValue> : fmt::formatter<std::string> {
+  template<typename FormatContext>
+  auto format(const DzValue& value, FormatContext& ctx) const {
+    return fmt::formatter<std::string>::format(value.repr(), ctx);
+  }
 };

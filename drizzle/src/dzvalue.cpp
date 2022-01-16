@@ -1,5 +1,6 @@
 #include "dzvalue.h"
 
+#include <sh/fmt.h>
 #include <sh/utility.h>
 
 DzValue::DzValue()
@@ -15,6 +16,23 @@ DzValue::operator bool() const {
     default:
       SH_UNREACHABLE;
       return false;
+  }
+}
+
+auto DzValue::repr() const -> std::string {
+  auto whole = [](double v) {
+    return std::fmod(v, 1.0) == 0.0;
+  };
+
+  switch (type) {
+    case DzValue::Type::Bool:   return fmt::to_string(b);
+    case DzValue::Type::Int:    return fmt::to_string(i);
+    case DzValue::Type::Float:  return fmt::format(fmt::runtime(whole(f) ? "{:.1f}" : "{}"), f);
+    case DzValue::Type::Object: return o->repr();
+    case DzValue::Type::Null:   return "null";
+    default:
+      SH_UNREACHABLE;
+      return "unreachable";
   }
 }
 

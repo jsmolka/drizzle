@@ -76,9 +76,6 @@
     <ClInclude Include="src\dzprimitives.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\format.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\expression.h">
       <Filter>Header Files</Filter>
     </ClInclude>

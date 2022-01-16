@@ -1,7 +1,5 @@
 #include "expression.h"
 
-#include <sh/utility.h>
-
 Expression::Assign::Assign(std::string_view identifier, Expr value)
   : identifier(identifier), value(std::move(value)) {}
 
@@ -25,6 +23,19 @@ Expression::Literal::Literal(dzfloat value)
 
 Expression::Literal::Literal(const std::string& value)
   : type(Type::String), value(value) {}
+
+auto Expression::Literal::repr() const -> std::string {
+  switch (type) {
+    case Type::Boolean: return fmt::format("{}", std::get<dzbool>(value));
+    case Type::Float:   return fmt::format("{}", std::get<dzfloat>(value));
+    case Type::Integer: return fmt::format("{}", std::get<dzint>(value));
+    case Type::Null:    return fmt::format("null");
+    case Type::String:  return fmt::format(R"("{}")", std::get<std::string>(value));
+    default:
+      SH_UNREACHABLE;
+      return "unreachable";
+  }
+}
 
 Expression::Unary::Unary(Type type, Expr expression)
   : type(type), expression(std::move(expression)) {}
