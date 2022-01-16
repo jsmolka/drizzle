@@ -2,7 +2,7 @@
 
 #include <sh/utility.h>
 
-#include "errors.h"
+#include "error.h"
 
 auto Tokenizer::tokenize(const std::string& source) -> std::vector<Token> {
   begin = cursor = lexeme = source.data();
@@ -69,23 +69,23 @@ auto Tokenizer::peek() const -> char {
   return *cursor ? cursor[1] : *cursor;
 }
 
-auto Tokenizer::cursorLocation() const -> SourceLocation {
+auto Tokenizer::cursorLocation() const -> Location {
   assert(cursor - begin >= 0);
-  return SourceLocation{
+  return Location{
     .line = line,
     .column = cursor - begin
   };
 }
 
-auto Tokenizer::lexemeLocation() const -> SourceLocation {
+auto Tokenizer::lexemeLocation() const -> Location {
   assert(lexeme - begin >= 0);
-  return SourceLocation{
+  return Location{
     .line = line,
     .column = lexeme - begin
   };
 }
 
-void Tokenizer::emit(Token::Type type, std::optional<SourceLocation> location) {
+void Tokenizer::emit(Token::Type type, std::optional<Location> location) {
   tokens.push_back(Token{
     .type = type,
     .lexeme = std::string_view(lexeme, std::distance(lexeme, cursor)),

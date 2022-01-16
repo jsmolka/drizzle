@@ -4,7 +4,7 @@
 #include <sh/parse.h>
 #include <sh/utility.h>
 
-#include "errors.h"
+#include "error.h"
 
 auto Parser::parse(const std::vector<Token>& tokens) -> Stmt {
   current = previous = tokens.begin();

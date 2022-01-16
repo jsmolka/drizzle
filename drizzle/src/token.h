@@ -2,7 +2,7 @@
 
 #include <string_view>
 
-#include "sourcelocation.h"
+#include "location.h"
 
 struct Token {
   enum class Type {
@@ -67,5 +67,5 @@ struct Token {
 
   Type type;
   std::string_view lexeme;
-  SourceLocation location;
+  Location location;
 };

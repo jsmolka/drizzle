@@ -29,34 +29,34 @@ Statement::Var::Var(std::string_view identifier, Expr initializer)
 Statement::While::While(Expr condition, Stmts statements)
   : condition(std::move(condition)), statements(std::move(statements)) {}
 
-Statement::Statement(Block block, const SourceLocation& location)
+Statement::Statement(Block block, const Location& location)
   : type(Type::Block), block(std::move(block)), location(location) {}
 
-Statement::Statement(Break break_, const SourceLocation& location)
+Statement::Statement(Break break_, const Location& location)
   : type(Type::Break), break_(std::move(break_)), location(location) {}
 
-Statement::Statement(Continue continue_, const SourceLocation& location)
+Statement::Statement(Continue continue_, const Location& location)
   : type(Type::Continue), continue_(std::move(continue_)), location(location) {}
 
-Statement::Statement(ExpressionStatement expression, const SourceLocation& location)
+Statement::Statement(ExpressionStatement expression, const Location& location)
   : type(Type::ExpressionStatement), expression_statement(std::move(expression)), location(location) {}
 
-Statement::Statement(If if_, const SourceLocation& location)
+Statement::Statement(If if_, const Location& location)
   : type(Type::If), if_(std::move(if_)), location(location) {}
 
-Statement::Statement(Noop noop, const SourceLocation& location)
+Statement::Statement(Noop noop, const Location& location)
   : type(Type::Noop), noop(std::move(noop)), location(location) {}
 
-Statement::Statement(Print print, const SourceLocation& location)
+Statement::Statement(Print print, const Location& location)
   : type(Type::Print), print(std::move(print)), location(location) {}
 
-Statement::Statement(Program program, const SourceLocation& location)
+Statement::Statement(Program program, const Location& location)
   : type(Type::Program), program(std::move(program)), location(location) {}
 
-Statement::Statement(Var var, const SourceLocation& location)
+Statement::Statement(Var var, const Location& location)
   : type(Type::Var), var(std::move(var)), location(location) {}
 
-Statement::Statement(While while_, const SourceLocation& location)
+Statement::Statement(While while_, const Location& location)
   : type(Type::While), while_(std::move(while_)), location(location) {}
 
 Statement::~Statement() {

@@ -33,7 +33,7 @@
     <ClCompile Include="src\astformatter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\errors.cpp">
+    <ClCompile Include="src\error.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\dzobject.cpp">
@@ -73,7 +73,7 @@
     <ClInclude Include="src\int.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\errors.h">
+    <ClInclude Include="src\error.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\dzprimitives.h">
@@ -97,7 +97,7 @@
     <ClInclude Include="src\astformatter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\sourcelocation.h">
+    <ClInclude Include="src\location.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\dzobject.h">

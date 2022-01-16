@@ -89,16 +89,16 @@ public:
     Stmts statements;
   };
 
-  Statement(Block block, const SourceLocation& location);
-  Statement(Break break_, const SourceLocation& location);
-  Statement(Continue continue_, const SourceLocation& location);
-  Statement(ExpressionStatement expression, const SourceLocation& location);
-  Statement(If if_, const SourceLocation& location);
-  Statement(Noop noop, const SourceLocation& location);
-  Statement(Print print, const SourceLocation& location);
-  Statement(Program program, const SourceLocation& location);
-  Statement(Var var, const SourceLocation& location);
-  Statement(While while_, const SourceLocation& location);
+  Statement(Block block, const Location& location);
+  Statement(Break break_, const Location& location);
+  Statement(Continue continue_, const Location& location);
+  Statement(ExpressionStatement expression, const Location& location);
+  Statement(If if_, const Location& location);
+  Statement(Noop noop, const Location& location);
+  Statement(Print print, const Location& location);
+  Statement(Program program, const Location& location);
+  Statement(Var var, const Location& location);
+  Statement(While while_, const Location& location);
   ~Statement();
 
   const Type type;
@@ -114,5 +114,5 @@ public:
     Var var;
     While while_;
   };
-  const SourceLocation location;
+  const Location location;
 };

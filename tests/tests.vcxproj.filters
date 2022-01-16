@@ -36,7 +36,7 @@
     <ClCompile Include="..\drizzle\src\astwalker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\drizzle\src\errors.cpp">
+    <ClCompile Include="..\drizzle\src\error.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\drizzle\src\dzobject.cpp">

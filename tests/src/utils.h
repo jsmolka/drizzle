@@ -1,7 +1,7 @@
 #pragma once
 
 #include "astformatter.h"
-#include "errors.h"
+#include "error.h"
 #include "parser.h"
 #include "tokenizer.h"
 #include "ut.h"

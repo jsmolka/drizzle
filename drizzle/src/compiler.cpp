@@ -3,7 +3,7 @@
 #include <sh/ranges.h>
 #include <sh/utility.h>
 
-#include "errors.h"
+#include "error.h"
 
 Compiler::Compiler(StringPool& pool)
   : pool(pool) {}

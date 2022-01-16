@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "dzprimitives.h"
-#include "sourcelocation.h"
+#include "location.h"
 
 class Expression;
 
@@ -111,12 +111,12 @@ public:
     std::string_view identifier;
   };
 
-  Expression(Assign assign, const SourceLocation& location);
-  Expression(Binary binary, const SourceLocation& location);
-  Expression(Group group, const SourceLocation& location);
-  Expression(Literal literal, const SourceLocation& location);
-  Expression(Unary unary, const SourceLocation& location);
-  Expression(Variable variable, const SourceLocation& location);
+  Expression(Assign assign, const Location& location);
+  Expression(Binary binary, const Location& location);
+  Expression(Group group, const Location& location);
+  Expression(Literal literal, const Location& location);
+  Expression(Unary unary, const Location& location);
+  Expression(Variable variable, const Location& location);
   ~Expression();
 
   const Type type;
@@ -128,5 +128,5 @@ public:
     Unary unary;
     Variable variable;
   };
-  const SourceLocation location;
+  const Location location;
 };

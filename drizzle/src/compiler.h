@@ -67,7 +67,7 @@ private:
   auto decreaseScope() -> Level;
 
   Chunk* chunk;
-  SourceLocation location;
+  Location location;
   std::vector<Level> scope;
   std::vector<Variable> variables;
   StringPool& pool;

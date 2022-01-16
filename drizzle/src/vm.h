@@ -3,7 +3,7 @@
 #include <sh/stack.h>
 
 #include "chunk.h"
-#include "errors.h"
+#include "error.h"
 #include "stringpool.h"
 #include "token.h"
 

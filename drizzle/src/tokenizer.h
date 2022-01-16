@@ -20,9 +20,9 @@ private:
   auto next(std::string_view match) -> bool;
   auto peek() const -> char;
 
-  auto cursorLocation() const -> SourceLocation;
-  auto lexemeLocation() const -> SourceLocation;
-  void emit(Token::Type type, std::optional<SourceLocation> location = std::nullopt);
+  auto cursorLocation() const -> Location;
+  auto lexemeLocation() const -> Location;
+  void emit(Token::Type type, std::optional<Location> location = std::nullopt);
   void skipComment();
   void skipWhitespace();
   void skipBlankLines();

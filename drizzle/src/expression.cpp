@@ -32,22 +32,22 @@ Expression::Unary::Unary(Type type, Expr expression)
 Expression::Variable::Variable(std::string_view identifier)
   : identifier(identifier) {}
 
-Expression::Expression(Assign assign, const SourceLocation& location)
+Expression::Expression(Assign assign, const Location& location)
   : type(Type::Assign), assign(std::move(assign)), location(location) {}
 
-Expression::Expression(Binary binary, const SourceLocation& location)
+Expression::Expression(Binary binary, const Location& location)
   : type(Type::Binary), binary(std::move(binary)), location(location) {}
 
-Expression::Expression(Group group, const SourceLocation& location)
+Expression::Expression(Group group, const Location& location)
   : type(Type::Group), group(std::move(group)), location(location) {}
 
-Expression::Expression(Literal literal, const SourceLocation& location)
+Expression::Expression(Literal literal, const Location& location)
   : type(Type::Literal), literal(std::move(literal)), location(location) {}
 
-Expression::Expression(Unary unary, const SourceLocation& location)
+Expression::Expression(Unary unary, const Location& location)
   : type(Type::Unary), unary(std::move(unary)), location(location) {}
 
-Expression::Expression(Variable variable, const SourceLocation& location)
+Expression::Expression(Variable variable, const Location& location)
   : type(Type::Variable), variable(std::move(variable)), location(location) {}
 
 Expression::~Expression() {

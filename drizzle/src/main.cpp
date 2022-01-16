@@ -4,7 +4,7 @@
 
 #include "astformatter.h"
 #include "compiler.h"
-#include "errors.h"
+#include "error.h"
 #include "parser.h"
 #include "tokenizer.h"
 #include "vm.h"
