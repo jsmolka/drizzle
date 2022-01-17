@@ -12,18 +12,18 @@ void Compiler::compile(Stmt& ast, Chunk& chunk) {
   this->chunk = &chunk;
 
   increaseScope(Level::Type::Block);
-  walk(ast);
+  visit(ast);
   decreaseScope();
 
   emit(Opcode::Return);
 }
 
-void Compiler::walk(Stmt& stmt) {
+void Compiler::visit(Stmt& stmt) {
   location = stmt->location;
-  AstWalker::walk(stmt);
+  AstVisiter::visit(stmt);
 }
 
-void Compiler::walk(Statement::Block& block) {
+void Compiler::visit(Statement::Block& block) {
   if (!block.identifier.empty()) {
     for (const auto& level : scope) {
       if (level.identifier == block.identifier) {
@@ -33,12 +33,12 @@ void Compiler::walk(Statement::Block& block) {
   }
 
   increaseScope(Level::Type::Block, block.identifier);
-  AstWalker::walk(block);
+  AstVisiter::visit(block);
   const auto level = decreaseScope();
   patchJumps(level.breaks);
 }
 
-void Compiler::walk(Statement::Break& break_) {
+void Compiler::visit(Statement::Break& break_) {
   auto resolve = [this](std::string_view identifier) -> Level& {
     if (identifier.empty()) {
       for (auto& level : sh::reversed(scope)) {
@@ -62,7 +62,7 @@ void Compiler::walk(Statement::Break& break_) {
   level.breaks.push_back(emitJump(Opcode::Jump));
 }
 
-void Compiler::walk(Statement::Continue& continue_) {
+void Compiler::visit(Statement::Continue& continue_) {
   auto resolve = [this]() -> Level& {
     for (auto& level : sh::reversed(scope)) {
       if (level.type == Level::Type::Loop) {
@@ -76,45 +76,45 @@ void Compiler::walk(Statement::Continue& continue_) {
   level.continues.push_back(emitJump(Opcode::Jump));
 }
 
-void Compiler::walk(Statement::ExpressionStatement& expression_statement) {
-  AstWalker::walk(expression_statement);
+void Compiler::visit(Statement::ExpressionStatement& expression_statement) {
+  AstVisiter::visit(expression_statement);
   emit(Opcode::Pop);
 }
 
-void Compiler::walk(Statement::If& if_) {
+void Compiler::visit(Statement::If& if_) {
   std::vector<std::size_t> exits;
 
   for (auto& branch : if_.branches) {
-    walk(branch.condition);
+    visit(branch.condition);
     const auto skip = emitJump(Opcode::JumpFalsePop);
     increaseScope(Level::Type::Branch);
-    walk(branch.statements);
+    visit(branch.statements);
     decreaseScope();
     exits.push_back(emitJump(Opcode::Jump));
     patchJump(skip);
   }
-  walk(if_.else_);
+  visit(if_.else_);
 
   patchJumps(exits);
 }
 
-void Compiler::walk(Statement::Print& print) {
-  AstWalker::walk(print);
+void Compiler::visit(Statement::Print& print) {
+  AstVisiter::visit(print);
   emit(Opcode::Print);
 }
 
-void Compiler::walk(Statement::Var& var) {
-  AstWalker::walk(var);
+void Compiler::visit(Statement::Var& var) {
+  AstVisiter::visit(var);
   defineVariable(var.identifier);
 }
 
-void Compiler::walk(Statement::While& while_) {
+void Compiler::visit(Statement::While& while_) {
   const auto condition = chunk->size();
-  walk(while_.condition);
+  visit(while_.condition);
   const auto exit = emitJump(Opcode::JumpFalsePop);
 
   increaseScope(Level::Type::Loop);
-  walk(while_.statements);
+  visit(while_.statements);
   const auto level = decreaseScope();
   emitJump(Opcode::Jump, condition);
 
@@ -122,39 +122,39 @@ void Compiler::walk(Statement::While& while_) {
   patchJumps(level.breaks);
 }
 
-void Compiler::walk(Expr& expr) {
+void Compiler::visit(Expr& expr) {
   location = expr->location;
-  AstWalker::walk(expr);
+  AstVisiter::visit(expr);
 }
 
-void Compiler::walk(Expression::Assign& assign) {
-  AstWalker::walk(assign);
+void Compiler::visit(Expression::Assign& assign) {
+  AstVisiter::visit(assign);
   auto& var = resolveVariable(assign.identifier);
   emitVariable(Opcode::StoreVariable, std::distance(variables.data(), &var));
 }
 
-void Compiler::walk(Expression::Binary& binary) {
+void Compiler::visit(Expression::Binary& binary) {
   static_assert(int(Expression::Binary::Type::LastEnumValue) == 21);
 
   if (binary.type == Expression::Binary::Type::And) {
-    walk(binary.left);
+    visit(binary.left);
     const auto exit = emitJump(Opcode::JumpFalse);
     emit(Opcode::Pop);
-    walk(binary.right);
+    visit(binary.right);
     patchJump(exit);
     return;
   }
 
   if (binary.type == Expression::Binary::Type::Or) {
-    walk(binary.left);
+    visit(binary.left);
     const auto exit = emitJump(Opcode::JumpTrue);
     emit(Opcode::Pop);
-    walk(binary.right);
+    visit(binary.right);
     patchJump(exit);
     return;
   }
 
-  AstWalker::walk(binary);
+  AstVisiter::visit(binary);
 
   switch (binary.type) {
     case Expression::Binary::Type::Addition:        emit(Opcode::Add); break;
@@ -182,7 +182,7 @@ void Compiler::walk(Expression::Binary& binary) {
   }
 }
 
-void Compiler::walk(Expression::Literal& literal) {
+void Compiler::visit(Expression::Literal& literal) {
   static_assert(int(Expression::Literal::Type::LastEnumValue) == 5);
 
   switch (literal.type) {
@@ -197,10 +197,10 @@ void Compiler::walk(Expression::Literal& literal) {
   }
 }
 
-void Compiler::walk(Expression::Unary& unary) {
+void Compiler::visit(Expression::Unary& unary) {
   static_assert(int(Expression::Unary::Type::LastEnumValue) == 3);
 
-  AstWalker::walk(unary);
+  AstVisiter::visit(unary);
 
   switch (unary.type) {
     case Expression::Unary::Type::BitwiseComplement: emit(Opcode::BitwiseComplement); break;
@@ -212,7 +212,7 @@ void Compiler::walk(Expression::Unary& unary) {
   }
 }
 
-void Compiler::walk(Expression::Variable& variable) {
+void Compiler::visit(Expression::Variable& variable) {
   auto& var = resolveVariable(variable.identifier);
   emitVariable(Opcode::LoadVariable, std::distance(variables.data(), &var));
 }

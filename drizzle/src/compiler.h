@@ -1,35 +1,35 @@
 #pragma once
 
-#include "astwalker.h"
+#include "astvisiter.h"
 #include "chunk.h"
 #include "opcode.h"
 #include "stringpool.h"
 
-class Compiler final : public AstWalker {
+class Compiler final : public AstVisiter {
 public:
   Compiler(StringPool& pool);
 
   void compile(Stmt& ast, Chunk& chunk);
 
 protected:
-  using AstWalker::walk;
+  using AstVisiter::visit;
 
-  void walk(Stmt& stmt) final;
-  void walk(Statement::Block& block) final;
-  void walk(Statement::Break& break_) final;
-  void walk(Statement::Continue& continue_) final;
-  void walk(Statement::ExpressionStatement& expression_statement) final;
-  void walk(Statement::If& if_) final;
-  void walk(Statement::Print& print) final;
-  void walk(Statement::Var& var) final;
-  void walk(Statement::While& while_) final;
+  void visit(Stmt& stmt) final;
+  void visit(Statement::Block& block) final;
+  void visit(Statement::Break& break_) final;
+  void visit(Statement::Continue& continue_) final;
+  void visit(Statement::ExpressionStatement& expression_statement) final;
+  void visit(Statement::If& if_) final;
+  void visit(Statement::Print& print) final;
+  void visit(Statement::Var& var) final;
+  void visit(Statement::While& while_) final;
 
-  void walk(Expr& expr) final;
-  void walk(Expression::Assign& assign) final;
-  void walk(Expression::Binary& binary) final;
-  void walk(Expression::Literal& literal) final;
-  void walk(Expression::Unary& unary) final;
-  void walk(Expression::Variable& variable) final;
+  void visit(Expr& expr) final;
+  void visit(Expression::Assign& assign) final;
+  void visit(Expression::Binary& binary) final;
+  void visit(Expression::Literal& literal) final;
+  void visit(Expression::Unary& unary) final;
+  void visit(Expression::Variable& variable) final;
 
 private:
   static constexpr auto kJumpBytes = 3;

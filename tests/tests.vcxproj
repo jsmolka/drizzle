@@ -15,7 +15,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\drizzle\src\astformatter.cpp" />
-    <ClCompile Include="..\drizzle\src\astwalker.cpp" />
+    <ClCompile Include="..\drizzle\src\astvisiter.cpp" />
     <ClCompile Include="..\drizzle\src\chunk.cpp" />
     <ClCompile Include="..\drizzle\src\dzobject.cpp" />
     <ClCompile Include="..\drizzle\src\dzstring.cpp" />

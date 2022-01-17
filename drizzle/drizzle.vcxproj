@@ -17,7 +17,7 @@
     <ResourceCompile Include="drizzle.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\astwalker.cpp" />
+    <ClCompile Include="src\astvisiter.cpp" />
     <ClCompile Include="src\chunk.cpp" />
     <ClCompile Include="src\compiler.cpp" />
     <ClCompile Include="src\dzstring.cpp" />
@@ -34,7 +34,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\astformatter.h" />
-    <ClInclude Include="src\astwalker.h" />
+    <ClInclude Include="src\astvisiter.h" />
     <ClInclude Include="src\chunk.h" />
     <ClInclude Include="src\compiler.h" />
     <ClInclude Include="src\dzobject.h" />

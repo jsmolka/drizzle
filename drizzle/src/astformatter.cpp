@@ -3,12 +3,12 @@
 #include <sh/ranges.h>
 
 auto AstFormatter::format(const Stmt& ast) -> std::string {
-  walk(const_cast<Stmt&>(ast));
+  visit(const_cast<Stmt&>(ast));
   string.pop_back();
   return string;
 }
 
-void AstFormatter::walk(Expr& expr) {
+void AstFormatter::visit(Expr& expr) {
   static_assert(int(Expression::Type::LastEnumValue) == 6);
 
   writeIndent("{}", expr->type);
@@ -22,11 +22,11 @@ void AstFormatter::walk(Expr& expr) {
   write("\n");
 
   indent++;
-  AstWalker::walk(expr);
+  AstVisiter::visit(expr);
   indent--;
 }
 
-void AstFormatter::walk(Stmt& stmt) {
+void AstFormatter::visit(Stmt& stmt) {
   static_assert(int(Statement::Type::LastEnumValue) == 10);
 
   writeIndent("{}", stmt->type);
@@ -38,19 +38,19 @@ void AstFormatter::walk(Stmt& stmt) {
   write("\n");
 
   indent++;
-  AstWalker::walk(stmt);
+  AstVisiter::visit(stmt);
   indent--;
 }
 
-void AstFormatter::walk(Statement::If& if_) {
+void AstFormatter::visit(Statement::If& if_) {
   for (const auto [index, branch] : sh::enumerate(if_.branches)) {
     if (index != 0) {
       indent--;
       writeIndent("elif\n");
       indent++;
     }
-    walk(branch.condition);
-    walk(branch.statements);
+    visit(branch.condition);
+    visit(branch.statements);
   }
 
   if (!if_.else_.empty()) {
@@ -58,7 +58,7 @@ void AstFormatter::walk(Statement::If& if_) {
     writeIndent("else\n");
     indent++;
 
-    walk(if_.else_);
+    visit(if_.else_);
   }
 }
 

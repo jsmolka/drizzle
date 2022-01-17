@@ -2,18 +2,18 @@
 
 #include <sh/fmt.h>
 
-#include "astwalker.h"
+#include "astvisiter.h"
 
-class AstFormatter final : public AstWalker {
+class AstFormatter final : public AstVisiter {
 public:
   auto format(const Stmt& ast) -> std::string;
 
 protected:
-  using AstWalker::walk;
+  using AstVisiter::visit;
 
-  void walk(Expr& expr) final;
-  void walk(Stmt& stmt) final;
-  void walk(Statement::If& if_) final;
+  void visit(Expr& expr) final;
+  void visit(Stmt& stmt) final;
+  void visit(Statement::If& if_) final;
 
 private:
   template<sh::formattable T>
