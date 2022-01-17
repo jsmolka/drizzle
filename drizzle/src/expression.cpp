@@ -1,14 +1,5 @@
 #include "expression.h"
 
-Expression::Assign::Assign(std::string_view identifier, Expr value)
-  : identifier(identifier), value(std::move(value)) {}
-
-Expression::Binary::Binary(Type type, Expr left, Expr right)
-  : type(type), left(std::move(left)), right(std::move(right)) {}
-
-Expression::Group::Group(Expr expression)
-  : expression(std::move(expression)) {}
-
 Expression::Literal::Literal()
   : type(Type::Null) {}
 
@@ -26,22 +17,16 @@ Expression::Literal::Literal(const std::string& value)
 
 auto Expression::Literal::repr() const -> std::string {
   switch (type) {
-    case Type::Boolean: return fmt::format("{}", std::get<dzbool>(value));
-    case Type::Float:   return fmt::format("{}", std::get<dzfloat>(value));
-    case Type::Integer: return fmt::format("{}", std::get<dzint>(value));
-    case Type::Null:    return fmt::format("null");
+    case Type::Boolean: return fmt::to_string(std::get<dzbool>(value));
+    case Type::Integer: return fmt::to_string(std::get<dzint>(value));
+    case Type::Float:   return fmt::to_string(std::get<dzfloat>(value));
+    case Type::Null:    return "null";
     case Type::String:  return fmt::format(R"("{}")", std::get<std::string>(value));
     default:
       SH_UNREACHABLE;
       return "unreachable";
   }
 }
-
-Expression::Unary::Unary(Type type, Expr expression)
-  : type(type), expression(std::move(expression)) {}
-
-Expression::Variable::Variable(std::string_view identifier)
-  : identifier(identifier) {}
 
 Expression::Expression(Assign assign, const Location& location)
   : type(Type::Assign), assign(std::move(assign)), location(location) {}
@@ -63,12 +48,12 @@ Expression::Expression(Variable variable, const Location& location)
 
 Expression::~Expression() {
   switch (type) {
-    case Type::Assign:   assign.~Assign(); break;
-    case Type::Binary:   binary.~Binary(); break;
-    case Type::Group:    group.~Group(); break;
-    case Type::Literal:  literal.~Literal(); break;
-    case Type::Unary:    unary.~Unary(); break;
-    case Type::Variable: variable.~Variable(); break;
+    case Type::Assign:   std::destroy_at(&assign); break;
+    case Type::Binary:   std::destroy_at(&binary); break;
+    case Type::Group:    std::destroy_at(&group); break;
+    case Type::Literal:  std::destroy_at(&literal); break;
+    case Type::Unary:    std::destroy_at(&unary); break;
+    case Type::Variable: std::destroy_at(&variable); break;
     default:
       SH_UNREACHABLE;
       break;

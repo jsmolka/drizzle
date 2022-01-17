@@ -79,10 +79,10 @@ void Parser::expectNewLine()    { expect(Token::Type::NewLine,    "expected new 
 void Parser::expectParenLeft()  { expect(Token::Type::ParenLeft,  "expected '('");        }
 void Parser::expectParenRight() { expect(Token::Type::ParenRight, "expected ')'");        }
 
-template<typename T, typename... Args>
-  requires std::constructible_from<T, Args...>
-auto Parser::newExpr(Args... args) -> Expr {
-  return std::make_unique<Expression>(T(std::forward<Args>(args)...), previous->location);
+template<typename T>
+  requires std::constructible_from<Expression, T, Location>
+auto Parser::newExpr(T expression) -> Expr {
+  return std::make_unique<Expression>(std::move(expression), previous->location);
 }
 
 auto Parser::expression() -> Expr {
@@ -116,11 +116,14 @@ void Parser::parseExpression(Precedence precedence) {
 
 void Parser::and_(bool) {
   parseExpression(Precedence::And);
-
   auto rhs = expressions.pop_value();
   auto lhs = expressions.pop_value();
 
-  expressions.push(newExpr<Expression::Binary>(Expression::Binary::Type::And, std::move(lhs), std::move(rhs)));
+  expressions.push(newExpr(Expression::Binary{
+    .type = Expression::Binary::Type::And,
+    .left = std::move(lhs),
+    .right = std::move(rhs)
+  }));
 }
 
 void Parser::binary(bool) {
@@ -153,11 +156,14 @@ void Parser::binary(bool) {
 
   const auto token = previous->type;
   parseExpression(Precedence(int(rule(token).precedence) + 1));
-
   auto rhs = expressions.pop_value();
   auto lhs = expressions.pop_value();
 
-  expressions.push(newExpr<Expression::Binary>(type(token), std::move(lhs), std::move(rhs)));
+  expressions.push(newExpr(Expression::Binary{
+    .type = type(token),
+    .left = std::move(lhs),
+    .right = std::move(rhs)
+  }));
 }
 
 void Parser::constant(bool) {
@@ -178,9 +184,9 @@ void Parser::group(bool) {
 
 void Parser::literal(bool) {
   switch (previous->type) {
-    case Token::Type::True:  expressions.push(newExpr<Expression::Literal>(true)); break;
-    case Token::Type::False: expressions.push(newExpr<Expression::Literal>(false)); break;
-    case Token::Type::Null:  expressions.push(newExpr<Expression::Literal>()); break;
+    case Token::Type::True:  expressions.push(newExpr(Expression::Literal{true})); break;
+    case Token::Type::False: expressions.push(newExpr(Expression::Literal{false})); break;
+    case Token::Type::Null:  expressions.push(newExpr(Expression::Literal{})); break;
     default:
       SH_UNREACHABLE;
       break;
@@ -189,11 +195,14 @@ void Parser::literal(bool) {
 
 void Parser::or_(bool) {
   parseExpression(Precedence::Or);
-
   auto rhs = expressions.pop_value();
   auto lhs = expressions.pop_value();
 
-  expressions.push(newExpr<Expression::Binary>(Expression::Binary::Type::Or, std::move(lhs), std::move(rhs)));
+  expressions.push(newExpr(Expression::Binary{
+    .type = Expression::Binary::Type::Or,
+    .left = std::move(lhs),
+    .right = std::move(rhs)
+  }));
 }
 
 void Parser::unary(bool) {
@@ -211,16 +220,22 @@ void Parser::unary(bool) {
   const auto token = previous->type;
   parseExpression(Precedence::Unary);
 
-  expressions.push(newExpr<Expression::Unary>(type(token), expressions.pop_value()));
+  expressions.push(newExpr(Expression::Unary{
+    .type = type(token),
+    .expression = expressions.pop_value()
+  }));
 }
 
 void Parser::variable(bool assign) {
   const auto identifier = previous->lexeme;
   if (assign && match(Token::Type::Equal)) {
     auto value = expression();
-    expressions.push(newExpr<Expression::Assign>(identifier, std::move(value)));
+    expressions.push(newExpr(Expression::Assign{
+      .identifier = identifier,
+      .value = std::move(value)
+    }));
   } else {
-    expressions.push(newExpr<Expression::Variable>(identifier));
+    expressions.push(newExpr(Expression::Variable{identifier}));
   }
 }
 
@@ -240,9 +255,7 @@ auto Parser::program() -> Stmt {
   while (!match(Token::Type::Eof)) {
     statements.push_back(declaration());
   }
-  return newStmt(Statement::Program{
-    .statements = std::move(statements)
-  });
+  return newStmt(Statement::Program{std::move(statements)});
 }
 
 auto Parser::declaration() -> Stmt {
@@ -261,7 +274,7 @@ auto Parser::declarationVar() -> Stmt {
   if (match(Token::Type::Equal)) {
     initializer = expression();
   } else {
-    initializer = newExpr<Expression::Literal>();
+    initializer = newExpr(Expression::Literal{});
   }
   expectNewLine();
   return newStmt(Statement::Var{
@@ -318,9 +331,7 @@ auto Parser::statementBreak() -> Stmt {
     identifier = previous->lexeme;
   }
   expectNewLine();
-  return newStmt(Statement::Break{
-    .identifier = identifier
-  });
+  return newStmt(Statement::Break{identifier});
 }
 
 auto Parser::statementContinue() -> Stmt {
@@ -379,9 +390,7 @@ auto Parser::statementPrint() -> Stmt {
   pushLocation();
   auto expr = expression();
   expectNewLine();
-  return newStmt(Statement::Print{
-    .expression = std::move(expr)
-  });
+  return newStmt(Statement::Print{std::move(expr)});
 }
 
 auto Parser::statementWhile() -> Stmt {
@@ -406,9 +415,7 @@ auto Parser::expressionStatement() -> Stmt {
   pushLocation();
   auto expr = expression();
   expectNewLine();
-  return newStmt(Statement::ExpressionStatement{
-    .expression = std::move(expr)
-  });
+  return newStmt(Statement::ExpressionStatement{std::move(expr)});
 }
 
 void Parser::parseInt() {

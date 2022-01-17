@@ -29,8 +29,6 @@ public:
   };
 
   struct Assign {
-    Assign(std::string_view identifier, Expr value);
-
     std::string_view identifier;
     Expr value;
   };
@@ -61,24 +59,20 @@ public:
       LastEnumValue,
     };
 
-    Binary(Type type, Expr left, Expr right);
-
     Type type;
     Expr left;
     Expr right;
   };
 
   struct Group {
-    Group(Expr expression);
-
     Expr expression;
   };
 
   struct Literal {
     enum class Type {
       Boolean,
-      Float,
       Integer,
+      Float,
       Null,
       String,
       LastEnumValue,
@@ -104,15 +98,11 @@ public:
       LastEnumValue,
     };
 
-    Unary(Type type, Expr expression);
-
     Type type;
     Expr expression;
   };
 
   struct Variable {
-    Variable(std::string_view identifier);
-
     std::string_view identifier;
   };
 
@@ -124,7 +114,7 @@ public:
   Expression(Variable variable, const Location& location);
   ~Expression();
 
-  const Type type;
+  Type type;
   union {
     Assign assign;
     Binary binary;
@@ -133,7 +123,7 @@ public:
     Unary unary;
     Variable variable;
   };
-  const Location location;
+  Location location;
 };
 
 template<>

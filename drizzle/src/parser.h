@@ -48,9 +48,9 @@ private:
   void expectParenLeft();
   void expectParenRight();
 
-  template<typename T, typename... Args>
-    requires std::constructible_from<T, Args...>
-  auto newExpr(Args... args) -> Expr;
+  template<typename T>
+    requires std::constructible_from<Expression, T, Location>
+  auto newExpr(T expression) -> Expr;
   auto expression() -> Expr;
   void parseExpression(Precedence precedence);
   void and_(bool);

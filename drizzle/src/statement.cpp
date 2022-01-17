@@ -1,7 +1,5 @@
 #include "statement.h"
 
-#include <sh/utility.h>
-
 Statement::Statement(Block block, const Location& location)
   : type(Type::Block), block(std::move(block)), location(location) {}
 
