@@ -1,5 +1,7 @@
 #include "astformatter.h"
 
+#include <sh/ranges.h>
+
 auto AstFormatter::format(const Stmt& ast) -> std::string {
   walk(const_cast<Stmt&>(ast));
   string.pop_back();
@@ -41,16 +43,14 @@ void AstFormatter::walk(Stmt& stmt) {
 }
 
 void AstFormatter::walk(Statement::If& if_) {
-  walk(if_.if_.condition);
-  walk(if_.if_.statements);
-
-  for (auto& elif : if_.elifs) {
-    indent--;
-    writeIndent("elif\n");
-    indent++;
-
-    walk(elif.condition);
-    walk(elif.statements);
+  for (const auto [index, branch] : sh::enumerate(if_.branches)) {
+    if (index != 0) {
+      indent--;
+      writeIndent("elif\n");
+      indent++;
+    }
+    walk(branch.condition);
+    walk(branch.statements);
   }
 
   if (!if_.else_.empty()) {

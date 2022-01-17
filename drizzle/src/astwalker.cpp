@@ -86,14 +86,10 @@ void AstWalker::walk(Statement::ExpressionStatement& expression_statement) {
 }
 
 void AstWalker::walk(Statement::If& if_) {
-  walk(if_.if_.condition);
-  walk(if_.if_.statements);
-
-  for (auto& elif : if_.elifs) {
-    walk(elif.condition);
-    walk(elif.statements);
+  for (auto& branches : if_.branches) {
+    walk(branches.condition);
+    walk(branches.statements);
   }
-
   walk(if_.else_);
 }
 

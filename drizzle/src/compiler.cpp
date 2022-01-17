@@ -84,7 +84,7 @@ void Compiler::walk(Statement::ExpressionStatement& expression_statement) {
 void Compiler::walk(Statement::If& if_) {
   std::vector<std::size_t> exits;
 
-  auto compile = [&](Statement::If::Branch& branch) {
+  for (auto& branch : if_.branches) {
     walk(branch.condition);
     const auto skip = emitJump(Opcode::JumpFalsePop);
     increaseScope(Level::Type::Branch);
@@ -92,11 +92,6 @@ void Compiler::walk(Statement::If& if_) {
     decreaseScope();
     exits.push_back(emitJump(Opcode::Jump));
     patchJump(skip);
-  };
-
-  compile(if_.if_);
-  for (auto& elif : if_.elifs) {
-    compile(elif);
   }
   walk(if_.else_);
 

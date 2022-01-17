@@ -46,8 +46,7 @@ public:
       Stmts statements;
     };
 
-    Branch if_;
-    std::vector<Branch> elifs;
+    std::vector<Branch> branches;
     Stmts else_;
   };
 

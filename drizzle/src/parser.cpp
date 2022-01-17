@@ -356,10 +356,10 @@ auto Parser::statementIf() -> Stmt {
     return Statement::If::Branch(std::move(condition), std::move(statements));
   };
 
-  auto if_ = branch();
-  std::vector<Statement::If::Branch> elifs;
+  std::vector<Statement::If::Branch> branches;
+  branches.emplace_back(branch());
   while (match(Token::Type::Elif)) {
-    elifs.push_back(branch());
+    branches.emplace_back(branch());
   }
 
   Stmts else_;
@@ -374,8 +374,7 @@ auto Parser::statementIf() -> Stmt {
     expectDedent();
   }
   return newStmt(Statement::If{
-    .if_ = std::move(if_),
-    .elifs = std::move(elifs),
+    .branches = std::move(branches),
     .else_ = std::move(else_)
   });
 }
