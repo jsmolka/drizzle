@@ -304,7 +304,7 @@ auto Parser::statement() -> Stmt {
 
 auto Parser::statementBlock() -> Stmt {
   pushLocation();
-  std::string_view identifier;
+  std::optional<std::string_view> identifier;
   if (match(Token::Type::Identifier)) {
     identifier = previous->lexeme;
   }
@@ -326,7 +326,7 @@ auto Parser::statementBlock() -> Stmt {
 
 auto Parser::statementBreak() -> Stmt {
   pushLocation();
-  std::string_view identifier;
+  std::optional<std::string_view> identifier;
   if (match(Token::Type::Identifier)) {
     identifier = previous->lexeme;
   }

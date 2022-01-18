@@ -1,7 +1,5 @@
 #pragma once
 
-#include <sh/fmt.h>
-
 #include "astvisiter.h"
 
 class AstFormatter final : public AstVisiter {
@@ -16,13 +14,10 @@ protected:
   void visit(Statement::If& if_) final;
 
 private:
-  template<sh::formattable T>
-  void write(std::string_view format, const T& value);
-  void write(std::string_view string);
-
-  template<sh::formattable T>
-  void writeIndent(std::string_view format, const T& value);
-  void writeIndent(std::string_view string);
+  template<typename... Args>
+  void write(std::string_view format, Args&&... args);
+  template<typename... Args>
+  void writeIndent(std::string_view format, Args&&... args);
 
   std::string string;
   std::size_t indent = 0;

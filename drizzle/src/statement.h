@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <vector>
 
 #include "expression.h"
@@ -26,12 +27,12 @@ public:
   };
 
   struct Block {
-    std::string_view identifier;
+    std::optional<std::string_view> identifier;
     Stmts statements;
   };
 
   struct Break {
-    std::string_view identifier;
+    std::optional<std::string_view> identifier;
   };
 
   struct Continue {};

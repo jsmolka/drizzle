@@ -24,10 +24,10 @@ void Compiler::visit(Stmt& stmt) {
 }
 
 void Compiler::visit(Statement::Block& block) {
-  if (!block.identifier.empty()) {
+  if (block.identifier) {
     for (const auto& level : scope) {
-      if (level.identifier == block.identifier) {
-        throw SyntaxError(location, "redefined block '{}'", level.identifier);
+      if (level.identifier == *block.identifier) {
+        throw SyntaxError(location, "redefined block '{}'", *level.identifier);
       }
     }
   }
@@ -39,21 +39,21 @@ void Compiler::visit(Statement::Block& block) {
 }
 
 void Compiler::visit(Statement::Break& break_) {
-  auto resolve = [this](std::string_view identifier) -> Level& {
-    if (identifier.empty()) {
+  auto resolve = [this](std::optional<std::string_view> identifier) -> Level& {
+    if (identifier) {
+      for (auto& level : sh::reversed(scope)) {
+        if (level.identifier == *identifier) {
+          return level;
+        }
+      }
+      throw SyntaxError(location, "no matching block '{}'", *identifier);
+    } else {
       for (auto& level : sh::reversed(scope)) {
         if (level.type == Level::Type::Loop) {
           return level;
         }
       }
       throw SyntaxError(location, "no matching loop");
-    } else {
-      for (auto& level : sh::reversed(scope)) {
-        if (level.identifier == identifier) {
-          return level;
-        }
-      }
-      throw SyntaxError(location, "no matching block '{}'", identifier);
     }
   };
 

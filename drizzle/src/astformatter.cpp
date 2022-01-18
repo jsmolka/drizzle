@@ -31,9 +31,19 @@ void AstFormatter::visit(Stmt& stmt) {
 
   writeIndent("{}", stmt->type);
   switch (stmt->type) {
-    case Statement::Type::Block: write(" {}", stmt->block.identifier); break;
-    case Statement::Type::Break: write(" {}", stmt->break_.identifier); break;
-    case Statement::Type::Var:   write(" {}", stmt->var.identifier); break;
+    case Statement::Type::Block:
+      if (stmt->block.identifier) {
+        write(" {}", *stmt->block.identifier);
+      }
+      break;
+    case Statement::Type::Break:
+      if (stmt->break_.identifier) {
+        write(" {}", *stmt->break_.identifier);
+      }
+      break;
+    case Statement::Type::Var:
+      write(" {}", stmt->var.identifier);
+      break;
   }
   write("\n");
 
@@ -62,31 +72,13 @@ void AstFormatter::visit(Statement::If& if_) {
   }
 }
 
-template<sh::formattable T>
-void AstFormatter::write(std::string_view format, const T& value) {
-  if constexpr (std::same_as<T, std::string_view>) {
-    if (value.empty()) {
-      return;
-    }
-  }
-  fmt::format_to(std::back_inserter(string), fmt::runtime(format), value);
+template<typename... Args>
+void AstFormatter::write(std::string_view format, Args&&... args) {
+  fmt::format_to(std::back_inserter(string), fmt::runtime(format), std::forward<Args>(args)...);
 }
 
-void AstFormatter::write(std::string_view string) {
-  write("{}", string);
-}
-
-template<sh::formattable T>
-void AstFormatter::writeIndent(std::string_view format, const T& value) {
-  if constexpr (std::same_as<T, std::string_view>) {
-    if (value.empty()) {
-      return;
-    }
-  }
+template<typename... Args>
+void AstFormatter::writeIndent(std::string_view format, Args&&... args) {
   fmt::format_to(std::back_inserter(string), "{:<{}}", "", 2 * indent);
-  fmt::format_to(std::back_inserter(string), fmt::runtime(format), value);
-}
-
-void AstFormatter::writeIndent(std::string_view string) {
-  writeIndent("{}", string);
+  fmt::format_to(std::back_inserter(string), fmt::runtime(format), std::forward<Args>(args)...);
 }

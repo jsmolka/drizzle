@@ -38,7 +38,7 @@ private:
     enum class Type { Block, Branch, Loop, Function };
 
     Type type;
-    std::string_view identifier;
+    std::optional<std::string_view> identifier;
     std::vector<std::size_t> breaks;
     std::vector<std::size_t> continues;
   };
