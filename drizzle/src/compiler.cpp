@@ -322,6 +322,7 @@ void Compiler::increaseScope(Args&&... args) {
 
 auto Compiler::decreaseScope() -> Compiler::Level {
   const auto level(std::move(scope.back()));
+  scope.pop_back();
   patchJumps(level.continues);
   popVariables(scope.size());
   return level;
