@@ -1,5 +1,7 @@
 #pragma once
 
+#include <sh/stack.h>
+
 #include "astvisiter.h"
 #include "chunk.h"
 #include "opcode.h"
@@ -67,7 +69,7 @@ private:
   auto decreaseScope() -> Level;
 
   Chunk* chunk;
-  Location location;
+  sh::stack<Location> locations;
   std::vector<Level> scope;
   std::vector<Variable> variables;
   StringPool& pool;

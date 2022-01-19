@@ -19,15 +19,16 @@ void Compiler::compile(Stmt& ast, Chunk& chunk) {
 }
 
 void Compiler::visit(Stmt& stmt) {
-  location = stmt->location;
+  locations.push(stmt->location);
   AstVisiter::visit(stmt);
+  locations.pop();
 }
 
 void Compiler::visit(Statement::Block& block) {
   if (block.identifier) {
     for (const auto& level : scope) {
       if (level.identifier == *block.identifier) {
-        throw SyntaxError(location, "redefined block '{}'", *level.identifier);
+        throw SyntaxError(locations.top(), "redefined block '{}'", *level.identifier);
       }
     }
   }
@@ -46,14 +47,14 @@ void Compiler::visit(Statement::Break& break_) {
           return level;
         }
       }
-      throw SyntaxError(location, "no matching block '{}'", *identifier);
+      throw SyntaxError(locations.top(), "no matching block '{}'", *identifier);
     } else {
       for (auto& level : sh::reversed(scope)) {
         if (level.type == Level::Type::Loop) {
           return level;
         }
       }
-      throw SyntaxError(location, "no matching loop");
+      throw SyntaxError(locations.top(), "no matching loop");
     }
   };
 
@@ -69,7 +70,7 @@ void Compiler::visit(Statement::Continue& continue_) {
         return level;
       }
     }
-    throw SyntaxError(location, "no matching loop");
+    throw SyntaxError(locations.top(), "no matching loop");
   };
 
   auto& level = resolve();
@@ -123,8 +124,9 @@ void Compiler::visit(Statement::While& while_) {
 }
 
 void Compiler::visit(Expr& expr) {
-  location = expr->location;
+  locations.push(expr->location);
   AstVisiter::visit(expr);
+  locations.pop();
 }
 
 void Compiler::visit(Expression::Assign& assign) {
@@ -219,7 +221,7 @@ void Compiler::visit(Expression::Variable& variable) {
 
 template<typename... Bytes>
 void Compiler::emit(Bytes... bytes) {
-  (chunk->write(static_cast<u8>(bytes), location.line), ...);
+  (chunk->write(static_cast<u8>(bytes), locations.top().line), ...);
 }
 
 void Compiler::emitConstant(DzValue value) {
@@ -229,7 +231,7 @@ void Compiler::emitConstant(DzValue value) {
   } else if (index <= std::numeric_limits<u16>::max()) {
     emit(Opcode::ConstantExt, index, index >> 8);
   } else {
-    throw CompilerError(location, "constant limit exceeded");
+    throw CompilerError(locations.top(), "constant limit exceeded");
   }
   chunk->constants.push_back(value);
 }
@@ -240,7 +242,7 @@ void Compiler::emitVariable(Opcode opcode, std::size_t index) {
   } else if (index <= std::numeric_limits<u16>::max()) {
     emit(Opcode(int(opcode) + 1), index, index >> 8);
   } else {
-    throw CompilerError(location, "variable limit exceeded");
+    throw CompilerError(locations.top(), "variable limit exceeded");
   }
 }
 
@@ -248,7 +250,7 @@ auto Compiler::emitJump(Opcode opcode, std::size_t label) -> std::size_t {
   const auto jump = chunk->size();
   const auto offset = static_cast<s64>(label - jump) - kJumpBytes;
   if (offset < std::numeric_limits<s16>::min() || offset > -kJumpBytes) {
-    throw CompilerError(location, "bad jump '{}'", offset);
+    throw CompilerError(locations.top(), "bad jump '{}'", offset);
   }
   emit(opcode, offset, offset >> 8);
   return jump;
@@ -257,7 +259,7 @@ auto Compiler::emitJump(Opcode opcode, std::size_t label) -> std::size_t {
 void Compiler::patchJump(std::size_t jump) {
   const auto offset = static_cast<s64>(chunk->size() - jump) - kJumpBytes;
   if (offset < 0 || offset > std::numeric_limits<s16>::max()) {
-    throw CompilerError(location, "bad jump '{}'", offset);
+    throw CompilerError(locations.top(), "bad jump '{}'", offset);
   }
   chunk->code[jump + 1] = offset;
   chunk->code[jump + 2] = offset >> 8;
@@ -274,7 +276,7 @@ void Compiler::defineVariable(std::string_view identifier) {
     if (variable.depth != scope.size()) {
       break;
     } else if (variable.identifier == identifier) {
-      throw SyntaxError(location, "redefined variable '{}'", identifier);
+      throw SyntaxError(locations.top(), "redefined variable '{}'", identifier);
     }
   }
   variables.emplace_back(identifier, scope.size());
@@ -286,7 +288,7 @@ auto Compiler::resolveVariable(std::string_view identifier) -> Compiler::Variabl
       return variable;
     }
   }
-  throw SyntaxError(location, "undefined variable '{}'", identifier);
+  throw SyntaxError(locations.top(), "undefined variable '{}'", identifier);
 }
 
 void Compiler::popVariables(std::size_t depth) {
@@ -305,7 +307,7 @@ void Compiler::popVariables(std::size_t depth) {
   } else if (count <= std::numeric_limits<u16>::max()) {
     emit(Opcode::PopMultipleExt, count, count >> 8);
   } else {
-    throw CompilerError(location, "pop count too high '{}'", count);
+    throw CompilerError(locations.top(), "pop count too high '{}'", count);
   }
 }
 
