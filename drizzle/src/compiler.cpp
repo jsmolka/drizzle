@@ -10,12 +10,7 @@ Compiler::Compiler(StringPool& pool)
 
 void Compiler::compile(Stmt& ast, Chunk& chunk) {
   this->chunk = &chunk;
-
-  increaseScope(Level::Type::Block);
   visit(ast);
-  decreaseScope();
-
-  emit(Opcode::Return);
 }
 
 void Compiler::visit(Stmt& stmt) {
@@ -102,6 +97,14 @@ void Compiler::visit(Statement::If& if_) {
 void Compiler::visit(Statement::Print& print) {
   AstVisiter::visit(print);
   emit(Opcode::Print);
+}
+
+void Compiler::visit(Statement::Program& program) {
+  increaseScope(Level::Type::Block);
+  AstVisiter::visit(program);
+  decreaseScope();
+
+  emit(Opcode::Return);
 }
 
 void Compiler::visit(Statement::Var& var) {

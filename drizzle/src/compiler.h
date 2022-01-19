@@ -23,6 +23,7 @@ protected:
   void visit(Statement::ExpressionStatement& expression_statement) final;
   void visit(Statement::If& if_) final;
   void visit(Statement::Print& print) final;
+  void visit(Statement::Program& program) final;
   void visit(Statement::Var& var) final;
   void visit(Statement::While& while_) final;
 

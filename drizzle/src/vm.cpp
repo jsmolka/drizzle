@@ -1,6 +1,5 @@
 #include "vm.h"
 
-#include "dzstring.h"
 #include "opcode.h"
 
 Vm::Vm(StringPool& pool)
@@ -69,9 +68,7 @@ Integral Vm::read() {
 template<typename Error, typename... Args>
   requires std::is_base_of_v<RuntimeError, Error>
 void Vm::raise(std::string_view message, Args&&... args) {
-  const auto index = pc - chunk->code.data();
-  const auto line = chunk->line(index);
-
+  const auto line = chunk->line(pc - chunk->code.data());
   throw Error(Location{.line = line}, message, std::forward<Args>(args)...);
 }
 
@@ -81,23 +78,22 @@ void Vm::unary(std::string_view operation, Handler handler) {
 
   auto& value = stack.top();
 
-  #define DZ_EVAL(a)                                    \
-  {                                                     \
-    using A = decltype(a);                              \
-    if constexpr (dz_primitive<A>) {                    \
-      if (handler(value, static_cast<Promote<A>>(a))) { \
-        return;                                         \
-      } else {                                          \
-        break;                                          \
-      }                                                 \
-    } else {                                            \
-      if (handler(value, a)) {                          \
-        return;                                         \
-      } else {                                          \
-        break;                                          \
-      }                                                 \
-    }                                                   \
-    break;                                              \
+  #define DZ_EVAL(a)                       \
+  {                                        \
+    using A = decltype(a);                 \
+    if constexpr (dz_primitive<A>) {       \
+      if (handler(value, Promote<A>(a))) { \
+        return;                            \
+      } else {                             \
+        break;                             \
+      }                                    \
+    } else {                               \
+      if (handler(value, a)) {             \
+        return;                            \
+      } else {                             \
+        break;                             \
+      }                                    \
+    }                                      \
   }
 
   switch (value.type) {
@@ -120,27 +116,26 @@ template<template<typename T, typename U> typename Promote, BinaryHandler Handle
 void Vm::binary(std::string_view operation, Handler handler) {
   static_assert(int(DzValue::Type::LastEnumValue) == 5);
 
-  auto rhs = stack.pop_value();
+  auto  rhs = stack.pop_value();
   auto& lhs = stack.top();
 
-  #define DZ_EVAL(a, b)                                                                 \
-  {                                                                                     \
-    using A = decltype(a);                                                              \
-    using B = decltype(b);                                                              \
-    if constexpr (dz_primitive<A, B>) {                                                 \
-      if (handler(lhs, static_cast<Promote<A, B>>(a), static_cast<Promote<A, B>>(b))) { \
-        return;                                                                         \
-      } else {                                                                          \
-        break;                                                                          \
-      }                                                                                 \
-    } else {                                                                            \
-      if (handler(lhs, a, b)) {                                                         \
-        return;                                                                         \
-      } else {                                                                          \
-        break;                                                                          \
-      }                                                                                 \
-    }                                                                                   \
-    break;                                                                              \
+  #define DZ_EVAL(a, b)                                       \
+  {                                                           \
+    using A = decltype(a);                                    \
+    using B = decltype(b);                                    \
+    if constexpr (dz_primitive<A, B>) {                       \
+      if (handler(lhs, Promote<A, B>(a), Promote<A, B>(b))) { \
+        return;                                               \
+      } else {                                                \
+        break;                                                \
+      }                                                       \
+    } else {                                                  \
+      if (handler(lhs, a, b)) {                               \
+        return;                                               \
+      } else {                                                \
+        break;                                                \
+      }                                                       \
+    }                                                         \
   }
 
   #define DZ_HASH(a, b) (int(DzValue::Type::LastEnumValue) * int(a) + int(b))
