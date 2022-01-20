@@ -9,41 +9,36 @@ inline suite _ = [] {
     {
       constexpr auto kSource = R"(
 block:
-  noop
   noop)";
       constexpr auto kExpect = R"(program
   block
-    noop
     noop)";
       parse(kSource, kExpect);
     }
     {
       constexpr auto kSource = R"(
 block name:
-  noop
   noop)";
       constexpr auto kExpect = R"(program
   block name
-    noop
     noop)";
       parse(kSource, kExpect);
     }
     {
-      constexpr auto kSource = R"(
+      constexpr const char* kSources[] = {
+        R"(
 block name
-  noop)";
-      parseThrows(kSource);
-    }
-    {
-      constexpr auto kSource = R"(
+  noop)",
+        R"(
 block
-  noop)";
-      parseThrows(kSource);
-    }
-    {
-      constexpr auto kSource = R"(
-block: noop)";
-      parseThrows(kSource);
+  noop)",
+        R"(
+block: noop)",
+      };
+
+      for (const auto& source : kSources) {
+        parseThrows(source);
+      }
     }
   };
 };

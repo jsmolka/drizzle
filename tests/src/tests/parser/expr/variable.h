@@ -7,6 +7,13 @@ namespace tests_parser_expr_variable {
 inline suite _ = [] {
   "parser_expr_variable"_test = [] {
     {
+      constexpr auto kSource = R"(x)";
+      constexpr auto kExpect = R"(program
+  expression_statement
+    variable x)";
+      parse(kSource, kExpect);
+    }
+    {
       constexpr auto kSource = R"(x = 1)";
       constexpr auto kExpect = R"(program
   expression_statement

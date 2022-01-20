@@ -134,90 +134,57 @@ else:
       parse(kSource, kExpect);
     }
     {
-      constexpr auto kSource = R"(
+      constexpr const char* kSources[] = {
+        R"(
 if:
-  noop)";
-      parseThrows(kSource);
-    }
-    {
-      constexpr auto kSource = R"(
+  noop)",
+        R"(
 if true
-  noop)";
-      parseThrows(kSource);
-    }
-    {
-      constexpr auto kSource = R"(
-if true:)";
-      parseThrows(kSource);
-    }
-    {
-      constexpr auto kSource = R"(
-if true: pass)";
-      parseThrows(kSource);
-    }
-    {
-      constexpr auto kSource = R"(
+  noop)",
+        R"(if true:)",
+        R"(if true: pass)",
+        R"(
 if true:
   noop
 elif true
-  noop)";
-      parseThrows(kSource);
-    }
-    {
-      constexpr auto kSource = R"(
+  noop)",
+        R"(
 if true:
   noop
-elif true:)";
-      parseThrows(kSource);
-    }
-    {
-      constexpr auto kSource = R"(
+elif true:)",
+        R"(
 if true:
   noop
-elif true: noop)";
-      parseThrows(kSource);
-    }
-    {
-      constexpr auto kSource = R"(
+elif true: noop)",
+        R"(
 if true:
   noop
 elif true:
   noop
 else
-  noop)";
-      parseThrows(kSource);
-    }
-    {
-      constexpr auto kSource = R"(
+  noop)",
+        R"(
 if true:
   noop
 elif true:
   noop
-else:)";
-      parseThrows(kSource);
-    }
-    {
-      constexpr auto kSource = R"(
+else:)",
+        R"(
 if true:
   noop
 elif true:
   noop
-elif: noop)";
-      parseThrows(kSource);
-    }
-    {
-      constexpr auto kSource = R"(elif)";
-      parseThrows(kSource);
-    }
-    {
-      constexpr auto kSource = R"(else)";
-      parseThrows(kSource);
-    }
-    {
-      constexpr auto kSource = R"(
+elif: noop)",
+        R"(elif)",
+        R"(else)",
+        R"(
 else true:
-  pass)";
-      parseThrows(kSource);
+  pass)",
+      };
+
+      for (const auto& source : kSources) {
+        parseThrows(source);
+      }
     }
   };
 };

@@ -21,12 +21,25 @@ inline suite _ = [] {
       parse(kSource, kExpect);
     }
     {
-      constexpr auto kSource = R"(var)";
-      parseThrows(kSource);
+      constexpr auto kSource = R"(
+var x
+var y)";
+      constexpr auto kExpect = R"(program
+  var x
+    literal null
+  var y
+    literal null)";
+      parse(kSource, kExpect);
     }
     {
-      constexpr auto kSource = R"(var x =)";
-      parseThrows(kSource);
+      constexpr const char* kSources[] = {
+        R"(var)",
+        R"(var x =)",
+      };
+
+      for (const auto& source : kSources) {
+        parseThrows(source);
+      }
     }
   };
 };

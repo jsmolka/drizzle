@@ -13,6 +13,12 @@ inline suite _ = [] {
     literal null)";
       parse(kSource, kExpect);
     }
+    {
+      constexpr auto kSource = R"(noop)";
+      constexpr auto kExpect = R"(program
+  noop)";
+      parse(kSource, kExpect);
+    }
   };
 };
 

@@ -29,24 +29,20 @@ while 1 == 1:
       parse(kSource, kExpect);
     }
     {
-      constexpr auto kSource = R"(
+      constexpr const char* kSources[] = {
+        R"(
 while:
-  noop)";
-      parseThrows(kSource);
-    }
-    {
-      constexpr auto kSource = R"(
+  noop)",
+        R"(
 while true
-  noop)";
-      parseThrows(kSource);
-    }
-    {
-      constexpr auto kSource = R"(while true: noop)";
-      parseThrows(kSource);
-    }
-    {
-      constexpr auto kSource = R"(while true:)";
-      parseThrows(kSource);
+  noop)",
+        R"(while true: noop)",
+        R"(while true:)",
+      };
+
+      for (const auto& source : kSources) {
+        parseThrows(source);
+      }
     }
   };
 };

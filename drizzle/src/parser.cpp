@@ -429,7 +429,7 @@ void Parser::parseFloat() {
   if (const auto value = sh::parse<double>(previous->lexeme)) {
     expressions.push(newExpr<Expression::Literal>(*value));
   } else {
-    throw SyntaxError(previous->location, "cannot parse int");
+    throw SyntaxError(previous->location, "cannot parse float");
   }
 }
 

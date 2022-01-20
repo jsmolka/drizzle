@@ -19,17 +19,17 @@ inline suite _ = [] {
 
   "parser_expr_literal_string"_test = [] {
     {
-      constexpr std::tuple<const char*, const char*> kCases[] = {
+      constexpr std::tuple<const char*, const char*> kTests[] = {
         {R"("""string""")", "string"},
         {R"("""string
 """)", "string\n"},
         {R"("""string\""")", "string\\"},
         {R"("""string """)", "string "},
         {R"("string")", "string"},
-        {R"("\\\"\n\r\t")", "\\\"\n\r\t"}
+        {R"("\\\"\n\r\t")", "\\\"\n\r\t"},
       };
 
-      for (const auto& [source, string] : kCases) {
+      for (const auto& [source, string] : kTests) {
         const auto expect = fmt::format(R"(program
   expression_statement
     literal "{}")", string);
@@ -39,16 +39,16 @@ inline suite _ = [] {
   };
 
   "parser_expr_literal_integer"_test = [] {
-    constexpr std::tuple<const char*, dzint> kCases[] = {
+    constexpr std::tuple<const char*, dzint> kTests[] = {
       {"0b0", 0b0},
       {"0b01001", 0b01001},
       {"0x0", 0x0},
       {"0xabcdef", 0xabcdef},
       {"0xABCDEF", 0xABCDEF},
-      {"100", 100}
+      {"100", 100},
     };
 
-    for (const auto& [source, number] : kCases) {
+    for (const auto& [source, number] : kTests) {
       const auto expect = fmt::format(R"(program
   expression_statement
     literal {})", number);
@@ -57,15 +57,41 @@ inline suite _ = [] {
   };
 
   "parser_expr_literal_float"_test = [] {
-    constexpr std::tuple<const char*, dzfloat> kCases[] = {
-      {"1.1", 1.1}
+    constexpr std::tuple<const char*, dzfloat> kTests[] = {
+      {"0.0", 0.0},
+      {"0.1", 0.1},
+      {"0.12", 0.12},
+      {"0.123", 0.123},
+      {"0.1234", 0.1234},
+      {"12345.65789", 12345.65789},
     };
 
-    for (const auto& [source, number] : kCases) {
+    for (const auto& [source, number] : kTests) {
       const auto expect = fmt::format(R"(program
   expression_statement
     literal {})", number);
       parse(source, expect);
+    }
+  };
+
+  "parse_expr_literal_errors"_test = [] {
+    constexpr const char* kSources[] = {
+      "0b11111111111111111111111111111111111111111111111111111111111111111",
+      "0b111111111111111111111111111111111111111111111111111111111111111111",
+      "0b1111111111111111111111111111111111111111111111111111111111111111111",
+      "0b11111111111111111111111111111111111111111111111111111111111111111111",
+      "0x11111111111111111",
+      "0x111111111111111111",
+      "0x1111111111111111111",
+      "0x11111111111111111111",
+      "18446744073709551616",
+      "18446744073709551617",
+      "18446744073709551618",
+      "18446744073709551619",
+    };
+
+    for (const auto& source : kSources) {
+      parseThrows(source);
     }
   };
 };
