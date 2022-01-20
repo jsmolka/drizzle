@@ -13,6 +13,10 @@ inline suite _ = [] {
     literal 1)";
       parse(kSource, kExpect);
     }
+    {
+      constexpr auto kSource = R"(print)";
+      parseThrows(kSource);
+    }
   };
 };
 

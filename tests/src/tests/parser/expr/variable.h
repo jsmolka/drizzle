@@ -41,6 +41,10 @@ inline suite _ = [] {
         variable z)";
       parse(kSource, kExpect);
     }
+    {
+      constexpr auto kSources = "var";
+      parseThrows(kSources);
+    }
   };
 };
 

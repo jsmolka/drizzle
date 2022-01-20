@@ -1,5 +1,7 @@
 #include "utils.h"
 
+#include "tests/parser/syntax.h"
+
 static_assert(int(Expression::Type::LastEnumValue) == 6);
 #include "tests/parser/expr/assign.h"
 #include "tests/parser/expr/binary.h"

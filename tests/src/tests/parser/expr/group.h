@@ -32,6 +32,20 @@ inline suite _ = [] {
       literal 4)";
       parse(kSource, kExpect);
     }
+    {
+      constexpr const char* kSources[] = {
+        "(",
+        "(()",
+        "((())",
+        "(1",
+        "((1)",
+        "(((1))",
+      };
+
+      for (const auto& source : kSources) {
+        parseThrows(source);
+      }
+    }
   };
 };
 

@@ -68,6 +68,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\scanner\whitespace.inl" />
+    <ClInclude Include="src\tests\parser\syntax.h" />
     <ClInclude Include="src\tests\tokenizer\eof.h" />
     <ClInclude Include="src\tests\tokenizer\string.h" />
     <ClInclude Include="src\utils.h" />
