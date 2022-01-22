@@ -8,9 +8,9 @@
 Compiler::Compiler(StringPool& pool)
   : pool(pool) {}
 
-void Compiler::compile(Stmt& ast, Chunk& chunk) {
+void Compiler::compile(const Stmt& ast, Chunk& chunk) {
   this->chunk = &chunk;
-  visit(ast);
+  visit(const_cast<Stmt&>(ast));
 }
 
 void Compiler::visit(Stmt& stmt) {

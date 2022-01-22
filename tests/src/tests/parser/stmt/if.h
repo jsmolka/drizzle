@@ -135,51 +135,60 @@ else:
     }
     {
       constexpr const char* kSources[] = {
-        R"(
+R"(
 if:
-  noop)",
-        R"(
+  noop
+)",
+R"(
 if true
-  noop)",
-        R"(if true:)",
-        R"(if true: pass)",
-        R"(
+  noop
+)",
+R"(if true:)",
+R"(if true: pass)",
+R"(
 if true:
   noop
 elif true
-  noop)",
-        R"(
+  noop
+)",
+R"(
 if true:
   noop
-elif true:)",
-        R"(
+elif true:
+)",
+R"(
 if true:
   noop
-elif true: noop)",
-        R"(
+elif true: noop
+)",
+R"(
 if true:
   noop
 elif true:
   noop
 else
-  noop)",
-        R"(
+  noop
+)",
+R"(
 if true:
   noop
 elif true:
   noop
-else:)",
-        R"(
+else:
+)",
+R"(
 if true:
   noop
 elif true:
   noop
-elif: noop)",
-        R"(elif)",
-        R"(else)",
-        R"(
+elif: noop
+)",
+R"(elif)",
+R"(else)",
+R"(
 else true:
-  pass)",
+  pass
+)",
       };
 
       for (const auto& source : kSources) {

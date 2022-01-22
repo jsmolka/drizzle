@@ -17,6 +17,7 @@
     <ClCompile Include="..\drizzle\src\astformatter.cpp" />
     <ClCompile Include="..\drizzle\src\astvisiter.cpp" />
     <ClCompile Include="..\drizzle\src\chunk.cpp" />
+    <ClCompile Include="..\drizzle\src\compiler.cpp" />
     <ClCompile Include="..\drizzle\src\dzobject.cpp" />
     <ClCompile Include="..\drizzle\src\dzstring.cpp" />
     <ClCompile Include="..\drizzle\src\dzvalue.cpp" />
@@ -68,7 +69,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\scanner\whitespace.inl" />
-    <ClInclude Include="src\tests\parser\syntax.h" />
+    <ClInclude Include="src\tests\compiler\error.h" />
+    <ClInclude Include="src\tests\parser\error.h" />
     <ClInclude Include="src\tests\tokenizer\eof.h" />
     <ClInclude Include="src\tests\tokenizer\string.h" />
     <ClInclude Include="src\utils.h" />

@@ -30,14 +30,16 @@ while 1 == 1:
     }
     {
       constexpr const char* kSources[] = {
-        R"(
+R"(
 while:
-  noop)",
-        R"(
+  noop
+)",
+R"(
 while true
-  noop)",
-        R"(while true: noop)",
-        R"(while true:)",
+  noop
+)",
+R"(while true: noop)",
+R"(while true:)",
       };
 
       for (const auto& source : kSources) {

@@ -8,7 +8,7 @@ inline suite _ = [] {
   "parser_expr_literal"_test = [] {
     static_assert(int(Expression::Literal::Type::LastEnumValue) == 5);
 
-    for (const auto& literal : { "true", "false", "1.1", "1", "null", R"("string")" }) {
+    for (const auto& literal : {"true", "false", "1.1", "1", "null", R"("string")"}) {
       const auto source = fmt::format(R"({})", literal);
       const auto expect = fmt::format(R"(program
   expression_statement
@@ -20,12 +20,9 @@ inline suite _ = [] {
   "parser_expr_literal_string"_test = [] {
     {
       constexpr std::tuple<const char*, const char*> kTests[] = {
-        {R"("""string""")", "string"},
-        {R"("""string
-""")", "string\n"},
-        {R"("""string\""")", "string\\"},
-        {R"("""string """)", "string "},
         {R"("string")", "string"},
+        {R"("""string""")", "string"},
+        {R"("""string\""")", "string\\"},
         {R"("\\\"\n\r\t")", "\\\"\n\r\t"},
       };
 
@@ -45,7 +42,9 @@ inline suite _ = [] {
       {"0x0", 0x0},
       {"0xabcdef", 0xabcdef},
       {"0xABCDEF", 0xABCDEF},
+      {"0", 0},
       {"100", 100},
+      {"101", 101},
     };
 
     for (const auto& [source, number] : kTests) {

@@ -11,7 +11,7 @@ class Compiler final : public AstVisiter {
 public:
   Compiler(StringPool& pool);
 
-  void compile(Stmt& ast, Chunk& chunk);
+  void compile(const Stmt& ast, Chunk& chunk);
 
 protected:
   using AstVisiter::visit;

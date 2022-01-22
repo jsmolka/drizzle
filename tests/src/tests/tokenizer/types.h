@@ -9,7 +9,8 @@ inline suite _ = [] {
     {
       static_assert(int(Token::Type::LastEnumValue) == 56);
 
-      constexpr auto kSource = R"(&
+      constexpr auto kSource = R"(
+&
 &&
 !
 !=
@@ -60,7 +61,8 @@ return
 ~
 true
 var
-while)";
+while
+)";
 
       std::vector<Token::Type> expected;
       for (int i = 0; i < int(Token::Type::LastEnumValue); ++i) {

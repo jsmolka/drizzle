@@ -7,16 +7,13 @@ namespace tests_parser_stmt_program {
 inline suite _ = [] {
   "parser_stmt_program"_test = [] {
     constexpr auto kSource = R"(
-null
-null
-null)";
+noop
+noop
+noop)";
     constexpr auto kExpect = R"(program
-  expression_statement
-    literal null
-  expression_statement
-    literal null
-  expression_statement
-    literal null)";
+  noop
+  noop
+  noop)";
     parse(kSource, kExpect);
   };
 };

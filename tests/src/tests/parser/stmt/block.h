@@ -26,14 +26,17 @@ block name:
     }
     {
       constexpr const char* kSources[] = {
-        R"(
+R"(
 block name
-  noop)",
-        R"(
+  noop
+)",
+R"(
 block
-  noop)",
-        R"(
-block: noop)",
+  noop
+)",
+R"(
+block: noop
+)",
       };
 
       for (const auto& source : kSources) {

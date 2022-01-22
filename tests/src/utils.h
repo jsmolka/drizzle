@@ -1,6 +1,7 @@
 #pragma once
 
 #include "astformatter.h"
+#include "compiler.h"
 #include "error.h"
 #include "parser.h"
 #include "tokenizer.h"
@@ -61,4 +62,14 @@ inline void parseThrows(const std::string& source,
   expect(throws<SyntaxError>([&] {
     Parser().parse(tokens);
   }), location) << "parse" << source;
+}
+
+inline void compileThrows(const std::string& source,
+    const reflection::source_location& location = reflection::source_location::current()) {
+  const auto ast = parseThrowsNot(source, location);
+  expect(throws<SyntaxError>([&] {
+    Chunk chunk;
+    StringPool pool;
+    Compiler(pool).compile(ast, chunk);
+  }), location) << "compile" << source;
 }
