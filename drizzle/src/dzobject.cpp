@@ -2,6 +2,7 @@
 
 #include <sh/utility.h>
 
+#include "dzfunction.h"
 #include "dzstring.h"
 
 DzObject::DzObject(Type type)
@@ -9,8 +10,8 @@ DzObject::DzObject(Type type)
 
 DzObject::operator bool() const {
   switch (type) {
-    case Type::String:
-      return as<DzString>();
+    case Type::Function: return as<DzFunction>();
+    case Type::String:   return as<DzString>();
     default:
       SH_UNREACHABLE;
       return false;
@@ -27,8 +28,8 @@ auto DzObject::operator!=(const DzObject& other) const -> bool {
 
 auto DzObject::repr() const -> std::string {
   switch (type) {
-    case Type::String:
-      return as<DzString>().repr();
+    case Type::Function: return as<DzFunction>().repr();
+    case Type::String:   return as<DzString>().repr();
     default:
       SH_UNREACHABLE;
       return "unreachable";
@@ -37,8 +38,8 @@ auto DzObject::repr() const -> std::string {
 
 auto DzObject::name() const -> std::string_view {
   switch (type) {
-    case Type::String:
-      return as<DzString>().name();
+    case Type::Function: return as<DzFunction>().name();
+    case Type::String:   return as<DzString>().name();
     default:
       SH_UNREACHABLE;
       return "unreachable";
