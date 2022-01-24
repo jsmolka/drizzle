@@ -3,15 +3,17 @@
 #include <sh/stack.h>
 
 #include "astvisiter.h"
-#include "chunk.h"
+#include "dzfunction.h"
 #include "opcode.h"
 #include "stringpool.h"
 
 class Compiler final : public AstVisiter {
 public:
-  Compiler(StringPool& pool);
+  enum class Type { Main, Function };
 
-  void compile(const Stmt& ast, Chunk& chunk);
+  Compiler(Type type, StringPool& pool);
+
+  DzFunction* compile(const Stmt& ast);
 
 protected:
   using AstVisiter::visit;
@@ -69,7 +71,10 @@ private:
   void increaseScope(Args&&... args);
   auto decreaseScope() -> Level;
 
-  Chunk* chunk;
+  Type type;
+
+  DzFunction* function;
+  Chunk* chunk;  // Todo: use either or inside compiler
   sh::stack<Location> locations;
   std::vector<Level> scope;
   std::vector<Variable> variables;

@@ -5,12 +5,15 @@
 
 #include "error.h"
 
-Compiler::Compiler(StringPool& pool)
-  : pool(pool) {}
+Compiler::Compiler(Type type, StringPool& pool)
+  : type(type), pool(pool) {
+  function = new DzFunction();
+  chunk = &function->chunk;
+}
 
-void Compiler::compile(const Stmt& ast, Chunk& chunk) {
-  this->chunk = &chunk;
+DzFunction* Compiler::compile(const Stmt& ast) {
   visit(const_cast<Stmt&>(ast));
+  return function;
 }
 
 void Compiler::visit(Stmt& stmt) {
