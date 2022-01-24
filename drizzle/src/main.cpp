@@ -67,7 +67,7 @@ auto main(int argc, char* argv[]) -> int {
     } else {
       StringPool pool;
       auto main = Compiler(Compiler::Type::Main, pool).compile(ast);
-      Vm(pool).interpret(main->chunk);
+      Vm(pool).interpret(main);
     }
     return 0;
   } catch (const Error& error) {

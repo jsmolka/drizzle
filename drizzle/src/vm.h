@@ -2,7 +2,7 @@
 
 #include <sh/stack.h>
 
-#include "chunk.h"
+#include "dzfunction.h"
 #include "error.h"
 #include "stringpool.h"
 #include "token.h"
@@ -27,9 +27,15 @@ class Vm {
 public:
   Vm(StringPool& pool);
 
-  void interpret(const Chunk& chunk);
+  void interpret(DzFunction* function);
 
 private:
+  struct Frame {
+    DzFunction* function;
+    u8* pc;
+    std::size_t sp;
+  };
+
   template<std::integral Integral>
   Integral read();
 
@@ -83,8 +89,7 @@ private:
   void storeVariable();
   void subtract();
 
-  const u8* pc;
-  const Chunk* chunk;
   StringPool& pool;
   sh::stack<DzValue, 512> stack;
+  sh::stack<Frame, 128> frames;
 };

@@ -5,9 +5,12 @@
 Vm::Vm(StringPool& pool)
   : pool(pool) {}
 
-void Vm::interpret(const Chunk& chunk) {
-  this->chunk = &chunk;
-  this->pc = chunk.code.data();
+void Vm::interpret(DzFunction* function) {
+  frames.emplace(Frame{
+    .function = function,
+    .pc = function->chunk.code.data(),
+    .sp = 0
+  });
 
   while (true) {
     switch (static_cast<Opcode>(read<u8>())) {
@@ -60,15 +63,16 @@ void Vm::interpret(const Chunk& chunk) {
 
 template<std::integral Integral>
 Integral Vm::read() {
-  const auto value = sh::cast<Integral>(*pc);
-  pc += sizeof(Integral);
+  const auto value = sh::cast<Integral>(*frames.top().pc);
+  frames.top().pc += sizeof(Integral);
   return value;
 }
 
 template<typename Error, typename... Args>
   requires std::is_base_of_v<RuntimeError, Error>
 void Vm::raise(std::string_view message, Args&&... args) {
-  const auto line = chunk->line(pc - chunk->code.data());
+  const auto func = frames.top().function;
+  const auto line = func->chunk.line(frames.top().pc - func->chunk.code.data());
   throw Error(Location{.line = line}, message, std::forward<Args>(args)...);
 }
 
@@ -94,6 +98,7 @@ void Vm::unary(std::string_view operation, Handler handler) {
         break;                             \
       }                                    \
     }                                      \
+    break;                                 \
   }
 
   switch (value.type) {
@@ -136,6 +141,7 @@ void Vm::binary(std::string_view operation, Handler handler) {
         break;                                                \
       }                                                       \
     }                                                         \
+    break;                                                    \
   }
 
   #define DZ_HASH(a, b) (int(DzValue::Type::LastEnumValue) * int(a) + int(b))
@@ -276,7 +282,7 @@ void Vm::bitwiseXor() {
 template<typename Integral>
 void Vm::constant() {
   const auto index = read<Integral>();
-  stack.push(chunk->constants[index]);
+  stack.push(frames.top().function->chunk.constants[index]);
 }
 
 void Vm::divide() {
@@ -343,27 +349,27 @@ void Vm::greaterEqual() {
 }
 
 void Vm::jump() {
-  pc += read<s16>();
+  frames.top().pc += read<s16>();
 }
 
 void Vm::jumpFalse() {
   const auto offset = read<s16>();
   if (!stack.top()) {
-    pc += offset;
+    frames.top().pc += offset;
   }
 }
 
 void Vm::jumpFalsePop() {
   const auto offset = read<s16>();
   if (!stack.pop_value()) {
-    pc += offset;
+    frames.top().pc += offset;
   }
 }
 
 void Vm::jumpTrue() {
   const auto offset = read<s16>();
   if (stack.top()) {
-    pc += offset;
+    frames.top().pc += offset;
   }
 }
 
@@ -390,7 +396,7 @@ void Vm::lessEqual() {
 template<typename Integral>
 void Vm::loadVariable() {
   const auto index = read<Integral>();
-  stack.push(stack[index]);
+  stack.push(stack[frames.top().sp + index]);
 }
 
 void Vm::modulo() {
@@ -490,7 +496,7 @@ bool Vm::return_() {
 template<typename Integral>
 void Vm::storeVariable() {
   const auto index = read<Integral>();
-  stack[index] = stack.top();
+  stack[frames.top().sp + index] = stack.top();
 }
 
 void Vm::subtract() {
