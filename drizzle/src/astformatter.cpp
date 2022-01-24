@@ -27,7 +27,7 @@ void AstFormatter::visit(Expr& expr) {
 }
 
 void AstFormatter::visit(Stmt& stmt) {
-  static_assert(int(Statement::Type::LastEnumValue) == 10);
+  static_assert(int(Statement::Type::LastEnumValue) == 11);
 
   writeIndent("{}", stmt->type);
   switch (stmt->type) {
@@ -39,6 +39,12 @@ void AstFormatter::visit(Stmt& stmt) {
     case Statement::Type::Break:
       if (stmt->break_.identifier) {
         write(" {}", *stmt->break_.identifier);
+      }
+      break;
+    case Statement::Type::Def:
+      write(" {}", stmt->def.identifier);
+      if (!stmt->def.arguments.empty()) {
+        write(" {}", fmt::join(stmt->def.arguments, ", "));
       }
       break;
     case Statement::Type::Var:

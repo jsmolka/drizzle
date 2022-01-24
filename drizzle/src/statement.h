@@ -16,6 +16,7 @@ public:
     Block,
     Break,
     Continue,
+    Def,
     ExpressionStatement,
     If,
     Noop,
@@ -36,6 +37,12 @@ public:
   };
 
   struct Continue {};
+
+  struct Def {
+    std::string_view identifier;
+    std::vector<std::string_view> arguments;
+    Stmts statements;
+  };
 
   struct ExpressionStatement {
     Expr expression;
@@ -74,6 +81,7 @@ public:
   Statement(Block block, const Location& location);
   Statement(Break break_, const Location& location);
   Statement(Continue continue_, const Location& location);
+  Statement(Def define, const Location& location);
   Statement(ExpressionStatement expression, const Location& location);
   Statement(If if_, const Location& location);
   Statement(Noop noop, const Location& location);
@@ -88,6 +96,7 @@ public:
     Block block;
     Break break_;
     Continue continue_;
+    Def def;
     ExpressionStatement expression_statement;
     If if_;
     Noop noop;
@@ -104,11 +113,12 @@ struct fmt::formatter<Statement::Type> : fmt::formatter<std::string_view> {
   template<typename FormatContext>
   auto format(const Statement::Type& value, FormatContext& ctx) const {
     auto repr = [](const Statement::Type& value) {
-      static_assert(int(Statement::Type::LastEnumValue) == 10);
+      static_assert(int(Statement::Type::LastEnumValue) == 11);
       switch (value) {
         case Statement::Type::Block:               return "block";
         case Statement::Type::Break:               return "break";
         case Statement::Type::Continue:            return "continue";
+        case Statement::Type::Def:                 return "def";
         case Statement::Type::ExpressionStatement: return "expression_statement";
         case Statement::Type::If:                  return "if";
         case Statement::Type::Noop:                return "noop";

@@ -9,6 +9,9 @@ Statement::Statement(Break break_, const Location& location)
 Statement::Statement(Continue continue_, const Location& location)
   : type(Type::Continue), continue_(std::move(continue_)), location(location) {}
 
+Statement::Statement(Def def, const Location& location)
+  : type(Type::Def), def(std::move(def)), location(location) {}
+
 Statement::Statement(ExpressionStatement expression, const Location& location)
   : type(Type::ExpressionStatement), expression_statement(std::move(expression)), location(location) {}
 
@@ -35,6 +38,7 @@ Statement::~Statement() {
     case Type::Block:               std::destroy_at(&block); break;
     case Type::Break:               std::destroy_at(&break_); break;
     case Type::Continue:            std::destroy_at(&continue_); break;
+    case Type::Def:                 std::destroy_at(&def); break;
     case Type::ExpressionStatement: std::destroy_at(&expression_statement); break;
     case Type::If:                  std::destroy_at(&if_); break;
     case Type::Noop:                std::destroy_at(&noop); break;

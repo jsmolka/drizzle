@@ -68,6 +68,7 @@ private:
   void pushLocation();
   auto program() -> Stmt;
   auto declaration() -> Stmt;
+  auto declarationDef() -> Stmt;
   auto declarationVar() -> Stmt;
   auto statement() -> Stmt;
   auto statementBlock() -> Stmt;

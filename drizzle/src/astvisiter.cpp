@@ -44,12 +44,13 @@ void AstVisiter::visit(Expression::Variable& variable) {
 }
 
 void AstVisiter::visit(Stmt& stmt) {
-  static_assert(int(Statement::Type::LastEnumValue) == 10);
+  static_assert(int(Statement::Type::LastEnumValue) == 11);
 
   switch (stmt->type) {
     case Statement::Type::Block:               visit(stmt->block); break;
     case Statement::Type::Break:               visit(stmt->break_); break;
     case Statement::Type::Continue:            visit(stmt->continue_); break;
+    case Statement::Type::Def:                 visit(stmt->def.statements); break;
     case Statement::Type::ExpressionStatement: visit(stmt->expression_statement); break;
     case Statement::Type::If:                  visit(stmt->if_); break;
     case Statement::Type::Noop:                visit(stmt->noop); break;

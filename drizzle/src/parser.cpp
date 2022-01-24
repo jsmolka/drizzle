@@ -259,10 +259,43 @@ auto Parser::program() -> Stmt {
 }
 
 auto Parser::declaration() -> Stmt {
-  if (match(Token::Type::Var)) {
+  if (match(Token::Type::Def)) {
+    return declarationDef();
+  } else if (match(Token::Type::Var)) {
     return declarationVar();
   }
   return statement();
+}
+
+auto Parser::declarationDef() -> Stmt {
+  pushLocation();
+  expectIdentifier();
+  const auto identifier = previous->lexeme;
+
+  expectParenLeft();
+  std::vector<std::string_view> arguments;
+  if (current->type == Token::Type::Identifier) {
+    do {
+      expectIdentifier();
+      arguments.emplace_back(previous->lexeme);
+    } while (match(Token::Type::Comma));
+  }
+  expectParenRight();
+
+  expectColon();
+  expectNewLine();
+  expectIndent();
+
+  Stmts statements;
+  while (current->type != Token::Type::Dedent) {
+    statements.push_back(declaration());
+  }
+  expectDedent();
+  return newStmt(Statement::Def{
+    .identifier = identifier,
+    .arguments = std::move(arguments),
+    .statements = std::move(statements)
+  });
 }
 
 auto Parser::declarationVar() -> Stmt {
