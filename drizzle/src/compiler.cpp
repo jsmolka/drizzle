@@ -5,11 +5,11 @@
 
 #include "error.h"
 
-Compiler::Compiler(Type type, StringPool& pool)
-  : type(type), pool(pool) {
-  function = new DzFunction();
-  chunk = &function->chunk;
-}
+Compiler::Compiler(StringPool& pool)
+  : Compiler(Type::Main, pool, nullptr) {}
+
+Compiler::Compiler(Type type, StringPool& pool, Compiler* parent)
+  : type(type), pool(pool), parent(parent), function(new DzFunction()) {}
 
 DzFunction* Compiler::compile(const Stmt& ast) {
   visit(const_cast<Stmt&>(ast));
@@ -75,6 +75,23 @@ void Compiler::visit(Statement::Continue& continue_) {
   level.continues.push_back(emitJump(Opcode::Jump));
 }
 
+void Compiler::visit(Statement::Def& def) {
+  Compiler compiler(Type::Function, pool, this);
+  compiler.function->identifier = def.identifier;
+  compiler.locations.emplace(locations.top());
+  compiler.increaseScope(Level::Type::Function);
+  for (const auto& argument : def.arguments) {
+    compiler.defineVariable(argument);
+  }
+  compiler.visit(def.statements);
+  compiler.decreaseScope();
+  compiler.emit(Opcode::Return);
+  compiler.locations.pop();
+
+  emitConstant(compiler.function);
+  defineVariable(def.identifier);
+}
+
 void Compiler::visit(Statement::ExpressionStatement& expression_statement) {
   AstVisiter::visit(expression_statement);
   emit(Opcode::Pop);
@@ -116,7 +133,7 @@ void Compiler::visit(Statement::Var& var) {
 }
 
 void Compiler::visit(Statement::While& while_) {
-  const auto condition = chunk->size();
+  const auto condition = function->chunk.size();
   visit(while_.condition);
   const auto exit = emitJump(Opcode::JumpFalsePop);
 
@@ -227,11 +244,11 @@ void Compiler::visit(Expression::Variable& variable) {
 
 template<typename... Bytes>
 void Compiler::emit(Bytes... bytes) {
-  (chunk->write(static_cast<u8>(bytes), locations.top().line), ...);
+  (function->chunk.write(static_cast<u8>(bytes), locations.top().line), ...);
 }
 
 void Compiler::emitConstant(DzValue value) {
-  const auto index = chunk->constants.size();
+  const auto index = function->chunk.constants.size();
   if (index <= std::numeric_limits<u8>::max()) {
     emit(Opcode::Constant, index);
   } else if (index <= std::numeric_limits<u16>::max()) {
@@ -239,7 +256,7 @@ void Compiler::emitConstant(DzValue value) {
   } else {
     throw CompilerError(locations.top(), "constant limit exceeded");
   }
-  chunk->constants.push_back(value);
+  function->chunk.constants.push_back(value);
 }
 
 void Compiler::emitVariable(Opcode opcode, std::size_t index) {
@@ -253,7 +270,7 @@ void Compiler::emitVariable(Opcode opcode, std::size_t index) {
 }
 
 auto Compiler::emitJump(Opcode opcode, std::size_t label) -> std::size_t {
-  const auto jump = chunk->size();
+  const auto jump = function->chunk.size();
   const auto offset = static_cast<s64>(label - jump) - kJumpBytes;
   if (offset < std::numeric_limits<s16>::min() || offset > -kJumpBytes) {
     throw CompilerError(locations.top(), "bad jump '{}'", offset);
@@ -263,12 +280,12 @@ auto Compiler::emitJump(Opcode opcode, std::size_t label) -> std::size_t {
 }
 
 void Compiler::patchJump(std::size_t jump) {
-  const auto offset = static_cast<s64>(chunk->size() - jump) - kJumpBytes;
+  const auto offset = static_cast<s64>(function->chunk.size() - jump) - kJumpBytes;
   if (offset < 0 || offset > std::numeric_limits<s16>::max()) {
     throw CompilerError(locations.top(), "bad jump '{}'", offset);
   }
-  chunk->code[jump + 1] = offset;
-  chunk->code[jump + 2] = offset >> 8;
+  function->chunk.code[jump + 1] = offset;
+  function->chunk.code[jump + 2] = offset >> 8;
 }
 
 void Compiler::patchJumps(const std::vector<std::size_t>& jumps) {

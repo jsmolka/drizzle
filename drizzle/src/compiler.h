@@ -9,9 +9,7 @@
 
 class Compiler final : public AstVisiter {
 public:
-  enum class Type { Main, Function };
-
-  Compiler(Type type, StringPool& pool);
+  Compiler(StringPool& pool);
 
   DzFunction* compile(const Stmt& ast);
 
@@ -22,6 +20,7 @@ protected:
   void visit(Statement::Block& block) final;
   void visit(Statement::Break& break_) final;
   void visit(Statement::Continue& continue_) final;
+  void visit(Statement::Def& def) final;
   void visit(Statement::ExpressionStatement& expression_statement) final;
   void visit(Statement::If& if_) final;
   void visit(Statement::Print& print) final;
@@ -39,6 +38,8 @@ protected:
 private:
   static constexpr auto kJumpBytes = 3;
 
+  enum class Type { Main, Function };
+
   struct Level {
     enum class Type { Block, Branch, Loop, Function };
 
@@ -52,6 +53,8 @@ private:
     std::string_view identifier;
     std::size_t depth;
   };
+
+  Compiler(Type type, StringPool& pool, Compiler* parent);
 
   template<typename... Bytes>
   void emit(Bytes... bytes);
@@ -72,11 +75,10 @@ private:
   auto decreaseScope() -> Level;
 
   Type type;
-
+  StringPool& pool;
+  Compiler* parent;
   DzFunction* function;
-  Chunk* chunk;  // Todo: use either or inside compiler
   sh::stack<Location> locations;
   std::vector<Level> scope;
   std::vector<Variable> variables;
-  StringPool& pool;
 };
