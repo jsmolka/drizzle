@@ -65,9 +65,7 @@ auto main(int argc, char* argv[]) -> int {
     if (*print) {
       fmt::print("{}\n", ast);
     } else {
-      StringPool pool;
-      auto main = Compiler(pool).compile(ast);
-      Vm(pool).interpret(main);
+      Vm().interpret(Compiler().compile(ast));
     }
     return 0;
   } catch (const Error& error) {

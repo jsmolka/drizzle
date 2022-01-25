@@ -19,11 +19,23 @@ DzObject::operator bool() const {
 }
 
 auto DzObject::operator==(const DzObject& other) const -> bool {
-  return this == &other;
+  if (type != other.type) {
+    return false;
+  }
+
+  switch (type) {
+    case Type::Function:
+      return this == &other;
+    case Type::String:
+      return as<DzString>() == other.as<DzString>();
+    default:
+      SH_UNREACHABLE;
+      return false;
+  }
 }
 
 auto DzObject::operator!=(const DzObject& other) const -> bool {
-  return this != &other;
+  return !(*this == other);
 }
 
 auto DzObject::repr() const -> std::string {

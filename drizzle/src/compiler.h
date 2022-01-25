@@ -5,11 +5,10 @@
 #include "astvisiter.h"
 #include "dzfunction.h"
 #include "opcode.h"
-#include "stringpool.h"
 
 class Compiler final : public AstVisiter {
 public:
-  Compiler(StringPool& pool);
+  Compiler();
 
   DzFunction* compile(const Stmt& ast);
 
@@ -54,7 +53,7 @@ private:
     std::size_t depth;
   };
 
-  Compiler(Type type, StringPool& pool, Compiler* parent);
+  Compiler(Type type, Compiler* parent);
 
   template<typename... Bytes>
   void emit(Bytes... bytes);
@@ -75,7 +74,6 @@ private:
   auto decreaseScope() -> Level;
 
   Type type;
-  StringPool& pool;
   Compiler* parent;
   DzFunction* function;
   sh::stack<Location> locations;

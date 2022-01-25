@@ -1,9 +1,7 @@
 #include "vm.h"
 
+#include "dzstring.h"
 #include "opcode.h"
-
-Vm::Vm(StringPool& pool)
-  : pool(pool) {}
 
 void Vm::interpret(DzFunction* function) {
   frames.emplace(Frame{
@@ -190,9 +188,9 @@ void Vm::add() {
       return true;
     } else if constexpr (dz_object<A, B>) {
       if (a->type == DzObject::Type::String && b->type == DzObject::Type::String) {
-        auto aa = static_cast<DzString*>(a);
-        auto bb = static_cast<DzString*>(b);
-        dst = pool.make(aa->data + bb->data);
+        auto str_a = static_cast<DzString*>(a);
+        auto str_b = static_cast<DzString*>(b);
+        dst = new DzString(str_a->data + str_b->data);
         return true;
       }
     }

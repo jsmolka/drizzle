@@ -68,7 +68,6 @@ inline void compileThrows(const std::string& source,
     const reflection::source_location& location = reflection::source_location::current()) {
   const auto ast = parseThrowsNot(source, location);
   expect(throws<SyntaxError>([&] {
-    StringPool pool;
-    Compiler(pool).compile(ast);
+    Compiler().compile(ast);
   }), location) << "compile" << source;
 }

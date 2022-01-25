@@ -45,9 +45,6 @@
     <ClCompile Include="..\drizzle\src\dzvalue.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\drizzle\src\stringpool.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\drizzle\src\chunk.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

@@ -4,7 +4,6 @@
 
 #include "dzfunction.h"
 #include "error.h"
-#include "stringpool.h"
 #include "token.h"
 
 template<typename T>
@@ -25,8 +24,6 @@ concept BinaryHandler = requires(T&& handler, DzValue& dst, DzObject* obj) {
 
 class Vm {
 public:
-  Vm(StringPool& pool);
-
   void interpret(DzFunction* function);
 
 private:
@@ -89,7 +86,6 @@ private:
   void storeVariable();
   void subtract();
 
-  StringPool& pool;
   sh::stack<DzValue, 512> stack;
   sh::stack<Frame, 128> frames;
 };

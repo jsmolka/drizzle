@@ -3,13 +3,14 @@
 #include <sh/ranges.h>
 #include <sh/utility.h>
 
+#include "dzstring.h"
 #include "error.h"
 
-Compiler::Compiler(StringPool& pool)
-  : Compiler(Type::Main, pool, nullptr) {}
+Compiler::Compiler()
+  : Compiler(Type::Main, nullptr) {}
 
-Compiler::Compiler(Type type, StringPool& pool, Compiler* parent)
-  : type(type), pool(pool), parent(parent), function(new DzFunction()) {}
+Compiler::Compiler(Type type, Compiler* parent)
+  : type(type), parent(parent), function(new DzFunction()) {}
 
 DzFunction* Compiler::compile(const Stmt& ast) {
   visit(const_cast<Stmt&>(ast));
@@ -76,7 +77,7 @@ void Compiler::visit(Statement::Continue& continue_) {
 }
 
 void Compiler::visit(Statement::Def& def) {
-  Compiler compiler(Type::Function, pool, this);
+  Compiler compiler(Type::Function, this);
   compiler.function->identifier = def.identifier;
   compiler.locations.emplace(locations.top());
   compiler.increaseScope(Level::Type::Function);
@@ -215,7 +216,7 @@ void Compiler::visit(Expression::Literal& literal) {
     case Expression::Literal::Type::Boolean: emit(std::get<dzbool>(literal.value) ? Opcode::True : Opcode::False); break; 
     case Expression::Literal::Type::Float:   emitConstant(std::get<dzfloat>(literal.value)); break;
     case Expression::Literal::Type::Integer: emitConstant(std::get<dzint>(literal.value)); break;
-    case Expression::Literal::Type::String:  emitConstant(pool.make(std::get<std::string>(literal.value))); break;
+    case Expression::Literal::Type::String:  emitConstant(new DzString(std::get<std::string>(literal.value))); break;
     default:
       SH_UNREACHABLE;
       break;

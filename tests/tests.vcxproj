@@ -25,7 +25,6 @@
     <ClCompile Include="..\drizzle\src\expression.cpp" />
     <ClCompile Include="..\drizzle\src\parser.cpp" />
     <ClCompile Include="..\drizzle\src\statement.cpp" />
-    <ClCompile Include="..\drizzle\src\stringpool.cpp" />
     <ClCompile Include="..\drizzle\src\tokenizer.cpp" />
     <ClCompile Include="..\drizzle\src\vm.cpp" />
     <ClCompile Include="src\main.cpp" />
