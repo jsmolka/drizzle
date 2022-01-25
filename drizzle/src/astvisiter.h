@@ -18,6 +18,7 @@ protected:
   virtual void visit(Statement::Block& block);
   virtual void visit(Statement::Break& break_);
   virtual void visit(Statement::Continue& continue_);
+  virtual void visit(Statement::Def& def);
   virtual void visit(Statement::ExpressionStatement& expression_statement);
   virtual void visit(Statement::If& if_);
   virtual void visit(Statement::Noop& noop);

@@ -50,7 +50,7 @@ void AstVisiter::visit(Stmt& stmt) {
     case Statement::Type::Block:               visit(stmt->block); break;
     case Statement::Type::Break:               visit(stmt->break_); break;
     case Statement::Type::Continue:            visit(stmt->continue_); break;
-    case Statement::Type::Def:                 visit(stmt->def.statements); break;
+    case Statement::Type::Def:                 visit(stmt->def); break;
     case Statement::Type::ExpressionStatement: visit(stmt->expression_statement); break;
     case Statement::Type::If:                  visit(stmt->if_); break;
     case Statement::Type::Noop:                visit(stmt->noop); break;
@@ -80,6 +80,10 @@ void AstVisiter::visit(Statement::Break& break_) {
 
 void AstVisiter::visit(Statement::Continue& continue_) {
   sh::unused(continue_);
+}
+
+void AstVisiter::visit(Statement::Def& def) {
+  visit(def.statements);
 }
 
 void AstVisiter::visit(Statement::ExpressionStatement& expression_statement) {
