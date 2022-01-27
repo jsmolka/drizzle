@@ -71,6 +71,7 @@
     <ClInclude Include="src\scanner\whitespace.inl" />
     <ClInclude Include="src\tests\compiler\error.h" />
     <ClInclude Include="src\tests\parser\error.h" />
+    <ClInclude Include="src\tests\parser\expr\call.h" />
     <ClInclude Include="src\tests\parser\stmt\def.h" />
     <ClInclude Include="src\tests\tokenizer\eof.h" />
     <ClInclude Include="src\tests\tokenizer\string.h" />

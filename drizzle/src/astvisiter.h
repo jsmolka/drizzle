@@ -6,8 +6,10 @@
 class AstVisiter {
 protected:
   virtual void visit(Expr& expr);
+  virtual void visit(Exprs& exprs);
   virtual void visit(Expression::Assign& assign);
   virtual void visit(Expression::Binary& binary);
+  virtual void visit(Expression::Call& call);
   virtual void visit(Expression::Group& group);
   virtual void visit(Expression::Literal& literal);
   virtual void visit(Expression::Unary& unary);

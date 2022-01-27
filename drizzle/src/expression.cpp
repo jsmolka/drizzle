@@ -34,6 +34,9 @@ Expression::Expression(Assign assign, const Location& location)
 Expression::Expression(Binary binary, const Location& location)
   : type(Type::Binary), binary(std::move(binary)), location(location) {}
 
+Expression::Expression(Call call, const Location& location)
+  : type(Type::Call), call(std::move(call)), location(location) {}
+
 Expression::Expression(Group group, const Location& location)
   : type(Type::Group), group(std::move(group)), location(location) {}
 
@@ -50,6 +53,7 @@ Expression::~Expression() {
   switch (type) {
     case Type::Assign:   std::destroy_at(&assign); break;
     case Type::Binary:   std::destroy_at(&binary); break;
+    case Type::Call:     std::destroy_at(&call); break;
     case Type::Group:    std::destroy_at(&group); break;
     case Type::Literal:  std::destroy_at(&literal); break;
     case Type::Unary:    std::destroy_at(&unary); break;

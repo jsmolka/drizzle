@@ -3,9 +3,10 @@
 #include "tests/compiler/error.h"
 #include "tests/parser/error.h"
 
-static_assert(int(Expression::Type::LastEnumValue) == 6);
+static_assert(int(Expression::Type::LastEnumValue) == 7);
 #include "tests/parser/expr/assign.h"
 #include "tests/parser/expr/binary.h"
+#include "tests/parser/expr/call.h"
 #include "tests/parser/expr/group.h"
 #include "tests/parser/expr/literal.h"
 #include "tests/parser/expr/precedence.h"

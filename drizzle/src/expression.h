@@ -21,6 +21,7 @@ public:
   enum class Type {
     Assign,
     Binary,
+    Call,
     Group,
     Literal,
     Unary,
@@ -62,6 +63,11 @@ public:
     Type type;
     Expr left;
     Expr right;
+  };
+
+  struct Call {
+    std::string_view identifier;
+    Exprs arguments;
   };
 
   struct Group {
@@ -108,6 +114,7 @@ public:
 
   Expression(Assign assign, const Location& location);
   Expression(Binary binary, const Location& location);
+  Expression(Call call, const Location& location);
   Expression(Group group, const Location& location);
   Expression(Literal literal, const Location& location);
   Expression(Unary unary, const Location& location);
@@ -118,6 +125,7 @@ public:
   union {
     Assign assign;
     Binary binary;
+    Call call;
     Group group;
     Literal literal;
     Unary unary;
@@ -131,10 +139,11 @@ struct fmt::formatter<Expression::Type> : fmt::formatter<std::string_view> {
   template<typename FormatContext>
   auto format(const Expression::Type& value, FormatContext& ctx) const {
     auto repr = [](const Expression::Type& value) {
-      static_assert(int(Expression::Type::LastEnumValue) == 6);
+      static_assert(int(Expression::Type::LastEnumValue) == 7);
       switch (value) {
         case Expression::Type::Assign:   return "assign";
         case Expression::Type::Binary:   return "binary";
+        case Expression::Type::Call:     return "call";
         case Expression::Type::Group:    return "group";
         case Expression::Type::Literal:  return "literal";
         case Expression::Type::Unary:    return "unary";

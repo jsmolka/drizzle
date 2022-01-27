@@ -24,6 +24,7 @@ private:
     Term,
     Factor,
     Unary,
+    Call,
     Primary,
   };
 
@@ -54,6 +55,7 @@ private:
   auto expression() -> Expr;
   void parseExpression(Precedence precedence);
   void and_(bool);
+  void call(bool);
   void binary(bool);
   void constant(bool);
   void group(bool);
@@ -85,7 +87,7 @@ private:
   void parseString();
 
   std::vector<Token>::const_iterator current;
-  std::vector<Token>::const_iterator previous;
+  std::vector<Token>::const_iterator previous[2];
   sh::stack<Expr> expressions;
   sh::stack<Location> locations;
 };

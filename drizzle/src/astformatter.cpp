@@ -9,12 +9,13 @@ auto AstFormatter::format(const Stmt& ast) -> std::string {
 }
 
 void AstFormatter::visit(Expr& expr) {
-  static_assert(int(Expression::Type::LastEnumValue) == 6);
+  static_assert(int(Expression::Type::LastEnumValue) == 7);
 
   writeIndent("{}", expr->type);
   switch (expr->type) {
     case Expression::Type::Assign:   write(" {}", expr->assign.identifier); break;
     case Expression::Type::Binary:   write(" {}", expr->binary.type); break;
+    case Expression::Type::Call:     write(" {}", expr->call.identifier); break;
     case Expression::Type::Literal:  write(" {}", expr->literal.repr()); break;
     case Expression::Type::Unary:    write(" {}", expr->unary.type); break;
     case Expression::Type::Variable: write(" {}", expr->variable.identifier); break;
