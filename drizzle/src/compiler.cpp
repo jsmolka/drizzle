@@ -155,8 +155,7 @@ void Compiler::visit(Expr& expr) {
 
 void Compiler::visit(Expression::Assign& assign) {
   AstVisiter::visit(assign);
-  auto& var = resolveVariable(assign.identifier);
-  emitVariable(Opcode::StoreVariable, std::distance(variables.data(), &var));
+  emitVariable(Opcode::StoreVariable, resolveVariable(assign.identifier));
 }
 
 void Compiler::visit(Expression::Binary& binary) {
@@ -247,8 +246,7 @@ void Compiler::visit(Expression::Unary& unary) {
 }
 
 void Compiler::visit(Expression::Variable& variable) {
-  auto& var = resolveVariable(variable.identifier);
-  emitVariable(Opcode::LoadVariable, std::distance(variables.data(), &var));
+  emitVariable(Opcode::LoadVariable, resolveVariable(variable.identifier));
 }
 
 template<typename... Bytes>
@@ -314,10 +312,10 @@ void Compiler::defineVariable(std::string_view identifier) {
   variables.emplace_back(identifier, scope.size());
 }
 
-auto Compiler::resolveVariable(std::string_view identifier) -> Compiler::Variable& {
-  for (auto& variable : sh::reversed(variables)) {
+auto Compiler::resolveVariable(std::string_view identifier) const -> std::size_t {
+  for (const auto& variable : sh::reversed(variables)) {
     if (variable.identifier == identifier) {
-      return variable;
+      return std::distance(variables.data(), &variable);
     }
   }
   throw SyntaxError(locations.top(), "undefined variable '{}'", identifier);
