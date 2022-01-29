@@ -34,7 +34,11 @@ block:
     {
       std::array<const char*, 256> arguments{};
       std::fill(arguments.begin(), arguments.end(), "1");
-      std::string source = fmt::format("test({})", fmt::join(arguments, ","));
+      std::string source = fmt::format(R"(
+def test():
+  noop
+test({})
+)", fmt::join(arguments, ","));
 
       compileThrows<CompilerError>(source);
     }
