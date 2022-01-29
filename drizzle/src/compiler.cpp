@@ -27,7 +27,7 @@ void Compiler::visit(Statement::Block& block) {
   if (block.identifier) {
     for (const auto& level : scope) {
       if (level.identifier == *block.identifier) {
-        throw SyntaxError(locations.top(), "redefined block '{}'", *level.identifier);
+        throw SyntaxError(block.identifier->location, "redefined block '{}'", *block.identifier);
       }
     }
   }
@@ -39,14 +39,14 @@ void Compiler::visit(Statement::Block& block) {
 }
 
 void Compiler::visit(Statement::Break& break_) {
-  auto resolve = [this](std::optional<std::string_view> identifier) -> Level& {
+  auto resolve = [this](std::optional<Identifier> identifier) -> Level& {
     if (identifier) {
       for (auto& level : sh::reversed(scope)) {
         if (level.identifier == *identifier) {
           return level;
         }
       }
-      throw SyntaxError(locations.top(), "no matching block '{}'", *identifier);
+      throw SyntaxError(identifier->location, "no matching block '{}'", *identifier);
     } else {
       for (auto& level : sh::reversed(scope)) {
         if (level.type == Level::Type::Loop) {
@@ -233,7 +233,6 @@ void Compiler::visit(Expression::Literal& literal) {
 
 void Compiler::visit(Expression::Unary& unary) {
   static_assert(int(Expression::Unary::Type::LastEnumValue) == 3);
-
   AstVisiter::visit(unary);
 
   switch (unary.type) {

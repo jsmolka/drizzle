@@ -8,7 +8,7 @@
 #include "error.h"
 
 auto Parser::parse(const std::vector<Token>& tokens) -> Stmt {
-  current = previous[0] = previous[1] = tokens.begin();
+  head = tail[0] = tail[1] = tokens.begin();
   return program();
 }
 
@@ -58,12 +58,12 @@ auto Parser::makeIdentifier(Iterator iter) -> Identifier {
 }
 
 void Parser::advance() {
-  previous[1] = previous[0];
-  previous[0] = current++;
+  tail[1] = tail[0];
+  tail[0] = head++;
 }
 
 auto Parser::match(Token::Type type) -> bool {
-  const auto matched = current->type == type;
+  const auto matched = head->type == type;
   if (matched) {
     advance();
   }
@@ -72,7 +72,7 @@ auto Parser::match(Token::Type type) -> bool {
 
 void Parser::expect(Token::Type type, std::string_view error) {
   if (!match(type)) {
-    throw SyntaxError(current->location, error);
+    throw SyntaxError(head->location, error);
   }
 }
 
@@ -87,7 +87,7 @@ void Parser::expectParenRight() { expect(Token::Type::ParenRight, "expected ')'"
 template<typename T>
   requires std::constructible_from<Expression, T, Location>
 auto Parser::newExpr(T expression) -> Expr {
-  return std::make_unique<Expression>(std::move(expression), previous[0]->location);
+  return std::make_unique<Expression>(std::move(expression), tail[0]->location);
 }
 
 auto Parser::expression() -> Expr {
@@ -97,25 +97,25 @@ auto Parser::expression() -> Expr {
 
 void Parser::parseExpression(Precedence precedence) {
   advance();
-  const auto prefix = rule(previous[0]->type).prefix;
+  const auto prefix = rule(tail[0]->type).prefix;
   if (!prefix) {
-    throw SyntaxError(previous[0]->location, "invalid syntax");
+    throw SyntaxError(tail[0]->location, "invalid syntax");
   }
 
   const auto assign = precedence <= Precedence::Assignment;
   std::invoke(prefix, this, assign);
 
-  while (precedence <= rule(current->type).precedence) {
+  while (precedence <= rule(head->type).precedence) {
     advance();
-    const auto infix = rule(previous[0]->type).infix;
+    const auto infix = rule(tail[0]->type).infix;
     if (!infix) {
-      throw SyntaxError(previous[0]->location, "invalid syntax");
+      throw SyntaxError(tail[0]->location, "invalid syntax");
     }
     std::invoke(infix, this, assign);
   }
 
   if (assign && match(Token::Type::Equal)) {
-    throw SyntaxError(previous[0]->location, "bad assignment");
+    throw SyntaxError(tail[0]->location, "bad assignment");
   }
 }
 
@@ -132,12 +132,12 @@ void Parser::and_(bool) {
 }
 
 void Parser::call(bool) {
-  const auto identifier = makeIdentifier(previous[1]);
+  const auto identifier = makeIdentifier(tail[1]);
 
   Exprs arguments;
-  if (current->type != Token::Type::ParenRight) {
+  if (head->type != Token::Type::ParenRight) {
     do {
-      arguments.emplace_back(expression());
+      arguments.push_back(expression());
     } while (match(Token::Type::Comma));
   }
   expectParenRight();
@@ -175,7 +175,7 @@ void Parser::binary(bool) {
     }
   };
 
-  const auto token = previous[0]->type;
+  const auto token = tail[0]->type;
   parseExpression(Precedence(int(rule(token).precedence) + 1));
   auto rhs = expressions.pop_value();
   auto lhs = expressions.pop_value();
@@ -188,7 +188,7 @@ void Parser::binary(bool) {
 }
 
 void Parser::constant(bool) {
-  switch (previous[0]->type) {
+  switch (tail[0]->type) {
     case Token::Type::Integer: parseInt(); break;
     case Token::Type::Float:   parseFloat(); break;
     case Token::Type::String:  parseString(); break;
@@ -204,7 +204,7 @@ void Parser::group(bool) {
 }
 
 void Parser::literal(bool) {
-  switch (previous[0]->type) {
+  switch (tail[0]->type) {
     case Token::Type::True:  expressions.push(newExpr(Expression::Literal{true})); break;
     case Token::Type::False: expressions.push(newExpr(Expression::Literal{false})); break;
     case Token::Type::Null:  expressions.push(newExpr(Expression::Literal{})); break;
@@ -238,7 +238,7 @@ void Parser::unary(bool) {
     }
   };
 
-  const auto token = previous[0]->type;
+  const auto token = tail[0]->type;
   parseExpression(Precedence::Unary);
 
   expressions.push(newExpr(Expression::Unary{
@@ -248,7 +248,7 @@ void Parser::unary(bool) {
 }
 
 void Parser::variable(bool assign) {
-  const auto identifier = makeIdentifier(previous[0]);
+  const auto identifier = makeIdentifier(tail[0]);
   if (assign && match(Token::Type::Equal)) {
     auto value = expression();
     expressions.push(newExpr(Expression::Assign{
@@ -267,7 +267,7 @@ auto Parser::newStmt(T statement) -> Stmt {
 }
 
 void Parser::pushLocation() {
-  locations.push(previous[0]->location);
+  locations.push(tail[0]->location);
 }
 
 auto Parser::program() -> Stmt {
@@ -291,14 +291,14 @@ auto Parser::declaration() -> Stmt {
 auto Parser::declarationDef() -> Stmt {
   pushLocation();
   expectIdentifier();
-  const auto identifier = makeIdentifier(previous[0]);
+  const auto identifier = makeIdentifier(tail[0]);
 
   expectParenLeft();
   std::vector<Identifier> arguments;
-  if (current->type == Token::Type::Identifier) {
+  if (head->type == Token::Type::Identifier) {
     do {
       expectIdentifier();
-      arguments.emplace_back(makeIdentifier(previous[0]));
+      arguments.push_back(makeIdentifier(tail[0]));
     } while (match(Token::Type::Comma));
   }
   expectParenRight();
@@ -308,7 +308,7 @@ auto Parser::declarationDef() -> Stmt {
   expectIndent();
 
   Stmts statements;
-  while (current->type != Token::Type::Dedent) {
+  while (head->type != Token::Type::Dedent) {
     statements.push_back(declaration());
   }
   expectDedent();
@@ -322,7 +322,7 @@ auto Parser::declarationDef() -> Stmt {
 auto Parser::declarationVar() -> Stmt {
   pushLocation();
   expectIdentifier();
-  const auto identifier = makeIdentifier(previous[0]);
+  const auto identifier = makeIdentifier(tail[0]);
 
   Expr initializer;
   if (match(Token::Type::Equal)) {
@@ -360,7 +360,7 @@ auto Parser::statementBlock() -> Stmt {
   pushLocation();
   std::optional<Identifier> identifier;
   if (match(Token::Type::Identifier)) {
-    identifier = makeIdentifier(previous[0]);
+    identifier = makeIdentifier(tail[0]);
   }
 
   expectColon();
@@ -368,7 +368,7 @@ auto Parser::statementBlock() -> Stmt {
   expectIndent();
 
   Stmts statements;
-  while (current->type != Token::Type::Dedent) {
+  while (head->type != Token::Type::Dedent) {
     statements.push_back(declaration());
   }
   expectDedent();
@@ -382,7 +382,7 @@ auto Parser::statementBreak() -> Stmt {
   pushLocation();
   std::optional<Identifier> identifier;
   if (match(Token::Type::Identifier)) {
-    identifier = makeIdentifier(previous[0]);
+    identifier = makeIdentifier(tail[0]);
   }
   expectNewLine();
   return newStmt(Statement::Break{identifier});
@@ -403,7 +403,7 @@ auto Parser::statementIf() -> Stmt {
     expectIndent();
 
     Stmts statements;
-    while (current->type != Token::Type::Dedent) {
+    while (head->type != Token::Type::Dedent) {
       statements.push_back(declaration());
     }
     expectDedent();
@@ -411,9 +411,9 @@ auto Parser::statementIf() -> Stmt {
   };
 
   std::vector<Statement::If::Branch> branches;
-  branches.emplace_back(branch());
+  branches.push_back(branch());
   while (match(Token::Type::Elif)) {
-    branches.emplace_back(branch());
+    branches.push_back(branch());
   }
 
   Stmts else_;
@@ -422,7 +422,7 @@ auto Parser::statementIf() -> Stmt {
     expectNewLine();
     expectIndent();
 
-    while (current->type != Token::Type::Dedent) {
+    while (head->type != Token::Type::Dedent) {
       else_.push_back(declaration());
     }
     expectDedent();
@@ -454,7 +454,7 @@ auto Parser::statementWhile() -> Stmt {
   expectIndent();
 
   Stmts statements;
-  while (current->type != Token::Type::Dedent) {
+  while (head->type != Token::Type::Dedent) {
     statements.push_back(declaration());
   }
   expectDedent();
@@ -472,23 +472,23 @@ auto Parser::expressionStatement() -> Stmt {
 }
 
 void Parser::parseInt() {
-  if (const auto value = sh::parse<std::make_unsigned_t<dzint>>(previous[0]->lexeme)) {
+  if (const auto value = sh::parse<std::make_unsigned_t<dzint>>(tail[0]->lexeme)) {
     expressions.push(newExpr<Expression::Literal>(static_cast<dzint>(*value)));
   } else {
-    throw SyntaxError(previous[0]->location, "cannot parse int");
+    throw SyntaxError(tail[0]->location, "cannot parse int");
   }
 }
 
 void Parser::parseFloat() {
-  if (const auto value = sh::parse<double>(previous[0]->lexeme)) {
+  if (const auto value = sh::parse<double>(tail[0]->lexeme)) {
     expressions.push(newExpr<Expression::Literal>(*value));
   } else {
-    throw SyntaxError(previous[0]->location, "cannot parse float");
+    throw SyntaxError(tail[0]->location, "cannot parse float");
   }
 }
 
 void Parser::parseString() {
-  auto lexeme = previous[0]->lexeme;
+  auto lexeme = tail[0]->lexeme;
   auto quotes = lexeme.starts_with(R"(""")") ? 3 : 1;
   lexeme.remove_prefix(quotes);
   lexeme.remove_suffix(quotes);

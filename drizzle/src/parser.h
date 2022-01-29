@@ -89,8 +89,8 @@ private:
   void parseFloat();
   void parseString();
 
-  Iterator current;
-  Iterator previous[2];
+  Iterator head;
+  Iterator tail[2];
   sh::stack<Expr> expressions;
   sh::stack<Location> locations;
 };
