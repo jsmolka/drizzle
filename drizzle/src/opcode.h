@@ -106,6 +106,6 @@ struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
           return "unreachable";
       }
     };
-    return fmt::formatter<std::string_view>::format(repr(value), ctx);
+    return fmt::formatter<std::string_view>::format(repr(opcode), ctx);
   }
 };
