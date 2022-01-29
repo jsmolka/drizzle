@@ -64,10 +64,11 @@ inline void parseThrows(const std::string& source,
   }), location) << "parse" << source;
 }
 
+template<typename Error>
 inline void compileThrows(const std::string& source,
     const reflection::source_location& location = reflection::source_location::current()) {
   const auto ast = parseThrowsNot(source, location);
-  expect(throws<SyntaxError>([&] {
+  expect(throws<Error>([&] {
     Compiler().compile(ast);
   }), location) << "compile" << source;
 }

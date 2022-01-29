@@ -13,6 +13,7 @@ enum class Opcode {
   BitwiseLsr,
   BitwiseOr,
   BitwiseXor,
+  Call,
   Constant,
   ConstantExt,
   Divide,

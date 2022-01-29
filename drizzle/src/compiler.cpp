@@ -208,6 +208,14 @@ void Compiler::visit(Expression::Binary& binary) {
   }
 }
 
+void Compiler::visit(Expression::Call& call) {
+  if (call.arguments.size() > std::numeric_limits<u8>::max()) {
+    throw CompilerError(locations.top(), "too many function arguments");
+  }
+  AstVisiter::visit(call);
+  emit(Opcode::Call, call.arguments.size());
+}
+
 void Compiler::visit(Expression::Literal& literal) {
   static_assert(int(Expression::Literal::Type::LastEnumValue) == 5);
 

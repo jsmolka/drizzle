@@ -30,6 +30,7 @@ protected:
   void visit(Expr& expr) final;
   void visit(Expression::Assign& assign) final;
   void visit(Expression::Binary& binary) final;
+  void visit(Expression::Call& call) final;
   void visit(Expression::Literal& literal) final;
   void visit(Expression::Unary& unary) final;
   void visit(Expression::Variable& variable) final;
