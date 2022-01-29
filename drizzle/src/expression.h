@@ -5,11 +5,10 @@
 #include <variant>
 #include <vector>
 
-#include <sh/fmt.h>
 #include <sh/utility.h>
 
 #include "dzprimitives.h"
-#include "location.h"
+#include "identifier.h"
 
 class Expression;
 
@@ -30,7 +29,7 @@ public:
   };
 
   struct Assign {
-    std::string_view identifier;
+    Identifier identifier;
     Expr value;
   };
 
@@ -66,7 +65,7 @@ public:
   };
 
   struct Call {
-    std::string_view identifier;
+    Identifier identifier;
     Exprs arguments;
   };
 
@@ -109,7 +108,7 @@ public:
   };
 
   struct Variable {
-    std::string_view identifier;
+    Identifier identifier;
   };
 
   Expression(Assign assign, const Location& location);

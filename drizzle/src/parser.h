@@ -10,6 +10,8 @@ public:
   auto parse(const std::vector<Token>& tokens) -> Stmt;
 
 private:
+  using Iterator = std::vector<Token>::const_iterator;
+
   enum class Precedence {
     None,
     Assignment,
@@ -37,6 +39,7 @@ private:
   };
 
   static auto rule(Token::Type type) -> const Parser::Rule&;
+  static auto makeIdentifier(Iterator iter) -> Identifier;
 
   void advance();
   auto match(Token::Type type) -> bool;
@@ -86,8 +89,8 @@ private:
   void parseFloat();
   void parseString();
 
-  std::vector<Token>::const_iterator current;
-  std::vector<Token>::const_iterator previous[2];
+  Iterator current;
+  Iterator previous[2];
   sh::stack<Expr> expressions;
   sh::stack<Location> locations;
 };

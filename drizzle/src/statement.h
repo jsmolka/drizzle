@@ -28,19 +28,19 @@ public:
   };
 
   struct Block {
-    std::optional<std::string_view> identifier;
+    std::optional<Identifier> identifier;
     Stmts statements;
   };
 
   struct Break {
-    std::optional<std::string_view> identifier;
+    std::optional<Identifier> identifier;
   };
 
   struct Continue {};
 
   struct Def {
-    std::string_view identifier;
-    std::vector<std::string_view> arguments;
+    Identifier identifier;
+    std::vector<Identifier> arguments;
     Stmts statements;
   };
 
@@ -69,7 +69,7 @@ public:
   };
 
   struct Var {
-    std::string_view identifier;
+    Identifier identifier;
     Expr initializer;
   };
 

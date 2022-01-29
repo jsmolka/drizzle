@@ -53,6 +53,10 @@ auto Parser::rule(Token::Type type) -> const Parser::Rule& {
   return kRules[std::size_t(type)];
 }
 
+auto Parser::makeIdentifier(Iterator iter) -> Identifier {
+  return Identifier(iter->lexeme, iter->location);
+}
+
 void Parser::advance() {
   previous[1] = previous[0];
   previous[0] = current++;
@@ -128,7 +132,7 @@ void Parser::and_(bool) {
 }
 
 void Parser::call(bool) {
-  const auto identifier = previous[1]->lexeme;
+  const auto identifier = makeIdentifier(previous[1]);
 
   Exprs arguments;
   if (current->type != Token::Type::ParenRight) {
@@ -244,7 +248,7 @@ void Parser::unary(bool) {
 }
 
 void Parser::variable(bool assign) {
-  const auto identifier = previous[0]->lexeme;
+  const auto identifier = makeIdentifier(previous[0]);
   if (assign && match(Token::Type::Equal)) {
     auto value = expression();
     expressions.push(newExpr(Expression::Assign{
@@ -287,14 +291,14 @@ auto Parser::declaration() -> Stmt {
 auto Parser::declarationDef() -> Stmt {
   pushLocation();
   expectIdentifier();
-  const auto identifier = previous[0]->lexeme;
+  const auto identifier = makeIdentifier(previous[0]);
 
   expectParenLeft();
-  std::vector<std::string_view> arguments;
+  std::vector<Identifier> arguments;
   if (current->type == Token::Type::Identifier) {
     do {
       expectIdentifier();
-      arguments.emplace_back(previous[0]->lexeme);
+      arguments.emplace_back(makeIdentifier(previous[0]));
     } while (match(Token::Type::Comma));
   }
   expectParenRight();
@@ -318,7 +322,7 @@ auto Parser::declarationDef() -> Stmt {
 auto Parser::declarationVar() -> Stmt {
   pushLocation();
   expectIdentifier();
-  const auto identifier = previous[0]->lexeme;
+  const auto identifier = makeIdentifier(previous[0]);
 
   Expr initializer;
   if (match(Token::Type::Equal)) {
@@ -354,9 +358,9 @@ auto Parser::statement() -> Stmt {
 
 auto Parser::statementBlock() -> Stmt {
   pushLocation();
-  std::optional<std::string_view> identifier;
+  std::optional<Identifier> identifier;
   if (match(Token::Type::Identifier)) {
-    identifier = previous[0]->lexeme;
+    identifier = makeIdentifier(previous[0]);
   }
 
   expectColon();
@@ -376,9 +380,9 @@ auto Parser::statementBlock() -> Stmt {
 
 auto Parser::statementBreak() -> Stmt {
   pushLocation();
-  std::optional<std::string_view> identifier;
+  std::optional<Identifier> identifier;
   if (match(Token::Type::Identifier)) {
-    identifier = previous[0]->lexeme;
+    identifier = makeIdentifier(previous[0]);
   }
   expectNewLine();
   return newStmt(Statement::Break{identifier});

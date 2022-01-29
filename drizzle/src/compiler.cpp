@@ -210,7 +210,7 @@ void Compiler::visit(Expression::Binary& binary) {
 void Compiler::visit(Expression::Call& call) {
   emitVariable(Opcode::LoadVariable, resolveVariable(call.identifier));
   if (call.arguments.size() > std::numeric_limits<u8>::max()) {
-    throw CompilerError(locations.top(), "too many function arguments");
+    throw CompilerError(call.identifier.location, "too many function arguments");
   }
   AstVisiter::visit(call);
   emit(Opcode::Call, call.arguments.size());
@@ -302,24 +302,24 @@ void Compiler::patchJumps(const std::vector<std::size_t>& jumps) {
   }
 }
 
-void Compiler::defineVariable(std::string_view identifier) {
+void Compiler::defineVariable(Identifier identifier) {
   for (const auto& variable : sh::reversed(variables)) {
     if (variable.depth != scope.size()) {
       break;
     } else if (variable.identifier == identifier) {
-      throw SyntaxError(locations.top(), "redefined variable '{}'", identifier);
+      throw SyntaxError(identifier.location, "redefined variable '{}'", identifier);
     }
   }
   variables.emplace_back(identifier, scope.size());
 }
 
-auto Compiler::resolveVariable(std::string_view identifier) const -> std::size_t {
+auto Compiler::resolveVariable(Identifier identifier) const -> std::size_t {
   for (const auto& variable : sh::reversed(variables)) {
     if (variable.identifier == identifier) {
       return std::distance(variables.data(), &variable);
     }
   }
-  throw SyntaxError(locations.top(), "undefined variable '{}'", identifier);
+  throw SyntaxError(identifier.location, "undefined variable '{}'", identifier);
 }
 
 void Compiler::popVariables(std::size_t depth) {
