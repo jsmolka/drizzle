@@ -20,6 +20,7 @@ void Vm::interpret(DzFunction* function) {
       case Opcode::BitwiseLsl: bitwiseLsl(); break;
       case Opcode::BitwiseOr: bitwiseOr(); break;
       case Opcode::BitwiseXor: bitwiseXor(); break;
+      case Opcode::Call: call(); break;
       case Opcode::Constant: constant<u8>(); break;
       case Opcode::ConstantExt: constant<u16>(); break;
       case Opcode::Divide: divide(); break;
@@ -275,6 +276,10 @@ void Vm::bitwiseXor() {
     }
     return false;
   });
+}
+
+void Vm::call() {
+  fmt::print("{}\n", fmt::join(stack, ", "));
 }
 
 template<typename Integral>

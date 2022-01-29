@@ -53,6 +53,7 @@ private:
   void bitwiseLsr();
   void bitwiseOr();
   void bitwiseXor();
+  void call();
   template<typename Integral>
   void constant();
   void divide();
