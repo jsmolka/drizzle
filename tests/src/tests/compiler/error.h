@@ -25,6 +25,9 @@ R"(
 block:
   continue
 )",
+R"(
+return
+)",
       };
 
       for (const auto& source : kSources) {

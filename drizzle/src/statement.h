@@ -22,6 +22,7 @@ public:
     Noop,
     Print,
     Program,
+    Return,
     Var,
     While,
     LastEnumValue,
@@ -68,6 +69,10 @@ public:
     Stmts statements;
   };
 
+  struct Return {
+    Expr expression;
+  };
+
   struct Var {
     Identifier identifier;
     Expr initializer;
@@ -87,6 +92,7 @@ public:
   Statement(Noop noop, const Location& location);
   Statement(Print print, const Location& location);
   Statement(Program program, const Location& location);
+  Statement(Return return_, const Location& location);
   Statement(Var var, const Location& location);
   Statement(While while_, const Location& location);
   ~Statement();
@@ -102,6 +108,7 @@ public:
     Noop noop;
     Print print;
     Program program;
+    Return return_;
     Var var;
     While while_;
   };
@@ -113,7 +120,7 @@ struct fmt::formatter<Statement::Type> : fmt::formatter<std::string_view> {
   template<typename FormatContext>
   auto format(const Statement::Type& value, FormatContext& ctx) const {
     auto repr = [](const Statement::Type& value) {
-      static_assert(int(Statement::Type::LastEnumValue) == 11);
+      static_assert(int(Statement::Type::LastEnumValue) == 12);
       switch (value) {
         case Statement::Type::Block:               return "block";
         case Statement::Type::Break:               return "break";
@@ -124,6 +131,7 @@ struct fmt::formatter<Statement::Type> : fmt::formatter<std::string_view> {
         case Statement::Type::Noop:                return "noop";
         case Statement::Type::Print:               return "print";
         case Statement::Type::Program:             return "program";
+        case Statement::Type::Return:              return "return";
         case Statement::Type::Var:                 return "var";
         case Statement::Type::While:               return "while";
         default:

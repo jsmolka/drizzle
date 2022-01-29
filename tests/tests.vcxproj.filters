@@ -199,5 +199,8 @@
     <ClInclude Include="src\tests\parser\expr\call.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\tests\parser\stmt\return.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -24,6 +24,7 @@ protected:
   void visit(Statement::If& if_) final;
   void visit(Statement::Print& print) final;
   void visit(Statement::Program& program) final;
+  void visit(Statement::Return& return_) final;
   void visit(Statement::Var& var) final;
   void visit(Statement::While& while_) final;
 
@@ -60,6 +61,7 @@ private:
   void emit(Bytes... bytes);
   void emitConstant(DzValue value);
   void emitVariable(Opcode opcode, std::size_t index);
+  void emitReturn();
 
   auto emitJump(Opcode opcode, std::size_t label = 0) -> std::size_t;
   void patchJump(std::size_t jump);

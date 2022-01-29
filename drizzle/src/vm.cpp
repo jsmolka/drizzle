@@ -4,7 +4,7 @@
 #include "opcode.h"
 
 void Vm::interpret(DzFunction* function) {
-  frames.emplace(Frame{
+  frames.push(Frame{
     .function = function,
     .pc = function->chunk.code.data(),
     .sp = 0
@@ -60,18 +60,22 @@ void Vm::interpret(DzFunction* function) {
   }
 }
 
+auto Vm::frame() -> Frame& {
+  return frames.top();
+}
+
 template<std::integral Integral>
-Integral Vm::read() {
-  const auto value = sh::cast<Integral>(*frames.top().pc);
-  frames.top().pc += sizeof(Integral);
+auto Vm::read() -> Integral {
+  const auto value = sh::cast<Integral>(*frame().pc);
+  frame().pc += sizeof(Integral);
   return value;
 }
 
 template<typename Error, typename... Args>
   requires std::is_base_of_v<RuntimeError, Error>
 void Vm::raise(std::string_view message, Args&&... args) {
-  const auto func = frames.top().function;
-  const auto line = func->chunk.line(frames.top().pc - func->chunk.code.data());
+  const auto func = frame().function;
+  const auto line = func->chunk.line(frame().pc - func->chunk.code.data());
   throw Error(Location{.line = line}, message, std::forward<Args>(args)...);
 }
 
@@ -279,13 +283,28 @@ void Vm::bitwiseXor() {
 }
 
 void Vm::call() {
-  fmt::print("{}\n", fmt::join(stack, ", "));
+  const auto arity = read<u8>();
+  const auto value = stack.peek(arity);
+  if (value.type == DzValue::Type::Object && value.o->type == DzObject::Type::Function) {
+    const auto function = static_cast<DzFunction*>(value.o);
+    if (function->arity != arity) {
+      raise<RuntimeError>("expected {} argument(s) but got {}", function->arity, arity);
+    }
+
+    frames.push(Frame{
+      .function = function,
+      .pc = function->chunk.code.data(),
+      .sp = stack.size() - arity
+    });
+  } else {
+    raise<RuntimeError>("'{}' is not callable", value);
+  }
 }
 
 template<typename Integral>
 void Vm::constant() {
   const auto index = read<Integral>();
-  stack.push(frames.top().function->chunk.constants[index]);
+  stack.push(frame().function->chunk.constants[index]);
 }
 
 void Vm::divide() {
@@ -352,27 +371,27 @@ void Vm::greaterEqual() {
 }
 
 void Vm::jump() {
-  frames.top().pc += read<s16>();
+  frame().pc += read<s16>();
 }
 
 void Vm::jumpFalse() {
   const auto offset = read<s16>();
   if (!stack.top()) {
-    frames.top().pc += offset;
+    frame().pc += offset;
   }
 }
 
 void Vm::jumpFalsePop() {
   const auto offset = read<s16>();
   if (!stack.pop_value()) {
-    frames.top().pc += offset;
+    frame().pc += offset;
   }
 }
 
 void Vm::jumpTrue() {
   const auto offset = read<s16>();
   if (stack.top()) {
-    frames.top().pc += offset;
+    frame().pc += offset;
   }
 }
 
@@ -399,7 +418,7 @@ void Vm::lessEqual() {
 template<typename Integral>
 void Vm::loadVariable() {
   const auto index = read<Integral>();
-  stack.push(stack[frames.top().sp + index]);
+  stack.push(stack[frame().sp + index]);
 }
 
 void Vm::modulo() {
@@ -493,13 +512,20 @@ void Vm::pushTrue() {
 }
 
 bool Vm::return_() {
+  const auto result = stack.pop_value();
+  const auto frame = frames.pop_value();
+  if (!frames.empty()) {
+    stack.pop(frame.function->arity);
+    stack.top() = result;
+    return false;
+  }
   return true;
 }
 
 template<typename Integral>
 void Vm::storeVariable() {
   const auto index = read<Integral>();
-  stack[frames.top().sp + index] = stack.top();
+  stack[frame().sp + index] = stack.top();
 }
 
 void Vm::subtract() {

@@ -311,6 +311,7 @@ auto Parser::declarationDef() -> Stmt {
   while (head->type != Token::Type::Dedent) {
     statements.push_back(declaration());
   }
+
   expectDedent();
   return newStmt(Statement::Def{
     .identifier = identifier,
@@ -350,6 +351,8 @@ auto Parser::statement() -> Stmt {
     return statementNoop();
   } else if (match(Token::Type::Print)) {
     return statementPrint();
+  } else if (match(Token::Type::Return)) {
+    return statementReturn();
   } else if (match(Token::Type::While)) {
     return statementWhile();
   }
@@ -444,6 +447,18 @@ auto Parser::statementPrint() -> Stmt {
   auto expr = expression();
   expectNewLine();
   return newStmt(Statement::Print{std::move(expr)});
+}
+
+auto Parser::statementReturn() -> Stmt {
+  pushLocation();
+  Expr expr;
+  if (head->type == Token::Type::NewLine) {
+    expr = newExpr(Expression::Literal{});
+  } else {
+    expr = expression();
+  }
+  expectNewLine();
+  return newStmt(Statement::Return{std::move(expr)});
 }
 
 auto Parser::statementWhile() -> Stmt {

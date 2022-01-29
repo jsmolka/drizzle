@@ -48,6 +48,10 @@ def test(x,):
   noop
 )",
 R"(
+def test(x, 1):
+  noop
+)",
+R"(
 def test(x, var):
   noop
 )",

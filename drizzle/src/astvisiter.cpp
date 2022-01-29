@@ -55,7 +55,7 @@ void AstVisiter::visit(Expression::Variable& variable) {
 }
 
 void AstVisiter::visit(Stmt& stmt) {
-  static_assert(int(Statement::Type::LastEnumValue) == 11);
+  static_assert(int(Statement::Type::LastEnumValue) == 12);
 
   switch (stmt->type) {
     case Statement::Type::Block:               visit(stmt->block); break;
@@ -67,6 +67,7 @@ void AstVisiter::visit(Stmt& stmt) {
     case Statement::Type::Noop:                visit(stmt->noop); break;
     case Statement::Type::Print:               visit(stmt->print); break;
     case Statement::Type::Program:             visit(stmt->program); break;
+    case Statement::Type::Return:              visit(stmt->return_); break;
     case Statement::Type::Var:                 visit(stmt->var); break;
     case Statement::Type::While:               visit(stmt->while_); break;
     default:
@@ -119,6 +120,10 @@ void AstVisiter::visit(Statement::Print& print) {
 
 void AstVisiter::visit(Statement::Program& program) {
   visit(program.statements);
+}
+
+void AstVisiter::visit(Statement::Return& return_) {
+  visit(return_.expression);
 }
 
 void AstVisiter::visit(Statement::Var& var) {

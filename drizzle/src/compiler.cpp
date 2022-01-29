@@ -79,14 +79,15 @@ void Compiler::visit(Statement::Continue& continue_) {
 void Compiler::visit(Statement::Def& def) {
   Compiler compiler(Type::Function, this);
   compiler.function->identifier = def.identifier;
+  compiler.function->arity = def.arguments.size();
   compiler.locations.emplace(locations.top());
   compiler.increaseScope(Level::Type::Function);
   for (const auto& argument : def.arguments) {
     compiler.defineVariable(argument);
   }
   compiler.visit(def.statements);
+  compiler.emitReturn();
   compiler.decreaseScope();
-  compiler.emit(Opcode::Return);
   compiler.locations.pop();
 
   emitConstant(compiler.function);
@@ -123,8 +124,15 @@ void Compiler::visit(Statement::Print& print) {
 void Compiler::visit(Statement::Program& program) {
   increaseScope(Level::Type::Block);
   AstVisiter::visit(program);
+  emitReturn();
   decreaseScope();
+}
 
+void Compiler::visit(Statement::Return& return_) {
+  if (type == Type::Main) {
+    throw SyntaxError(locations.top(), "no matching function");
+  }
+  AstVisiter::visit(return_);
   emit(Opcode::Return);
 }
 
@@ -274,6 +282,10 @@ void Compiler::emitVariable(Opcode opcode, std::size_t index) {
   } else {
     throw CompilerError(locations.top(), "variable limit exceeded");
   }
+}
+
+void Compiler::emitReturn() {
+  emit(Opcode::Null, Opcode::Return);
 }
 
 auto Compiler::emitJump(Opcode opcode, std::size_t label) -> std::size_t {

@@ -33,8 +33,9 @@ private:
     std::size_t sp;
   };
 
+  auto frame() -> Frame&;
   template<std::integral Integral>
-  Integral read();
+  auto read() -> Integral;
 
   template<typename Error, typename... Args>
     requires std::is_base_of_v<RuntimeError, Error>
