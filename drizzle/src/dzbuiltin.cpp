@@ -13,10 +13,13 @@ auto DzBuiltIn::all() -> BuiltIns& {
       if (!vm.stack.pop_value()) {
         vm.raise<RuntimeError>("assertion failed");
       }
+      vm.stack.top() = {};
     }),
-    DzBuiltIn("print", 1, [](Vm& vm, std::size_t) {
-      fmt::print("{}\n", vm.stack.pop_value());
-    })
+    DzBuiltIn("print", std::nullopt, [](Vm& vm, std::size_t argc) {
+      fmt::print("{}\n", fmt::join(vm.stack.end() - argc, vm.stack.end(), " "));
+      vm.stack.pop(argc);
+      vm.stack.top() = {};
+    }),
   };
   return builtins;
 }
