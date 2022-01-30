@@ -2,6 +2,7 @@
 
 #include <sh/utility.h>
 
+#include "dzbuiltin.h"
 #include "dzfunction.h"
 #include "dzstring.h"
 
@@ -10,6 +11,7 @@ DzObject::DzObject(Type type)
 
 DzObject::operator bool() const {
   switch (type) {
+    case Type::BuiltIn:  return as<DzBuiltIn>();
     case Type::Function: return as<DzFunction>();
     case Type::String:   return as<DzString>();
     default:
@@ -24,6 +26,7 @@ auto DzObject::operator==(const DzObject& other) const -> bool {
   }
 
   switch (type) {
+    case Type::BuiltIn:
     case Type::Function:
       return this == &other;
     case Type::String:
@@ -40,6 +43,7 @@ auto DzObject::operator!=(const DzObject& other) const -> bool {
 
 auto DzObject::repr() const -> std::string {
   switch (type) {
+    case Type::BuiltIn:  return as<DzBuiltIn>().repr();
     case Type::Function: return as<DzFunction>().repr();
     case Type::String:   return as<DzString>().repr();
     default:
@@ -50,6 +54,7 @@ auto DzObject::repr() const -> std::string {
 
 auto DzObject::name() const -> std::string_view {
   switch (type) {
+    case Type::BuiltIn:  return as<DzBuiltIn>().name();
     case Type::Function: return as<DzFunction>().name();
     case Type::String:   return as<DzString>().name();
     default:

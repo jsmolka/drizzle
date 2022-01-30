@@ -24,6 +24,8 @@ concept BinaryHandler = requires(T&& handler, DzValue& dst, DzObject* obj) {
 
 class Vm {
 public:
+  friend class DzBuiltIn;
+
   void interpret(DzFunction* function);
 
 private:
@@ -88,6 +90,6 @@ private:
   void storeVariable();
   void subtract();
 
+  sh::stack<Frame, 32> frames;
   sh::stack<DzValue, 512> stack;
-  sh::stack<Frame, 128> frames;
 };

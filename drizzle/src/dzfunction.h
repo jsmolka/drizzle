@@ -12,7 +12,7 @@ public:
   auto repr() const -> std::string;
   auto name() const -> std::string_view;
 
-  Chunk chunk;
-  std::size_t arity;
   std::string identifier;
+  std::size_t arity;
+  Chunk chunk;
 };

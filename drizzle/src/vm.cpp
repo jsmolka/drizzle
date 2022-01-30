@@ -1,5 +1,6 @@
 #include "vm.h"
 
+#include "dzbuiltin.h"
 #include "dzstring.h"
 #include "opcode.h"
 
@@ -285,20 +286,32 @@ void Vm::bitwiseXor() {
 void Vm::call() {
   const auto arity = read<u8>();
   const auto value = stack.peek(arity);
-  if (value.type == DzValue::Type::Object && value.o->type == DzObject::Type::Function) {
-    const auto function = static_cast<DzFunction*>(value.o);
-    if (function->arity != arity) {
-      raise<RuntimeError>("expected {} argument(s) but got {}", function->arity, arity);
-    }
+  if (value.type == DzValue::Type::Object) {
+    switch (value.o->type) {
+      case DzObject::Type::BuiltIn: {
+        const auto builtin = static_cast<DzBuiltIn*>(value.o);
+        if (builtin->arity != arity) {
+          raise<RuntimeError>("expected {} argument(s) but got {}", builtin->arity, arity);
+        }
+        builtin->callback(*this);
+        return;
+      }
 
-    frames.push(Frame{
-      .function = function,
-      .pc = function->chunk.code.data(),
-      .sp = stack.size() - arity
-    });
-  } else {
-    raise<RuntimeError>("'{}' is not callable", value);
+      case DzObject::Type::Function: {
+        const auto function = static_cast<DzFunction*>(value.o);
+        if (function->arity != arity) {
+          raise<RuntimeError>("expected {} argument(s) but got {}", function->arity, arity);
+        }
+        frames.push(Frame{
+          .function = function,
+          .pc = function->chunk.code.data(),
+          .sp = stack.size() - arity
+        });
+        return;
+      }
+    }
   }
+  raise<RuntimeError>("'{}' is not callable", value);
 }
 
 template<typename Integral>

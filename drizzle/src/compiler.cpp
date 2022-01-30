@@ -3,6 +3,7 @@
 #include <sh/ranges.h>
 #include <sh/utility.h>
 
+#include "dzbuiltin.h"
 #include "dzstring.h"
 #include "error.h"
 
@@ -123,6 +124,10 @@ void Compiler::visit(Statement::Print& print) {
 
 void Compiler::visit(Statement::Program& program) {
   increaseScope(Level::Type::Block);
+  for (auto& builtin : DzBuiltIn::all()) {
+    emitConstant(&builtin);
+    defineVariable(Identifier(builtin.identifier, {}));
+  }
   AstVisiter::visit(program);
   emitReturn();
   decreaseScope();
