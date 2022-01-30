@@ -7,7 +7,7 @@ namespace tests_tokenizer_types {
 inline suite _ = [] {
   "tokenizer_types"_test = [] {
     {
-      static_assert(int(Token::Type::LastEnumValue) == 56);
+      static_assert(int(Token::Type::LastEnumValue) == 55);
 
       constexpr auto kSource = R"(
 &
@@ -51,7 +51,6 @@ null
 |
 ||
 +
-print
 return
 /
 //

@@ -28,7 +28,7 @@ void AstFormatter::visit(Expr& expr) {
 }
 
 void AstFormatter::visit(Stmt& stmt) {
-  static_assert(int(Statement::Type::LastEnumValue) == 12);
+  static_assert(int(Statement::Type::LastEnumValue) == 11);
 
   writeIndent("{}", stmt->type);
   switch (stmt->type) {

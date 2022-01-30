@@ -349,8 +349,6 @@ auto Parser::statement() -> Stmt {
     return statementIf();
   } else if (match(Token::Type::Noop)) {
     return statementNoop();
-  } else if (match(Token::Type::Print)) {
-    return statementPrint();
   } else if (match(Token::Type::Return)) {
     return statementReturn();
   } else if (match(Token::Type::While)) {
@@ -440,13 +438,6 @@ auto Parser::statementNoop() -> Stmt {
   pushLocation();
   expectNewLine();
   return newStmt(Statement::Noop{});
-}
-
-auto Parser::statementPrint() -> Stmt {
-  pushLocation();
-  auto expr = expression();
-  expectNewLine();
-  return newStmt(Statement::Print{std::move(expr)});
 }
 
 auto Parser::statementReturn() -> Stmt {

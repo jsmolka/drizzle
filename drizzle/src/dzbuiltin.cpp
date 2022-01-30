@@ -4,15 +4,18 @@
 
 #include "vm.h"
 
-DzBuiltIn::DzBuiltIn(const std::string& identifier, std::size_t arity, const Callback& callback)
+DzBuiltIn::DzBuiltIn(const std::string& identifier, std::optional<std::size_t> arity, const Callback& callback)
   : DzObject(Type::BuiltIn), identifier(identifier), arity(arity), callback(callback) {}
 
-auto DzBuiltIn::all() -> std::array<DzBuiltIn, 1>& {
-  static std::array<DzBuiltIn, 1> builtins = {
-    DzBuiltIn("assert", 1, [](Vm& vm) {
+auto DzBuiltIn::all() -> BuiltIns& {
+  static BuiltIns builtins = {
+    DzBuiltIn("assert", 1, [](Vm& vm, std::size_t) {
       if (!vm.stack.pop_value()) {
         vm.raise<RuntimeError>("assertion failed");
       }
+    }),
+    DzBuiltIn("print", 1, [](Vm& vm, std::size_t) {
+      fmt::print("{}\n", vm.stack.pop_value());
     })
   };
   return builtins;

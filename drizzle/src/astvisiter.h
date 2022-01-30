@@ -24,7 +24,6 @@ protected:
   virtual void visit(Statement::ExpressionStatement& expression_statement);
   virtual void visit(Statement::If& if_);
   virtual void visit(Statement::Noop& noop);
-  virtual void visit(Statement::Print& print);
   virtual void visit(Statement::Program& program);
   virtual void visit(Statement::Return& return_);
   virtual void visit(Statement::Var& var);

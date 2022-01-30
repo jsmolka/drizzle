@@ -81,7 +81,6 @@ private:
   auto statementContinue() -> Stmt;
   auto statementIf() -> Stmt;
   auto statementNoop() -> Stmt;
-  auto statementPrint() -> Stmt;
   auto statementReturn() -> Stmt;
   auto statementWhile() -> Stmt;
   auto expressionStatement() -> Stmt;

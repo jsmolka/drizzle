@@ -44,7 +44,6 @@
     <None Include="src\tests\parser\stmt\expression_statement.h" />
     <None Include="src\tests\parser\stmt\if.h" />
     <None Include="src\tests\parser\stmt\noop.h" />
-    <None Include="src\tests\parser\stmt\print.h" />
     <None Include="src\tests\parser\stmt\program.h" />
     <None Include="src\tests\parser\stmt\var.h" />
     <None Include="src\tests\parser\stmt\while.h" />

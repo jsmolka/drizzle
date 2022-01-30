@@ -117,11 +117,6 @@ void Compiler::visit(Statement::If& if_) {
   patchJumps(exits);
 }
 
-void Compiler::visit(Statement::Print& print) {
-  AstVisiter::visit(print);
-  emit(Opcode::Print);
-}
-
 void Compiler::visit(Statement::Program& program) {
   increaseScope(Level::Type::Block);
   for (auto& builtin : DzBuiltIn::all()) {

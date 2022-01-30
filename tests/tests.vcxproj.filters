@@ -143,9 +143,6 @@
     <None Include="src\tests\parser\stmt\expression_statement.h">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\tests\parser\stmt\print.h">
-      <Filter>Header Files</Filter>
-    </None>
     <None Include="src\tests\parser\stmt\noop.h">
       <Filter>Header Files</Filter>
     </None>

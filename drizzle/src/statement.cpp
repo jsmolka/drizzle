@@ -21,9 +21,6 @@ Statement::Statement(If if_, const Location& location)
 Statement::Statement(Noop noop, const Location& location)
   : type(Type::Noop), noop(std::move(noop)), location(location) {}
 
-Statement::Statement(Print print, const Location& location)
-  : type(Type::Print), print(std::move(print)), location(location) {}
-
 Statement::Statement(Program program, const Location& location)
   : type(Type::Program), program(std::move(program)), location(location) {}
 
@@ -37,7 +34,7 @@ Statement::Statement(While while_, const Location& location)
   : type(Type::While), while_(std::move(while_)), location(location) {}
 
 Statement::~Statement() {
-  static_assert(int(Type::LastEnumValue) == 12);
+  static_assert(int(Type::LastEnumValue) == 11);
 
   switch (type) {
     case Type::Block:               std::destroy_at(&block); break;
@@ -47,7 +44,6 @@ Statement::~Statement() {
     case Type::ExpressionStatement: std::destroy_at(&expression_statement); break;
     case Type::If:                  std::destroy_at(&if_); break;
     case Type::Noop:                std::destroy_at(&noop); break;
-    case Type::Print:               std::destroy_at(&print); break;
     case Type::Program:             std::destroy_at(&program); break;
     case Type::Return:              std::destroy_at(&return_); break;
     case Type::Var:                 std::destroy_at(&var); break;

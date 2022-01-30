@@ -42,7 +42,6 @@ enum class Opcode {
   PopMultiple,
   PopMultipleExt,
   Power,
-  Print,
   Return,
   StoreVariable,
   StoreVariableExt,
@@ -58,7 +57,7 @@ struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
   template<typename FormatContext>
   auto format(const Opcode& opcode, FormatContext& ctx) const {
     auto repr = [](const Opcode& opcode) {
-      static_assert(int(Opcode::LastEnumValue) == 41);
+      static_assert(int(Opcode::LastEnumValue) == 40);
       switch (opcode) {
         case Opcode::Add:               return "Add";
         case Opcode::BitwiseAnd:        return "BitwiseAnd";
@@ -95,7 +94,6 @@ struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
         case Opcode::PopMultiple:       return "PopMultiple";
         case Opcode::PopMultipleExt:    return "PopMultipleExt";
         case Opcode::Power:             return "Power";
-        case Opcode::Print:             return "Print";
         case Opcode::Return:            return "Return";
         case Opcode::StoreVariable:     return "StoreVariable";
         case Opcode::StoreVariableExt:  return "StoreVariableExt";

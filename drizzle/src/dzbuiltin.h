@@ -2,6 +2,7 @@
 
 #include <array>
 #include <functional>
+#include <optional>
 
 #include "dzobject.h"
 
@@ -9,11 +10,12 @@ class Vm;
 
 class DzBuiltIn : public DzObject {
 public:
-  using Callback = std::function<void(Vm&)>;
+  using Callback = std::function<void(Vm&, std::size_t)>;
+  using BuiltIns = std::array<DzBuiltIn, 2>;
 
-  DzBuiltIn(const std::string& identifier, std::size_t arity, const Callback& callback);
+  DzBuiltIn(const std::string& identifier, std::optional<std::size_t> arity, const Callback& callback);
 
-  static auto all() -> std::array<DzBuiltIn, 1>&;
+  static auto all() -> BuiltIns&;
 
   operator bool() const;
 
@@ -21,6 +23,6 @@ public:
   auto name() const -> std::string_view;
 
   std::string identifier;
-  std::size_t arity;
+  std::optional<std::size_t> arity;
   Callback callback;
 };

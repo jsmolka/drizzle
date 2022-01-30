@@ -48,7 +48,6 @@ void Vm::interpret(DzFunction* function) {
       case Opcode::PopMultiple: popMultiple<u8>(); break;
       case Opcode::PopMultipleExt: popMultiple<u16>(); break;
       case Opcode::Power: power(); break;
-      case Opcode::Print: print(); break;
       case Opcode::Return: if (return_()) { return; } break;
       case Opcode::StoreVariable: storeVariable<u8>(); break;
       case Opcode::StoreVariableExt: storeVariable<u16>(); break;
@@ -284,28 +283,28 @@ void Vm::bitwiseXor() {
 }
 
 void Vm::call() {
-  const auto arity = read<u8>();
-  const auto value = stack.peek(arity);
+  const auto argc = read<u8>();
+  const auto& value = stack.peek(argc);
   if (value.type == DzValue::Type::Object) {
     switch (value.o->type) {
       case DzObject::Type::BuiltIn: {
         const auto builtin = static_cast<DzBuiltIn*>(value.o);
-        if (builtin->arity != arity) {
-          raise<RuntimeError>("expected {} argument(s) but got {}", builtin->arity, arity);
+        if (builtin->arity && *builtin->arity != argc) {
+          raise<RuntimeError>("expected {} argument(s) but got {}", *builtin->arity, argc);
         }
-        builtin->callback(*this);
+        builtin->callback(*this, argc);
         return;
       }
 
       case DzObject::Type::Function: {
         const auto function = static_cast<DzFunction*>(value.o);
-        if (function->arity != arity) {
-          raise<RuntimeError>("expected {} argument(s) but got {}", function->arity, arity);
+        if (function->arity != argc) {
+          raise<RuntimeError>("expected {} argument(s) but got {}", function->arity, argc);
         }
         frames.push(Frame{
           .function = function,
           .pc = function->chunk.code.data(),
-          .sp = stack.size() - arity
+          .sp = stack.size() - argc
         });
         return;
       }
@@ -506,10 +505,6 @@ void Vm::power() {
     }
     return false;
   });
-}
-
-void Vm::print() {
-  fmt::print("{}\n", stack.pop_value());
 }
 
 void Vm::pushFalse() {

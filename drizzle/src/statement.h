@@ -20,7 +20,6 @@ public:
     ExpressionStatement,
     If,
     Noop,
-    Print,
     Program,
     Return,
     Var,
@@ -61,10 +60,6 @@ public:
 
   struct Noop {};
 
-  struct Print {
-    Expr expression;
-  };
-
   struct Program {
     Stmts statements;
   };
@@ -90,7 +85,6 @@ public:
   Statement(ExpressionStatement expression, const Location& location);
   Statement(If if_, const Location& location);
   Statement(Noop noop, const Location& location);
-  Statement(Print print, const Location& location);
   Statement(Program program, const Location& location);
   Statement(Return return_, const Location& location);
   Statement(Var var, const Location& location);
@@ -106,7 +100,6 @@ public:
     ExpressionStatement expression_statement;
     If if_;
     Noop noop;
-    Print print;
     Program program;
     Return return_;
     Var var;
@@ -120,7 +113,7 @@ struct fmt::formatter<Statement::Type> : fmt::formatter<std::string_view> {
   template<typename FormatContext>
   auto format(const Statement::Type& value, FormatContext& ctx) const {
     auto repr = [](const Statement::Type& value) {
-      static_assert(int(Statement::Type::LastEnumValue) == 12);
+      static_assert(int(Statement::Type::LastEnumValue) == 11);
       switch (value) {
         case Statement::Type::Block:               return "block";
         case Statement::Type::Break:               return "break";
@@ -129,7 +122,6 @@ struct fmt::formatter<Statement::Type> : fmt::formatter<std::string_view> {
         case Statement::Type::ExpressionStatement: return "expression_statement";
         case Statement::Type::If:                  return "if";
         case Statement::Type::Noop:                return "noop";
-        case Statement::Type::Print:               return "print";
         case Statement::Type::Program:             return "program";
         case Statement::Type::Return:              return "return";
         case Statement::Type::Var:                 return "var";

@@ -81,7 +81,6 @@ private:
   template<typename Integral>
   void popMultiple();
   void power();
-  void print();
   void pushFalse();
   void pushNull();
   void pushTrue();

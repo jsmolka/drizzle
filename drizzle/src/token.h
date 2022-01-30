@@ -52,7 +52,6 @@ struct Token {
     Pipe,
     Pipe2,
     Plus,
-    Print,
     Return,
     Slash,
     Slash2,
@@ -76,7 +75,7 @@ struct fmt::formatter<Token::Type> : fmt::formatter<std::string_view> {
   template<typename FormatContext>
   auto format(const Token::Type& value, FormatContext& ctx) const {
     auto repr = [](const Token::Type& value) {
-      static_assert(int(Token::Type::LastEnumValue) == 56);
+      static_assert(int(Token::Type::LastEnumValue) == 55);
       switch (value) {
         case Token::Type::And:          return "And";
         case Token::Type::And2:         return "And2";
@@ -123,7 +122,6 @@ struct fmt::formatter<Token::Type> : fmt::formatter<std::string_view> {
         case Token::Type::Pipe:         return "Pipe";
         case Token::Type::Pipe2:        return "Pipe2";
         case Token::Type::Plus:         return "Plus";
-        case Token::Type::Print:        return "Print";
         case Token::Type::Return:       return "Return";
         case Token::Type::Slash:        return "Slash";
         case Token::Type::Slash2:       return "Slash2";
