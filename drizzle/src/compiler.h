@@ -50,7 +50,7 @@ private:
   };
 
   struct Variable {
-    std::string_view identifier;
+    Identifier identifier;
     std::size_t depth;
   };
 
