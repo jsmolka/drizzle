@@ -170,7 +170,7 @@ void Compiler::visit(Expr& expr) {
 
 void Compiler::visit(Expression::Assign& assign) {
   AstVisiter::visit(assign);
-  emitVariable(Opcode::StoreVariable, resolveVariable(assign.identifier));
+  store(assign.identifier);
 }
 
 void Compiler::visit(Expression::Binary& binary) {
@@ -223,7 +223,7 @@ void Compiler::visit(Expression::Binary& binary) {
 }
 
 void Compiler::visit(Expression::Call& call) {
-  emitVariable(Opcode::LoadVariable, resolveVariable(call.identifier));
+  load(call.identifier);
   if (call.arguments.size() > std::numeric_limits<u8>::max()) {
     throw CompilerError(call.identifier.location, "too many function arguments");
   }
@@ -261,7 +261,7 @@ void Compiler::visit(Expression::Unary& unary) {
 }
 
 void Compiler::visit(Expression::Variable& variable) {
-  emitVariable(Opcode::LoadVariable, resolveVariable(variable.identifier));
+  load(variable.identifier);
 }
 
 template<typename... Bytes>
@@ -320,6 +320,31 @@ void Compiler::patchJumps(const std::vector<std::size_t>& jumps) {
   }
 }
 
+void Compiler::load(const Identifier& identifier) {
+  if (const auto index = resolve(identifier)) {
+    emitVariable(Opcode::LoadVariable, *index);
+  } else {
+    throw SyntaxError(identifier.location, "undefined variable '{}'", identifier);
+  }
+}
+
+void Compiler::store(const Identifier& identifier) {
+  if (const auto index = resolve(identifier)) {
+    emitVariable(Opcode::StoreVariable, *index);
+  } else {
+    throw SyntaxError(identifier.location, "undefined variable '{}'", identifier);
+  }
+}
+
+auto Compiler::resolve(Identifier identifier) const -> std::optional<std::size_t> {
+  for (const auto& variable : sh::reversed(variables)) {
+    if (variable.identifier == identifier) {
+      return std::distance(variables.data(), &variable);
+    }
+  }
+  return std::nullopt;
+}
+
 void Compiler::defineVariable(Identifier identifier) {
   for (const auto& variable : sh::reversed(variables)) {
     if (variable.depth != scope.size()) {
@@ -329,15 +354,6 @@ void Compiler::defineVariable(Identifier identifier) {
     }
   }
   variables.emplace_back(identifier, scope.size());
-}
-
-auto Compiler::resolveVariable(Identifier identifier) const -> std::size_t {
-  for (const auto& variable : sh::reversed(variables)) {
-    if (variable.identifier == identifier) {
-      return std::distance(variables.data(), &variable);
-    }
-  }
-  throw SyntaxError(identifier.location, "undefined variable '{}'", identifier);
 }
 
 void Compiler::popVariables(std::size_t depth) {

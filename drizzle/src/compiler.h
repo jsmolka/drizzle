@@ -66,8 +66,12 @@ private:
   void patchJump(std::size_t jump);
   void patchJumps(const std::vector<std::size_t>& jumps);
 
+  void load(const Identifier& identifier);
+  void store(const Identifier& identifier);
+
+  auto resolve(Identifier identifier) const -> std::optional<std::size_t>;
+
   void defineVariable(Identifier identifier);
-  auto resolveVariable(Identifier identifier) const -> std::size_t;
   void popVariables(std::size_t depth);
 
   template<typename... Args>

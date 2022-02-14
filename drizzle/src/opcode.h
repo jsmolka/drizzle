@@ -59,7 +59,7 @@ struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
   template<typename FormatContext>
   auto format(const Opcode& opcode, FormatContext& ctx) const {
     auto repr = [](const Opcode& opcode) {
-      static_assert(int(Opcode::LastEnumValue) == 40);
+      static_assert(int(Opcode::LastEnumValue) == 42);
       switch (opcode) {
         case Opcode::Add:               return "Add";
         case Opcode::BitwiseAnd:        return "BitwiseAnd";
