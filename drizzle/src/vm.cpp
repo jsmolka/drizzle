@@ -523,7 +523,7 @@ bool Vm::return_() {
   const auto result = stack.pop_value();
   const auto frame = frames.pop_value();
   if (!frames.empty()) {
-    stack.pop(frame.function->arity);
+    stack.pop(stack.size() - frame.sp);
     stack.top() = result;
     return false;
   }

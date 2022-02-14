@@ -32,6 +32,8 @@ enum class Opcode {
   LessEqual,
   LoadVariable,
   LoadVariableExt,
+  LoadRelative,
+  LoadRelativeExt,
   Modulo,
   Multiply,
   Negate,
@@ -84,6 +86,8 @@ struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
         case Opcode::LessEqual:         return "LessEqual";
         case Opcode::LoadVariable:      return "LoadVariable";
         case Opcode::LoadVariableExt:   return "LoadVariableExt";
+        case Opcode::LoadRelative:      return "LoadRelative";
+        case Opcode::LoadRelativeExt:   return "LoadRelativeExt";
         case Opcode::Modulo:            return "Modulo";
         case Opcode::Multiply:          return "Multiply";
         case Opcode::Negate:            return "Negate";

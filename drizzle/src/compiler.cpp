@@ -91,6 +91,13 @@ void Compiler::visit(Statement::Def& def) {
   compiler.decreaseScope();
   compiler.locations.pop();
 
+  for (auto c = this; c; c = c->parent) {
+    compiler.function->absolute += c->variables.size();
+    if (c->type == Compiler::Type::Function) {
+      compiler.function->absolute += 2;
+    }
+  }
+
   emitConstant(compiler.function);
   defineVariable(def.identifier);
 }
@@ -119,10 +126,10 @@ void Compiler::visit(Statement::If& if_) {
 
 void Compiler::visit(Statement::Program& program) {
   increaseScope(Level::Type::Block);
-  for (auto& builtin : DzBuiltIn::all()) {
-    emitConstant(&builtin);
-    defineVariable(Identifier(builtin.identifier, {}));
-  }
+  //for (auto& builtin : DzBuiltIn::all()) {
+  //  emitConstant(&builtin);
+  //  defineVariable(Identifier(builtin.identifier, {}));
+  //}
   AstVisiter::visit(program);
   emitReturn();
   decreaseScope();
