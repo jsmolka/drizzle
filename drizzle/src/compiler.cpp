@@ -13,6 +13,10 @@ Compiler::Compiler()
 Compiler::Compiler(Type type, Compiler* parent)
   : type(type), parent(parent), function(new DzFunction()) {}
 
+auto Compiler::reservedStackSize() const -> std::size_t {
+  return type == Type::Function ? 2 : 0;
+}
+
 DzFunction* Compiler::compile(const Stmt& ast) {
   visit(const_cast<Stmt&>(ast));
   return function;
@@ -91,14 +95,13 @@ void Compiler::visit(Statement::Def& def) {
   compiler.decreaseScope();
   compiler.locations.pop();
 
+  auto function = compiler.function;
   for (auto c = this; c; c = c->parent) {
-    compiler.function->absolute += c->variables.size();
-    if (c->type == Compiler::Type::Function) {
-      compiler.function->absolute += 2;
-    }
+    function->definition += c->variables.size();
+    function->definition += c->reservedStackSize();
   }
 
-  emitConstant(compiler.function);
+  emitConstant(function);
   defineVariable(def.identifier);
 }
 
@@ -126,10 +129,10 @@ void Compiler::visit(Statement::If& if_) {
 
 void Compiler::visit(Statement::Program& program) {
   increaseScope(Level::Type::Block);
-  //for (auto& builtin : DzBuiltIn::all()) {
-  //  emitConstant(&builtin);
-  //  defineVariable(Identifier(builtin.identifier, {}));
-  //}
+  for (auto& builtin : DzBuiltIn::all()) {
+    emitConstant(&builtin);
+    defineVariable(Identifier(builtin.identifier, {}));
+  }
   AstVisiter::visit(program);
   emitReturn();
   decreaseScope();
@@ -323,6 +326,8 @@ void Compiler::patchJumps(const std::vector<std::size_t>& jumps) {
 void Compiler::load(const Identifier& identifier) {
   if (const auto index = resolve(identifier)) {
     emitVariable(Opcode::LoadVariable, *index);
+  } else if (const auto backwards = resolveBackwards(identifier)) {
+    emitVariable(Opcode::LoadBackwards, *backwards);
   } else {
     throw SyntaxError(identifier.location, "undefined variable '{}'", identifier);
   }
@@ -336,10 +341,23 @@ void Compiler::store(const Identifier& identifier) {
   }
 }
 
-auto Compiler::resolve(Identifier identifier) const -> std::optional<std::size_t> {
+auto Compiler::resolve(const Identifier& identifier) const -> std::optional<std::size_t> {
   for (const auto& variable : sh::reversed(variables)) {
     if (variable.identifier == identifier) {
       return std::distance(variables.data(), &variable);
+    }
+  }
+  return std::nullopt;
+}
+
+auto Compiler::resolveBackwards(const Identifier& identifier) const -> std::optional<std::size_t> {
+  std::size_t backwards = 0;
+  for (auto compiler = parent; compiler; compiler = compiler->parent) {
+    if (const auto index = compiler->resolve(identifier)) {
+      return backwards + compiler->variables.size() - *index;
+    } else {
+      backwards += compiler->variables.size();
+      backwards += compiler->reservedStackSize();
     }
   }
   return std::nullopt;

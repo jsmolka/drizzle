@@ -72,6 +72,8 @@ private:
   void lessEqual();
   template<typename Integral>
   void loadVariable();
+  template<typename Integral>
+  void loadBackwards();
   void modulo();
   void multiply();
   void negate();

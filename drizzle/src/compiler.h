@@ -56,6 +56,8 @@ private:
 
   Compiler(Type type, Compiler* parent);
 
+  auto reservedStackSize() const -> std::size_t;
+
   template<typename... Bytes>
   void emit(Bytes... bytes);
   void emitConstant(DzValue value);
@@ -69,7 +71,8 @@ private:
   void load(const Identifier& identifier);
   void store(const Identifier& identifier);
 
-  auto resolve(Identifier identifier) const -> std::optional<std::size_t>;
+  auto resolve(const Identifier& identifier) const -> std::optional<std::size_t>;
+  auto resolveBackwards(const Identifier& identifier) const -> std::optional<std::size_t>;
 
   void defineVariable(Identifier identifier);
   void popVariables(std::size_t depth);
