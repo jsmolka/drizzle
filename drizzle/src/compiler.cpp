@@ -326,8 +326,8 @@ void Compiler::patchJumps(const std::vector<std::size_t>& jumps) {
 void Compiler::load(const Identifier& identifier) {
   if (const auto index = resolve(identifier)) {
     emitVariable(Opcode::LoadVariable, *index);
-  } else if (const auto backwards = resolveBackwards(identifier)) {
-    emitVariable(Opcode::LoadBackwards, *backwards);
+  } else if (const auto index = resolveCapture(identifier)) {
+    emitVariable(Opcode::LoadCapture, *index);
   } else {
     throw SyntaxError(identifier.location, "undefined variable '{}'", identifier);
   }
@@ -336,6 +336,8 @@ void Compiler::load(const Identifier& identifier) {
 void Compiler::store(const Identifier& identifier) {
   if (const auto index = resolve(identifier)) {
     emitVariable(Opcode::StoreVariable, *index);
+  } else if (const auto index = resolveCapture(identifier)) {
+    emitVariable(Opcode::StoreCapture, *index);
   } else {
     throw SyntaxError(identifier.location, "undefined variable '{}'", identifier);
   }
@@ -350,14 +352,14 @@ auto Compiler::resolve(const Identifier& identifier) const -> std::optional<std:
   return std::nullopt;
 }
 
-auto Compiler::resolveBackwards(const Identifier& identifier) const -> std::optional<std::size_t> {
-  std::size_t backwards = 0;
+auto Compiler::resolveCapture(const Identifier& identifier) const -> std::optional<std::size_t> {
+  std::size_t capture = 0;
   for (auto compiler = parent; compiler; compiler = compiler->parent) {
     if (const auto index = compiler->resolve(identifier)) {
-      return backwards + compiler->variables.size() - *index;
+      return capture + compiler->variables.size() - *index;
     } else {
-      backwards += compiler->variables.size();
-      backwards += compiler->reservedStackSize();
+      capture += compiler->variables.size();
+      capture += compiler->reservedStackSize();
     }
   }
   return std::nullopt;

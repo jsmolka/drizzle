@@ -73,7 +73,7 @@ private:
   template<typename Integral>
   void loadVariable();
   template<typename Integral>
-  void loadBackwards();
+  void loadCapture();
   void modulo();
   void multiply();
   void negate();
@@ -89,6 +89,8 @@ private:
   bool return_();
   template<typename Integral>
   void storeVariable();
+  template<typename Integral>
+  void storeCapture();
   void subtract();
 
   sh::stack<Frame, 32> frames;

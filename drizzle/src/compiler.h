@@ -72,7 +72,7 @@ private:
   void store(const Identifier& identifier);
 
   auto resolve(const Identifier& identifier) const -> std::optional<std::size_t>;
-  auto resolveBackwards(const Identifier& identifier) const -> std::optional<std::size_t>;
+  auto resolveCapture(const Identifier& identifier) const -> std::optional<std::size_t>;
 
   void defineVariable(Identifier identifier);
   void popVariables(std::size_t depth);

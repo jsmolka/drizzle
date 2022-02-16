@@ -32,8 +32,8 @@ enum class Opcode {
   LessEqual,
   LoadVariable,
   LoadVariableExt,
-  LoadBackwards,
-  LoadBackwardsExt,
+  LoadCapture,
+  LoadCaptureExt,
   Modulo,
   Multiply,
   Negate,
@@ -47,6 +47,8 @@ enum class Opcode {
   Return,
   StoreVariable,
   StoreVariableExt,
+  StoreCapture,
+  StoreCaptureExt,
   Subtract,
   True,
   LastEnumValue,
@@ -59,7 +61,7 @@ struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
   template<typename FormatContext>
   auto format(const Opcode& opcode, FormatContext& ctx) const {
     auto repr = [](const Opcode& opcode) {
-      static_assert(int(Opcode::LastEnumValue) == 42);
+      static_assert(int(Opcode::LastEnumValue) == 44);
       switch (opcode) {
         case Opcode::Add:               return "Add";
         case Opcode::BitwiseAnd:        return "BitwiseAnd";
@@ -86,8 +88,8 @@ struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
         case Opcode::LessEqual:         return "LessEqual";
         case Opcode::LoadVariable:      return "LoadVariable";
         case Opcode::LoadVariableExt:   return "LoadVariableExt";
-        case Opcode::LoadBackwards:     return "LoadBackwards";
-        case Opcode::LoadBackwardsExt:  return "LoadBackwardsExt";
+        case Opcode::LoadCapture:       return "LoadCapture";
+        case Opcode::LoadCaptureExt:    return "LoadCaptureExt";
         case Opcode::Modulo:            return "Modulo";
         case Opcode::Multiply:          return "Multiply";
         case Opcode::Negate:            return "Negate";
@@ -101,6 +103,8 @@ struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
         case Opcode::Return:            return "Return";
         case Opcode::StoreVariable:     return "StoreVariable";
         case Opcode::StoreVariableExt:  return "StoreVariableExt";
+        case Opcode::StoreCapture:      return "StoreCapture";
+        case Opcode::StoreCaptureExt:   return "StoreCaptureExt";
         case Opcode::Subtract:          return "Subtract";
         case Opcode::True:              return "True";
         default:

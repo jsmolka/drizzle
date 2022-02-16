@@ -38,8 +38,8 @@ void Vm::interpret(DzFunction* function) {
       case Opcode::LessEqual: lessEqual(); break;
       case Opcode::LoadVariable: loadVariable<u8>(); break;
       case Opcode::LoadVariableExt: loadVariable<u16>(); break;
-      case Opcode::LoadBackwards: loadBackwards<u8>(); break;
-      case Opcode::LoadBackwardsExt: loadBackwards<u16>(); break;
+      case Opcode::LoadCapture: loadCapture<u8>(); break;
+      case Opcode::LoadCaptureExt: loadCapture<u16>(); break;
       case Opcode::Modulo: modulo(); break;
       case Opcode::Multiply: multiply(); break;
       case Opcode::Negate: negate(); break;
@@ -53,6 +53,8 @@ void Vm::interpret(DzFunction* function) {
       case Opcode::Return: if (return_()) { return; } break;
       case Opcode::StoreVariable: storeVariable<u8>(); break;
       case Opcode::StoreVariableExt: storeVariable<u16>(); break;
+      case Opcode::StoreCapture: storeCapture<u8>(); break;
+      case Opcode::StoreCaptureExt: storeCapture<u16>(); break;
       case Opcode::Subtract: subtract(); break;
       case Opcode::True: pushTrue(); break;
       default:
@@ -436,7 +438,7 @@ void Vm::loadVariable() {
 }
 
 template<typename Integral>
-void Vm::loadBackwards() {
+void Vm::loadCapture() {
   const auto index = read<Integral>();
   stack.push(stack[frame().function->definition - index]);
 }
@@ -542,6 +544,12 @@ template<typename Integral>
 void Vm::storeVariable() {
   const auto index = read<Integral>();
   stack[frame().sp + index] = stack.top();
+}
+
+template<typename Integral>
+void Vm::storeCapture() {
+  const auto index = read<Integral>();
+  stack[frame().function->definition - index] = stack.top();
 }
 
 void Vm::subtract() {
