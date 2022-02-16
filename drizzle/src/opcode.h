@@ -30,8 +30,8 @@ enum class Opcode {
   JumpTrue,
   Less,
   LessEqual,
-  LoadVariable,
-  LoadVariableExt,
+  Load,
+  LoadExt,
   LoadCapture,
   LoadCaptureExt,
   Modulo,
@@ -45,8 +45,8 @@ enum class Opcode {
   PopMultipleExt,
   Power,
   Return,
-  StoreVariable,
-  StoreVariableExt,
+  Store,
+  StoreExt,
   StoreCapture,
   StoreCaptureExt,
   Subtract,
@@ -86,8 +86,8 @@ struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
         case Opcode::JumpTrue:          return "JumpTrue";
         case Opcode::Less:              return "Less";
         case Opcode::LessEqual:         return "LessEqual";
-        case Opcode::LoadVariable:      return "LoadVariable";
-        case Opcode::LoadVariableExt:   return "LoadVariableExt";
+        case Opcode::Load:              return "Load";
+        case Opcode::LoadExt:           return "LoadExt";
         case Opcode::LoadCapture:       return "LoadCapture";
         case Opcode::LoadCaptureExt:    return "LoadCaptureExt";
         case Opcode::Modulo:            return "Modulo";
@@ -101,8 +101,8 @@ struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
         case Opcode::PopMultipleExt:    return "PopMultipleExt";
         case Opcode::Power:             return "Power";
         case Opcode::Return:            return "Return";
-        case Opcode::StoreVariable:     return "StoreVariable";
-        case Opcode::StoreVariableExt:  return "StoreVariableExt";
+        case Opcode::Store:             return "Store";
+        case Opcode::StoreExt:          return "StoreExt";
         case Opcode::StoreCapture:      return "StoreCapture";
         case Opcode::StoreCaptureExt:   return "StoreCaptureExt";
         case Opcode::Subtract:          return "Subtract";

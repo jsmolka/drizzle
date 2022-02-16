@@ -325,7 +325,7 @@ void Compiler::patchJumps(const std::vector<std::size_t>& jumps) {
 
 void Compiler::load(const Identifier& identifier) {
   if (const auto index = resolve(identifier)) {
-    emitVariable(Opcode::LoadVariable, *index);
+    emitVariable(Opcode::Load, *index);
   } else if (const auto index = resolveCapture(identifier)) {
     emitVariable(Opcode::LoadCapture, *index);
   } else {
@@ -335,7 +335,7 @@ void Compiler::load(const Identifier& identifier) {
 
 void Compiler::store(const Identifier& identifier) {
   if (const auto index = resolve(identifier)) {
-    emitVariable(Opcode::StoreVariable, *index);
+    emitVariable(Opcode::Store, *index);
   } else if (const auto index = resolveCapture(identifier)) {
     emitVariable(Opcode::StoreCapture, *index);
   } else {

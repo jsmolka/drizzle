@@ -71,7 +71,7 @@ private:
   void less();
   void lessEqual();
   template<typename Integral>
-  void loadVariable();
+  void load();
   template<typename Integral>
   void loadCapture();
   void modulo();
@@ -88,7 +88,7 @@ private:
   void pushTrue();
   bool return_();
   template<typename Integral>
-  void storeVariable();
+  void store();
   template<typename Integral>
   void storeCapture();
   void subtract();
