@@ -11,7 +11,7 @@ class Vm;
 class DzBuiltIn : public DzObject {
 public:
   using Callback = std::function<void(Vm&, std::size_t)>;
-  using BuiltIns = std::array<DzBuiltIn, 2>;
+  using BuiltIns = std::array<DzBuiltIn, 3>;
 
   DzBuiltIn(const std::string& identifier, std::optional<std::size_t> arity, const Callback& callback);
 
