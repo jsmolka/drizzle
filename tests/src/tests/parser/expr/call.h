@@ -53,6 +53,15 @@ inline suite _ = [] {
       parse(kSource, kExpect);
     }
     {
+      constexpr auto kSource = R"(test() + test())";
+      constexpr auto kExpect = R"(program
+  expression_statement
+    binary +
+      call test
+      call test)";
+      parse(kSource, kExpect);
+    }
+    {
       constexpr const char* kSources[] = {
         R"(test()",
         R"(test(x)",

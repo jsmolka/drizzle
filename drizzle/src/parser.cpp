@@ -132,7 +132,10 @@ void Parser::and_(bool) {
 }
 
 void Parser::call(bool) {
-  const auto identifier = makeIdentifier(tail[1]);
+  const auto variable = expressions.pop_value();
+  if (variable->type != Expression::Type::Variable) {
+    throw SyntaxError(tail[0]->location, "cannot call non-variable");
+  }
 
   Exprs arguments;
   if (head->type != Token::Type::ParenRight) {
@@ -142,12 +145,14 @@ void Parser::call(bool) {
   }
   expectParenRight();
   expressions.push(newExpr(Expression::Call{
-    .identifier = identifier,
+    .identifier = variable->variable.identifier,
     .arguments = std::move(arguments)
   }));
 }
 
 void Parser::binary(bool) {
+  static_assert(int(Expression::Binary::Type::LastEnumValue) == 21);
+
   auto type = [](Token::Type token) {
     switch (token) {
       case Token::Type::And:          return Expression::Binary::Type::BitwiseAnd;
@@ -227,6 +232,8 @@ void Parser::or_(bool) {
 }
 
 void Parser::unary(bool) {
+  static_assert(int(Expression::Unary::Type::LastEnumValue) == 3);
+
   auto type = [](Token::Type token) {
     switch (token) {
       case Token::Type::Bang:  return Expression::Unary::Type::Not;
