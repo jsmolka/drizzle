@@ -87,6 +87,7 @@ void Compiler::visit(Statement::Def& def) {
   compiler.function->arity = def.arguments.size();
   compiler.locations.emplace(locations.top());
   compiler.increaseScope(Level::Type::Function);
+  compiler.defineVariable(def.identifier);
   for (const auto& argument : def.arguments) {
     compiler.defineVariable(argument);
   }

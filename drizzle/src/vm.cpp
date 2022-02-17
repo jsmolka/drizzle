@@ -305,10 +305,11 @@ void Vm::call() {
         if (function->arity != argc) {
           raise<RuntimeError>("expected {} argument(s) but got {}", function->arity, argc);
         }
+        constexpr auto kFunction = 1;
         frames.push(Frame{
           .function = function,
           .pc = function->chunk.code.data(),
-          .sp = stack.size() - argc
+          .sp = stack.size() - argc - kFunction
         });
         return;
       }
@@ -530,10 +531,11 @@ void Vm::pushTrue() {
 }
 
 bool Vm::return_() {
+  constexpr auto kFunction = 1;
   const auto result = stack.pop_value();
   const auto frame = frames.pop_value();
   if (!frames.empty()) {
-    stack.pop(stack.size() - frame.sp);
+    stack.pop(stack.size() - frame.sp - kFunction);
     stack.top() = result;
     return false;
   }
