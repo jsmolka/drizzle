@@ -35,6 +35,7 @@ void AstVisiter::visit(Expression::Binary& binary) {
 }
 
 void AstVisiter::visit(Expression::Call& call) {
+  visit(call.callee);
   visit(call.arguments);
 }
 

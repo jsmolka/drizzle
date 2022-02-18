@@ -132,11 +132,6 @@ void Parser::and_(bool) {
 }
 
 void Parser::call(bool) {
-  const auto variable = expressions.pop_value();
-  if (variable->type != Expression::Type::Variable) {
-    throw SyntaxError(tail[0]->location, "cannot call non-variable");
-  }
-
   Exprs arguments;
   if (head->type != Token::Type::ParenRight) {
     do {
@@ -145,7 +140,7 @@ void Parser::call(bool) {
   }
   expectParenRight();
   expressions.push(newExpr(Expression::Call{
-    .identifier = variable->variable.identifier,
+    .callee = expressions.pop_value(),
     .arguments = std::move(arguments)
   }));
 }

@@ -65,7 +65,7 @@ public:
   };
 
   struct Call {
-    Identifier identifier;
+    Expr callee;
     Exprs arguments;
   };
 

@@ -227,9 +227,8 @@ void Compiler::visit(Expression::Binary& binary) {
 }
 
 void Compiler::visit(Expression::Call& call) {
-  load(call.identifier);
   if (call.arguments.size() > std::numeric_limits<u8>::max()) {
-    throw CompilerError(call.identifier.location, "too many function arguments");
+    throw CompilerError(locations.top(), "too many arguments");
   }
   AstVisiter::visit(call);
   emit(Opcode::Call, call.arguments.size());

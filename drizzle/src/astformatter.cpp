@@ -15,7 +15,6 @@ void AstFormatter::visit(Expr& expr) {
   switch (expr->type) {
     case Expression::Type::Assign:   write(" {}", expr->assign.identifier); break;
     case Expression::Type::Binary:   write(" {}", expr->binary.type); break;
-    case Expression::Type::Call:     write(" {}", expr->call.identifier); break;
     case Expression::Type::Literal:  write(" {}", expr->literal.repr()); break;
     case Expression::Type::Unary:    write(" {}", expr->unary.type); break;
     case Expression::Type::Variable: write(" {}", expr->variable.identifier); break;
