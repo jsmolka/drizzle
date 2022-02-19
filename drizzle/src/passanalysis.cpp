@@ -1,6 +1,5 @@
 #include "passanalysis.h"
 
-#include <sh/fmt.h>
 #include <sh/ranges.h>
 
 void PassAnalysis::run(Stmt& ast) {
@@ -8,65 +7,65 @@ void PassAnalysis::run(Stmt& ast) {
 }
 
 void PassAnalysis::visit(Statement::Block& block) {
-  const auto size = variables.size();
+  increaseScope();
   AstVisiter::visit(block);
-  variables.resize(size);
+  decreaseScope();
 }
 
 void PassAnalysis::visit(Statement::Def& def) {
-  const auto size = variables.size();
+  increaseScope();
+  define(def.identifier, Variable::Type::Function);
+  for (const auto& argument : def.arguments) {
+    define(argument);
+  }
   AstVisiter::visit(def);
-  variables.resize(size);
-
-  variables.push_back(Variable{
-    .type = Variable::Type::Function,
-    .identifier = def.identifier
-  });
-  fmt::print("var {}\n", def.identifier);
+  decreaseScope();
+  define(def.identifier, Variable::Type::Function);
 }
 
 void PassAnalysis::visit(Statement::If& if_) {
   for (auto& branch : if_.branches) {
-    const auto size = variables.size();
     AstVisiter::visit(branch.condition);
+    increaseScope();
     AstVisiter::visit(branch.statements);
-    variables.resize(size);
+    decreaseScope();
   }
-  const auto size = variables.size();
+
+  increaseScope();
   AstVisiter::visit(if_.else_);
-  variables.resize(size);
+  decreaseScope();
 }
 
 void PassAnalysis::visit(Statement::Var& var) {
-  auto type = Variable::Type::Normal;
-  if (var.initializer->type == Expression::Type::Variable) {
-    if (auto variable = resolve(var.initializer->variable.identifier)) {
-      type = variable->type;
-    }
-  }
-  variables.push_back(Variable{
-    .type = type,
-    .identifier = var.identifier
-  });
-  fmt::print("var {}\n", var.identifier);
+  define(var.identifier, Variable::Type::Normal);
+  assign(var.identifier, var.initializer);
 }
 
 void PassAnalysis::visit(Statement::While& while_) {
-  const auto size = variables.size();
-  AstVisiter::visit(while_);
-  variables.resize(size);
+  AstVisiter::visit(while_.condition);
+  increaseScope();
+  AstVisiter::visit(while_.statements);
+  decreaseScope();
 }
 
 void PassAnalysis::visit(Expression::Assign& assign) {
-  if (auto variable = resolve(assign.identifier)) {
-    auto type = Variable::Type::Normal;
-    if (assign.value->type == Expression::Type::Variable) {
-      if (auto value = resolve(assign.value->variable.identifier)) {
-        type = value->type;
-      }
-    }
-    variable->type = type;
+  this->assign(assign.identifier, assign.value);
+}
+
+template<typename... Args>
+void PassAnalysis::define(Args&&... args) {
+  variables.emplace_back(depth, std::forward<Args>(args)...);
+}
+
+void PassAnalysis::increaseScope() {
+  depth++;
+}
+
+void PassAnalysis::decreaseScope() {
+  while (!variables.empty() && variables.back().depth == depth) {
+    variables.pop_back();
   }
+  depth--;
 }
 
 PassAnalysis::Variable* PassAnalysis::resolve(const Identifier& identifier) {
@@ -76,4 +75,16 @@ PassAnalysis::Variable* PassAnalysis::resolve(const Identifier& identifier) {
     }
   }
   return nullptr;
+}
+
+void PassAnalysis::assign(const Identifier& identifier, const Expr& value) {
+  if (auto dst = resolve(identifier)) {
+    auto type = Variable::Type::Normal;
+    if (value->type == Expression::Type::Variable) {
+      if (const auto src = resolve(value->variable.identifier)) {
+        type = src->type;
+      }
+    }
+    dst->type = type;
+  }
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <sh/vector.h>
+#include <vector>
 
 #include "astvisiter.h"
 
@@ -18,21 +18,24 @@ protected:
   void visit(Statement::While& while_) final;
 
   void visit(Expression::Assign& assign) final;
-  //void visit(Expression::Binary& binary) final;
-  //void visit(Expression::Call& call) final;
-  //void visit(Expression::Literal& literal) final;
-  //void visit(Expression::Unary& unary) final;
-  //void visit(Expression::Variable& variable) final;
 
 private:
   struct Variable {
     enum class Type { Normal, Function };
 
-    Type type;
+    std::size_t depth;
     Identifier identifier;
+    Type type;
   };
 
-  Variable* resolve(const Identifier& identifier);
+  void increaseScope();
+  void decreaseScope();
 
-  sh::vector<Variable> variables;
+  template<typename... Args>
+  void define(Args&&... args);
+  Variable* resolve(const Identifier& identifier);
+  void assign(const Identifier& identifier, const Expr& value);
+
+  std::size_t depth = 0;
+  std::vector<Variable> variables;
 };
