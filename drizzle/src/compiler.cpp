@@ -123,7 +123,10 @@ void Compiler::visit(Statement::If& if_) {
     exits.push_back(emitJump(Opcode::Jump));
     patchJump(skip);
   }
+
+  increaseScope(Level::Type::Branch);
   visit(if_.else_);
+  decreaseScope();
 
   patchJumps(exits);
 }
