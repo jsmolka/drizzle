@@ -8,6 +8,8 @@
 
 class Identifier : public std::string_view {
 public:
+  Identifier() = default;
+
   template<typename T>
     requires std::constructible_from<T, std::string_view>
   Identifier(const T& value, const Location& location)

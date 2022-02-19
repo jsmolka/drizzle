@@ -25,6 +25,7 @@
     <ClCompile Include="..\drizzle\src\dzvalue.cpp" />
     <ClCompile Include="..\drizzle\src\expression.cpp" />
     <ClCompile Include="..\drizzle\src\parser.cpp" />
+    <ClCompile Include="..\drizzle\src\passanalysis.cpp" />
     <ClCompile Include="..\drizzle\src\statement.cpp" />
     <ClCompile Include="..\drizzle\src\tokenizer.cpp" />
     <ClCompile Include="..\drizzle\src\vm.cpp" />

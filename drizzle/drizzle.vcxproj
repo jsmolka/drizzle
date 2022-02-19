@@ -27,6 +27,7 @@
     <ClCompile Include="src\dzobject.cpp" />
     <ClCompile Include="src\dzvalue.cpp" />
     <ClCompile Include="src\parser.cpp" />
+    <ClCompile Include="src\passanalysis.cpp" />
     <ClCompile Include="src\statement.cpp" />
     <ClCompile Include="src\expression.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -45,6 +46,7 @@
     <ClInclude Include="src\dzmap.h" />
     <ClInclude Include="src\dzvalue.h" />
     <ClInclude Include="src\identifier.h" />
+    <ClInclude Include="src\passanalysis.h" />
     <ClInclude Include="src\opcode.h" />
     <ClInclude Include="src\location.h" />
     <ClInclude Include="src\parser.h" />
