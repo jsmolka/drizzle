@@ -1,6 +1,6 @@
 #pragma once
 
-#include <vector>
+#include <sh/stack.h>
 
 #include "astvisiter.h"
 
@@ -17,25 +17,28 @@ protected:
   void visit(Statement::Var& var) final;
   void visit(Statement::While& while_) final;
 
-  void visit(Expression::Assign& assign) final;
+  void visit(Expression::Call& call) final;
+  void visit(Expression::Variable& variable) final;
 
 private:
+  enum class Level { Block, Branch, Loop, Function, Closure };
+
   struct Variable {
-    enum class Type { Normal, Function };
+    enum class Type { Unknown, Function, Closure };
 
     std::size_t depth;
     Identifier identifier;
-    Type type;
+    Type type = Type::Unknown;
   };
 
-  void increaseScope();
-  void decreaseScope();
+  void increase(Level level);
+  auto decrease() -> Level;
 
   template<typename... Args>
   void define(Args&&... args);
-  Variable* resolve(const Identifier& identifier);
-  void assign(const Identifier& identifier, const Expr& value);
+  void resolve(const Identifier& identifier);
 
-  std::size_t depth = 0;
-  std::vector<Variable> variables;
+  bool callee = false;
+  sh::stack<Level> scope;
+  sh::stack<Variable> variables;
 };
