@@ -329,8 +329,8 @@ void Compiler::patchJumps(const std::vector<std::size_t>& jumps) {
 void Compiler::load(const Identifier& identifier) {
   if (const auto index = resolve(identifier)) {
     emitVariable(Opcode::Load, *index);
-  } else if (const auto index = resolveCapture(identifier)) {
-    emitVariable(Opcode::LoadCapture, *index);
+  } else if (const auto enclosing = resolveEnclosing(identifier)) {
+    emit(Opcode::LoadEnclosing, enclosing->frame, enclosing->index);
   } else {
     throw SyntaxError(identifier.location, "undefined variable '{}'", identifier);
   }
@@ -339,8 +339,8 @@ void Compiler::load(const Identifier& identifier) {
 void Compiler::store(const Identifier& identifier) {
   if (const auto index = resolve(identifier)) {
     emitVariable(Opcode::Store, *index);
-  } else if (const auto index = resolveCapture(identifier)) {
-    emitVariable(Opcode::StoreCapture, *index);
+  } else if (const auto enclosing = resolveEnclosing(identifier)) {
+    emit(Opcode::StoreEnclosing, enclosing->frame, enclosing->index);
   } else {
     throw SyntaxError(identifier.location, "undefined variable '{}'", identifier);
   }
@@ -355,14 +355,23 @@ auto Compiler::resolve(const Identifier& identifier) const -> std::optional<std:
   return std::nullopt;
 }
 
-auto Compiler::resolveCapture(const Identifier& identifier) const -> std::optional<std::size_t> {
-  std::size_t capture = 0;
+auto Compiler::resolveEnclosing(const Identifier& identifier) const -> std::optional<Enclosing> {
   for (auto compiler = parent; compiler; compiler = compiler->parent) {
     if (const auto index = compiler->resolve(identifier)) {
-      return capture + compiler->variables.size() - *index;
-    } else {
-      capture += compiler->variables.size();
-      capture += compiler->reservedStackSize();
+      Enclosing enclosing{
+        .frame = 0,
+        .index = *index,
+      };
+      for (compiler = compiler->parent; compiler; compiler = compiler->parent) {
+        enclosing.frame++;
+      }
+      if (enclosing.frame >= std::numeric_limits<u8>::max()) {
+        throw CompilerError(identifier.location, "enclosing frame limit exceeded");
+      }
+      if (enclosing.index >= std::numeric_limits<u8>::max()) {
+        throw CompilerError(identifier.location, "enclosing index limit exceeded");
+      }
+      return enclosing;
     }
   }
   return std::nullopt;

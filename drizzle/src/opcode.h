@@ -32,8 +32,7 @@ enum class Opcode {
   LessEqual,
   Load,
   LoadExt,
-  LoadCapture,
-  LoadCaptureExt,
+  LoadEnclosing,
   Modulo,
   Multiply,
   Negate,
@@ -47,8 +46,7 @@ enum class Opcode {
   Return,
   Store,
   StoreExt,
-  StoreCapture,
-  StoreCaptureExt,
+  StoreEnclosing,
   Subtract,
   True,
   LastEnumValue,
@@ -61,7 +59,7 @@ struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
   template<typename FormatContext>
   auto format(const Opcode& opcode, FormatContext& ctx) const {
     auto repr = [](const Opcode& opcode) {
-      static_assert(int(Opcode::LastEnumValue) == 44);
+      static_assert(int(Opcode::LastEnumValue) == 42);
       switch (opcode) {
         case Opcode::Add:               return "Add";
         case Opcode::BitwiseAnd:        return "BitwiseAnd";
@@ -88,8 +86,7 @@ struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
         case Opcode::LessEqual:         return "LessEqual";
         case Opcode::Load:              return "Load";
         case Opcode::LoadExt:           return "LoadExt";
-        case Opcode::LoadCapture:       return "LoadCapture";
-        case Opcode::LoadCaptureExt:    return "LoadCaptureExt";
+        case Opcode::LoadEnclosing:     return "LoadEnclosing";
         case Opcode::Modulo:            return "Modulo";
         case Opcode::Multiply:          return "Multiply";
         case Opcode::Negate:            return "Negate";
@@ -103,8 +100,7 @@ struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
         case Opcode::Return:            return "Return";
         case Opcode::Store:             return "Store";
         case Opcode::StoreExt:          return "StoreExt";
-        case Opcode::StoreCapture:      return "StoreCapture";
-        case Opcode::StoreCaptureExt:   return "StoreCaptureExt";
+        case Opcode::StoreEnclosing:    return "StoreEnclosing";
         case Opcode::Subtract:          return "Subtract";
         case Opcode::True:              return "True";
         default:

@@ -40,6 +40,11 @@ private:
 
   enum class Type { Main, Function };
 
+  struct Enclosing {
+    std::size_t frame;
+    std::size_t index;
+  };
+
   struct Level {
     enum class Type { Block, Branch, Loop, Function };
 
@@ -72,7 +77,7 @@ private:
   void store(const Identifier& identifier);
 
   auto resolve(const Identifier& identifier) const -> std::optional<std::size_t>;
-  auto resolveCapture(const Identifier& identifier) const -> std::optional<std::size_t>;
+  auto resolveEnclosing(const Identifier& identifier) const -> std::optional<Enclosing>;
 
   void defineVariable(Identifier identifier);
   void popVariables(std::size_t depth);

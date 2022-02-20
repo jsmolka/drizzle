@@ -72,8 +72,7 @@ private:
   void lessEqual();
   template<typename Integral>
   void load();
-  template<typename Integral>
-  void loadCapture();
+  void loadEnclosing();
   void modulo();
   void multiply();
   void negate();
@@ -89,8 +88,7 @@ private:
   bool return_();
   template<typename Integral>
   void store();
-  template<typename Integral>
-  void storeCapture();
+  void storeEnclosing();
   void subtract();
 
   sh::stack<Frame, 32> frames;
