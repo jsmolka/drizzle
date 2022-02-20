@@ -36,6 +36,9 @@ static_assert(int(Statement::Type::LastEnumValue) == 11);
 #include "tests/tokenizer/types.h"
 #include "tests/tokenizer/whitespace.h"
 
+#include "tests/vm/assert.h"
+#include "tests/vm/closure.h"
+
 auto main() -> int {
   return 0;
 }
