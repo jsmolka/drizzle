@@ -6,7 +6,7 @@
 
 class PassAnalysis : public AstVisiter {
 public:
-  void run(Stmt& ast);
+  void run(const Stmt& ast);
 
 protected:
   using AstVisiter::visit;
@@ -21,24 +21,23 @@ protected:
   void visit(Expression::Variable& variable) final;
 
 private:
-  enum class Level { Block, Branch, Loop, Function, Closure };
+  enum class Type { None, Function, Closure };
 
   struct Variable {
-    enum class Type { Unknown, Function, Closure };
-
     std::size_t depth;
     Identifier identifier;
-    Type type = Type::Unknown;
+    Type type = Type::None;
   };
 
-  void increase(Level level);
-  auto decrease() -> Level;
+  void increase();
+  void decrease();
 
   template<typename... Args>
   void define(Args&&... args);
   void resolve(const Identifier& identifier);
 
   bool callee = false;
-  sh::stack<Level> scope;
+  std::size_t depth = 0;
+  sh::stack<Type> functions;
   sh::stack<Variable> variables;
 };

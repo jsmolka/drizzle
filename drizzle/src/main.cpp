@@ -61,7 +61,7 @@ auto main(int argc, char* argv[]) -> int {
     }
 
     const auto tokens = Tokenizer().tokenize(source);
-    auto ast = Parser().parse(tokens);
+    const auto ast = Parser().parse(tokens);
     PassAnalysis().run(ast);
 
     if (*print) {

@@ -4,37 +4,36 @@
 
 #include "error.h"
 
-void PassAnalysis::run(Stmt& ast) {
-  visit(ast);
+void PassAnalysis::run(const Stmt& ast) {
+  visit(const_cast<Stmt&>(ast));
 }
 
 void PassAnalysis::visit(Statement::Block& block) {
-  increase(Level::Block);
+  increase();
   AstVisiter::visit(block);
   decrease();
 }
 
 void PassAnalysis::visit(Statement::Def& def) {
-  increase(Level::Function);
-  define(def.identifier);
+  functions.push(Type::Function);
+  increase();
+  define(def.identifier, Type::Function);
   for (const auto& argument : def.arguments) {
     define(argument);
   }
   AstVisiter::visit(def);
-  const auto level = decrease();
-  define(def.identifier, level == Level::Closure
-    ? Variable::Type::Closure
-    : Variable::Type::Function);
+  decrease();
+  define(def.identifier, functions.pop_value());
 }
 
 void PassAnalysis::visit(Statement::If& if_) {
   for (auto& branch : if_.branches) {
     AstVisiter::visit(branch.condition);
-    increase(Level::Branch);
+    increase();
     AstVisiter::visit(branch.statements);
     decrease();
   }
-  increase(Level::Branch);
+  increase();
   AstVisiter::visit(if_.else_);
   decrease();
 }
@@ -45,7 +44,7 @@ void PassAnalysis::visit(Statement::Var& var) {
 
 void PassAnalysis::visit(Statement::While& while_) {
   AstVisiter::visit(while_.condition);
-  increase(Level::Loop);
+  increase();
   AstVisiter::visit(while_.statements);
   decrease();
 }
@@ -61,35 +60,34 @@ void PassAnalysis::visit(Expression::Variable& variable) {
   resolve(variable.identifier);
 }
 
-void PassAnalysis::increase(Level level) {
-  scope.push(level);
+void PassAnalysis::increase() {
+  depth++;
 }
 
-auto PassAnalysis::decrease() -> Level {
-  while (!variables.empty() && variables.top().depth == scope.size()) {
+void PassAnalysis::decrease() {
+  depth--;
+  while (!variables.empty() && variables.top().depth > depth) {
     variables.pop();
   }
-  return scope.pop_value();
 }
 
 template<typename... Args>
 void PassAnalysis::define(Args&&... args) {
-  variables.emplace(scope.size(), std::forward<Args>(args)...);
+  variables.emplace(depth, std::forward<Args>(args)...);
 }
 
 void PassAnalysis::resolve(const Identifier& identifier) {
   for (auto& variable : sh::reversed(variables)) {
-    if (variable.identifier == identifier && variable.depth > 0) {
-      if (variable.type == Variable::Type::Closure && !callee) {
-        throw SyntaxError(identifier.location, "cannot dereference function that captures local variables");
-      }
-
-      // Todo: this could probably use variable.type
-      for (auto& level : sh::range(scope.begin() + variable.depth, scope.end())) {
-        if (level == Level::Function) {
-          level = Level::Closure;
+    if (variable.identifier == identifier) {
+      if (variable.depth > 0) {
+        if (variable.type == Type::Closure && !callee) {
+          throw SyntaxError(identifier.location, "cannot dereference function that captures local variables");
+        }
+        for (auto& function : functions) {
+          function = Type::Closure;
         }
       }
+      break;
     }
   }
 }
