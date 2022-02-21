@@ -483,8 +483,8 @@ void Vm::notEqual() {
       dst = a != b;
       return true;
     } else if constexpr (dz_object<A, B>) {
-      return true;
       dst = *a != *b;
+      return true;
     }
     return false;
   });
