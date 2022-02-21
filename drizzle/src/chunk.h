@@ -16,8 +16,8 @@ public:
 
 private:
   struct Line {
-    std::size_t start;
     std::size_t number;
+    std::size_t offset;
   };
   std::vector<Line> lines;
 };
