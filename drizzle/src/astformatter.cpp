@@ -60,7 +60,7 @@ void AstFormatter::visit(Stmt& stmt) {
 
 void AstFormatter::visit(Statement::If& if_) {
   for (const auto [index, branch] : sh::enumerate(if_.branches)) {
-    if (index != 0) {
+    if (index) {
       indent--;
       writeIndent("elif\n");
       indent++;
@@ -73,7 +73,6 @@ void AstFormatter::visit(Statement::If& if_) {
     indent--;
     writeIndent("else\n");
     indent++;
-
     visit(if_.else_);
   }
 }
