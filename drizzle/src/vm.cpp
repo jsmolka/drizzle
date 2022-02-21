@@ -1,6 +1,7 @@
 #include "vm.h"
 
 #include "dzbuiltin.h"
+#include "dznull.h"
 #include "dzstring.h"
 #include "opcode.h"
 
@@ -86,7 +87,7 @@ void Vm::raise(std::string_view message, Args&&... args) {
 
 template<template<typename T> typename Promote, UnaryHandler Handler>
 void Vm::unary(std::string_view operation, Handler handler) {
-  static_assert(int(DzValue::Type::LastEnumValue) == 5);
+  static_assert(int(DzValue::Type::LastEnumValue) == 4);
 
   auto& value = stack.top();
 
@@ -113,7 +114,6 @@ void Vm::unary(std::string_view operation, Handler handler) {
     case DzValue::Type::Bool:   DZ_EVAL(value.b);
     case DzValue::Type::Int:    DZ_EVAL(value.i);
     case DzValue::Type::Float:  DZ_EVAL(value.f);
-    case DzValue::Type::Null:   DZ_EVAL(DzNull{});
     case DzValue::Type::Object: DZ_EVAL(value.o);
     default:
       SH_UNREACHABLE;
@@ -127,7 +127,7 @@ void Vm::unary(std::string_view operation, Handler handler) {
 
 template<template<typename T, typename U> typename Promote, BinaryHandler Handler>
 void Vm::binary(std::string_view operation, Handler handler) {
-  static_assert(int(DzValue::Type::LastEnumValue) == 5);
+  static_assert(int(DzValue::Type::LastEnumValue) == 4);
 
   auto  rhs = stack.pop_value();
   auto& lhs = stack.top();
@@ -158,27 +158,18 @@ void Vm::binary(std::string_view operation, Handler handler) {
     case DZ_HASH(DzValue::Type::Bool,   DzValue::Type::Bool  ): DZ_EVAL(lhs.b, rhs.b);
     case DZ_HASH(DzValue::Type::Bool,   DzValue::Type::Int   ): DZ_EVAL(lhs.b, rhs.i);
     case DZ_HASH(DzValue::Type::Bool,   DzValue::Type::Float ): DZ_EVAL(lhs.b, rhs.f);
-    case DZ_HASH(DzValue::Type::Bool,   DzValue::Type::Null  ): DZ_EVAL(lhs.b, DzNull{});
     case DZ_HASH(DzValue::Type::Bool,   DzValue::Type::Object): DZ_EVAL(lhs.b, rhs.o);
     case DZ_HASH(DzValue::Type::Int,    DzValue::Type::Bool  ): DZ_EVAL(lhs.i, rhs.b);
     case DZ_HASH(DzValue::Type::Int,    DzValue::Type::Int   ): DZ_EVAL(lhs.i, rhs.i);
     case DZ_HASH(DzValue::Type::Int,    DzValue::Type::Float ): DZ_EVAL(lhs.i, rhs.f);
-    case DZ_HASH(DzValue::Type::Int,    DzValue::Type::Null  ): DZ_EVAL(lhs.i, DzNull{});
     case DZ_HASH(DzValue::Type::Int,    DzValue::Type::Object): DZ_EVAL(lhs.i, rhs.o);
     case DZ_HASH(DzValue::Type::Float,  DzValue::Type::Bool  ): DZ_EVAL(lhs.f, rhs.b);
     case DZ_HASH(DzValue::Type::Float,  DzValue::Type::Int   ): DZ_EVAL(lhs.f, rhs.i);
     case DZ_HASH(DzValue::Type::Float,  DzValue::Type::Float ): DZ_EVAL(lhs.f, rhs.f);
-    case DZ_HASH(DzValue::Type::Float,  DzValue::Type::Null  ): DZ_EVAL(lhs.f, DzNull{});
     case DZ_HASH(DzValue::Type::Float,  DzValue::Type::Object): DZ_EVAL(lhs.f, rhs.o);
-    case DZ_HASH(DzValue::Type::Null,   DzValue::Type::Bool  ): DZ_EVAL(DzNull{}, rhs.b);
-    case DZ_HASH(DzValue::Type::Null,   DzValue::Type::Int   ): DZ_EVAL(DzNull{}, rhs.i);
-    case DZ_HASH(DzValue::Type::Null,   DzValue::Type::Float ): DZ_EVAL(DzNull{}, rhs.f);
-    case DZ_HASH(DzValue::Type::Null,   DzValue::Type::Null  ): DZ_EVAL(DzNull{}, DzNull{});
-    case DZ_HASH(DzValue::Type::Null,   DzValue::Type::Object): DZ_EVAL(DzNull{}, rhs.o);
     case DZ_HASH(DzValue::Type::Object, DzValue::Type::Bool  ): DZ_EVAL(lhs.o, rhs.b);
     case DZ_HASH(DzValue::Type::Object, DzValue::Type::Int   ): DZ_EVAL(lhs.o, rhs.i);
     case DZ_HASH(DzValue::Type::Object, DzValue::Type::Float ): DZ_EVAL(lhs.o, rhs.f);
-    case DZ_HASH(DzValue::Type::Object, DzValue::Type::Null  ): DZ_EVAL(lhs.o, DzNull{});
     case DZ_HASH(DzValue::Type::Object, DzValue::Type::Object): DZ_EVAL(lhs.o, rhs.o);
     default:
       SH_UNREACHABLE;
@@ -359,12 +350,12 @@ void Vm::equal() {
   binary("==", []<typename A, typename B>(DzValue& dst, const A& a, const B& b) {
     if constexpr (dz_primitive<A, B>) {
       dst = a == b;
+      return true;
     } else if constexpr (dz_object<A, B>) {
       dst = *a == *b;
-    } else {
-      dst = dz_null<A, B>;
+      return true;
     }
-    return true;
+    return false;
   });
 }
 
@@ -490,12 +481,12 @@ void Vm::notEqual() {
   binary("!=", []<typename A, typename B>(DzValue& dst, const A& a, const B& b) {
     if constexpr (dz_primitive<A, B>) {
       dst = a != b;
+      return true;
     } else if constexpr (dz_object<A, B>) {
+      return true;
       dst = *a != *b;
-    } else {
-      dst = !dz_null<A, B>;
     }
-    return true;
+    return false;
   });
 }
 
@@ -524,7 +515,7 @@ void Vm::pushFalse() {
 }
 
 void Vm::pushNull() {
-  stack.push({});
+  stack.push(&null);
 }
 
 void Vm::pushTrue() {

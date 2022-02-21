@@ -5,16 +5,10 @@
 #include "dzobject.h"
 #include "dzprimitives.h"
 
-struct DzNull {};
-
-template<typename... Ts>
-concept dz_null = std::conjunction_v<std::is_same<DzNull, Ts>...>;
-
 class DzValue {
 public:
-  enum class Type { Bool, Int, Float, Null, Object, LastEnumValue };
+  enum class Type { Bool, Int, Float, Object, LastEnumValue };
 
-  DzValue();
   template<typename T>
     requires dz_primitive<T> || dz_object<T>
   DzValue(const T& value) {

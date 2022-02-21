@@ -4,6 +4,7 @@
 
 #include <sh/fmt.h>
 
+#include "dznull.h"
 #include "vm.h"
 
 DzBuiltIn::DzBuiltIn(const std::string& identifier, std::optional<std::size_t> arity, const Callback& callback)
@@ -16,13 +17,13 @@ auto DzBuiltIn::all() -> BuiltIns& {
       if (!vm.stack.pop_value()) {
         vm.raise<RuntimeError>("assertion failed");
       }
-      vm.stack.top() = {};
+      vm.stack.top() = &null;
     }),
 
     DzBuiltIn("print", std::nullopt, [](Vm& vm, std::size_t argc) {
       fmt::print("{}\n", fmt::join(vm.stack.end() - argc, vm.stack.end(), " "));
       vm.stack.pop(argc);
-      vm.stack.top() = {};
+      vm.stack.top() = &null;
     }),
 
     DzBuiltIn("time", 0, [](Vm& vm, std::size_t) {

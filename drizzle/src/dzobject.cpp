@@ -4,6 +4,7 @@
 
 #include "dzbuiltin.h"
 #include "dzfunction.h"
+#include "dznull.h"
 #include "dzstring.h"
 
 DzObject::DzObject(Type type)
@@ -13,6 +14,7 @@ DzObject::operator bool() const {
   switch (type) {
     case Type::BuiltIn:  return as<DzBuiltIn>();
     case Type::Function: return as<DzFunction>();
+    case Type::Null:     return as<DzNull>();
     case Type::String:   return as<DzString>();
     default:
       SH_UNREACHABLE;
@@ -28,6 +30,7 @@ auto DzObject::operator==(const DzObject& other) const -> bool {
   switch (type) {
     case Type::BuiltIn:
     case Type::Function:
+    case Type::Null:
       return this == &other;
     case Type::String:
       return as<DzString>() == other.as<DzString>();
@@ -45,6 +48,7 @@ auto DzObject::repr() const -> std::string {
   switch (type) {
     case Type::BuiltIn:  return as<DzBuiltIn>().repr();
     case Type::Function: return as<DzFunction>().repr();
+    case Type::Null:     return as<DzNull>().repr();
     case Type::String:   return as<DzString>().repr();
     default:
       SH_UNREACHABLE;
@@ -56,6 +60,7 @@ auto DzObject::name() const -> std::string_view {
   switch (type) {
     case Type::BuiltIn:  return as<DzBuiltIn>().name();
     case Type::Function: return as<DzFunction>().name();
+    case Type::Null:     return as<DzNull>().name();
     case Type::String:   return as<DzString>().name();
     default:
       SH_UNREACHABLE;
