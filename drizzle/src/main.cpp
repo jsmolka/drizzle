@@ -6,7 +6,6 @@
 #include "compiler.h"
 #include "error.h"
 #include "parser.h"
-#include "passanalysis.h"
 #include "tokenizer.h"
 #include "vm.h"
 
@@ -62,7 +61,6 @@ auto main(int argc, char* argv[]) -> int {
 
     const auto tokens = Tokenizer().tokenize(source);
     const auto ast = Parser().parse(tokens);
-    PassAnalysis().run(ast);
 
     if (*print) {
       fmt::print("{}\n", ast);

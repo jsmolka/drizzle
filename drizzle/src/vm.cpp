@@ -12,6 +12,7 @@ void Vm::interpret(DzFunction* function) {
   });
 
   while (true) {
+    static_assert(int(Opcode::LastEnumValue) == 44);
     switch (static_cast<Opcode>(read<u8>())) {
       case Opcode::Add: add(); break;
       case Opcode::BitwiseAnd: bitwiseAnd(); break;
@@ -38,7 +39,8 @@ void Vm::interpret(DzFunction* function) {
       case Opcode::LessEqual: lessEqual(); break;
       case Opcode::Load: load<u8>(); break;
       case Opcode::LoadExt: load<u16>(); break;
-      case Opcode::LoadEnclosing: loadEnclosing(); break;
+      case Opcode::LoadAbsolute: loadAbsolute<u8>(); break;
+      case Opcode::LoadAbsoluteExt: loadAbsolute<u16>(); break;
       case Opcode::Modulo: modulo(); break;
       case Opcode::Multiply: multiply(); break;
       case Opcode::Negate: negate(); break;
@@ -52,7 +54,8 @@ void Vm::interpret(DzFunction* function) {
       case Opcode::Return: if (return_()) { return; } break;
       case Opcode::Store: store<u8>(); break;
       case Opcode::StoreExt: store<u16>(); break;
-      case Opcode::StoreEnclosing: storeEnclosing(); break;
+      case Opcode::StoreAbsolute: storeAbsolute<u8>(); break;
+      case Opcode::StoreAbsoluteExt: storeAbsolute<u16>(); break;
       case Opcode::Subtract: subtract(); break;
       case Opcode::True: pushTrue(); break;
       default:
@@ -436,10 +439,10 @@ void Vm::load() {
   stack.push(stack[frame().sp + index]);
 }
 
-void Vm::loadEnclosing() {
-  const auto frame = read<u8>();
-  const auto index = read<u8>();
-  stack.push(stack[frames[frame].sp + index]);
+template<typename Integral>
+void Vm::loadAbsolute() {
+  const auto index = read<Integral>();
+  stack.push(stack[index]);
 }
 
 void Vm::modulo() {
@@ -546,10 +549,10 @@ void Vm::store() {
   stack[frame().sp + index] = stack.top();
 }
 
-void Vm::storeEnclosing() {
-  const auto frame = read<u8>();
-  const auto index = read<u8>();
-  stack[frames[frame].sp + index] = stack.top();
+template<typename Integral>
+void Vm::storeAbsolute() {
+  const auto index = read<Integral>();
+  stack[index] = stack.top();
 }
 
 void Vm::subtract() {

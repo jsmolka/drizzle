@@ -28,6 +28,12 @@ block:
 R"(
 return
 )",
+R"(
+def outer():
+  var x
+  def inner():
+    var x = x
+)",
       };
 
       for (const auto& source : kSources) {
