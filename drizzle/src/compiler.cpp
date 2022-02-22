@@ -13,10 +13,6 @@ Compiler::Compiler()
 Compiler::Compiler(Type type, Compiler* parent)
   : type(type), parent(parent), function(new DzFunction()) {}
 
-auto Compiler::reservedStackSize() const -> std::size_t {
-  return type == Type::Function ? 2 : 0;
-}
-
 DzFunction* Compiler::compile(const Stmt& ast) {
   visit(const_cast<Stmt&>(ast));
   return function;
@@ -63,7 +59,7 @@ void Compiler::visit(Statement::Break& break_) {
   };
 
   auto& level = resolve(break_.identifier);
-  popVariables(std::distance(scope.data(), &level));
+  pop(std::distance(scope.data(), &level));
   level.breaks.push_back(emitJump(Opcode::Jump));
 }
 
@@ -87,23 +83,17 @@ void Compiler::visit(Statement::Def& def) {
   compiler.function->arity = def.arguments.size();
   compiler.locations.emplace(locations.top());
   compiler.increaseScope(Level::Type::Function);
-  compiler.defineVariable(def.identifier);
+  compiler.define(def.identifier);
   for (const auto& argument : def.arguments) {
-    compiler.defineVariable(argument);
+    compiler.define(argument);
   }
   compiler.visit(def.statements);
   compiler.emitReturn();
   compiler.decreaseScope();
   compiler.locations.pop();
 
-  auto function = compiler.function;
-  for (auto c = this; c; c = c->parent) {
-    function->definition += c->variables.size();
-    function->definition += c->reservedStackSize();
-  }
-
-  emitConstant(function);
-  defineVariable(def.identifier);
+  emitConstant(compiler.function);
+  define(def.identifier);
 }
 
 void Compiler::visit(Statement::ExpressionStatement& expression_statement) {
@@ -135,7 +125,7 @@ void Compiler::visit(Statement::Program& program) {
   increaseScope(Level::Type::Block);
   for (auto& builtin : DzBuiltIn::all()) {
     emitConstant(&builtin);
-    defineVariable(Identifier(builtin.identifier, {}));
+    define(Identifier(builtin.identifier, {}));
   }
   AstVisiter::visit(program);
   decreaseScope();
@@ -152,7 +142,7 @@ void Compiler::visit(Statement::Return& return_) {
 
 void Compiler::visit(Statement::Var& var) {
   AstVisiter::visit(var);
-  defineVariable(var.identifier);
+  define(var.identifier);
 }
 
 void Compiler::visit(Statement::While& while_) {
@@ -177,7 +167,14 @@ void Compiler::visit(Expr& expr) {
 
 void Compiler::visit(Expression::Assign& assign) {
   AstVisiter::visit(assign);
-  store(assign.identifier);
+  const auto& identifier = assign.identifier;
+  if (const auto index = resolve(identifier)) {
+    emitExt(Opcode::Store, *index);
+  } else if (const auto index = resolveAbsolute(identifier)) {
+    emitExt(Opcode::StoreAbsolute, *index);
+  } else {
+    throw SyntaxError(identifier.location, "undefined variable '{}'", identifier);
+  }
 }
 
 void Compiler::visit(Expression::Binary& binary) {
@@ -267,7 +264,14 @@ void Compiler::visit(Expression::Unary& unary) {
 }
 
 void Compiler::visit(Expression::Variable& variable) {
-  load(variable.identifier);
+  const auto& identifier = variable.identifier;
+  if (const auto index = resolve(identifier)) {
+    emitExt(Opcode::Load, *index);
+  } else if (const auto index = resolveAbsolute(identifier)) {
+    emitExt(Opcode::LoadAbsolute, *index);
+  } else {
+    throw SyntaxError(identifier.location, "undefined variable '{}'", identifier);
+  }
 }
 
 template<typename... Bytes>
@@ -319,26 +323,6 @@ void Compiler::patchJumps(const std::vector<std::size_t>& jumps) {
   }
 }
 
-void Compiler::load(const Identifier& identifier) {
-  if (const auto index = resolve(identifier)) {
-    emitExt(Opcode::Load, *index);
-  } else if (const auto index = resolveAbsolute(identifier)) {
-    emitExt(Opcode::LoadAbsolute, *index);
-  } else {
-    throw SyntaxError(identifier.location, "undefined variable '{}'", identifier);
-  }
-}
-
-void Compiler::store(const Identifier& identifier) {
-  if (const auto index = resolve(identifier)) {
-    emitExt(Opcode::Store, *index);
-  } else if (const auto index = resolveAbsolute(identifier)) {
-    emitExt(Opcode::StoreAbsolute, *index);
-  } else {
-    throw SyntaxError(identifier.location, "undefined variable '{}'", identifier);
-  }
-}
-
 auto Compiler::resolve(const Identifier& identifier) const -> std::optional<std::size_t> {
   for (const auto& variable : sh::reversed(variables)) {
     if (variable.identifier == identifier) {
@@ -360,7 +344,7 @@ auto Compiler::resolveAbsolute(const Identifier& identifier) const -> std::optio
   return std::nullopt;
 }
 
-void Compiler::defineVariable(Identifier identifier) {
+void Compiler::define(const Identifier& identifier) {
   for (const auto& variable : sh::reversed(variables)) {
     if (variable.depth != scope.size()) {
       break;
@@ -371,7 +355,7 @@ void Compiler::defineVariable(Identifier identifier) {
   variables.emplace_back(identifier, scope.size());
 }
 
-void Compiler::popVariables(std::size_t depth) {
+void Compiler::pop(std::size_t depth) {
   const auto size = variables.size();
   while (!variables.empty() && variables.back().depth > depth) {
     variables.pop_back();
@@ -386,7 +370,6 @@ void Compiler::popVariables(std::size_t depth) {
 }
 
 template<typename... Args>
-  requires std::constructible_from<Compiler::Level, Args...>
 void Compiler::increaseScope(Args&&... args) {
   scope.emplace_back(std::forward<Args>(args)...);
 }
@@ -395,6 +378,6 @@ auto Compiler::decreaseScope() -> Compiler::Level {
   const auto level(std::move(scope.back()));
   scope.pop_back();
   patchJumps(level.continues);
-  popVariables(scope.size());
+  pop(scope.size());
   return level;
 }
