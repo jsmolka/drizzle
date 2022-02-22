@@ -531,6 +531,7 @@ bool Vm::return_() {
     stack.top() = result;
     return false;
   }
+  assert(stack.empty());
   return true;
 }
 

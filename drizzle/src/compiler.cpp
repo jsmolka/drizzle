@@ -138,8 +138,8 @@ void Compiler::visit(Statement::Program& program) {
     defineVariable(Identifier(builtin.identifier, {}));
   }
   AstVisiter::visit(program);
-  emitReturn();
   decreaseScope();
+  emitReturn();
 }
 
 void Compiler::visit(Statement::Return& return_) {
