@@ -60,8 +60,8 @@ private:
 
   template<typename... Bytes>
   void emit(Bytes... bytes);
+  void emitExt(Opcode opcode, std::size_t value);
   void emitConstant(DzValue value);
-  void emitVariable(Opcode opcode, std::size_t index);
   void emitReturn();
 
   auto emitJump(Opcode opcode, std::size_t label = 0) -> std::size_t;

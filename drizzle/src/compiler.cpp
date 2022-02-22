@@ -275,26 +275,19 @@ void Compiler::emit(Bytes... bytes) {
   (function->chunk.write(static_cast<u8>(bytes), locations.top().line), ...);
 }
 
-void Compiler::emitConstant(DzValue value) {
-  const auto index = function->chunk.constants.size();
-  if (index <= std::numeric_limits<u8>::max()) {
-    emit(Opcode::Constant, index);
-  } else if (index <= std::numeric_limits<u16>::max()) {
-    emit(Opcode::ConstantExt, index, index >> 8);
+void Compiler::emitExt(Opcode opcode, std::size_t value) {
+  if (value <= std::numeric_limits<u8>::max()) {
+    emit(opcode, value);
+  } else if (value <= std::numeric_limits<u16>::max()) {
+    emit(Opcode(int(opcode) + 1), value, value >> 8);
   } else {
-    throw CompilerError(locations.top(), "constant limit exceeded");
+    throw CompilerError(locations.top(), "cannot encode '{}' in opcode '{}'", value, opcode);
   }
-  function->chunk.constants.push_back(value);
 }
 
-void Compiler::emitVariable(Opcode opcode, std::size_t index) {
-  if (index <= std::numeric_limits<u8>::max()) {
-    emit(opcode, index);
-  } else if (index <= std::numeric_limits<u16>::max()) {
-    emit(Opcode(int(opcode) + 1), index, index >> 8);
-  } else {
-    throw CompilerError(locations.top(), "variable limit exceeded");
-  }
+void Compiler::emitConstant(DzValue value) {
+  emitExt(Opcode::Constant, function->chunk.constants.size());
+  function->chunk.constants.push_back(value);
 }
 
 void Compiler::emitReturn() {
@@ -328,9 +321,9 @@ void Compiler::patchJumps(const std::vector<std::size_t>& jumps) {
 
 void Compiler::load(const Identifier& identifier) {
   if (const auto index = resolve(identifier)) {
-    emitVariable(Opcode::Load, *index);
+    emitExt(Opcode::Load, *index);
   } else if (const auto index = resolveAbsolute(identifier)) {
-    emitVariable(Opcode::LoadAbsolute, *index);
+    emitExt(Opcode::LoadAbsolute, *index);
   } else {
     throw SyntaxError(identifier.location, "undefined variable '{}'", identifier);
   }
@@ -338,9 +331,9 @@ void Compiler::load(const Identifier& identifier) {
 
 void Compiler::store(const Identifier& identifier) {
   if (const auto index = resolve(identifier)) {
-    emitVariable(Opcode::Store, *index);
+    emitExt(Opcode::Store, *index);
   } else if (const auto index = resolveAbsolute(identifier)) {
-    emitVariable(Opcode::StoreAbsolute, *index);
+    emitExt(Opcode::StoreAbsolute, *index);
   } else {
     throw SyntaxError(identifier.location, "undefined variable '{}'", identifier);
   }
@@ -385,16 +378,10 @@ void Compiler::popVariables(std::size_t depth) {
   }
 
   const auto count = size - variables.size();
-  if (count == 0) {
-    return;
-  } else if (count == 1) {
+  if (count == 1) {
     emit(Opcode::Pop);
-  } else if (count <= std::numeric_limits<u8>::max()) {
-    emit(Opcode::PopMultiple, count);
-  } else if (count <= std::numeric_limits<u16>::max()) {
-    emit(Opcode::PopMultipleExt, count, count >> 8);
-  } else {
-    throw CompilerError(locations.top(), "pop count too high '{}'", count);
+  } else if (count > 1) {
+    emitExt(Opcode::PopMultiple, count);
   }
 }
 
