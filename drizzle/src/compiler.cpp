@@ -126,7 +126,7 @@ void Compiler::visit(Statement::If& if_) {
 
 void Compiler::visit(Statement::Program& program) {
   increaseScope(Level::Type::Block);
-  for (auto& builtin : DzBuiltIn::all()) {
+  for (auto& builtin : DzBuiltIn::all) {
     emitConstant(&builtin);
     define(Identifier(builtin.identifier, {}));
   }
