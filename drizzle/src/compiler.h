@@ -36,7 +36,7 @@ protected:
   void visit(Expression::Variable& variable) final;
 
 private:
-  static constexpr auto kJumpBytes = 3;
+  static constexpr auto kJumpSize = 3;
 
   enum class Type { Main, Function };
 
@@ -62,13 +62,13 @@ private:
   void emitConstant(DzValue value);
   void emitReturn();
 
-  auto emitJump(Opcode opcode, std::size_t label = 0) -> std::size_t;
-  void patchJump(std::size_t jump);
-  void patchJumps(const std::vector<std::size_t>& jumps);
+  auto jump(Opcode opcode, std::optional<std::size_t> label = std::nullopt) -> std::size_t;
+  void patch(std::size_t jump);
+  void patch(const std::vector<std::size_t>& jumps);
 
+  void define(const Identifier& identifier);
   auto resolve(const Identifier& identifier) const -> std::optional<std::size_t>;
   auto resolveAbsolute(const Identifier& identifier) const -> std::optional<std::size_t>;
-  void define(const Identifier& identifier);
   void pop(std::size_t depth);
 
   template<typename... Args>
@@ -78,7 +78,7 @@ private:
   Type type;
   Compiler* parent;
   DzFunction* function;
+  sh::stack<Level> scope;
+  sh::stack<Variable> variables;
   sh::stack<Location> locations;
-  std::vector<Level> scope;
-  std::vector<Variable> variables;
 };

@@ -11,7 +11,11 @@ Compiler::Compiler()
   : Compiler(Type::Main, nullptr) {}
 
 Compiler::Compiler(Type type, Compiler* parent)
-  : type(type), parent(parent), function(new DzFunction()) {}
+  : type(type), parent(parent), function(new DzFunction()) {
+  if (parent) {
+    locations.push(parent->locations.top());
+  }
+}
 
 DzFunction* Compiler::compile(const Stmt& ast) {
   visit(const_cast<Stmt&>(ast));
@@ -36,7 +40,7 @@ void Compiler::visit(Statement::Block& block) {
   increaseScope(Level::Type::Block, block.identifier);
   AstVisiter::visit(block);
   const auto level = decreaseScope();
-  patchJumps(level.breaks);
+  patch(level.breaks);
 }
 
 void Compiler::visit(Statement::Break& break_) {
@@ -60,7 +64,7 @@ void Compiler::visit(Statement::Break& break_) {
 
   auto& level = resolve(break_.identifier);
   pop(std::distance(scope.data(), &level));
-  level.breaks.push_back(emitJump(Opcode::Jump));
+  level.breaks.push_back(jump(Opcode::Jump));
 }
 
 void Compiler::visit(Statement::Continue& continue_) {
@@ -74,23 +78,23 @@ void Compiler::visit(Statement::Continue& continue_) {
   };
 
   auto& level = resolve();
-  level.continues.push_back(emitJump(Opcode::Jump));
+  level.continues.push_back(jump(Opcode::Jump));
 }
 
 void Compiler::visit(Statement::Def& def) {
   Compiler compiler(Type::Function, this);
   compiler.function->identifier = def.identifier;
   compiler.function->arity = def.arguments.size();
-  compiler.locations.emplace(locations.top());
-  compiler.increaseScope(Level::Type::Function);
+
   compiler.define(def.identifier);
   for (const auto& argument : def.arguments) {
     compiler.define(argument);
   }
+
+  compiler.increaseScope(Level::Type::Function);
   compiler.visit(def.statements);
-  compiler.emitReturn();
   compiler.decreaseScope();
-  compiler.locations.pop();
+  compiler.emitReturn();
 
   emitConstant(compiler.function);
   define(def.identifier);
@@ -103,22 +107,21 @@ void Compiler::visit(Statement::ExpressionStatement& expression_statement) {
 
 void Compiler::visit(Statement::If& if_) {
   std::vector<std::size_t> exits;
-
   for (auto& branch : if_.branches) {
     visit(branch.condition);
-    const auto skip = emitJump(Opcode::JumpFalsePop);
+    const auto next = jump(Opcode::JumpFalsePop);
     increaseScope(Level::Type::Branch);
     visit(branch.statements);
     decreaseScope();
-    exits.push_back(emitJump(Opcode::Jump));
-    patchJump(skip);
+    exits.push_back(jump(Opcode::Jump));
+    patch(next);
   }
 
   increaseScope(Level::Type::Branch);
   visit(if_.else_);
   decreaseScope();
 
-  patchJumps(exits);
+  patch(exits);
 }
 
 void Compiler::visit(Statement::Program& program) {
@@ -148,15 +151,15 @@ void Compiler::visit(Statement::Var& var) {
 void Compiler::visit(Statement::While& while_) {
   const auto condition = function->chunk.size();
   visit(while_.condition);
-  const auto exit = emitJump(Opcode::JumpFalsePop);
+  const auto exit = jump(Opcode::JumpFalsePop);
 
   increaseScope(Level::Type::Loop);
   visit(while_.statements);
   const auto level = decreaseScope();
-  emitJump(Opcode::Jump, condition);
+  jump(Opcode::Jump, condition);
 
-  patchJump(exit);
-  patchJumps(level.breaks);
+  patch(exit);
+  patch(level.breaks);
 }
 
 void Compiler::visit(Expr& expr) {
@@ -182,24 +185,23 @@ void Compiler::visit(Expression::Binary& binary) {
 
   if (binary.type == Expression::Binary::Type::And) {
     visit(binary.left);
-    const auto exit = emitJump(Opcode::JumpFalse);
+    const auto skip = jump(Opcode::JumpFalse);
     emit(Opcode::Pop);
     visit(binary.right);
-    patchJump(exit);
+    patch(skip);
     return;
   }
 
   if (binary.type == Expression::Binary::Type::Or) {
     visit(binary.left);
-    const auto exit = emitJump(Opcode::JumpTrue);
+    const auto skip = jump(Opcode::JumpTrue);
     emit(Opcode::Pop);
     visit(binary.right);
-    patchJump(exit);
+    patch(skip);
     return;
   }
 
   AstVisiter::visit(binary);
-
   switch (binary.type) {
     case Expression::Binary::Type::Addition:        emit(Opcode::Add); break;
     case Expression::Binary::Type::BitwiseAnd:      emit(Opcode::BitwiseAnd); break;
@@ -227,11 +229,12 @@ void Compiler::visit(Expression::Binary& binary) {
 }
 
 void Compiler::visit(Expression::Call& call) {
-  if (call.arguments.size() > std::numeric_limits<u8>::max()) {
-    throw CompilerError(locations.top(), "too many arguments");
+  const auto arguments = call.arguments.size();
+  if (arguments > std::numeric_limits<u8>::max()) {
+    throw CompilerError(locations.top(), "cannot encode call argument count '{}'", arguments);
   }
   AstVisiter::visit(call);
-  emit(Opcode::Call, call.arguments.size());
+  emit(Opcode::Call, arguments);
 }
 
 void Compiler::visit(Expression::Literal& literal) {
@@ -240,8 +243,8 @@ void Compiler::visit(Expression::Literal& literal) {
   switch (literal.type) {
     case Expression::Literal::Type::Null:    emit(Opcode::Null); break;
     case Expression::Literal::Type::Boolean: emit(std::get<dzbool>(literal.value) ? Opcode::True : Opcode::False); break; 
-    case Expression::Literal::Type::Float:   emitConstant(std::get<dzfloat>(literal.value)); break;
     case Expression::Literal::Type::Integer: emitConstant(std::get<dzint>(literal.value)); break;
+    case Expression::Literal::Type::Float:   emitConstant(std::get<dzfloat>(literal.value)); break;
     case Expression::Literal::Type::String:  emitConstant(new DzString(std::get<std::string>(literal.value))); break;
     default:
       SH_UNREACHABLE;
@@ -251,8 +254,8 @@ void Compiler::visit(Expression::Literal& literal) {
 
 void Compiler::visit(Expression::Unary& unary) {
   static_assert(int(Expression::Unary::Type::LastEnumValue) == 3);
-  AstVisiter::visit(unary);
 
+  AstVisiter::visit(unary);
   switch (unary.type) {
     case Expression::Unary::Type::BitwiseComplement: emit(Opcode::BitwiseComplement); break;
     case Expression::Unary::Type::Minus:             emit(Opcode::Negate); break;
@@ -285,7 +288,7 @@ void Compiler::emitExt(Opcode opcode, std::size_t value) {
   } else if (value <= std::numeric_limits<u16>::max()) {
     emit(Opcode(int(opcode) + 1), value, value >> 8);
   } else {
-    throw CompilerError(locations.top(), "cannot encode '{}' in opcode '{}'", value, opcode);
+    throw CompilerError(locations.top(), "cannot encode opcode '{}' value '{}'", opcode, value);
   }
 }
 
@@ -298,29 +301,44 @@ void Compiler::emitReturn() {
   emit(Opcode::Null, Opcode::Return);
 }
 
-auto Compiler::emitJump(Opcode opcode, std::size_t label) -> std::size_t {
+auto Compiler::jump(Opcode opcode, std::optional<std::size_t> label) -> std::size_t {
   const auto jump = function->chunk.size();
-  const auto offset = static_cast<s64>(label - jump) - kJumpBytes;
-  if (offset < std::numeric_limits<s16>::min() || offset > -kJumpBytes) {
-    throw CompilerError(locations.top(), "bad jump '{}'", offset);
+  if (label) {
+    const auto offset = static_cast<s64>(*label - jump - kJumpSize);
+    if (offset < std::numeric_limits<s16>::min() || offset > -kJumpSize) {
+      throw CompilerError(locations.top(), "cannot encode jump offset '{}'", offset);
+    }
+    emit(opcode, offset, offset >> 8);
+  } else {
+    emit(opcode, 0, 0);
   }
-  emit(opcode, offset, offset >> 8);
   return jump;
 }
 
-void Compiler::patchJump(std::size_t jump) {
-  const auto offset = static_cast<s64>(function->chunk.size() - jump) - kJumpBytes;
+void Compiler::patch(std::size_t jump) {
+  const auto offset = static_cast<s64>(function->chunk.size() - jump - kJumpSize);
   if (offset < 0 || offset > std::numeric_limits<s16>::max()) {
-    throw CompilerError(locations.top(), "bad jump '{}'", offset);
+    throw CompilerError(locations.top(), "cannot encode jump offset '{}'", offset);
   }
   function->chunk.code[jump + 1] = offset;
   function->chunk.code[jump + 2] = offset >> 8;
 }
 
-void Compiler::patchJumps(const std::vector<std::size_t>& jumps) {
+void Compiler::patch(const std::vector<std::size_t>& jumps) {
   for (const auto& jump : jumps) {
-    patchJump(jump);
+    patch(jump);
   }
+}
+
+void Compiler::define(const Identifier& identifier) {
+  for (const auto& variable : sh::reversed(variables)) {
+    if (variable.depth != scope.size()) {
+      break;
+    } else if (variable.identifier == identifier) {
+      throw SyntaxError(identifier.location, "redefined variable '{}'", identifier);
+    }
+  }
+  variables.emplace(identifier, scope.size());
 }
 
 auto Compiler::resolve(const Identifier& identifier) const -> std::optional<std::size_t> {
@@ -336,7 +354,7 @@ auto Compiler::resolveAbsolute(const Identifier& identifier) const -> std::optio
   for (auto compiler = parent; compiler; compiler = compiler->parent) {
     if (const auto index = compiler->resolve(identifier)) {
       if (compiler->parent) {
-        throw SyntaxError(identifier.location, "captured variables must be global");
+        throw SyntaxError(identifier.location, "cannot capture local variable");
       }
       return index;
     }
@@ -344,21 +362,10 @@ auto Compiler::resolveAbsolute(const Identifier& identifier) const -> std::optio
   return std::nullopt;
 }
 
-void Compiler::define(const Identifier& identifier) {
-  for (const auto& variable : sh::reversed(variables)) {
-    if (variable.depth != scope.size()) {
-      break;
-    } else if (variable.identifier == identifier) {
-      throw SyntaxError(identifier.location, "redefined variable '{}'", identifier);
-    }
-  }
-  variables.emplace_back(identifier, scope.size());
-}
-
 void Compiler::pop(std::size_t depth) {
   const auto size = variables.size();
-  while (!variables.empty() && variables.back().depth > depth) {
-    variables.pop_back();
+  while (!variables.empty() && variables.top().depth > depth) {
+    variables.pop();
   }
 
   const auto count = size - variables.size();
@@ -371,13 +378,12 @@ void Compiler::pop(std::size_t depth) {
 
 template<typename... Args>
 void Compiler::increaseScope(Args&&... args) {
-  scope.emplace_back(std::forward<Args>(args)...);
+  scope.emplace(std::forward<Args>(args)...);
 }
 
-auto Compiler::decreaseScope() -> Compiler::Level {
-  const auto level(std::move(scope.back()));
-  scope.pop_back();
-  patchJumps(level.continues);
+auto Compiler::decreaseScope() -> Level {
+  auto level = scope.pop_value();
+  patch(level.continues);
   pop(scope.size());
   return level;
 }
