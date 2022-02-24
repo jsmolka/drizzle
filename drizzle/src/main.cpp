@@ -43,11 +43,11 @@ void report(const Error& error, const std::string& source) {
 
 auto main(int argc, char* argv[]) -> int {
   std::filesystem::path file;
-  std::optional<bool> print = false;
+  std::optional<bool> print_ast = false;
 
   sh::clap parser("drizzle");
   parser.add_help();
-  parser.add<decltype(print)>("-a", "--ast") << &print << sh::desc("print ast");
+  parser.add<decltype(print_ast)>("-a", "--ast") << &print_ast << sh::desc("print ast");
   parser.add<decltype(file)>("file") << &file << sh::desc("script file");
   parser.try_parse(argc, argv);
 
@@ -62,10 +62,11 @@ auto main(int argc, char* argv[]) -> int {
     const auto tokens = Tokenizer().tokenize(source);
     const auto ast = Parser().parse(tokens);
 
-    if (*print) {
+    if (*print_ast) {
       fmt::print("{}\n", ast);
     } else {
-      Vm().interpret(Compiler().compile(ast));
+      auto function = Compiler().compile(ast);
+      Vm().interpret(function);
     }
     return 0;
   } catch (const Error& error) {
