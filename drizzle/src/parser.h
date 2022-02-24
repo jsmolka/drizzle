@@ -53,7 +53,6 @@ private:
   void expectParenRight();
 
   template<typename T>
-    requires std::constructible_from<Expression, T, Location>
   auto newExpr(T expression) -> Expr;
   auto expression() -> Expr;
   void parseExpression(Precedence precedence);
@@ -68,7 +67,6 @@ private:
   void variable(bool assign);
 
   template<typename T>
-    requires std::constructible_from<Statement, T, Location>
   auto newStmt(T statement) -> Stmt;
   void pushLocation();
   auto program() -> Stmt;

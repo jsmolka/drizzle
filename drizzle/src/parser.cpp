@@ -12,9 +12,9 @@ auto Parser::parse(const std::vector<Token>& tokens) -> Stmt {
   return program();
 }
 
-auto Parser::rule(Token::Type type) -> const Parser::Rule& {
+auto Parser::rule(Token::Type type) -> const Rule& {
   static constexpr auto kRulesSize = std::size_t(Token::Type::LastEnumValue);
-  static constexpr auto kRules = sh::make_array<Parser::Rule, kRulesSize>([](std::size_t type) -> Parser::Rule {
+  static constexpr auto kRules = sh::make_array<Rule, kRulesSize>([](std::size_t type) -> Rule {
     switch (Token::Type(type)) {
       case Token::Type::And:          return {nullptr,           &Parser::binary, Precedence::BitAnd    };
       case Token::Type::And2:         return {nullptr,           &Parser::and_,   Precedence::And       };
@@ -84,7 +84,6 @@ void Parser::expectParenLeft()  { expect(Token::Type::ParenLeft,  "expected '('"
 void Parser::expectParenRight() { expect(Token::Type::ParenRight, "expected ')'");        }
 
 template<typename T>
-  requires std::constructible_from<Expression, T, Location>
 auto Parser::newExpr(T expression) -> Expr {
   return std::make_unique<Expression>(std::move(expression), previous->location);
 }
@@ -262,7 +261,6 @@ void Parser::variable(bool assign) {
 }
 
 template<typename T>
-  requires std::constructible_from<Statement, T, Location>
 auto Parser::newStmt(T statement) -> Stmt {
   return std::make_unique<Statement>(std::move(statement), locations.pop_value());
 }

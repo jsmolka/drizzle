@@ -39,9 +39,8 @@ private:
   template<std::integral Integral>
   auto read() -> Integral;
 
-  template<typename Error, typename... Args>
-    requires std::is_base_of_v<RuntimeError, Error>
-  void raise(std::string_view message, Args&&... args);
+  template<typename... Args>
+  void raise(std::string_view format, Args&&... args);
 
   template<template<typename T> typename Promote = promote_t, UnaryHandler Handler>
   void unary(std::string_view operation, Handler callback);
@@ -62,6 +61,7 @@ private:
   void divide();
   void divideInt();
   void equal();
+  void false_();
   void greater();
   void greaterEqual();
   void jump();
@@ -79,19 +79,18 @@ private:
   void negate();
   void not_();
   void notEqual();
+  void null();
   void pop();
   template<typename Integral>
   void popMultiple();
   void power();
-  void pushFalse();
-  void pushNull();
-  void pushTrue();
   bool return_();
   template<typename Integral>
   void store();
   template<typename Integral>
   void storeAbsolute();
   void subtract();
+  void true_();
 
   sh::stack<Frame, 32> frames;
   sh::stack<DzValue, 512> stack;

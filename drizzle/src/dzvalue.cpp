@@ -15,8 +15,8 @@ DzValue::operator bool() const {
 }
 
 auto DzValue::repr() const -> std::string {
-  auto whole = [](double v) {
-    return std::fmod(v, 1.0) == 0.0;
+  auto whole = [](double value) {
+    return std::fmod(value, 1.0) == 0.0;
   };
 
   switch (type) {

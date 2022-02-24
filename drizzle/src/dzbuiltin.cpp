@@ -24,7 +24,7 @@ std::vector<DzBuiltIn> DzBuiltIn::all = {
   {
     "assert", 1, [](Vm& vm, std::size_t) {
       if (!vm.stack.pop_value()) {
-        vm.raise<RuntimeError>("assertion failed");
+        vm.raise("assertion failed");
       }
       vm.stack.top() = &null;
     }

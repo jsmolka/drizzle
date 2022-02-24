@@ -6,6 +6,8 @@
 #include "opcode.h"
 
 void Vm::interpret(DzFunction* function) {
+  static_assert(int(Opcode::LastEnumValue) == 44);
+
   frames.push(Frame{
     .function = function,
     .pc = function->chunk.code.data(),
@@ -13,7 +15,6 @@ void Vm::interpret(DzFunction* function) {
   });
 
   while (true) {
-    static_assert(int(Opcode::LastEnumValue) == 44);
     switch (static_cast<Opcode>(read<u8>())) {
       case Opcode::Add: add(); break;
       case Opcode::BitwiseAnd: bitwiseAnd(); break;
@@ -29,7 +30,7 @@ void Vm::interpret(DzFunction* function) {
       case Opcode::Divide: divide(); break;
       case Opcode::DivideInt: divideInt(); break;
       case Opcode::Equal: equal(); break;
-      case Opcode::False: pushFalse(); break;
+      case Opcode::False: false_(); break;
       case Opcode::Greater: greater(); break;
       case Opcode::GreaterEqual: greaterEqual(); break;
       case Opcode::Jump: jump(); break;
@@ -47,7 +48,7 @@ void Vm::interpret(DzFunction* function) {
       case Opcode::Negate: negate(); break;
       case Opcode::Not: not_(); break;
       case Opcode::NotEqual: notEqual(); break;
-      case Opcode::Null: pushNull(); break;
+      case Opcode::Null: null(); break;
       case Opcode::Pop: pop(); break;
       case Opcode::PopMultiple: popMultiple<u8>(); break;
       case Opcode::PopMultipleExt: popMultiple<u16>(); break;
@@ -58,7 +59,7 @@ void Vm::interpret(DzFunction* function) {
       case Opcode::StoreAbsolute: storeAbsolute<u8>(); break;
       case Opcode::StoreAbsoluteExt: storeAbsolute<u16>(); break;
       case Opcode::Subtract: subtract(); break;
-      case Opcode::True: pushTrue(); break;
+      case Opcode::True: true_(); break;
       default:
         SH_UNREACHABLE;
         break;
@@ -77,12 +78,12 @@ auto Vm::read() -> Integral {
   return value;
 }
 
-template<typename Error, typename... Args>
-  requires std::is_base_of_v<RuntimeError, Error>
-void Vm::raise(std::string_view message, Args&&... args) {
-  const auto func = frame().function;
-  const auto line = func->chunk.line(frame().pc - func->chunk.code.data());
-  throw Error(Location{.line = line}, message, std::forward<Args>(args)...);
+template<typename... Args>
+void Vm::raise(std::string_view format, Args&&... args) {
+  const auto line = frame().function->chunk.line(
+    frame().pc -
+    frame().function->chunk.code.data());
+  throw RuntimeError(Location{.line = line}, format, std::forward<Args>(args)...);
 }
 
 template<template<typename T> typename Promote, UnaryHandler Handler>
@@ -122,7 +123,7 @@ void Vm::unary(std::string_view operation, Handler handler) {
 
   #undef DZ_EVAL
 
-  raise<RuntimeError>("bad operand type for '{}': '{}'", operation, value.name());
+  raise("bad operand type for '{}': '{}'", operation, value.name());
 }
 
 template<template<typename T, typename U> typename Promote, BinaryHandler Handler>
@@ -179,7 +180,7 @@ void Vm::binary(std::string_view operation, Handler handler) {
   #undef DZ_HASH
   #undef DZ_EVAL
 
-  raise<RuntimeError>("bad operand types for '{}': '{}' and '{}'", operation, lhs.name(), rhs.name());
+  raise("bad operand types for '{}': '{}' and '{}'", operation, lhs.name(), rhs.name());
 }
 
 void Vm::add() {
@@ -286,7 +287,7 @@ void Vm::call() {
       case DzObject::Type::BuiltIn: {
         const auto builtin = static_cast<DzBuiltIn*>(value.o);
         if (builtin->arity && *builtin->arity != argc) {
-          raise<RuntimeError>("expected {} argument(s) but got {}", *builtin->arity, argc);
+          raise("expected {} argument(s) but got {}", *builtin->arity, argc);
         }
         builtin->callback(*this, argc);
         return;
@@ -295,7 +296,7 @@ void Vm::call() {
       case DzObject::Type::Function: {
         const auto function = static_cast<DzFunction*>(value.o);
         if (function->arity != argc) {
-          raise<RuntimeError>("expected {} argument(s) but got {}", function->arity, argc);
+          raise("expected {} argument(s) but got {}", function->arity, argc);
         }
         constexpr auto kFunction = 1;
         frames.push(Frame{
@@ -307,7 +308,7 @@ void Vm::call() {
       }
     }
   }
-  raise<RuntimeError>("'{}' is not callable", value);
+  raise("'{}' is not callable", value);
 }
 
 template<typename Integral>
@@ -320,7 +321,7 @@ void Vm::divide() {
   binary("/", [this]<typename A, typename B>(DzValue& dst, const A& a, const B& b) {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       if (b == static_cast<B>(0)) {
-        raise<RuntimeError>("division by zero");
+        raise("division by zero");
       }
       dst = static_cast<dzfloat>(a) / static_cast<dzfloat>(b);
       return true;
@@ -333,7 +334,7 @@ void Vm::divideInt() {
   binary("//", [this]<typename A, typename B>(DzValue& dst, const A& a, const B& b) {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       if (b == static_cast<B>(0)) {
-        raise<RuntimeError>("integer division by zero");
+        raise("integer division by zero");
       }
       if constexpr (dz_int<A, B>) {
         dst = a / b;
@@ -357,6 +358,10 @@ void Vm::equal() {
     }
     return false;
   });
+}
+
+void Vm::false_() {
+  stack.push(false);
 }
 
 void Vm::greater() {
@@ -440,7 +445,7 @@ void Vm::modulo() {
   binary("%", [this]<typename A, typename B>(DzValue& dst, const A& a, const B& b) {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       if (b == static_cast<B>(0)) {
-        raise<RuntimeError>("modulo by zero");
+        raise("modulo by zero");
       }
       if constexpr (dz_int<A, B>) {
         dst = a % b;
@@ -490,6 +495,10 @@ void Vm::notEqual() {
   });
 }
 
+void Vm::null() {
+  stack.push(&::null);
+}
+
 void Vm::pop() {
   stack.pop();
 }
@@ -508,18 +517,6 @@ void Vm::power() {
     }
     return false;
   });
-}
-
-void Vm::pushFalse() {
-  stack.push(false);
-}
-
-void Vm::pushNull() {
-  stack.push(&null);
-}
-
-void Vm::pushTrue() {
-  stack.push(true);
 }
 
 bool Vm::return_() {
@@ -555,4 +552,8 @@ void Vm::subtract() {
     }
     return false;
   });
+}
+
+void Vm::true_() {
+  stack.push(true);
 }
