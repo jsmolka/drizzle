@@ -21,6 +21,7 @@ enum class Opcode {
   Divide,
   DivideInt,
   Equal,
+  Exit,
   False,
   Greater,
   GreaterEqual,
@@ -61,7 +62,7 @@ struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
   template<typename FormatContext>
   auto format(const Opcode& opcode, FormatContext& ctx) const {
     auto repr = [](const Opcode& opcode) {
-      static_assert(int(Opcode::LastEnumValue) == 44);
+      static_assert(int(Opcode::LastEnumValue) == 45);
       switch (opcode) {
         case Opcode::Add:               return "Add";
         case Opcode::BitwiseAnd:        return "BitwiseAnd";
@@ -77,6 +78,7 @@ struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
         case Opcode::Divide:            return "Divide";
         case Opcode::DivideInt:         return "DivideInt";
         case Opcode::Equal:             return "Equal";
+        case Opcode::Exit:              return "Exit";
         case Opcode::False:             return "False";
         case Opcode::Greater:           return "Greater";
         case Opcode::GreaterEqual:      return "GreaterEqual";

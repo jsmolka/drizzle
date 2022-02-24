@@ -26,20 +26,20 @@ std::vector<DzBuiltIn> DzBuiltIn::all = {
       if (!vm.stack.pop_value()) {
         vm.raise("assertion failed");
       }
-      vm.stack.top() = &null;
+      return &null;
     }
   },
   {
     "print", std::nullopt, [](Vm& vm, std::size_t argc) {
       fmt::print("{}\n", fmt::join(vm.stack.end() - argc, vm.stack.end(), " "));
       vm.stack.pop(argc);
-      vm.stack.top() = &null;
+      return &null;
     }
   },
   {
     "time", 0, [](Vm& vm, std::size_t) {
       using namespace std::chrono;
-      vm.stack.top() = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count();
+      return duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count();
     }
   },
 };

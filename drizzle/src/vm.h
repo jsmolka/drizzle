@@ -30,15 +30,13 @@ public:
 
 private:
   struct Frame {
-    DzFunction* function;
     u8* pc;
     std::size_t sp;
+    DzFunction* function;
   };
 
-  auto frame() -> Frame&;
   template<std::integral Integral>
   auto read() -> Integral;
-
   template<typename... Args>
   void raise(std::string_view format, Args&&... args);
 
@@ -84,7 +82,7 @@ private:
   template<typename Integral>
   void popMultiple();
   void power();
-  bool return_();
+  void return_();
   template<typename Integral>
   void store();
   template<typename Integral>
@@ -92,6 +90,7 @@ private:
   void subtract();
   void true_();
 
+  Frame frame;
   sh::stack<Frame, 32> frames;
   sh::stack<DzValue, 512> stack;
 };

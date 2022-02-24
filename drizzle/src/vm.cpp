@@ -6,13 +6,11 @@
 #include "opcode.h"
 
 void Vm::interpret(DzFunction* function) {
-  static_assert(int(Opcode::LastEnumValue) == 44);
+  static_assert(int(Opcode::LastEnumValue) == 45);
 
-  frames.push(Frame{
-    .function = function,
-    .pc = function->chunk.code.data(),
-    .sp = 0
-  });
+  frame.pc = function->chunk.code.data();
+  frame.sp = 0;
+  frame.function = function;
 
   while (true) {
     switch (static_cast<Opcode>(read<u8>())) {
@@ -30,6 +28,7 @@ void Vm::interpret(DzFunction* function) {
       case Opcode::Divide: divide(); break;
       case Opcode::DivideInt: divideInt(); break;
       case Opcode::Equal: equal(); break;
+      case Opcode::Exit: goto exit;
       case Opcode::False: false_(); break;
       case Opcode::Greater: greater(); break;
       case Opcode::GreaterEqual: greaterEqual(); break;
@@ -53,7 +52,7 @@ void Vm::interpret(DzFunction* function) {
       case Opcode::PopMultiple: popMultiple<u8>(); break;
       case Opcode::PopMultipleExt: popMultiple<u16>(); break;
       case Opcode::Power: power(); break;
-      case Opcode::Return: if (return_()) { return; } break;
+      case Opcode::Return: return_(); break;
       case Opcode::Store: store<u8>(); break;
       case Opcode::StoreExt: store<u16>(); break;
       case Opcode::StoreAbsolute: storeAbsolute<u8>(); break;
@@ -65,24 +64,23 @@ void Vm::interpret(DzFunction* function) {
         break;
     }
   }
-}
 
-auto Vm::frame() -> Frame& {
-  return frames.top();
+exit:
+  assert(stack.empty());
 }
 
 template<std::integral Integral>
 auto Vm::read() -> Integral {
-  const auto value = sh::cast<Integral>(*frame().pc);
-  frame().pc += sizeof(Integral);
+  const auto value = sh::cast<Integral>(*frame.pc);
+  frame.pc += sizeof(Integral);
   return value;
 }
 
 template<typename... Args>
 void Vm::raise(std::string_view format, Args&&... args) {
-  const auto line = frame().function->chunk.line(
-    frame().pc -
-    frame().function->chunk.code.data());
+  const auto line = frame.function->chunk.line(
+    frame.pc -
+    frame.function->chunk.code.data());
   throw RuntimeError(Location{.line = line}, format, std::forward<Args>(args)...);
 }
 
@@ -281,40 +279,38 @@ void Vm::bitwiseXor() {
 
 void Vm::call() {
   const auto argc = read<u8>();
-  const auto& value = stack.peek(argc);
-  if (value.type == DzValue::Type::Object) {
-    switch (value.o->type) {
+  const auto& callee = stack.peek(argc);
+  if (callee.type == DzValue::Type::Object) {
+    switch (callee.o->type) {
       case DzObject::Type::BuiltIn: {
-        const auto builtin = static_cast<DzBuiltIn*>(value.o);
+        const auto builtin = static_cast<DzBuiltIn*>(callee.o);
         if (builtin->arity && *builtin->arity != argc) {
           raise("expected {} argument(s) but got {}", *builtin->arity, argc);
         }
-        builtin->callback(*this, argc);
+        stack.top() = builtin->callback(*this, argc);
         return;
       }
 
       case DzObject::Type::Function: {
-        const auto function = static_cast<DzFunction*>(value.o);
+        const auto function = static_cast<DzFunction*>(callee.o);
         if (function->arity != argc) {
           raise("expected {} argument(s) but got {}", function->arity, argc);
         }
-        constexpr auto kFunction = 1;
-        frames.push(Frame{
-          .function = function,
-          .pc = function->chunk.code.data(),
-          .sp = stack.size() - argc - kFunction
-        });
+        frames.push(frame);
+        frame.pc = function->chunk.code.data();
+        frame.sp = stack.size() - argc - 1;
+        frame.function = function;
         return;
       }
     }
   }
-  raise("'{}' is not callable", value);
+  raise("'{}' is not callable", callee);
 }
 
 template<typename Integral>
 void Vm::constant() {
   const auto index = read<Integral>();
-  stack.push(frame().function->chunk.constants[index]);
+  stack.push(frame.function->chunk.constants[index]);
 }
 
 void Vm::divide() {
@@ -385,27 +381,27 @@ void Vm::greaterEqual() {
 }
 
 void Vm::jump() {
-  frame().pc += read<s16>();
+  frame.pc += read<s16>();
 }
 
 void Vm::jumpFalse() {
   const auto offset = read<s16>();
   if (!stack.top()) {
-    frame().pc += offset;
+    frame.pc += offset;
   }
 }
 
 void Vm::jumpFalsePop() {
   const auto offset = read<s16>();
   if (!stack.pop_value()) {
-    frame().pc += offset;
+    frame.pc += offset;
   }
 }
 
 void Vm::jumpTrue() {
   const auto offset = read<s16>();
   if (stack.top()) {
-    frame().pc += offset;
+    frame.pc += offset;
   }
 }
 
@@ -432,7 +428,7 @@ void Vm::lessEqual() {
 template<typename Integral>
 void Vm::load() {
   const auto index = read<Integral>();
-  stack.push(stack[frame().sp + index]);
+  stack.push(stack[frame.sp + index]);
 }
 
 template<typename Integral>
@@ -519,23 +515,17 @@ void Vm::power() {
   });
 }
 
-bool Vm::return_() {
-  constexpr auto kFunction = 1;
+void Vm::return_() {
   const auto result = stack.pop_value();
-  const auto frame = frames.pop_value();
-  if (!frames.empty()) {
-    stack.pop(stack.size() - frame.sp - kFunction);
-    stack.top() = result;
-    return false;
-  }
-  assert(stack.empty());
-  return true;
+  stack.pop(stack.size() - frame.sp);
+  stack.push(result);
+  frame = frames.pop_value();
 }
 
 template<typename Integral>
 void Vm::store() {
   const auto index = read<Integral>();
-  stack[frame().sp + index] = stack.top();
+  stack[frame.sp + index] = stack.top();
 }
 
 template<typename Integral>

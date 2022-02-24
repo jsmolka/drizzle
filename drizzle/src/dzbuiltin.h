@@ -5,12 +5,13 @@
 #include <vector>
 
 #include "dzobject.h"
+#include "dzvalue.h"
 
 class Vm;
 
 class DzBuiltIn : public DzObject {
 public:
-  using Callback = std::function<void(Vm&, std::size_t)>;
+  using Callback = std::function<DzValue(Vm&, std::size_t)>;
 
   static std::vector<DzBuiltIn> all;
 

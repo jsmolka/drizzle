@@ -94,7 +94,7 @@ void Compiler::visit(Statement::Def& def) {
   compiler.increaseScope(Level::Type::Function);
   compiler.visit(def.statements);
   compiler.decreaseScope();
-  compiler.emitReturn();
+  compiler.emit(Opcode::Null, Opcode::Return);
 
   emitConstant(compiler.function);
   define(def.identifier);
@@ -132,7 +132,7 @@ void Compiler::visit(Statement::Program& program) {
   }
   AstVisiter::visit(program);
   decreaseScope();
-  emitReturn();
+  emit(Opcode::Exit);
 }
 
 void Compiler::visit(Statement::Return& return_) {
@@ -295,10 +295,6 @@ void Compiler::emitExt(Opcode opcode, std::size_t value) {
 void Compiler::emitConstant(DzValue value) {
   emitExt(Opcode::Constant, function->chunk.constants.size());
   function->chunk.constants.push_back(value);
-}
-
-void Compiler::emitReturn() {
-  emit(Opcode::Null, Opcode::Return);
 }
 
 auto Compiler::jump(Opcode opcode, std::optional<std::size_t> label) -> std::size_t {
