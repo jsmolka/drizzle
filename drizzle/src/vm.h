@@ -6,22 +6,6 @@
 #include "error.h"
 #include "token.h"
 
-template<typename T>
-concept UnaryHandler = requires(T&& handler, DzValue& dst, DzObject* obj) {
-  { std::invoke(std::forward<T>(handler), dst, obj) } -> std::same_as<bool>;
-  { std::invoke(std::forward<T>(handler), dst, dzint{}) } -> std::same_as<bool>;
-  { std::invoke(std::forward<T>(handler), dst, dzbool{}) } -> std::same_as<bool>;
-  { std::invoke(std::forward<T>(handler), dst, dzfloat{}) } -> std::same_as<bool>;
-};
-
-template<typename T>
-concept BinaryHandler = requires(T&& handler, DzValue& dst, DzObject* obj) {
-  { std::invoke(std::forward<T>(handler), dst, obj, obj) } -> std::same_as<bool>;
-  { std::invoke(std::forward<T>(handler), dst, dzint{}, dzint{}) } -> std::same_as<bool>;
-  { std::invoke(std::forward<T>(handler), dst, dzbool{}, dzbool{}) } -> std::same_as<bool>;
-  { std::invoke(std::forward<T>(handler), dst, dzfloat{}, dzfloat{}) } -> std::same_as<bool>;
-};
-
 class Vm {
 public:
   friend class DzBuiltIn;
@@ -40,10 +24,10 @@ private:
   template<typename... Args>
   void raise(std::string_view format, Args&&... args);
 
-  template<template<typename T> typename Promote = promote_t, UnaryHandler Handler>
-  void unary(std::string_view operation, Handler callback);
-  template<template<typename T, typename U> typename Promote = promote_t, BinaryHandler Handler>
-  void binary(std::string_view operation, Handler callback);
+  template<template<typename> typename Promote = promote_t, typename Callback>
+  void unary(std::string_view operation, Callback callback);
+  template<template<typename, typename> typename Promote = promote_t, typename Callback>
+  void binary(std::string_view operation, Callback callback);
 
   void add();
   void bitwiseAnd();

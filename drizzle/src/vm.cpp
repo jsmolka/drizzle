@@ -5,6 +5,12 @@
 #include "dzstring.h"
 #include "opcode.h"
 
+template<typename A, template<typename> typename Promote>
+using unary_t = std::conditional_t<dz_primitive<A>, Promote<A>, A>;
+
+template<typename A, typename B, template<typename, typename> typename Promote>
+using binary_t = std::conditional_t<dz_primitive<A, B>, Promote<A, B>, A>;
+
 void Vm::interpret(DzFunction* function) {
   static_assert(int(Opcode::LastEnumValue) == 45);
 
@@ -84,29 +90,21 @@ void Vm::raise(std::string_view format, Args&&... args) {
   throw RuntimeError(Location{.line = line}, format, std::forward<Args>(args)...);
 }
 
-template<template<typename T> typename Promote, UnaryHandler Handler>
-void Vm::unary(std::string_view operation, Handler handler) {
+template<template<typename> typename Promote, typename Callback>
+void Vm::unary(std::string_view operation, Callback callback) {
   static_assert(int(DzValue::Type::LastEnumValue) == 4);
 
   auto& value = stack.top();
 
-  #define DZ_EVAL(a)                       \
-  {                                        \
-    using A = decltype(a);                 \
-    if constexpr (dz_primitive<A>) {       \
-      if (handler(value, Promote<A>(a))) { \
-        return;                            \
-      } else {                             \
-        break;                             \
-      }                                    \
-    } else {                               \
-      if (handler(value, a)) {             \
-        return;                            \
-      } else {                             \
-        break;                             \
-      }                                    \
-    }                                      \
-    break;                                 \
+  #define DZ_EVAL(a)                 \
+  {                                  \
+    using A  = decltype(a);          \
+    using AP = unary_t<A, Promote>;  \
+    if (callback(value, AP(a))) {    \
+      return;                        \
+    } else {                         \
+      break;                         \
+    }                                \
   }
 
   switch (value.type) {
@@ -124,34 +122,26 @@ void Vm::unary(std::string_view operation, Handler handler) {
   raise("bad operand type for '{}': '{}'", operation, value.name());
 }
 
-template<template<typename T, typename U> typename Promote, BinaryHandler Handler>
-void Vm::binary(std::string_view operation, Handler handler) {
+template<template<typename, typename> typename Promote, typename Callback>
+void Vm::binary(std::string_view operation, Callback callback) {
   static_assert(int(DzValue::Type::LastEnumValue) == 4);
 
   auto  rhs = stack.pop_value();
   auto& lhs = stack.top();
 
-  #define DZ_EVAL(a, b)                                       \
-  {                                                           \
-    using A = decltype(a);                                    \
-    using B = decltype(b);                                    \
-    if constexpr (dz_primitive<A, B>) {                       \
-      if (handler(lhs, Promote<A, B>(a), Promote<A, B>(b))) { \
-        return;                                               \
-      } else {                                                \
-        break;                                                \
-      }                                                       \
-    } else {                                                  \
-      if (handler(lhs, a, b)) {                               \
-        return;                                               \
-      } else {                                                \
-        break;                                                \
-      }                                                       \
-    }                                                         \
-    break;                                                    \
+  #define DZ_HASH(a, b) int(DzValue::Type::LastEnumValue) * int(a) + int(b)
+  #define DZ_EVAL(a, b)                  \
+  {                                      \
+    using A  = decltype(a);              \
+    using B  = decltype(b);              \
+    using AP = binary_t<A, B, Promote>;  \
+    using BP = binary_t<B, A, Promote>;  \
+    if (callback(lhs, AP(a), BP(b))) {   \
+      return;                            \
+    } else {                             \
+      break;                             \
+    }                                    \
   }
-
-  #define DZ_HASH(a, b) (int(DzValue::Type::LastEnumValue) * int(a) + int(b))
 
   switch (DZ_HASH(lhs.type, rhs.type)) {
     case DZ_HASH(DzValue::Type::Bool,   DzValue::Type::Bool  ): DZ_EVAL(lhs.b, rhs.b);
@@ -175,8 +165,8 @@ void Vm::binary(std::string_view operation, Handler handler) {
       break;
   }
 
-  #undef DZ_HASH
   #undef DZ_EVAL
+  #undef DZ_HASH
 
   raise("bad operand types for '{}': '{}' and '{}'", operation, lhs.name(), rhs.name());
 }
