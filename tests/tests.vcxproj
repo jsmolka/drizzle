@@ -77,8 +77,14 @@
     <ClInclude Include="src\tests\parser\stmt\return.h" />
     <ClInclude Include="src\tests\tokenizer\eof.h" />
     <ClInclude Include="src\tests\tokenizer\string.h" />
+    <ClInclude Include="src\tests\vm\binary.h" />
     <ClInclude Include="src\tests\vm\assert.h" />
+    <ClInclude Include="src\tests\vm\block.h" />
+    <ClInclude Include="src\tests\vm\branch.h" />
     <ClInclude Include="src\tests\vm\closure.h" />
+    <ClInclude Include="src\tests\vm\function.h" />
+    <ClInclude Include="src\tests\vm\loop.h" />
+    <ClInclude Include="src\tests\vm\unary.h" />
     <ClInclude Include="src\utils.h" />
     <ClInclude Include="src\ut.h" />
   </ItemGroup>
