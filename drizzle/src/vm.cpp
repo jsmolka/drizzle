@@ -287,6 +287,9 @@ void Vm::call() {
           raise("expected {} argument(s) but got {}", function->arity, argc);
         }
         frames.push(frame);
+        if (frames.size() == kMaximumRecursionDepth) {
+          raise("maximum recursion depth exceeded");
+        }
         frame.pc = function->chunk.code.data();
         frame.sp = stack.size() - argc - 1;
         frame.function = function;

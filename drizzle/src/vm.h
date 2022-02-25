@@ -13,6 +13,8 @@ public:
   void interpret(DzFunction* function);
 
 private:
+  static constexpr auto kMaximumRecursionDepth = 1000;
+
   struct Frame {
     u8* pc;
     std::size_t sp;

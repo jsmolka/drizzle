@@ -60,6 +60,11 @@ test(1, 2)
 R"(
 assert(1, 2)
 )",
+R"(
+def infinite():
+  infinite()
+infinite()
+)",
       };
 
       for (const auto& source : kSources) {
