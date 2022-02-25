@@ -1,9 +1,11 @@
+#pragma
+
 #include "utils.h"
 
-namespace tests_vm_closure {
+namespace tests_vm_capture {
 
 inline suite _ = [] {
-  "vm_closure"_test = [] {
+  "vm_capture"_test = [] {
     {
       constexpr auto kSource = R"(
 var x = 0
@@ -22,4 +24,4 @@ assert(get_x() == 2)
   };
 };
 
-}  // namespace tests_vm_closure
+}  // namespace tests_vm_capture

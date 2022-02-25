@@ -1,3 +1,5 @@
+#pragma
+
 #include "utils.h"
 
 namespace tests_vm_binary {
@@ -29,6 +31,7 @@ R"(
 assert((true & true) == true)
 assert((1 & 3) == 1)
 assert((true & 3) == 1)
+assert((0xFF & 0xF) == 0xF)
 )",
 R"(
 assert((2 >> 1) == 1)
@@ -47,6 +50,7 @@ assert((0x8000000000000000 >>> 3) == 0x1000000000000000)
 R"(
 assert((true | false) == true)
 assert((1 | 2 | 4) == 7)
+assert((0xFF | 0xFF00) == 0xFFFF)
 )",
 R"(
 assert((1 ^ 0) == 1)

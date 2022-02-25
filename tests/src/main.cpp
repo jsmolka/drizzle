@@ -39,9 +39,11 @@ static_assert(int(Statement::Type::LastEnumValue) == 11);
 #include "tests/vm/assert.h"
 #include "tests/vm/binary.h"
 #include "tests/vm/block.h"
-#include "tests/vm/closure.h"
-#include "tests/vm/function.h"
+#include "tests/vm/branch.h"
+#include "tests/vm/call.h"
+#include "tests/vm/capture.h"
 #include "tests/vm/loop.h"
+#include "tests/vm/scope.h"
 #include "tests/vm/unary.h"
 
 auto main() -> int {

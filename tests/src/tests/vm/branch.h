@@ -1,3 +1,5 @@
+#pragma
+
 #include "utils.h"
 
 namespace tests_vm_branch {
@@ -6,27 +8,30 @@ inline suite _ = [] {
   "vm_branch"_test = [] {
     constexpr const char* kSources[] = {
 R"(
+var x
 if true:
-  assert(true)
+  x = 0
 else:
-  assert(false)
+  x = 1
+assert(x == 0)
 )",
 R"(
+var x
 if false:
-  assert(false)
+  x = 0
 else:
-  assert(true)
+  x = 1
+assert(x == 1)
 )",
 R"(
-var x = 2
-var y = 0
-if x < 1:
-  y = 1
-elif x < 2:
-  y = 2
-elif x < 3:
-  y = 3
-assert(y == 3)
+var x
+if false:
+  noop
+elif false:
+  noop
+elif true:
+  x = 1
+assert(x == 1)
 )",
     };
 

@@ -1,3 +1,5 @@
+#pragma
+
 #include "utils.h"
 
 namespace tests_vm_unary {

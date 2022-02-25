@@ -81,9 +81,10 @@
     <ClInclude Include="src\tests\vm\assert.h" />
     <ClInclude Include="src\tests\vm\block.h" />
     <ClInclude Include="src\tests\vm\branch.h" />
-    <ClInclude Include="src\tests\vm\closure.h" />
-    <ClInclude Include="src\tests\vm\function.h" />
+    <ClInclude Include="src\tests\vm\capture.h" />
+    <ClInclude Include="src\tests\vm\call.h" />
     <ClInclude Include="src\tests\vm\loop.h" />
+    <ClInclude Include="src\tests\vm\scope.h" />
     <ClInclude Include="src\tests\vm\unary.h" />
     <ClInclude Include="src\utils.h" />
     <ClInclude Include="src\ut.h" />

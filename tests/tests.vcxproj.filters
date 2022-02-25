@@ -205,7 +205,7 @@
     <ClInclude Include="src\tests\parser\stmt\return.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\tests\vm\closure.h">
+    <ClInclude Include="src\tests\vm\capture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\tests\vm\assert.h">
@@ -220,13 +220,16 @@
     <ClInclude Include="src\tests\vm\loop.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\tests\vm\function.h">
+    <ClInclude Include="src\tests\vm\call.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\tests\vm\branch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\tests\vm\unary.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tests\vm\scope.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

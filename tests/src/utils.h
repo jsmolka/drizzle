@@ -49,7 +49,7 @@ inline void tokenize(const std::string& source, const std::vector<Token::Type>& 
     const reflection::source_location& location = reflection::source_location::current()) {
   const auto tokens = tokenizeThrowsNot(source, location);
   expect(eq(tokens.size(), expected.size()), location) << source;
-  for (std::size_t i = 0; i < std::min(tokens.size(), expected.size()); ++i) {
+  for (auto i = 0; i < std::min(tokens.size(), expected.size()); ++i) {
     expect(eq(tokens[i].type, expected[i]), location) << source;
   }
 }

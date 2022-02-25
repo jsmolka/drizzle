@@ -1,9 +1,11 @@
+#pragma
+
 #include "utils.h"
 
-namespace tests_vm_function {
+namespace tests_vm_call {
 
 inline suite _ = [] {
-  "vm_function"_test = [] {
+  "vm_call"_test = [] {
     {
       constexpr const char* kSources[] = {
 R"(
@@ -41,9 +43,23 @@ outer()(1)
     }
     {
       constexpr const char* kSources[] = {
-        "1()",
-        "null()",
-        "assert(1, 2)",
+R"(
+1()
+)",
+R"(
+null()
+)",
+R"(
+""()
+)",
+R"(
+def test(n):
+  noop
+test(1, 2)
+)",
+R"(
+assert(1, 2)
+)",
       };
 
       for (const auto& source : kSources) {
@@ -53,4 +69,4 @@ outer()(1)
   };
 };
 
-}  // namespace tests_vm_function
+}  // namespace tests_vm_call

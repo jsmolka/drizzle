@@ -1,3 +1,5 @@
+#pragma
+
 #include "utils.h"
 
 namespace tests_vm_block {
@@ -6,27 +8,27 @@ inline suite _ = [] {
   "vm_block"_test = [] {
     constexpr const char* kSources[] = {
 R"(
-block x:
+block label:
   while true:
     while true:
-      break x
+      break label
 )",
 R"(
-var y = 0
-block x:
+var x = 0
+block label:
   while true:
     while true:
-      y = y + 1
-      if y == 5:
-        break x
-assert(y == 5)
+      x = x + 1
+      if x == 5:
+        break label
+assert(x == 5)
 )",
 R"(
-var y = 0
-block x:
-  break x
-  y = 1
-assert(y == 0)
+var x = 0
+block label:
+  break label
+  x = 1
+assert(x == 0)
 )",
     };
 

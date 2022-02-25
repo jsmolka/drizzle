@@ -54,8 +54,6 @@ inline suite _ = [] {
         R"(""")",
         R"("""")",
         R"("string)",
-        R"("string
-)",
         R"("""string")",
         R"("""string"")",
       };
