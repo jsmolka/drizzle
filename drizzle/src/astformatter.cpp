@@ -43,8 +43,8 @@ void AstFormatter::visit(Stmt& stmt) {
       break;
     case Statement::Type::Def:
       write(" {}", stmt->def.identifier);
-      if (!stmt->def.arguments.empty()) {
-        write(" {}", fmt::join(stmt->def.arguments, ", "));
+      if (!stmt->def.parameters.empty()) {
+        write(" {}", fmt::join(stmt->def.parameters, ", "));
       }
       break;
     case Statement::Type::Var:

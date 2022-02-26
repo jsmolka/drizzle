@@ -84,11 +84,11 @@ void Compiler::visit(Statement::Continue& continue_) {
 void Compiler::visit(Statement::Def& def) {
   Compiler compiler(Type::Function, this);
   compiler.function->identifier = def.identifier;
-  compiler.function->arity = def.arguments.size();
+  compiler.function->arity = def.parameters.size();
 
   compiler.define(def.identifier);
-  for (const auto& argument : def.arguments) {
-    compiler.define(argument);
+  for (const auto& parameter : def.parameters) {
+    compiler.define(parameter);
   }
 
   compiler.increaseScope(Level::Type::Function);

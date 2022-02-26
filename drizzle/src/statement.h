@@ -40,7 +40,7 @@ public:
 
   struct Def {
     Identifier identifier;
-    std::vector<Identifier> arguments;
+    std::vector<Identifier> parameters;
     Stmts statements;
   };
 
