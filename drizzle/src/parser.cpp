@@ -293,11 +293,11 @@ auto Parser::declarationDef() -> Stmt {
   const auto identifier = makeIdentifier(previous);
 
   expectParenLeft();
-  std::vector<Identifier> arguments;
+  std::vector<Identifier> parameters;
   if (current->type == Token::Type::Identifier) {
     do {
       expectIdentifier();
-      arguments.push_back(makeIdentifier(previous));
+      parameters.push_back(makeIdentifier(previous));
     } while (match(Token::Type::Comma));
   }
   expectParenRight();
@@ -314,7 +314,7 @@ auto Parser::declarationDef() -> Stmt {
   expectDedent();
   return newStmt(Statement::Def{
     .identifier = identifier,
-    .arguments = std::move(arguments),
+    .parameters = std::move(parameters),
     .statements = std::move(statements)
   });
 }
