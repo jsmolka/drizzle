@@ -3,6 +3,7 @@
 #include "dzbuiltin.h"
 #include "dznull.h"
 #include "dzstring.h"
+#include "gc.h"
 #include "opcode.h"
 
 template<typename A, template<typename> typename Promote>
@@ -180,7 +181,7 @@ void Vm::add() {
       if (a->type == DzObject::Type::String && b->type == DzObject::Type::String) {
         auto str_a = static_cast<DzString*>(a);
         auto str_b = static_cast<DzString*>(b);
-        dst = new DzString(str_a->data + str_b->data);
+        dst = gc.allocate<DzString>(str_a->data + str_b->data);
         return true;
       }
     }

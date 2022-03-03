@@ -17,6 +17,8 @@ public:
   auto name() const -> std::string_view;
 
   Type type;
+  bool marked = false;
+  DzObject* next = nullptr;
 
 private:
   template<typename T>

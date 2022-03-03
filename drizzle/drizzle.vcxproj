@@ -27,6 +27,7 @@
     <ClCompile Include="src\astformatter.cpp" />
     <ClCompile Include="src\dzobject.cpp" />
     <ClCompile Include="src\dzvalue.cpp" />
+    <ClCompile Include="src\gc.cpp" />
     <ClCompile Include="src\parser.cpp" />
     <ClCompile Include="src\statement.cpp" />
     <ClCompile Include="src\expression.cpp" />
@@ -46,6 +47,7 @@
     <ClInclude Include="src\dzstring.h" />
     <ClInclude Include="src\dzmap.h" />
     <ClInclude Include="src\dzvalue.h" />
+    <ClInclude Include="src\gc.h" />
     <ClInclude Include="src\identifier.h" />
     <ClInclude Include="src\opcode.h" />
     <ClInclude Include="src\location.h" />

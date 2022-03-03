@@ -6,12 +6,13 @@
 #include "dzbuiltin.h"
 #include "dzstring.h"
 #include "error.h"
+#include "gc.h"
 
 Compiler::Compiler()
   : Compiler(Type::Main, nullptr) {}
 
 Compiler::Compiler(Type type, Compiler* parent)
-  : type(type), parent(parent), function(new DzFunction()) {
+  : type(type), parent(parent), function(gc.allocate<DzFunction>()) {
   if (parent) {
     locations.push(parent->locations.top());
   }
@@ -245,7 +246,7 @@ void Compiler::visit(Expression::Literal& literal) {
     case Expression::Literal::Type::Boolean: emit(std::get<dzbool>(literal.value) ? Opcode::True : Opcode::False); break; 
     case Expression::Literal::Type::Integer: emitConstant(std::get<dzint>(literal.value)); break;
     case Expression::Literal::Type::Float:   emitConstant(std::get<dzfloat>(literal.value)); break;
-    case Expression::Literal::Type::String:  emitConstant(new DzString(std::get<std::string>(literal.value))); break;
+    case Expression::Literal::Type::String:  emitConstant(gc.allocate<DzString>(std::get<std::string>(literal.value))); break;
     default:
       SH_UNREACHABLE;
       break;
