@@ -100,13 +100,14 @@ template<template<typename> typename Promote, typename Callback>
 void Vm::unary(std::string_view operation, Callback callback) {
   static_assert(int(DzValue::Type::LastEnumValue) == 4);
 
-  auto value = stack.pop_value();
+  const auto& value = stack.top();
 
   #define DZ_EVAL(a)                   \
   {                                    \
     using A  = decltype(a);            \
     using AP = unary_t<A, Promote>;    \
     if (auto res = callback(AP(a))) {  \
+      stack.pop();                     \
       stack.push(*res);                \
       return;                          \
     } else {                           \
@@ -133,8 +134,8 @@ template<template<typename, typename> typename Promote, typename Callback>
 void Vm::binary(std::string_view operation, Callback callback) {
   static_assert(int(DzValue::Type::LastEnumValue) == 4);
 
-  auto a = stack.pop_value();
-  auto b = stack.pop_value();
+  const auto& a = stack.peek(1);
+  const auto& b = stack.peek(0);
 
   #define DZ_HASH(a, b) int(DzValue::Type::LastEnumValue) * int(a) + int(b)
   #define DZ_EVAL(a, b)                       \
@@ -144,6 +145,7 @@ void Vm::binary(std::string_view operation, Callback callback) {
     using AP = binary_t<A, B, Promote>;       \
     using BP = binary_t<B, A, Promote>;       \
     if (auto res = callback(AP(a), BP(b))) {  \
+      stack.pop(2);                           \
       stack.push(*res);                       \
       return;                                 \
     } else {                                  \
@@ -151,23 +153,23 @@ void Vm::binary(std::string_view operation, Callback callback) {
     }                                         \
   }
 
-  switch (DZ_HASH(b.type, a.type)) {
-    case DZ_HASH(DzValue::Type::Bool,   DzValue::Type::Bool  ): DZ_EVAL(b.b, a.b);
-    case DZ_HASH(DzValue::Type::Bool,   DzValue::Type::Int   ): DZ_EVAL(b.b, a.i);
-    case DZ_HASH(DzValue::Type::Bool,   DzValue::Type::Float ): DZ_EVAL(b.b, a.f);
-    case DZ_HASH(DzValue::Type::Bool,   DzValue::Type::Object): DZ_EVAL(b.b, a.o);
-    case DZ_HASH(DzValue::Type::Int,    DzValue::Type::Bool  ): DZ_EVAL(b.i, a.b);
-    case DZ_HASH(DzValue::Type::Int,    DzValue::Type::Int   ): DZ_EVAL(b.i, a.i);
-    case DZ_HASH(DzValue::Type::Int,    DzValue::Type::Float ): DZ_EVAL(b.i, a.f);
-    case DZ_HASH(DzValue::Type::Int,    DzValue::Type::Object): DZ_EVAL(b.i, a.o);
-    case DZ_HASH(DzValue::Type::Float,  DzValue::Type::Bool  ): DZ_EVAL(b.f, a.b);
-    case DZ_HASH(DzValue::Type::Float,  DzValue::Type::Int   ): DZ_EVAL(b.f, a.i);
-    case DZ_HASH(DzValue::Type::Float,  DzValue::Type::Float ): DZ_EVAL(b.f, a.f);
-    case DZ_HASH(DzValue::Type::Float,  DzValue::Type::Object): DZ_EVAL(b.f, a.o);
-    case DZ_HASH(DzValue::Type::Object, DzValue::Type::Bool  ): DZ_EVAL(b.o, a.b);
-    case DZ_HASH(DzValue::Type::Object, DzValue::Type::Int   ): DZ_EVAL(b.o, a.i);
-    case DZ_HASH(DzValue::Type::Object, DzValue::Type::Float ): DZ_EVAL(b.o, a.f);
-    case DZ_HASH(DzValue::Type::Object, DzValue::Type::Object): DZ_EVAL(b.o, a.o);
+  switch (DZ_HASH(a.type, b.type)) {
+    case DZ_HASH(DzValue::Type::Bool,   DzValue::Type::Bool  ): DZ_EVAL(a.b, b.b);
+    case DZ_HASH(DzValue::Type::Bool,   DzValue::Type::Int   ): DZ_EVAL(a.b, b.i);
+    case DZ_HASH(DzValue::Type::Bool,   DzValue::Type::Float ): DZ_EVAL(a.b, b.f);
+    case DZ_HASH(DzValue::Type::Bool,   DzValue::Type::Object): DZ_EVAL(a.b, b.o);
+    case DZ_HASH(DzValue::Type::Int,    DzValue::Type::Bool  ): DZ_EVAL(a.i, b.b);
+    case DZ_HASH(DzValue::Type::Int,    DzValue::Type::Int   ): DZ_EVAL(a.i, b.i);
+    case DZ_HASH(DzValue::Type::Int,    DzValue::Type::Float ): DZ_EVAL(a.i, b.f);
+    case DZ_HASH(DzValue::Type::Int,    DzValue::Type::Object): DZ_EVAL(a.i, b.o);
+    case DZ_HASH(DzValue::Type::Float,  DzValue::Type::Bool  ): DZ_EVAL(a.f, b.b);
+    case DZ_HASH(DzValue::Type::Float,  DzValue::Type::Int   ): DZ_EVAL(a.f, b.i);
+    case DZ_HASH(DzValue::Type::Float,  DzValue::Type::Float ): DZ_EVAL(a.f, b.f);
+    case DZ_HASH(DzValue::Type::Float,  DzValue::Type::Object): DZ_EVAL(a.f, b.o);
+    case DZ_HASH(DzValue::Type::Object, DzValue::Type::Bool  ): DZ_EVAL(a.o, b.b);
+    case DZ_HASH(DzValue::Type::Object, DzValue::Type::Int   ): DZ_EVAL(a.o, b.i);
+    case DZ_HASH(DzValue::Type::Object, DzValue::Type::Float ): DZ_EVAL(a.o, b.f);
+    case DZ_HASH(DzValue::Type::Object, DzValue::Type::Object): DZ_EVAL(a.o, b.o);
     default:
       SH_UNREACHABLE;
       break;
