@@ -100,26 +100,25 @@ template<template<typename> typename Promote, typename Callback>
 void Vm::unary(std::string_view operation, Callback callback) {
   static_assert(int(DzValue::Type::LastEnumValue) == 4);
 
-  const auto& value = stack.top();
+  const auto& a = stack.top();
 
   #define DZ_EVAL(a)                   \
   {                                    \
     using A  = decltype(a);            \
     using AP = unary_t<A, Promote>;    \
     if (auto res = callback(AP(a))) {  \
-      stack.pop();                     \
-      stack.push(*res);                \
+      stack.top() = *res;              \
       return;                          \
     } else {                           \
       break;                           \
     }                                  \
   }
 
-  switch (value.type) {
-    case DzValue::Type::Bool:   DZ_EVAL(value.b);
-    case DzValue::Type::Int:    DZ_EVAL(value.i);
-    case DzValue::Type::Float:  DZ_EVAL(value.f);
-    case DzValue::Type::Object: DZ_EVAL(value.o);
+  switch (a.type) {
+    case DzValue::Type::Bool:   DZ_EVAL(a.b);
+    case DzValue::Type::Int:    DZ_EVAL(a.i);
+    case DzValue::Type::Float:  DZ_EVAL(a.f);
+    case DzValue::Type::Object: DZ_EVAL(a.o);
     default:
       SH_UNREACHABLE;
       break;
@@ -127,7 +126,7 @@ void Vm::unary(std::string_view operation, Callback callback) {
 
   #undef DZ_EVAL
 
-  raise("bad operand type for '{}': '{}'", operation, value.name());
+  raise("bad operand type for '{}': '{}'", operation, a.name());
 }
 
 template<template<typename, typename> typename Promote, typename Callback>
@@ -145,8 +144,8 @@ void Vm::binary(std::string_view operation, Callback callback) {
     using AP = binary_t<A, B, Promote>;       \
     using BP = binary_t<B, A, Promote>;       \
     if (auto res = callback(AP(a), BP(b))) {  \
-      stack.pop(2);                           \
-      stack.push(*res);                       \
+      stack.pop();                            \
+      stack.top() = *res;                     \
       return;                                 \
     } else {                                  \
       break;                                  \

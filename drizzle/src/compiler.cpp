@@ -13,8 +13,10 @@ Compiler::Compiler(Gc& gc)
 
 Compiler::Compiler(Gc& gc, Type type, Compiler* parent)
   : gc(gc), type(type), parent(parent), function(gc.allocate<DzFunction>()) {
-  if (parent) {
+  if (type == Type::Function) {
     locations.push(parent->locations.top());
+  } else {
+    function->identifier = "main";
   }
 }
 
@@ -127,6 +129,8 @@ void Compiler::visit(Statement::If& if_) {
 
 void Compiler::visit(Statement::Program& program) {
   increaseScope(Level::Type::Block);
+  emitConstant(function);
+  define(Identifier(std::string_view("$main"), {}));
   for (auto& builtin : DzBuiltIn::all) {
     emitConstant(&builtin);
     define(Identifier(builtin.identifier, {}));

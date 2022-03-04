@@ -8,6 +8,7 @@ public:
   enum class Type { BuiltIn, Function, Null, String };
 
   DzObject(Type type);
+  virtual ~DzObject() = default;  // Todo: switch type here?
 
   operator bool() const;
   auto operator==(const DzObject& other) const -> bool;
