@@ -6,9 +6,14 @@
 #include "error.h"
 #include "token.h"
 
+class Gc;
+
 class Vm {
 public:
   friend class DzBuiltIn;
+  friend class Gc;
+
+  Vm(Gc& gc);
 
   void interpret(DzFunction* function);
 
@@ -76,6 +81,7 @@ private:
   void subtract();
   void true_();
 
+  Gc& gc;
   Frame frame;
   sh::stack<Frame, 32> frames;
   sh::stack<DzValue, 512> stack;

@@ -4,6 +4,8 @@
 
 #include "dzobject.h"
 
+class Vm;
+
 class Gc {
 public:
   ~Gc();
@@ -17,9 +19,8 @@ public:
     return object;
   }
 
+  Vm* vm = nullptr;
+
 private:
   DzObject* objects = nullptr;
 };
-
-// Todo: pass to dependencies
-inline Gc gc;

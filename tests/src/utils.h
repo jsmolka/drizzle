@@ -3,6 +3,7 @@
 #include "astformatter.h"
 #include "compiler.h"
 #include "error.h"
+#include "gc.h"
 #include "parser.h"
 #include "tokenizer.h"
 #include "ut.h"
@@ -22,19 +23,19 @@ inline auto tokenizeThrowsNot(const std::string& source,
 inline auto parseThrowsNot(const std::string& source,
     const reflection::source_location& location) -> Stmt {
   Stmt ast;
+  const auto tokens = tokenizeThrowsNot(source, location);
   expect((!throws([&] {
-    const auto tokens = tokenizeThrowsNot(source, location);
     ast = Parser().parse(tokens);
   }) >> fatal), location) << "parse" << source;
   return ast;
 }
 
-inline auto compileThrowsNot(const std::string& source,
+inline auto compileThrowsNot(const std::string& source, Gc& gc,
     const reflection::source_location& location) -> DzFunction* {
   DzFunction* function = nullptr;
+  const auto ast = parseThrowsNot(source, location);
   expect((!throws([&] {
-    const auto ast = parseThrowsNot(source, location);
-    function = Compiler().compile(ast);
+    function = Compiler(gc).compile(ast);
   }) >> fatal), location) << "compile" << source;
   return function;
 }
@@ -69,8 +70,8 @@ inline void parse(const std::string& source, const std::string& expected,
 
 inline void parseThrows(const std::string& source,
     const reflection::source_location& location = reflection::source_location::current()) {
+  const auto tokens = tokenizeThrowsNot(source, location);
   expect(throws<SyntaxError>([&] {
-    const auto tokens = tokenizeThrowsNot(source, location);
     Parser().parse(tokens);
   }), location) << "parse" << source;
 }
@@ -78,24 +79,27 @@ inline void parseThrows(const std::string& source,
 template<typename Error>
 inline void compileThrows(const std::string& source,
     const reflection::source_location& location = reflection::source_location::current()) {
+  const auto ast = parseThrowsNot(source, location);
   expect(throws<Error>([&] {
-    const auto ast = parseThrowsNot(source, location);
-    Compiler().compile(ast);
+    Gc gc;
+    Compiler(gc).compile(ast);
   }), location) << "compile" << source;
 }
 
 inline void run(const std::string& source,
     const reflection::source_location& location = reflection::source_location::current()) {
+  Gc gc;
+  const auto function = compileThrowsNot(source, gc, location);
   expect(!throws([&] {
-    const auto function = compileThrowsNot(source, location);
-    Vm().interpret(function);
+    Vm(gc).interpret(function);
   }), location) << "run" << source;
 }
 
 inline void runThrows(const std::string& source,
     const reflection::source_location& location = reflection::source_location::current()) {
+  Gc gc;
+  const auto function = compileThrowsNot(source, gc, location);
   expect(throws<RuntimeError>([&] {
-    const auto function = compileThrowsNot(source, location);
-    Vm().interpret(function);
+    Vm(gc).interpret(function);
   }), location) << "run" << source;
 }

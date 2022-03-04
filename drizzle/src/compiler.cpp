@@ -8,11 +8,11 @@
 #include "error.h"
 #include "gc.h"
 
-Compiler::Compiler()
-  : Compiler(Type::Main, nullptr) {}
+Compiler::Compiler(Gc& gc)
+  : Compiler(gc, Type::Main, nullptr) {}
 
-Compiler::Compiler(Type type, Compiler* parent)
-  : type(type), parent(parent), function(gc.allocate<DzFunction>()) {
+Compiler::Compiler(Gc& gc, Type type, Compiler* parent)
+  : gc(gc), type(type), parent(parent), function(gc.allocate<DzFunction>()) {
   if (parent) {
     locations.push(parent->locations.top());
   }
@@ -83,7 +83,7 @@ void Compiler::visit(Statement::Continue& continue_) {
 }
 
 void Compiler::visit(Statement::Def& def) {
-  Compiler compiler(Type::Function, this);
+  Compiler compiler(gc, Type::Function, this);
   compiler.function->identifier = def.identifier;
   compiler.function->arity = def.parameters.size();
 

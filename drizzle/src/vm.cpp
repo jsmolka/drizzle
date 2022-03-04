@@ -12,6 +12,11 @@ using unary_t = std::conditional_t<dz_primitive<A>, Promote<A>, A>;
 template<typename A, typename B, template<typename, typename> typename Promote>
 using binary_t = std::conditional_t<dz_primitive<A, B>, Promote<A, B>, A>;
 
+Vm::Vm(Gc& gc)
+  : gc(gc) {
+  gc.vm = this;
+}
+
 void Vm::interpret(DzFunction* function) {
   static_assert(int(Opcode::LastEnumValue) == 45);
 

@@ -5,6 +5,7 @@
 #include "astformatter.h"
 #include "compiler.h"
 #include "error.h"
+#include "gc.h"
 #include "parser.h"
 #include "tokenizer.h"
 #include "vm.h"
@@ -65,8 +66,9 @@ auto main(int argc, char* argv[]) -> int {
     if (*print_ast) {
       fmt::print("{}\n", ast);
     } else {
-      auto function = Compiler().compile(ast);
-      Vm().interpret(function);
+      Gc gc;
+      auto function = Compiler(gc).compile(ast);
+      Vm(gc).interpret(function);
     }
     return 0;
   } catch (const Error& error) {

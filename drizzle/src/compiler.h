@@ -6,9 +6,11 @@
 #include "dzfunction.h"
 #include "opcode.h"
 
+class Gc;
+
 class Compiler final : public AstVisiter {
 public:
-  Compiler();
+  Compiler(Gc& gc);
 
   DzFunction* compile(const Stmt& ast);
 
@@ -54,7 +56,7 @@ private:
     std::size_t depth;
   };
 
-  Compiler(Type type, Compiler* parent);
+  Compiler(Gc& gc, Type type, Compiler* parent);
 
   template<typename... Bytes>
   void emit(Bytes... bytes);
@@ -74,6 +76,7 @@ private:
   void increaseScope(Args&&... args);
   auto decreaseScope() -> Level;
 
+  Gc& gc;
   Type type;
   Compiler* parent;
   DzFunction* function;
