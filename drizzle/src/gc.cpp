@@ -26,6 +26,10 @@ void Gc::mark() {
   for (auto& value : vm->stack) {
     mark(value);
   }
+  for (auto& frame : vm->frames) {
+    mark(frame.function);
+  }
+  mark(vm->frame.function);
 }
 
 void Gc::mark(DzValue& value) {
