@@ -39,23 +39,29 @@ void Gc::mark(DzValue& value) {
 }
 
 void Gc::mark(DzObject* object) {
-  if (object && !object->marked) {
-    fmt::print("mark {}\n", object->repr());
-    object->marked = true;
-    gray.push_back(object);
+  assert(object);
+  if (!object->marked) {
+    static_assert(int(DzObject::Type::LastEnumValue) == 4);
+    switch (object->type) {
+      case DzObject::Type::Function:
+      case DzObject::Type::String:
+        fmt::print("mark {}\n", object->repr());
+        object->marked = true;
+        gray.push(object);
+        break;
+    }
   }
 }
 
 void Gc::trace() {
-  for (auto object : gray) {
-    blacken(object);
+  while (!gray.empty()) {
+    blacken(gray.pop_value());
   }
-  gray.clear();
 }
 
 void Gc::blacken(DzObject* object) {
+  assert(object);
   fmt::print("blacken {}\n", object->repr());
-
   switch (object->type) {
     case DzObject::Type::Function: {
       auto function = static_cast<DzFunction*>(object);

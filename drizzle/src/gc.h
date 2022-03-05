@@ -1,6 +1,6 @@
 #pragma once
 
-#include <sh/vector.h>
+#include <sh/stack.h>
 
 #include "dzvalue.h"
 
@@ -36,5 +36,5 @@ private:
   void sweep();
 
   DzObject* objects = nullptr;
-  sh::vector<DzObject*> gray;
+  sh::stack<DzObject*> gray;
 };

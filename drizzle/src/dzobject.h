@@ -5,7 +5,7 @@
 
 class DzObject {
 public:
-  enum class Type { BuiltIn, Function, Null, String };
+  enum class Type { BuiltIn, Function, Null, String, LastEnumValue };
 
   DzObject(Type type);
   virtual ~DzObject() = default;  // Todo: switch type here?
