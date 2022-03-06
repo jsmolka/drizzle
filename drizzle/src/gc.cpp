@@ -5,19 +5,20 @@
 #include "vm.h"
 
 Gc::~Gc() {
-  auto object = objects;
-  while (object) {
-    auto next = object->next;
-    delete object;
-    object = next;
+  auto head = objects;
+  while (head) {
+    auto temp = head;
+    head = head->next;
+    delete temp;
   }
 }
 
 void Gc::collect() {
-  fmt::print("-- gc\n");
-  mark();
-  sweep();
-  fmt::print("-- /gc\n");
+  if (vm && allocated > threshold) {
+    mark();
+    sweep();
+    threshold *= kGrowthFactor;
+  }
 }
 
 void Gc::mark() {
@@ -44,7 +45,6 @@ void Gc::mark(DzObject* object) {
     return;
   }
 
-  fmt::print("mark {}\n", object->repr());
   object->marked = true;
   switch (object->type) {
     case DzObject::Type::Function: {
@@ -58,23 +58,22 @@ void Gc::mark(DzObject* object) {
 }
 
 void Gc::sweep() {
-  DzObject* object = objects;
-  DzObject* previous = nullptr;
-  while (object) {
-    if (object->marked) {
-      object->marked = false;
-      previous = object;
-      object = object->next;
+  auto head = objects;
+  auto prev = static_cast<DzObject*>(nullptr);
+  while (head) {
+    if (head->marked) {
+      head->marked = false;
+      prev = head;
+      head = head->next;
     } else {
-      auto unreached = object;
-      object = object->next;
-      if (previous) {
-        previous->next = object;
+      auto temp = head;
+      head = head->next;
+      if (prev) {
+        prev->next = head;
       } else {
-        objects = object;
+        objects = head;
       }
-      fmt::print("sweep {}\n", unreached->repr());
-      delete unreached;
+      delete temp;
     }
   }
 }

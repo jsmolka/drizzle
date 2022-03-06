@@ -11,20 +11,21 @@ public:
   template<typename T, typename... Args>
     requires std::is_base_of_v<DzObject, T> && std::constructible_from<T, Args...>
   T* allocate(Args&&... args) {
-    if (vm) {
-      collect();
-    }
+    collect();
 
     auto object = new T(std::forward<Args>(args)...);
     object->next = objects;
     objects = object;
-    fmt::print("alloc {}\n", object->repr());
+    allocated += sizeof(T);
+
     return object;
   }
 
   Vm* vm = nullptr;
 
 private:
+  static constexpr auto kGrowthFactor = 2;
+
   void collect();
   void mark();
   void mark(DzValue& value);
@@ -32,4 +33,6 @@ private:
   void sweep();
 
   DzObject* objects = nullptr;
+  std::size_t allocated = 0;
+  std::size_t threshold = 1024 * 1024;
 };
