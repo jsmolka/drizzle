@@ -13,7 +13,7 @@ Compiler::Compiler(Gc& gc)
 
 Compiler::Compiler(Gc& gc, Type type, Compiler* parent)
   : gc(gc), type(type), parent(parent), function(gc.allocate<DzFunction>()) {
-  if (type == Type::Function) {
+  if (parent) {
     locations.push(parent->locations.top());
   }
 }

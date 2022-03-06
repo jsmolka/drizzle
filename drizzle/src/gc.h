@@ -10,7 +10,7 @@ public:
 
   template<typename T, typename... Args>
     requires std::is_base_of_v<DzObject, T> && std::constructible_from<T, Args...>
-  T* allocate(Args&&... args) {
+  auto allocate(Args&&... args) -> T* {
     collect();
 
     auto object = new T(std::forward<Args>(args)...);
