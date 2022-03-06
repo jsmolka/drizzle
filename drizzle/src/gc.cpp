@@ -16,7 +16,6 @@ Gc::~Gc() {
 void Gc::collect() {
   fmt::print("-- gc\n");
   mark();
-  trace();
   sweep();
   fmt::print("-- /gc\n");
 }
@@ -39,29 +38,14 @@ void Gc::mark(DzValue& value) {
 }
 
 void Gc::mark(DzObject* object) {
+  static_assert(int(DzObject::Type::LastEnumValue) == 4);
   assert(object);
-  if (!object->marked) {
-    static_assert(int(DzObject::Type::LastEnumValue) == 4);
-    switch (object->type) {
-      case DzObject::Type::Function:
-      case DzObject::Type::String:
-        fmt::print("mark {}\n", object->repr());
-        object->marked = true;
-        gray.push(object);
-        break;
-    }
+  if (object->marked) {
+    return;
   }
-}
 
-void Gc::trace() {
-  while (!gray.empty()) {
-    blacken(gray.pop_value());
-  }
-}
-
-void Gc::blacken(DzObject* object) {
-  assert(object);
-  fmt::print("blacken {}\n", object->repr());
+  fmt::print("mark {}\n", object->repr());
+  object->marked = true;
   switch (object->type) {
     case DzObject::Type::Function: {
       auto function = static_cast<DzFunction*>(object);

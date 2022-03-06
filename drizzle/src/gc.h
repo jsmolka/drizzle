@@ -1,7 +1,5 @@
 #pragma once
 
-#include <sh/stack.h>
-
 #include "dzvalue.h"
 
 class Vm;
@@ -31,10 +29,7 @@ private:
   void mark();
   void mark(DzValue& value);
   void mark(DzObject* object);
-  void trace();
-  void blacken(DzObject* object);
   void sweep();
 
   DzObject* objects = nullptr;
-  sh::stack<DzObject*> gray;
 };
