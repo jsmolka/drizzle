@@ -196,7 +196,7 @@ void Vm::add() {
 }
 
 void Vm::bitwiseAnd() {
-  binary<promote_lax_t>("&", []<typename A, typename B>(const A& a, const B& b)  -> std::optional<DzValue> {
+  binary<promote_lax_t>("&", []<typename A, typename B>(const A& a, const B& b) -> std::optional<DzValue> {
     if constexpr (dz_bool<A, B>) {
       return static_cast<dzbool>(a & b);
     } else if constexpr (dz_int<A, B>) {
