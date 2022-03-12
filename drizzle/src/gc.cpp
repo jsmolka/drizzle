@@ -39,7 +39,7 @@ void Gc::mark(DzValue& value) {
 }
 
 void Gc::mark(DzObject* object) {
-  static_assert(int(DzObject::Type::LastEnumValue) == 4);
+  static_assert(int(DzObject::Type::LastEnumValue) == 5);
   assert(object);
   if (object->marked) {
     return;
