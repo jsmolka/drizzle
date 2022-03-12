@@ -112,9 +112,6 @@
     <ClInclude Include="src\dzvalue.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\dzmap.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\chunk.h">
       <Filter>Header Files</Filter>
     </ClInclude>

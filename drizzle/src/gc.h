@@ -1,5 +1,6 @@
 #pragma once
 
+#include "dzstring.h"
 #include "dzvalue.h"
 
 class Vm;
@@ -18,14 +19,16 @@ public:
     objects = object;
     allocated += sizeof(T);
 
+    if constexpr (std::same_as<T, DzString>) {
+      allocated += object->data.size();
+    }
+
     return object;
   }
 
   Vm* vm = nullptr;
 
 private:
-  static constexpr auto kGrowthFactor = 2;
-
   void collect();
   void mark();
   void mark(DzValue& value);

@@ -17,7 +17,7 @@ void Gc::collect() {
   if (vm && allocated > threshold) {
     mark();
     sweep();
-    threshold *= kGrowthFactor;
+    threshold = 3 * threshold / 2;
   }
 }
 
