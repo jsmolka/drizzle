@@ -13,8 +13,8 @@ public:
 
   template<typename T, typename... Args>
   auto construct(Args&&... args) -> T* {
-    auto allocate = [this]<typename... Args>(Args&&... args) {
-      auto object = new T(std::forward<Args>(args)...);
+    auto allocate = [this]<typename... LambdaArgs>(LambdaArgs&&... args) {
+      auto object = new T(std::forward<LambdaArgs>(args)...);
       object->next = objects;
       objects = object;
 
