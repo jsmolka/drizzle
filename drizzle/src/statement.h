@@ -15,6 +15,7 @@ public:
   enum class Type {
     Block,
     Break,
+    Class,
     Continue,
     Def,
     ExpressionStatement,
@@ -34,6 +35,11 @@ public:
 
   struct Break {
     std::optional<Identifier> identifier;
+  };
+
+  struct Class {
+    Identifier identifier;
+    Stmts statements;
   };
 
   struct Continue {};
@@ -80,6 +86,7 @@ public:
 
   Statement(Block block, const Location& location);
   Statement(Break break_, const Location& location);
+  Statement(Class class_, const Location& location);
   Statement(Continue continue_, const Location& location);
   Statement(Def define, const Location& location);
   Statement(ExpressionStatement expression, const Location& location);
@@ -95,6 +102,7 @@ public:
   union {
     Block block;
     Break break_;
+    Class class_;
     Continue continue_;
     Def def;
     ExpressionStatement expression_statement;
@@ -110,13 +118,14 @@ public:
 
 template<>
 struct fmt::formatter<Statement::Type> : fmt::formatter<std::string_view> {
+  static_assert(int(Statement::Type::LastEnumValue) == 12);
   template<typename FormatContext>
   auto format(const Statement::Type& value, FormatContext& ctx) const {
     auto repr = [](const Statement::Type& value) {
-      static_assert(int(Statement::Type::LastEnumValue) == 11);
       switch (value) {
         case Statement::Type::Block:               return "block";
         case Statement::Type::Break:               return "break";
+        case Statement::Type::Class:               return "class";
         case Statement::Type::Continue:            return "continue";
         case Statement::Type::Def:                 return "def";
         case Statement::Type::ExpressionStatement: return "expression_statement";

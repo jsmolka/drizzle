@@ -6,6 +6,9 @@ Statement::Statement(Block block, const Location& location)
 Statement::Statement(Break break_, const Location& location)
   : type(Type::Break), break_(std::move(break_)), location(location) {}
 
+Statement::Statement(Class class_, const Location& location)
+  : type(Type::Class), class_(std::move(class_)), location(location) {}
+
 Statement::Statement(Continue continue_, const Location& location)
   : type(Type::Continue), continue_(std::move(continue_)), location(location) {}
 
@@ -34,11 +37,12 @@ Statement::Statement(While while_, const Location& location)
   : type(Type::While), while_(std::move(while_)), location(location) {}
 
 Statement::~Statement() {
-  static_assert(int(Type::LastEnumValue) == 11);
+  static_assert(int(Type::LastEnumValue) == 12);
 
   switch (type) {
     case Type::Block:               std::destroy_at(&block); break;
     case Type::Break:               std::destroy_at(&break_); break;
+    case Type::Class:               std::destroy_at(&class_); break;
     case Type::Continue:            std::destroy_at(&continue_); break;
     case Type::Def:                 std::destroy_at(&def); break;
     case Type::ExpressionStatement: std::destroy_at(&expression_statement); break;

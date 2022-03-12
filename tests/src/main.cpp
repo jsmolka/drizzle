@@ -13,9 +13,10 @@ static_assert(int(Expression::Type::LastEnumValue) == 7);
 #include "tests/parser/expr/unary.h"
 #include "tests/parser/expr/variable.h"
 
-static_assert(int(Statement::Type::LastEnumValue) == 11);
+static_assert(int(Statement::Type::LastEnumValue) == 12);
 #include "tests/parser/stmt/block.h"
 #include "tests/parser/stmt/break.h"
+#include "tests/parser/stmt/class.h"
 #include "tests/parser/stmt/continue.h"
 #include "tests/parser/stmt/def.h"
 #include "tests/parser/stmt/expression_statement.h"

@@ -135,10 +135,10 @@ public:
 
 template<>
 struct fmt::formatter<Expression::Type> : fmt::formatter<std::string_view> {
+  static_assert(int(Expression::Type::LastEnumValue) == 7);
   template<typename FormatContext>
   auto format(const Expression::Type& value, FormatContext& ctx) const {
     auto repr = [](const Expression::Type& value) {
-      static_assert(int(Expression::Type::LastEnumValue) == 7);
       switch (value) {
         case Expression::Type::Assign:   return "assign";
         case Expression::Type::Binary:   return "binary";
@@ -158,10 +158,10 @@ struct fmt::formatter<Expression::Type> : fmt::formatter<std::string_view> {
 
 template<>
 struct fmt::formatter<Expression::Binary::Type> : fmt::formatter<std::string_view> {
+  static_assert(int(Expression::Binary::Type::LastEnumValue) == 21);
   template<typename FormatContext>
   auto format(const Expression::Binary::Type& value, FormatContext& ctx) const {
     auto repr = [](const Expression::Binary::Type& value) {
-      static_assert(int(Expression::Binary::Type::LastEnumValue) == 21);
       switch (value) {
         case Expression::Binary::Type::Addition:        return "+";
         case Expression::Binary::Type::And:             return "&&";
@@ -195,10 +195,10 @@ struct fmt::formatter<Expression::Binary::Type> : fmt::formatter<std::string_vie
 
 template<>
 struct fmt::formatter<Expression::Unary::Type> : fmt::formatter<std::string_view> {
+  static_assert(int(Expression::Unary::Type::LastEnumValue) == 3);
   template<typename FormatContext>
   auto format(const Expression::Unary::Type& value, FormatContext& ctx) const {
     auto repr = [](const Expression::Unary::Type& value) {
-      static_assert(int(Expression::Unary::Type::LastEnumValue) == 3);
       switch (value) {
         case Expression::Unary::Type::BitwiseComplement: return "~";
         case Expression::Unary::Type::Minus:             return "-";

@@ -285,6 +285,7 @@ void Tokenizer::scanIdentifier() {
   static constexpr std::tuple<std::string_view, Token::Type> kKeywords[] = {
     {"block",    Token::Type::Block   },
     {"break",    Token::Type::Break   },
+    {"class",    Token::Type::Class   },
     {"continue", Token::Type::Continue},
     {"def",      Token::Type::Def     },
     {"elif",     Token::Type::Elif    },

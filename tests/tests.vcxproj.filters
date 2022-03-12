@@ -238,5 +238,8 @@
     <ClInclude Include="src\tests\vm\scope.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\tests\parser\stmt\class.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

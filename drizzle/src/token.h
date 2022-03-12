@@ -18,6 +18,7 @@ struct Token {
     BracketRight,
     Break,
     Caret,
+    Class,
     Colon,
     Comma,
     Continue,
@@ -72,10 +73,10 @@ struct Token {
 
 template<>
 struct fmt::formatter<Token::Type> : fmt::formatter<std::string_view> {
+  static_assert(int(Token::Type::LastEnumValue) == 56);
   template<typename FormatContext>
   auto format(const Token::Type& value, FormatContext& ctx) const {
     auto repr = [](const Token::Type& value) {
-      static_assert(int(Token::Type::LastEnumValue) == 55);
       switch (value) {
         case Token::Type::And:          return "And";
         case Token::Type::And2:         return "And2";
@@ -88,6 +89,7 @@ struct fmt::formatter<Token::Type> : fmt::formatter<std::string_view> {
         case Token::Type::BracketRight: return "BracketRight";
         case Token::Type::Break:        return "Break";
         case Token::Type::Caret:        return "Caret";
+        case Token::Type::Class:        return "Class";
         case Token::Type::Colon:        return "Colon";
         case Token::Type::Comma:        return "Comma";
         case Token::Type::Continue:     return "Continue";

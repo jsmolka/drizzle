@@ -24,7 +24,7 @@
             <Keywords name="Folders in comment, open"></Keywords>
             <Keywords name="Folders in comment, middle"></Keywords>
             <Keywords name="Folders in comment, close"></Keywords>
-            <Keywords name="Keywords1">block break continue def elif else false if noop null return true var while</Keywords>
+            <Keywords name="Keywords1">block break class continue def elif else false if noop null return true var while</Keywords>
             <Keywords name="Keywords2"></Keywords>
             <Keywords name="Keywords3"></Keywords>
             <Keywords name="Keywords4"></Keywords>

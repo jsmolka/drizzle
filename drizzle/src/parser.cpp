@@ -279,12 +279,35 @@ auto Parser::program() -> Stmt {
 }
 
 auto Parser::declaration() -> Stmt {
-  if (match(Token::Type::Def)) {
+  if (match(Token::Type::Class)) {
+    return declarationClass();
+  } else if (match(Token::Type::Def)) {
     return declarationDef();
   } else if (match(Token::Type::Var)) {
     return declarationVar();
   }
   return statement();
+}
+
+auto Parser::declarationClass() -> Stmt {
+  pushLocation();
+  expectIdentifier();
+  const auto identifier = makeIdentifier(previous);
+
+  expectColon();
+  expectNewLine();
+  expectIndent();
+
+  Stmts statements;
+  while (current->type != Token::Type::Dedent) {
+    statements.push_back(declaration());
+  }
+
+  expectDedent();
+  return newStmt(Statement::Class{
+    .identifier = identifier,
+    .statements = std::move(statements)
+  });
 }
 
 auto Parser::declarationDef() -> Stmt {
