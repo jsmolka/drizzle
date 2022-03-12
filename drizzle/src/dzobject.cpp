@@ -23,21 +23,7 @@ DzObject::operator bool() const {
 }
 
 auto DzObject::operator==(const DzObject& other) const -> bool {
-  if (type != other.type) {
-    return false;
-  }
-
-  switch (type) {
-    case Type::BuiltIn:
-    case Type::Function:
-    case Type::Null:
-      return this == &other;
-    case Type::String:
-      return as<DzString>() == other.as<DzString>();
-    default:
-      SH_UNREACHABLE;
-      return false;
-  }
+  return this == &other;
 }
 
 auto DzObject::operator!=(const DzObject& other) const -> bool {

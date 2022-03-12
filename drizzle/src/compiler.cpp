@@ -12,7 +12,7 @@ Compiler::Compiler(Gc& gc)
   : Compiler(gc, Type::Main, nullptr) {}
 
 Compiler::Compiler(Gc& gc, Type type, Compiler* parent)
-  : gc(gc), type(type), parent(parent), function(gc.allocate<DzFunction>()) {
+  : gc(gc), type(type), parent(parent), function(gc.construct<DzFunction>()) {
   if (parent) {
     locations.push(parent->locations.top());
   }
@@ -246,7 +246,7 @@ void Compiler::visit(Expression::Literal& literal) {
     case Expression::Literal::Type::Boolean: emit(std::get<dzbool>(literal.value) ? Opcode::True : Opcode::False); break; 
     case Expression::Literal::Type::Integer: emitConstant(std::get<dzint>(literal.value)); break;
     case Expression::Literal::Type::Float:   emitConstant(std::get<dzfloat>(literal.value)); break;
-    case Expression::Literal::Type::String:  emitConstant(gc.allocate<DzString>(std::get<std::string>(literal.value))); break;
+    case Expression::Literal::Type::String:  emitConstant(gc.construct<DzString>(std::get<std::string>(literal.value))); break;
     default:
       SH_UNREACHABLE;
       break;

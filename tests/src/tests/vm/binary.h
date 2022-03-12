@@ -98,9 +98,18 @@ assert(2 * 2.5 == 5)
 assert(true * false == 0)
 )",
 R"(
+assert(1 == 1)
+assert(true == true)
+assert(1.5 == 1.5)
+assert(null == null)
+assert("a" == "a")
+)",
+R"(
 assert(1 != 2)
 assert(true != false)
 assert(1.5 != 2)
+assert("a" != null)
+assert("a" != "b")
 )",
 R"(
 assert(10**2 == 100)

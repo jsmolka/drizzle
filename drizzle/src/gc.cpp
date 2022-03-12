@@ -17,7 +17,7 @@ void Gc::collect() {
   if (vm && allocated > threshold) {
     mark();
     sweep();
-    threshold = 3 * threshold / 2;
+    threshold *= kGrowthFactor;
   }
 }
 
@@ -58,6 +58,14 @@ void Gc::mark(DzObject* object) {
 }
 
 void Gc::sweep() {
+  for (auto iter = pool.begin(); iter != pool.end(); ) {
+    if ((*iter)->marked) {
+      iter++;
+    } else {
+      iter = pool.erase(iter);
+    }
+  }
+
   auto head = objects;
   auto prev = static_cast<DzObject*>(nullptr);
   while (head) {

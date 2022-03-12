@@ -188,7 +188,7 @@ void Vm::add() {
       if (a->type == DzObject::Type::String && b->type == DzObject::Type::String) {
         auto str_a = static_cast<DzString*>(a);
         auto str_b = static_cast<DzString*>(b);
-        return gc.allocate<DzString>(str_a->data + str_b->data);
+        return gc.construct<DzString>(str_a->data + str_b->data);
       }
     }
     return std::nullopt;

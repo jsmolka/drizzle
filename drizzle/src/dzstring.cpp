@@ -7,14 +7,6 @@ DzString::operator bool() const {
   return !data.empty();
 }
 
-auto DzString::operator==(const DzString& other) const -> bool {
-  return hash == other.hash && data == other.data;
-}
-
-auto DzString::operator!=(const DzString& other) const -> bool {
-  return !(*this == other);
-}
-
 auto DzString::repr() const -> std::string {
     return data;
 }
