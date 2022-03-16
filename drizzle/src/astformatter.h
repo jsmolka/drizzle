@@ -11,6 +11,7 @@ protected:
 
   void visit(Expr& expr) final;
   void visit(Stmt& stmt) final;
+  void visit(Statement::Class& class_) final;
   void visit(Statement::If& if_) final;
 
 private:

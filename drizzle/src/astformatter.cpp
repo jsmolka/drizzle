@@ -61,6 +61,14 @@ void AstFormatter::visit(Stmt& stmt) {
   indent--;
 }
 
+void AstFormatter::visit(Statement::Class& class_) {
+  if (class_.methods.empty()) {
+    writeIndent("noop\n");
+  } else {
+    AstVisiter::visit(class_);
+  }
+}
+
 void AstFormatter::visit(Statement::If& if_) {
   for (const auto [index, branch] : sh::enumerate(if_.branches)) {
     if (index) {

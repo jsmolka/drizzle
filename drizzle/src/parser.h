@@ -46,6 +46,7 @@ private:
   void expect(Token::Type type, std::string_view error);
   void expectColon();
   void expectDedent();
+  void expectDef();
   void expectIdentifier();
   void expectIndent();
   void expectNewLine();

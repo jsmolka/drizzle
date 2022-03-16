@@ -59,10 +59,10 @@ static_assert(int(Opcode::LastEnumValue) <= std::numeric_limits<u8>::max());
 
 template<>
 struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
+  static_assert(int(Opcode::LastEnumValue) == 45);
   template<typename FormatContext>
   auto format(const Opcode& opcode, FormatContext& ctx) const {
     auto repr = [](const Opcode& opcode) {
-      static_assert(int(Opcode::LastEnumValue) == 45);
       switch (opcode) {
         case Opcode::Add:               return "Add";
         case Opcode::BitwiseAnd:        return "BitwiseAnd";

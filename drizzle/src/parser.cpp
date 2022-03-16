@@ -75,13 +75,14 @@ void Parser::expect(Token::Type type, std::string_view error) {
   }
 }
 
-void Parser::expectColon()      { expect(Token::Type::Colon,      "expected colon");      }
-void Parser::expectDedent()     { expect(Token::Type::Dedent,     "expected dedent");     }
-void Parser::expectIdentifier() { expect(Token::Type::Identifier, "expected identifier"); }
-void Parser::expectIndent()     { expect(Token::Type::Indent,     "expected indent");     }
-void Parser::expectNewLine()    { expect(Token::Type::NewLine,    "expected new line");   }
-void Parser::expectParenLeft()  { expect(Token::Type::ParenLeft,  "expected '('");        }
-void Parser::expectParenRight() { expect(Token::Type::ParenRight, "expected ')'");        }
+void Parser::expectColon()      { expect(Token::Type::Colon,      "expected colon");               }
+void Parser::expectDedent()     { expect(Token::Type::Dedent,     "expected dedent");              }
+void Parser::expectDef()        { expect(Token::Type::Def,        "expected function definition"); }
+void Parser::expectIdentifier() { expect(Token::Type::Identifier, "expected identifier");          }
+void Parser::expectIndent()     { expect(Token::Type::Indent,     "expected indent");              }
+void Parser::expectNewLine()    { expect(Token::Type::NewLine,    "expected new line");            }
+void Parser::expectParenLeft()  { expect(Token::Type::ParenLeft,  "expected '('");                 }
+void Parser::expectParenRight() { expect(Token::Type::ParenRight, "expected ')'");                 }
 
 template<typename T>
 auto Parser::newExpr(T expression) -> Expr {
@@ -298,15 +299,21 @@ auto Parser::declarationClass() -> Stmt {
   expectNewLine();
   expectIndent();
 
-  Stmts statements;
-  while (current->type != Token::Type::Dedent) {
-    statements.push_back(declaration());
+  Stmts methods;
+  if (match(Token::Type::Noop)) {
+    expectNewLine();
+  } else {
+    do {
+      expectDef();
+      methods.push_back(declarationDef());
+    }
+    while (current->type != Token::Type::Dedent);
   }
 
   expectDedent();
   return newStmt(Statement::Class{
     .identifier = identifier,
-    .statements = std::move(statements)
+    .methods = std::move(methods)
   });
 }
 

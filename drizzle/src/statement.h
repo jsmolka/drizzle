@@ -39,7 +39,7 @@ public:
 
   struct Class {
     Identifier identifier;
-    Stmts statements;
+    Stmts methods;
   };
 
   struct Continue {};
