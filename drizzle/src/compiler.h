@@ -20,6 +20,7 @@ protected:
   void visit(Stmt& stmt) final;
   void visit(Statement::Block& block) final;
   void visit(Statement::Break& break_) final;
+  void visit(Statement::Class& class_) final;
   void visit(Statement::Continue& continue_) final;
   void visit(Statement::Def& def) final;
   void visit(Statement::ExpressionStatement& expression_statement) final;

@@ -4,6 +4,7 @@
 #include <sh/utility.h>
 
 #include "dzbuiltin.h"
+#include "dzclass.h"
 #include "dzstring.h"
 #include "error.h"
 #include "gc.h"
@@ -66,6 +67,11 @@ void Compiler::visit(Statement::Break& break_) {
   auto& level = resolve(break_.identifier);
   pop(std::distance(scope.data(), &level));
   level.breaks.push_back(jump(Opcode::Jump));
+}
+
+void Compiler::visit(Statement::Class& class_) {
+  emitConstant(gc.construct<DzClass>(std::string(class_.identifier)));
+  define(class_.identifier);
 }
 
 void Compiler::visit(Statement::Continue& continue_) {
