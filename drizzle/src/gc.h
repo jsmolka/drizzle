@@ -42,18 +42,6 @@ public:
 private:
   static constexpr auto kGrowthFactor = 2;
 
-  struct PoolHash {
-    auto operator()(const DzString* string) const -> std::size_t {
-      return string->hash;
-    }
-  };
-
-  struct PoolEqual {
-    auto operator()(const DzString* a, const DzString* b) const -> bool {
-      return a->data == b->data;
-    }
-  };
-
   void collect();
   void mark();
   void mark(DzValue& value);
@@ -63,5 +51,5 @@ private:
   DzObject* objects = nullptr;
   std::size_t allocated = 0;
   std::size_t threshold = 1024 * 1024;
-  tsl::robin_set<DzString*, PoolHash, PoolEqual> pool;
+  tsl::robin_set<DzString*, DzString::Hash, DzString::Equal> pool;
 };

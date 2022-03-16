@@ -4,6 +4,18 @@
 
 class DzString : public DzObject {
 public:
+  struct Hash {
+    auto operator()(const DzString* string) const -> std::size_t {
+      return string->hash;
+    }
+  };
+
+  struct Equal {
+    auto operator()(const DzString* a, const DzString* b) const -> bool {
+      return a->data == b->data;
+    }
+  };
+
   DzString(const std::string& data);
 
   operator bool() const;
