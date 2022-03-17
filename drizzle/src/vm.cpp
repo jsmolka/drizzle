@@ -1,6 +1,8 @@
 #include "vm.h"
 
 #include "dzbuiltin.h"
+#include "dzclass.h"
+#include "dzinstance.h"
 #include "dznull.h"
 #include "dzstring.h"
 #include "gc.h"
@@ -275,6 +277,12 @@ void Vm::call() {
           raise("expected {} argument(s) but got {}", *builtin->arity, argc);
         }
         stack.top() = builtin->callback(*this, argc);
+        return;
+      }
+
+      case DzObject::Type::Class: {
+        const auto class_ = static_cast<DzClass*>(callee.o);
+        stack.peek(argc) = gc.construct<DzInstance>(class_);
         return;
       }
 

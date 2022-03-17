@@ -35,6 +35,16 @@ def outer():
   return inner
 outer()(1)
 )",
+R"(
+class Test:
+  noop
+Test()
+)",
+R"(
+class Test:
+  noop
+assert(Test() != Test())
+)",
       };
 
       for (const auto& source : kSources) {
