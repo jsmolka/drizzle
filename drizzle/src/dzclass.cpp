@@ -10,9 +10,9 @@ DzClass::operator bool() const {
 }
 
 auto DzClass::repr() const -> std::string {
-  return fmt::format("<class {}>", identifier);
+  return fmt::format("<class {}>", name());
 }
 
 auto DzClass::name() const -> std::string_view {
-  return "class";
+  return identifier;
 }
