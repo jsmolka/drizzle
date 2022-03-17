@@ -21,6 +21,7 @@ auto Parser::rule(Token::Type type) -> const Rule& {
       case Token::Type::Bang:         return {&Parser::unary,    nullptr,         Precedence::Term      };
       case Token::Type::BangEqual:    return {nullptr,           &Parser::binary, Precedence::Equality  };
       case Token::Type::Caret:        return {nullptr,           &Parser::binary, Precedence::BitXor    };
+      case Token::Type::Dot:          return {nullptr,           &Parser::dot,    Precedence::Call      };
       case Token::Type::Equal2:       return {nullptr,           &Parser::binary, Precedence::Equality  };
       case Token::Type::False:        return {&Parser::literal,  nullptr,         Precedence::None      };
       case Token::Type::Float:        return {&Parser::constant, nullptr,         Precedence::Term      };
@@ -53,10 +54,6 @@ auto Parser::rule(Token::Type type) -> const Rule& {
   return kRules[std::size_t(type)];
 }
 
-auto Parser::makeIdentifier(Iterator iter) -> Identifier {
-  return Identifier(iter->lexeme, iter->location);
-}
-
 void Parser::advance() {
   previous = current++;
 }
@@ -78,11 +75,20 @@ void Parser::expect(Token::Type type, std::string_view error) {
 void Parser::expectColon()      { expect(Token::Type::Colon,      "expected colon");               }
 void Parser::expectDedent()     { expect(Token::Type::Dedent,     "expected dedent");              }
 void Parser::expectDef()        { expect(Token::Type::Def,        "expected function definition"); }
-void Parser::expectIdentifier() { expect(Token::Type::Identifier, "expected identifier");          }
 void Parser::expectIndent()     { expect(Token::Type::Indent,     "expected indent");              }
 void Parser::expectNewLine()    { expect(Token::Type::NewLine,    "expected new line");            }
 void Parser::expectParenLeft()  { expect(Token::Type::ParenLeft,  "expected '('");                 }
 void Parser::expectParenRight() { expect(Token::Type::ParenRight, "expected ')'");                 }
+
+auto Parser::expectIdentifier() -> Identifier {
+  expect(Token::Type::Identifier, "expected identifier");
+  return identifier();
+}
+
+auto Parser::identifier() const -> Identifier {
+  assert(previous->type == Token::Type::Identifier);
+  return Identifier(previous->lexeme, previous->location);
+}
 
 template<typename T>
 auto Parser::newExpr(T expression) -> Expr {
@@ -130,20 +136,6 @@ void Parser::and_(bool) {
   }));
 }
 
-void Parser::call(bool) {
-  Exprs arguments;
-  if (current->type != Token::Type::ParenRight) {
-    do {
-      arguments.push_back(expression());
-    } while (match(Token::Type::Comma));
-  }
-  expectParenRight();
-  expressions.push(newExpr(Expression::Call{
-    .callee = expressions.pop_value(),
-    .arguments = std::move(arguments)
-  }));
-}
-
 void Parser::binary(bool) {
   static_assert(int(Expression::Binary::Type::LastEnumValue) == 21);
 
@@ -186,6 +178,21 @@ void Parser::binary(bool) {
   }));
 }
 
+void Parser::call(bool) {
+  Exprs arguments;
+  if (current->type != Token::Type::ParenRight) {
+    do {
+      arguments.push_back(expression());
+    } while (match(Token::Type::Comma));
+  }
+  expectParenRight();
+  expressions.push(newExpr(Expression::Call{
+    .callee = expressions.pop_value(),
+    .arguments = std::move(arguments)
+  }));
+}
+
+
 void Parser::constant(bool) {
   switch (previous->type) {
     case Token::Type::Integer: parseInt(); break;
@@ -194,6 +201,24 @@ void Parser::constant(bool) {
     default:
       SH_UNREACHABLE;
       break;
+  }
+}
+
+void Parser::dot(bool assign) {
+  const auto identifier = expectIdentifier();
+
+  auto self = expressions.pop_value();
+  if (assign && match(Token::Type::Equal)) {
+    expressions.push(newExpr(Expression::Set{
+      .identifier = identifier,
+      .self = std::move(self),
+      .value = expression()
+    }));
+  } else {
+    expressions.push(newExpr(Expression::Get{
+      .identifier = identifier,
+      .self = std::move(self)
+    }));
   }
 }
 
@@ -249,7 +274,7 @@ void Parser::unary(bool) {
 }
 
 void Parser::variable(bool assign) {
-  const auto identifier = makeIdentifier(previous);
+  const auto identifier = this->identifier();
   if (assign && match(Token::Type::Equal)) {
     auto value = expression();
     expressions.push(newExpr(Expression::Assign{
@@ -292,8 +317,7 @@ auto Parser::declaration() -> Stmt {
 
 auto Parser::declarationClass() -> Stmt {
   pushLocation();
-  expectIdentifier();
-  const auto identifier = makeIdentifier(previous);
+  const auto identifier = expectIdentifier();
 
   expectColon();
   expectNewLine();
@@ -319,15 +343,13 @@ auto Parser::declarationClass() -> Stmt {
 
 auto Parser::declarationDef() -> Stmt {
   pushLocation();
-  expectIdentifier();
-  const auto identifier = makeIdentifier(previous);
+  const auto identifier = expectIdentifier();
 
   expectParenLeft();
   std::vector<Identifier> parameters;
   if (current->type == Token::Type::Identifier) {
     do {
-      expectIdentifier();
-      parameters.push_back(makeIdentifier(previous));
+      parameters.push_back(expectIdentifier());
     } while (match(Token::Type::Comma));
   }
   expectParenRight();
@@ -351,8 +373,7 @@ auto Parser::declarationDef() -> Stmt {
 
 auto Parser::declarationVar() -> Stmt {
   pushLocation();
-  expectIdentifier();
-  const auto identifier = makeIdentifier(previous);
+  const auto identifier = expectIdentifier();
 
   Expr initializer;
   if (match(Token::Type::Equal)) {
@@ -390,7 +411,7 @@ auto Parser::statementBlock() -> Stmt {
   pushLocation();
   std::optional<Identifier> identifier;
   if (match(Token::Type::Identifier)) {
-    identifier = makeIdentifier(previous);
+    identifier = this->identifier();
   }
 
   expectColon();
@@ -412,7 +433,7 @@ auto Parser::statementBreak() -> Stmt {
   pushLocation();
   std::optional<Identifier> identifier;
   if (match(Token::Type::Identifier)) {
-    identifier = makeIdentifier(previous);
+    identifier = this->identifier();
   }
   expectNewLine();
   return newStmt(Statement::Break{identifier});

@@ -39,7 +39,6 @@ private:
   };
 
   static auto rule(Token::Type type) -> const Parser::Rule&;
-  static auto makeIdentifier(Iterator iter) -> Identifier;
 
   void advance();
   auto match(Token::Type type) -> bool;
@@ -47,20 +46,22 @@ private:
   void expectColon();
   void expectDedent();
   void expectDef();
-  void expectIdentifier();
   void expectIndent();
   void expectNewLine();
   void expectParenLeft();
   void expectParenRight();
+  auto expectIdentifier() -> Identifier;
+  auto identifier() const -> Identifier;
 
   template<typename T>
   auto newExpr(T expression) -> Expr;
   auto expression() -> Expr;
   void parseExpression(Precedence precedence);
   void and_(bool);
-  void call(bool);
   void binary(bool);
+  void call(bool);
   void constant(bool);
+  void dot(bool assign);
   void group(bool);
   void literal(bool);
   void or_(bool);

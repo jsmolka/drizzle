@@ -37,11 +37,17 @@ Expression::Expression(Binary binary, const Location& location)
 Expression::Expression(Call call, const Location& location)
   : type(Type::Call), call(std::move(call)), location(location) {}
 
+Expression::Expression(Get get, const Location& location)
+  : type(Type::Get), get(std::move(get)), location(location) {}
+
 Expression::Expression(Group group, const Location& location)
   : type(Type::Group), group(std::move(group)), location(location) {}
 
 Expression::Expression(Literal literal, const Location& location)
   : type(Type::Literal), literal(std::move(literal)), location(location) {}
+
+Expression::Expression(Set set, const Location& location)
+  : type(Type::Set), set(std::move(set)), location(location) {}
 
 Expression::Expression(Unary unary, const Location& location)
   : type(Type::Unary), unary(std::move(unary)), location(location) {}
@@ -54,8 +60,10 @@ Expression::~Expression() {
     case Type::Assign:   std::destroy_at(&assign); break;
     case Type::Binary:   std::destroy_at(&binary); break;
     case Type::Call:     std::destroy_at(&call); break;
+    case Type::Get:      std::destroy_at(&get); break;
     case Type::Group:    std::destroy_at(&group); break;
     case Type::Literal:  std::destroy_at(&literal); break;
+    case Type::Set:      std::destroy_at(&set); break;
     case Type::Unary:    std::destroy_at(&unary); break;
     case Type::Variable: std::destroy_at(&variable); break;
     default:

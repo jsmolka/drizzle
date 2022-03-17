@@ -10,8 +10,10 @@ protected:
   virtual void visit(Expression::Assign& assign);
   virtual void visit(Expression::Binary& binary);
   virtual void visit(Expression::Call& call);
+  virtual void visit(Expression::Get& get);
   virtual void visit(Expression::Group& group);
   virtual void visit(Expression::Literal& literal);
+  virtual void visit(Expression::Set& set);
   virtual void visit(Expression::Unary& unary);
   virtual void visit(Expression::Variable& variable);
 
