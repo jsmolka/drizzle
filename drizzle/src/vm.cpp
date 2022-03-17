@@ -20,7 +20,7 @@ Vm::Vm(Gc& gc)
 }
 
 void Vm::interpret(DzFunction* function) {
-  static_assert(int(Opcode::LastEnumValue) == 45);
+  static_assert(int(Opcode::LastEnumValue) == 47);
 
   frame.pc = function->chunk.code.data();
   frame.sp = 0;
@@ -44,6 +44,7 @@ void Vm::interpret(DzFunction* function) {
       case Opcode::Equal: equal(); break;
       case Opcode::Exit: goto exit;
       case Opcode::False: false_(); break;
+      case Opcode::Get: get(); break;
       case Opcode::Greater: greater(); break;
       case Opcode::GreaterEqual: greaterEqual(); break;
       case Opcode::Jump: jump(); break;
@@ -61,12 +62,13 @@ void Vm::interpret(DzFunction* function) {
       case Opcode::Negate: negate(); break;
       case Opcode::Not: not_(); break;
       case Opcode::NotEqual: notEqual(); break;
-      case Opcode::Null: null(); break;
+      case Opcode::Null: null_(); break;
       case Opcode::Pop: pop(); break;
       case Opcode::PopMultiple: popMultiple<u8>(); break;
       case Opcode::PopMultipleExt: popMultiple<u16>(); break;
       case Opcode::Power: power(); break;
       case Opcode::Return: return_(); break;
+      case Opcode::Set: set(); break;
       case Opcode::Store: store<u8>(); break;
       case Opcode::StoreExt: store<u16>(); break;
       case Opcode::StoreAbsolute: storeAbsolute<u8>(); break;
@@ -187,7 +189,7 @@ void Vm::add() {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       return a + b;
     } else if constexpr (dz_object<A, B>) {
-      if (a->type == DzObject::Type::String && b->type == DzObject::Type::String) {
+      if (a->is(DzObject::Type::String) && b->is(DzObject::Type::String)) {
         auto str_a = static_cast<DzString*>(a);
         auto str_b = static_cast<DzString*>(b);
         return gc.construct<DzString>(str_a->data + str_b->data);
@@ -354,6 +356,26 @@ void Vm::false_() {
   stack.push(false);
 }
 
+void Vm::get() {
+  auto prop_v = stack.pop_value();
+  auto self_v = stack.pop_value();
+
+  assert(prop_v.is(DzObject::Type::String));
+  if (!self_v.is(DzObject::Type::Instance)) {
+    raise("cannot get property '{}' of type '{}'", prop_v.repr(), self_v.name());
+  }
+
+  auto prop = static_cast<DzString*>(prop_v.o);
+  auto self = static_cast<DzInstance*>(self_v.o);
+
+  auto pos = self->fields.find(prop);
+  if (pos != self->fields.end()) {
+    stack.push(pos->second);
+  } else {
+    stack.push(&null);
+  }
+}
+
 void Vm::greater() {
   binary(">", []<typename A, typename B>(const A& a, const B& b) -> std::optional<DzValue> {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
@@ -476,8 +498,8 @@ void Vm::notEqual() {
   });
 }
 
-void Vm::null() {
-  stack.push(&::null);
+void Vm::null_() {
+  stack.push(&null);
 }
 
 void Vm::pop() {
@@ -504,6 +526,21 @@ void Vm::return_() {
   stack.pop(stack.size() - frame.sp);
   stack.push(result);
   frame = frames.pop_value();
+}
+
+void Vm::set() {
+  auto prop_v = stack.pop_value();
+  auto self_v = stack.pop_value();
+
+  assert(prop_v.is(DzObject::Type::String));
+  if (!self_v.is(DzObject::Type::Instance)) {
+    raise("cannot set property '{}' of type '{}'", prop_v.repr(), self_v.name());
+  }
+
+  auto prop = static_cast<DzString*>(prop_v.o);
+  auto self = static_cast<DzInstance*>(self_v.o);
+
+  self->fields.insert_or_assign(prop, stack.top());
 }
 
 template<typename Integral>

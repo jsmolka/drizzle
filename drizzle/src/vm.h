@@ -51,6 +51,7 @@ private:
   void divideInt();
   void equal();
   void false_();
+  void get();
   void greater();
   void greaterEqual();
   void jump();
@@ -68,12 +69,13 @@ private:
   void negate();
   void not_();
   void notEqual();
-  void null();
+  void null_();
   void pop();
   template<typename Integral>
   void popMultiple();
   void power();
   void return_();
+  void set();
   template<typename Integral>
   void store();
   template<typename Integral>

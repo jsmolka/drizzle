@@ -38,6 +38,8 @@ public:
 
   auto repr() const -> std::string;
   auto name() const -> std::string_view;
+  auto is(Type type) const -> bool;
+  auto is(DzObject::Type type) const -> bool;
 
   Type type;
   union {

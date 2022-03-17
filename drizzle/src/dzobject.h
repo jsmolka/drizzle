@@ -16,6 +16,7 @@ public:
 
   auto repr() const -> std::string;
   auto name() const -> std::string_view;
+  auto is(Type type) const -> bool;
 
   Type type;
   bool marked = false;

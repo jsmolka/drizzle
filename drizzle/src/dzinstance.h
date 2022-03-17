@@ -1,6 +1,10 @@
 #pragma once
 
+#include <tsl/robin_map.h>
+
 #include "dzclass.h"
+#include "dzstring.h"
+#include "dzvalue.h"
 
 class DzInstance : public DzObject {
 public:
@@ -12,4 +16,5 @@ public:
   auto name() const -> std::string_view;
 
   DzClass* class_;
+  tsl::robin_map<DzString*, DzValue, DzString::Hash, DzString::Equal> fields;
 };

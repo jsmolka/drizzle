@@ -23,6 +23,7 @@ enum class Opcode {
   Equal,
   Exit,
   False,
+  Get,
   Greater,
   GreaterEqual,
   Jump,
@@ -46,6 +47,7 @@ enum class Opcode {
   PopMultipleExt,
   Power,
   Return,
+  Set,
   Store,
   StoreExt,
   StoreAbsolute,
@@ -59,7 +61,7 @@ static_assert(int(Opcode::LastEnumValue) <= std::numeric_limits<u8>::max());
 
 template<>
 struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
-  static_assert(int(Opcode::LastEnumValue) == 45);
+  static_assert(int(Opcode::LastEnumValue) == 47);
   template<typename FormatContext>
   auto format(const Opcode& opcode, FormatContext& ctx) const {
     auto repr = [](const Opcode& opcode) {
@@ -80,6 +82,7 @@ struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
         case Opcode::Equal:             return "Equal";
         case Opcode::Exit:              return "Exit";
         case Opcode::False:             return "False";
+        case Opcode::Get:               return "Get";
         case Opcode::Greater:           return "Greater";
         case Opcode::GreaterEqual:      return "GreaterEqual";
         case Opcode::Jump:              return "Jump";
@@ -103,6 +106,7 @@ struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
         case Opcode::PopMultipleExt:    return "PopMultipleExt";
         case Opcode::Power:             return "Power";
         case Opcode::Return:            return "Return";
+        case Opcode::Set:               return "Set";
         case Opcode::Store:             return "Store";
         case Opcode::StoreExt:          return "StoreExt";
         case Opcode::StoreAbsolute:     return "StoreAbsolute";

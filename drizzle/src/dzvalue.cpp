@@ -41,3 +41,11 @@ auto DzValue::name() const -> std::string_view {
       return "unreachable";
   }
 }
+
+auto DzValue::is(Type type) const -> bool {
+  return this->type == type;
+}
+
+auto DzValue::is(DzObject::Type type) const -> bool {
+  return is(Type::Object) && o->is(type);
+}

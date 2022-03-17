@@ -16,6 +16,7 @@ public:
     }
   };
 
+  DzString(std::string_view data);
   DzString(const std::string& data);
 
   operator bool() const;

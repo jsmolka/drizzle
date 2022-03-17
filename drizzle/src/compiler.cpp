@@ -244,6 +244,12 @@ void Compiler::visit(Expression::Call& call) {
   emit(Opcode::Call, arguments);
 }
 
+void Compiler::visit(Expression::Get& get) {
+  visit(get.self);
+  emitConstant(gc.construct<DzString>(get.identifier));
+  emit(Opcode::Get);
+}
+
 void Compiler::visit(Expression::Literal& literal) {
   static_assert(int(Expression::Literal::Type::LastEnumValue) == 5);
 
@@ -257,6 +263,13 @@ void Compiler::visit(Expression::Literal& literal) {
       SH_UNREACHABLE;
       break;
   }
+}
+
+void Compiler::visit(Expression::Set& set) {
+  visit(set.value);
+  visit(set.self);
+  emitConstant(gc.construct<DzString>(set.identifier));
+  emit(Opcode::Set);
 }
 
 void Compiler::visit(Expression::Unary& unary) {
