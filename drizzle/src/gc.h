@@ -44,7 +44,7 @@ private:
 
   void collect();
   void mark();
-  void mark(DzValue& value);
+  void mark(const DzValue& value);
   void mark(DzObject* object);
   void sweep();
 

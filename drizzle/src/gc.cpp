@@ -2,6 +2,8 @@
 
 #include <sh/utility.h>
 
+#include "dzfunction.h"
+#include "dzinstance.h"
 #include "vm.h"
 
 Gc::~Gc() {
@@ -23,16 +25,16 @@ void Gc::collect() {
 
 void Gc::mark() {
   assert(vm);
-  for (auto& value : vm->stack) {
+  for (const auto& value : vm->stack) {
     mark(value);
   }
-  for (auto& frame : vm->frames) {
+  for (const auto& frame : vm->frames) {
     mark(frame.function);
   }
   mark(vm->frame.function);
 }
 
-void Gc::mark(DzValue& value) {
+void Gc::mark(const DzValue& value) {
   if (value.type == DzValue::Type::Object) {
     mark(value.o);
   }
@@ -47,9 +49,17 @@ void Gc::mark(DzObject* object) {
 
   object->marked = true;
   switch (object->type) {
+    case DzObject::Type::Instance: {
+      const auto instance = static_cast<DzInstance*>(object);
+      for (const auto& [key, value] : instance->fields) {
+        mark(value);
+      }
+      break;
+    }
+
     case DzObject::Type::Function: {
-      auto function = static_cast<DzFunction*>(object);
-      for (auto& value : function->chunk.constants) {
+      const auto function = static_cast<DzFunction*>(object);
+      for (const auto& value : function->chunk.constants) {
         mark(value);
       }
       break;
