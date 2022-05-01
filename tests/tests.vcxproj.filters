@@ -75,7 +75,7 @@
     <ClCompile Include="..\drizzle\src\dzinstance.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\drizzle\src\dzboundmethod.cpp">
+    <ClCompile Include="..\drizzle\src\dzmethod.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

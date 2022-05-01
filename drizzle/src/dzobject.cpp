@@ -2,11 +2,11 @@
 
 #include <sh/utility.h>
 
-#include "dzboundmethod.h"
 #include "dzbuiltin.h"
 #include "dzclass.h"
 #include "dzfunction.h"
 #include "dzinstance.h"
+#include "dzmethod.h"
 #include "dznull.h"
 #include "dzstring.h"
 
@@ -15,13 +15,13 @@ DzObject::DzObject(Type type)
 
 DzObject::operator bool() const {
   switch (type) {
-    case Type::BoundMethod: return as<DzBoundMethod>();
-    case Type::BuiltIn:     return as<DzBuiltIn>();
-    case Type::Class:       return as<DzClass>();
-    case Type::Function:    return as<DzFunction>();
-    case Type::Instance:    return as<DzInstance>();
-    case Type::Null:        return as<DzNull>();
-    case Type::String:      return as<DzString>();
+    case Type::BuiltIn:  return as<DzBuiltIn>();
+    case Type::Class:    return as<DzClass>();
+    case Type::Function: return as<DzFunction>();
+    case Type::Instance: return as<DzInstance>();
+    case Type::Method:   return as<DzMethod>();
+    case Type::Null:     return as<DzNull>();
+    case Type::String:   return as<DzString>();
     default:
       SH_UNREACHABLE;
       return false;
@@ -38,13 +38,13 @@ auto DzObject::operator!=(const DzObject& other) const -> bool {
 
 auto DzObject::repr() const -> std::string {
   switch (type) {
-    case Type::BoundMethod: return as<DzBoundMethod>().repr();
-    case Type::BuiltIn:     return as<DzBuiltIn>().repr();
-    case Type::Class:       return as<DzClass>().repr();
-    case Type::Function:    return as<DzFunction>().repr();
-    case Type::Instance:    return as<DzInstance>().repr();
-    case Type::Null:        return as<DzNull>().repr();
-    case Type::String:      return as<DzString>().repr();
+    case Type::BuiltIn:  return as<DzBuiltIn>().repr();
+    case Type::Class:    return as<DzClass>().repr();
+    case Type::Function: return as<DzFunction>().repr();
+    case Type::Instance: return as<DzInstance>().repr();
+    case Type::Method:   return as<DzMethod>().repr();
+    case Type::Null:     return as<DzNull>().repr();
+    case Type::String:   return as<DzString>().repr();
     default:
       SH_UNREACHABLE;
       return "unreachable";
@@ -53,13 +53,13 @@ auto DzObject::repr() const -> std::string {
 
 auto DzObject::name() const -> std::string_view {
   switch (type) {
-    case Type::BoundMethod: return as<DzBoundMethod>().name();
-    case Type::BuiltIn:     return as<DzBuiltIn>().name();
-    case Type::Class:       return as<DzClass>().name();
-    case Type::Function:    return as<DzFunction>().name();
-    case Type::Instance:    return as<DzInstance>().name();
-    case Type::Null:        return as<DzNull>().name();
-    case Type::String:      return as<DzString>().name();
+    case Type::BuiltIn:  return as<DzBuiltIn>().name();
+    case Type::Class:    return as<DzClass>().name();
+    case Type::Function: return as<DzFunction>().name();
+    case Type::Instance: return as<DzInstance>().name();
+    case Type::Method:   return as<DzMethod>().name();
+    case Type::Null:     return as<DzNull>().name();
+    case Type::String:   return as<DzString>().name();
     default:
       SH_UNREACHABLE;
       return "unreachable";

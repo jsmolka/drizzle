@@ -18,11 +18,11 @@
     <ClCompile Include="..\drizzle\src\astvisiter.cpp" />
     <ClCompile Include="..\drizzle\src\chunk.cpp" />
     <ClCompile Include="..\drizzle\src\compiler.cpp" />
-    <ClCompile Include="..\drizzle\src\dzboundmethod.cpp" />
     <ClCompile Include="..\drizzle\src\dzbuiltin.cpp" />
     <ClCompile Include="..\drizzle\src\dzclass.cpp" />
     <ClCompile Include="..\drizzle\src\dzfunction.cpp" />
     <ClCompile Include="..\drizzle\src\dzinstance.cpp" />
+    <ClCompile Include="..\drizzle\src\dzmethod.cpp" />
     <ClCompile Include="..\drizzle\src\dznull.cpp" />
     <ClCompile Include="..\drizzle\src\dzobject.cpp" />
     <ClCompile Include="..\drizzle\src\dzstring.cpp" />

@@ -301,8 +301,8 @@ void Vm::call() {
         auto init = gc.construct<DzString>(std::string_view("init"));
         auto i = instance->fields.find(init);
         if (i != instance->fields.end()) {
-          const auto function = static_cast<DzBoundMethod*>(i->second.o)->function;
-          callee = static_cast<DzBoundMethod*>(i->second.o)->self;
+          const auto function = static_cast<DzMethod*>(i->second.o)->function;
+          callee = static_cast<DzMethod*>(i->second.o)->self;
           return exec(function, argc);
         } else if (argc > 0) {
           raise("expected {} argument(s) but got {}", 0, argc);
@@ -311,9 +311,9 @@ void Vm::call() {
         return;
       }
 
-      case DzObject::Type::BoundMethod: {
-        const auto function = static_cast<DzBoundMethod*>(callee.o)->function;
-        callee = static_cast<DzBoundMethod*>(callee.o)->self;
+      case DzObject::Type::Method: {
+        const auto function = static_cast<DzMethod*>(callee.o)->function;
+        callee = static_cast<DzMethod*>(callee.o)->self;
         return exec(function, argc);
       }
 

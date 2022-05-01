@@ -2,8 +2,8 @@
 
 #include <string>
 
+#include "dzmethod.h"
 #include "dzobject.h"
-#include "dzboundmethod.h"
 
 class DzClass : public DzObject {
 public:
