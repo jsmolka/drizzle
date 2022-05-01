@@ -70,6 +70,8 @@ void Compiler::visit(Statement::Break& break_) {
 }
 
 void Compiler::visit(Statement::Class& class_) {
+  define(class_.identifier);
+
   auto object = gc.construct<DzClass>(std::string(class_.identifier));
   for (const auto& method : class_.methods) {
     auto& def = method->def;
@@ -90,8 +92,6 @@ void Compiler::visit(Statement::Class& class_) {
 
     object->methods.push_back(compiler.function);
   }
-
-  define(class_.identifier);
   emitConstant(object);
 }
 
@@ -110,6 +110,8 @@ void Compiler::visit(Statement::Continue& continue_) {
 }
 
 void Compiler::visit(Statement::Def& def) {
+  define(def.identifier);
+
   Compiler compiler(gc, Type::Function, this);
   compiler.function->identifier = def.identifier;
   compiler.function->arity = def.parameters.size();
@@ -124,7 +126,6 @@ void Compiler::visit(Statement::Def& def) {
   compiler.decreaseScope();
   compiler.emit(Opcode::Null, Opcode::Return);
 
-  define(def.identifier);
   emitConstant(compiler.function);
 }
 
