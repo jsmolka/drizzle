@@ -3,6 +3,7 @@
 #include <string>
 
 #include "dzobject.h"
+#include "dzboundmethod.h"
 
 class DzClass : public DzObject {
 public:
@@ -14,4 +15,5 @@ public:
   auto name() const -> std::string_view;
 
   std::string identifier;
+  std::vector<DzFunction*> methods;
 };

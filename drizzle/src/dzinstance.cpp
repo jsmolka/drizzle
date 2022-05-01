@@ -3,8 +3,17 @@
 #include <sh/fmt.h>
 #include <sh/utility.h>
 
-DzInstance::DzInstance(DzClass* class_)
-  : DzObject(Type::Instance), class_(class_) {}
+#include "dzboundmethod.h"
+#include "dzvalue.h"
+
+DzInstance::DzInstance(Gc& gc, DzClass* class_)
+  : DzObject(Type::Instance), class_(class_) {
+  for (const auto& method : class_->methods) {
+    auto bound = gc.construct<DzBoundMethod>(this, method);
+    auto string = gc.construct<DzString>(method->identifier);
+    fields.insert_or_assign(string, bound);  // Todo: ugly
+  }
+}
 
 DzInstance::operator bool() const {
   return true;

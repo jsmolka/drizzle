@@ -1,6 +1,5 @@
 #pragma once
 
-#include "dzclass.h"
 #include "dzfunction.h"
 
 class DzBoundMethod : public DzObject {

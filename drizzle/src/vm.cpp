@@ -284,7 +284,24 @@ void Vm::call() {
 
       case DzObject::Type::Class: {
         const auto class_ = static_cast<DzClass*>(callee.o);
-        stack.peek(argc) = gc.construct<DzInstance>(class_);
+        stack.peek(argc) = gc.construct<DzInstance>(gc, class_);
+        return;
+      }
+
+      case DzObject::Type::BoundMethod: {
+        const auto function = static_cast<DzBoundMethod*>(callee.o)->function;
+        if (function->arity != argc) {
+          raise("expected {} argument(s) but got {}", function->arity, argc);
+        }
+        stack.push(static_cast<DzBoundMethod*>(callee.o)->self);
+
+        frames.push(frame);
+        if (frames.size() == kMaximumRecursionDepth) {
+          raise("maximum recursion depth exceeded");
+        }
+        frame.pc = function->chunk.code.data();
+        frame.sp = stack.size() - argc - 2;
+        frame.function = function;
         return;
       }
 

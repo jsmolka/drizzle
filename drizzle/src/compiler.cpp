@@ -70,7 +70,30 @@ void Compiler::visit(Statement::Break& break_) {
 }
 
 void Compiler::visit(Statement::Class& class_) {
-  emitConstant(gc.construct<DzClass>(std::string(class_.identifier)));
+  auto object = gc.construct<DzClass>(std::string(class_.identifier));
+  for (const auto& method : class_.methods) {
+    // Todo: common function?
+    // Todo: method type?
+    auto& def = method->def;
+
+    Compiler compiler(gc, Type::Function, this);
+    compiler.function->identifier = def.identifier;
+    compiler.function->arity = def.parameters.size();
+
+    compiler.define(Identifier(std::string_view("$function?"), Location()));
+    for (const auto& parameter : def.parameters) {
+      compiler.define(parameter);
+    }
+    compiler.define(Identifier(std::string_view("this"), Location()));
+
+    compiler.increaseScope(Level::Type::Function);
+    compiler.visit(def.statements);
+    compiler.decreaseScope();
+    compiler.emit(Opcode::Null, Opcode::Return);
+
+    object->methods.push_back(compiler.function);
+  }
+  emitConstant(object);
   define(class_.identifier);
 }
 
