@@ -269,6 +269,19 @@ void Vm::bitwiseXor() {
 }
 
 void Vm::call() {
+  auto exec = [this](DzFunction* function, std::size_t argc) {
+    if (function->arity != argc) {
+      raise("expected {} argument(s) but got {}", function->arity, argc);
+    }
+    frames.push(frame);
+    if (frames.size() == kMaximumRecursionDepth) {
+      raise("maximum recursion depth exceeded");
+    }
+    frame.pc = function->chunk.code.data();
+    frame.sp = stack.size() - argc - 1;
+    frame.function = function;
+  };
+
   const auto argc = read<u8>();
   auto& callee = stack.peek(argc);
   if (callee.type == DzValue::Type::Object) {
@@ -284,39 +297,28 @@ void Vm::call() {
 
       case DzObject::Type::Class: {
         const auto class_ = static_cast<DzClass*>(callee.o);
-        stack.peek(argc) = gc.construct<DzInstance>(gc, class_);
+        auto instance = gc.construct<DzInstance>(gc, class_);
+        auto init = gc.construct<DzString>(std::string_view("new"));
+        auto i = instance->fields.find(init);
+        if (i != instance->fields.end()) {
+          const auto function = static_cast<DzBoundMethod*>(i->second.o)->function;
+          callee = static_cast<DzBoundMethod*>(i->second.o)->self;
+          return exec(function, argc);
+        } else if (argc > 0) {
+          raise("expected {} argument(s) but got {}", 0, argc);
+        }
+        stack.peek(argc) = instance;
         return;
       }
 
       case DzObject::Type::BoundMethod: {
         const auto function = static_cast<DzBoundMethod*>(callee.o)->function;
-        if (function->arity != argc) {
-          raise("expected {} argument(s) but got {}", function->arity, argc);
-        }
         callee = static_cast<DzBoundMethod*>(callee.o)->self;
-        frames.push(frame);
-        if (frames.size() == kMaximumRecursionDepth) {
-          raise("maximum recursion depth exceeded");
-        }
-        frame.pc = function->chunk.code.data();
-        frame.sp = stack.size() - argc - 1;
-        frame.function = function;
-        return;
+        return exec(function, argc);
       }
 
       case DzObject::Type::Function: {
-        const auto function = static_cast<DzFunction*>(callee.o);
-        if (function->arity != argc) {
-          raise("expected {} argument(s) but got {}", function->arity, argc);
-        }
-        frames.push(frame);
-        if (frames.size() == kMaximumRecursionDepth) {
-          raise("maximum recursion depth exceeded");
-        }
-        frame.pc = function->chunk.code.data();
-        frame.sp = stack.size() - argc - 1;
-        frame.function = function;
-        return;
+        return exec(static_cast<DzFunction*>(callee.o), argc);
       }
     }
   }

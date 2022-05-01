@@ -76,7 +76,7 @@ void Compiler::visit(Statement::Class& class_) {
     // Todo: method type?
     auto& def = method->def;
 
-    Compiler compiler(gc, Type::Function, this);
+    Compiler compiler(gc, def.identifier == "new" ? Type::New : Type::Function, this);
     compiler.function->identifier = def.identifier;
     compiler.function->arity = def.parameters.size();
 
@@ -88,7 +88,7 @@ void Compiler::visit(Statement::Class& class_) {
     compiler.increaseScope(Level::Type::Function);
     compiler.visit(def.statements);
     compiler.decreaseScope();
-    compiler.emit(Opcode::Null, Opcode::Return);
+    compiler.emit(Opcode::Load, 0, Opcode::Return);
 
     object->methods.push_back(compiler.function);
   }
@@ -167,9 +167,12 @@ void Compiler::visit(Statement::Program& program) {
 void Compiler::visit(Statement::Return& return_) {
   if (type == Type::Main) {
     throw SyntaxError(locations.top(), "no matching function");
+  } else if (type == Type::New) {
+    emit(Opcode::Load, 0, Opcode::Return);
+  } else {
+    AstVisiter::visit(return_);
+    emit(Opcode::Return);
   }
-  AstVisiter::visit(return_);
-  emit(Opcode::Return);
 }
 
 void Compiler::visit(Statement::Var& var) {
