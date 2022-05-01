@@ -65,6 +65,7 @@ private:
   void group(bool);
   void literal(bool);
   void or_(bool);
+  void this_(bool);
   void unary(bool);
   void variable(bool assign);
 

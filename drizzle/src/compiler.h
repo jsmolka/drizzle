@@ -43,7 +43,7 @@ protected:
 private:
   static constexpr auto kJumpSize = 3;
 
-  enum class Type { Main, Function, Method };
+  enum class Type { Main, Function };
 
   struct Level {
     enum class Type { Block, Branch, Loop, Function };

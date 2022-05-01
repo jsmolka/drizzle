@@ -46,6 +46,7 @@ auto Parser::rule(Token::Type type) -> const Rule& {
       case Token::Type::Star:         return {nullptr,           &Parser::binary, Precedence::Factor    };
       case Token::Type::Star2:        return {nullptr,           &Parser::binary, Precedence::Factor    };
       case Token::Type::String:       return {&Parser::constant, nullptr,         Precedence::None      };
+      case Token::Type::This:         return {&Parser::this_,    nullptr,         Precedence::None      };
       case Token::Type::Tilde:        return {&Parser::unary,    nullptr,         Precedence::Unary     };
       case Token::Type::True:         return {&Parser::literal,  nullptr,         Precedence::None      };
     }
@@ -86,7 +87,7 @@ auto Parser::expectIdentifier() -> Identifier {
 }
 
 auto Parser::identifier() const -> Identifier {
-  assert(previous->type == Token::Type::Identifier);
+  assert(previous->type == Token::Type::Identifier || previous->type == Token::Type::This);
   return Identifier(previous->lexeme, previous->location);
 }
 
@@ -248,6 +249,10 @@ void Parser::or_(bool) {
     .left = std::move(lhs),
     .right = std::move(rhs)
   }));
+}
+
+void Parser::this_(bool) {
+  variable(false);
 }
 
 void Parser::unary(bool) {

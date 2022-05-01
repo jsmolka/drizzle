@@ -80,11 +80,10 @@ void Compiler::visit(Statement::Class& class_) {
     compiler.function->identifier = def.identifier;
     compiler.function->arity = def.parameters.size();
 
-    compiler.define(Identifier(std::string_view("$function?"), Location()));
+    compiler.define(Identifier(std::string_view("this"), Location()));
     for (const auto& parameter : def.parameters) {
       compiler.define(parameter);
     }
-    compiler.define(Identifier(std::string_view("this"), Location()));
 
     compiler.increaseScope(Level::Type::Function);
     compiler.visit(def.statements);

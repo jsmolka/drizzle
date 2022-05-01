@@ -270,7 +270,7 @@ void Vm::bitwiseXor() {
 
 void Vm::call() {
   const auto argc = read<u8>();
-  const auto& callee = stack.peek(argc);
+  auto& callee = stack.peek(argc);
   if (callee.type == DzValue::Type::Object) {
     switch (callee.o->type) {
       case DzObject::Type::BuiltIn: {
@@ -293,14 +293,13 @@ void Vm::call() {
         if (function->arity != argc) {
           raise("expected {} argument(s) but got {}", function->arity, argc);
         }
-        stack.push(static_cast<DzBoundMethod*>(callee.o)->self);
-
+        callee = static_cast<DzBoundMethod*>(callee.o)->self;
         frames.push(frame);
         if (frames.size() == kMaximumRecursionDepth) {
           raise("maximum recursion depth exceeded");
         }
         frame.pc = function->chunk.code.data();
-        frame.sp = stack.size() - argc - 2;
+        frame.sp = stack.size() - argc - 1;
         frame.function = function;
         return;
       }
