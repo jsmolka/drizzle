@@ -2,6 +2,7 @@
 
 #include <sh/utility.h>
 
+#include "dzboundmethod.h"
 #include "dzfunction.h"
 #include "dzinstance.h"
 #include "vm.h"
@@ -41,7 +42,7 @@ void Gc::mark(const DzValue& value) {
 }
 
 void Gc::mark(DzObject* object) {
-  static_assert(int(DzObject::Type::LastEnumValue) == 6);
+  static_assert(int(DzObject::Type::LastEnumValue) == 7);
   assert(object);
   if (object->marked) {
     return;
@@ -49,6 +50,13 @@ void Gc::mark(DzObject* object) {
 
   object->marked = true;
   switch (object->type) {
+    case DzObject::Type::BoundMethod: {
+      const auto method = static_cast<DzBoundMethod*>(object);
+      mark(method->self);
+      mark(method->function);
+      break;
+    }
+
     case DzObject::Type::Instance: {
       const auto instance = static_cast<DzInstance*>(object);
       for (const auto& [key, value] : instance->fields) {

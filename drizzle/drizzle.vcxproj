@@ -20,6 +20,7 @@
     <ClCompile Include="src\astvisiter.cpp" />
     <ClCompile Include="src\chunk.cpp" />
     <ClCompile Include="src\compiler.cpp" />
+    <ClCompile Include="src\dzboundmethod.cpp" />
     <ClCompile Include="src\dzbuiltin.cpp" />
     <ClCompile Include="src\dzclass.cpp" />
     <ClCompile Include="src\dzfunction.cpp" />
@@ -42,6 +43,7 @@
     <ClInclude Include="src\astvisiter.h" />
     <ClInclude Include="src\chunk.h" />
     <ClInclude Include="src\compiler.h" />
+    <ClInclude Include="src\dzboundmethod.h" />
     <ClInclude Include="src\dzbuiltin.h" />
     <ClInclude Include="src\dzclass.h" />
     <ClInclude Include="src\dzfunction.h" />

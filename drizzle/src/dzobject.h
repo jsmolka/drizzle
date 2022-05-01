@@ -5,7 +5,7 @@
 
 class DzObject {
 public:
-  enum class Type { BuiltIn, Class, Function, Instance, Null, String, LastEnumValue };
+  enum class Type { BoundMethod, BuiltIn, Class, Function, Instance, Null, String, LastEnumValue };
 
   DzObject(Type type);
   virtual ~DzObject() = default;
