@@ -59,6 +59,7 @@ struct Token {
     Star,
     Star2,
     String,
+    This,
     Tilde,
     True,
     Var,
@@ -73,7 +74,7 @@ struct Token {
 
 template<>
 struct fmt::formatter<Token::Type> : fmt::formatter<std::string_view> {
-  static_assert(int(Token::Type::LastEnumValue) == 56);
+  static_assert(int(Token::Type::LastEnumValue) == 57);
   template<typename FormatContext>
   auto format(const Token::Type& value, FormatContext& ctx) const {
     auto repr = [](const Token::Type& value) {
@@ -130,6 +131,7 @@ struct fmt::formatter<Token::Type> : fmt::formatter<std::string_view> {
         case Token::Type::Star:         return "Star";
         case Token::Type::Star2:        return "Star2";
         case Token::Type::String:       return "String";
+        case Token::Type::This:         return "This";
         case Token::Type::Tilde:        return "Tilde";
         case Token::Type::True:         return "True";
         case Token::Type::Var:          return "Var";

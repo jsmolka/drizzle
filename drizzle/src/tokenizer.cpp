@@ -295,6 +295,7 @@ void Tokenizer::scanIdentifier() {
     {"noop",     Token::Type::Noop    },
     {"null",     Token::Type::Null    },
     {"return",   Token::Type::Return  },
+    {"this",     Token::Type::This    },
     {"true",     Token::Type::True    },
     {"var",      Token::Type::Var     },
     {"while",    Token::Type::While   },
