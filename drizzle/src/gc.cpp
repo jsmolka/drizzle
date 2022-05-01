@@ -50,10 +50,11 @@ void Gc::mark(DzObject* object) {
 
   object->marked = true;
   switch (object->type) {
-    case DzObject::Type::Method: {
-      const auto method = static_cast<DzMethod*>(object);
-      mark(method->self);
-      mark(method->function);
+    case DzObject::Type::Function: {
+      const auto function = static_cast<DzFunction*>(object);
+      for (const auto& value : function->chunk.constants) {
+        mark(value);
+      }
       break;
     }
 
@@ -65,11 +66,10 @@ void Gc::mark(DzObject* object) {
       break;
     }
 
-    case DzObject::Type::Function: {
-      const auto function = static_cast<DzFunction*>(object);
-      for (const auto& value : function->chunk.constants) {
-        mark(value);
-      }
+    case DzObject::Type::Method: {
+      const auto method = static_cast<DzMethod*>(object);
+      mark(method->self);
+      mark(method->function);
       break;
     }
   }

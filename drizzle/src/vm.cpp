@@ -4,7 +4,6 @@
 #include "dzclass.h"
 #include "dzinstance.h"
 #include "dznull.h"
-#include "dzstring.h"
 #include "gc.h"
 #include "opcode.h"
 
@@ -17,6 +16,7 @@ using binary_t = std::conditional_t<dz_primitive<A, B>, Promote<A, B>, A>;
 Vm::Vm(Gc& gc)
   : gc(gc) {
   gc.vm = this;
+  init = gc.construct<DzString>(DzClass::kInit);
 }
 
 void Vm::interpret(DzFunction* function) {
@@ -269,10 +269,14 @@ void Vm::bitwiseXor() {
 }
 
 void Vm::call() {
-  auto exec = [this](DzFunction* function, std::size_t argc) {
-    if (function->arity != argc) {
-      raise("expected {} argument(s) but got {}", function->arity, argc);
+  auto check_arity = [this](std::size_t expected, std::size_t got) {
+    if (expected != got) {
+      raise("expected {} argument(s) but got {}", expected, got);
     }
+  };
+
+  auto exec = [&](DzFunction* function, std::size_t argc) {
+    check_arity(function->arity, argc);
     frames.push(frame);
     if (frames.size() == kMaximumRecursionDepth) {
       raise("maximum recursion depth exceeded");
@@ -298,11 +302,10 @@ void Vm::call() {
       case DzObject::Type::Class: {
         const auto class_ = static_cast<DzClass*>(callee.o);
         auto instance = gc.construct<DzInstance>(gc, class_);
-        auto init = gc.construct<DzString>(std::string_view("init"));
-        auto i = instance->fields.find(init);
-        if (i != instance->fields.end()) {
-          const auto function = static_cast<DzMethod*>(i->second.o)->function;
-          callee = static_cast<DzMethod*>(i->second.o)->self;
+        auto init = instance->get(this->init);
+        if (init != null) {
+          const auto function = static_cast<DzMethod*>(init.o)->function;
+          callee = static_cast<DzMethod*>(init.o)->self;
           return exec(function, argc);
         } else if (argc > 0) {
           raise("expected {} argument(s) but got {}", 0, argc);
@@ -376,22 +379,16 @@ void Vm::false_() {
 
 void Vm::get() {
   auto prop_v = stack.pop_value();
-  auto self_v = stack.pop_value();
+  auto inst_v = stack.pop_value();
 
   assert(prop_v.is(DzObject::Type::String));
-  if (!self_v.is(DzObject::Type::Instance)) {
-    raise("cannot get property '{}' of type '{}'", prop_v.repr(), self_v.name());
+  if (!inst_v.is(DzObject::Type::Instance)) {
+    raise("cannot get property '{}' of type '{}'", prop_v.repr(), inst_v.name());
   }
 
   auto prop = static_cast<DzString*>(prop_v.o);
-  auto self = static_cast<DzInstance*>(self_v.o);
-
-  auto pos = self->fields.find(prop);
-  if (pos != self->fields.end()) {
-    stack.push(pos->second);
-  } else {
-    stack.push(&null);
-  }
+  auto inst = static_cast<DzInstance*>(inst_v.o);
+  stack.push(inst->get(prop));
 }
 
 void Vm::greater() {
@@ -548,17 +545,16 @@ void Vm::return_() {
 
 void Vm::set() {
   auto prop_v = stack.pop_value();
-  auto self_v = stack.pop_value();
+  auto inst_v = stack.pop_value();
 
   assert(prop_v.is(DzObject::Type::String));
-  if (!self_v.is(DzObject::Type::Instance)) {
-    raise("cannot set property '{}' of type '{}'", prop_v.repr(), self_v.name());
+  if (!inst_v.is(DzObject::Type::Instance)) {
+    raise("cannot set property '{}' of type '{}'", prop_v.repr(), inst_v.name());
   }
 
   auto prop = static_cast<DzString*>(prop_v.o);
-  auto self = static_cast<DzInstance*>(self_v.o);
-
-  self->fields.insert_or_assign(prop, stack.top());
+  auto inst = static_cast<DzInstance*>(inst_v.o);
+  inst->set(prop, stack.top());
 }
 
 template<typename Integral>

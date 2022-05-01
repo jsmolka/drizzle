@@ -16,6 +16,7 @@ public:
     }
   };
 
+  DzString(const char* data);
   DzString(std::string_view data);
   DzString(const std::string& data);
 

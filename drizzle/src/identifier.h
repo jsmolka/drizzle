@@ -8,9 +8,9 @@
 
 class Identifier : public std::string_view {
 public:
-  template<typename T>
-    requires std::constructible_from<T, std::string_view>
-  Identifier(const T& value, const Location& location)
+  Identifier(const char* value, const Location& location = Location())
+    : std::string_view(value), location(location) {}
+  Identifier(std::string_view value, const Location& location = Location())
     : std::string_view(value), location(location) {}
 
   Location location;

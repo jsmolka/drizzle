@@ -7,6 +7,8 @@
 
 class DzClass : public DzObject {
 public:
+  static constexpr auto kInit = "init";
+
   DzClass(const std::string& identifier);
 
   operator bool() const;

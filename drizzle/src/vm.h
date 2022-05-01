@@ -3,6 +3,7 @@
 #include <sh/stack.h>
 
 #include "dzfunction.h"
+#include "dzstring.h"
 #include "error.h"
 #include "token.h"
 
@@ -87,4 +88,5 @@ private:
   Frame frame;
   sh::stack<Frame, 32> frames;
   sh::stack<DzValue, 512> stack;
+  DzString* init;
 };

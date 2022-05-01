@@ -72,15 +72,13 @@ void Compiler::visit(Statement::Break& break_) {
 void Compiler::visit(Statement::Class& class_) {
   auto object = gc.construct<DzClass>(std::string(class_.identifier));
   for (const auto& method : class_.methods) {
-    // Todo: common function?
-    // Todo: method type?
     auto& def = method->def;
 
-    Compiler compiler(gc, def.identifier == "init" ? Type::Init : Type::Function, this);
+    Compiler compiler(gc, def.identifier == DzClass::kInit ? Type::Init : Type::Function, this);
     compiler.function->identifier = def.identifier;
     compiler.function->arity = def.parameters.size();
 
-    compiler.define(Identifier(std::string_view("this"), Location()));
+    compiler.define("this");
     for (const auto& parameter : def.parameters) {
       compiler.define(parameter);
     }
@@ -92,8 +90,9 @@ void Compiler::visit(Statement::Class& class_) {
 
     object->methods.push_back(compiler.function);
   }
-  emitConstant(object);
+
   define(class_.identifier);
+  emitConstant(object);
 }
 
 void Compiler::visit(Statement::Continue& continue_) {
@@ -125,8 +124,8 @@ void Compiler::visit(Statement::Def& def) {
   compiler.decreaseScope();
   compiler.emit(Opcode::Null, Opcode::Return);
 
-  emitConstant(compiler.function);
   define(def.identifier);
+  emitConstant(compiler.function);
 }
 
 void Compiler::visit(Statement::ExpressionStatement& expression_statement) {
@@ -157,7 +156,7 @@ void Compiler::visit(Statement::Program& program) {
   increaseScope(Level::Type::Block);
   for (auto& builtin : DzBuiltIn::all) {
     emitConstant(&builtin);
-    define(Identifier(builtin.identifier, {}));
+    define(builtin.identifier);
   }
   AstVisiter::visit(program);
   decreaseScope();

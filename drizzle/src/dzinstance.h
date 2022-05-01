@@ -16,6 +16,9 @@ public:
   auto repr() const -> std::string;
   auto name() const -> std::string_view;
 
+  auto get(DzString* name) -> DzValue;
+  void set(DzString* name, const DzValue& value);
+
   DzClass* class_;
   tsl::robin_map<DzString*, DzValue, DzString::Hash, DzString::Equal> fields;
 };

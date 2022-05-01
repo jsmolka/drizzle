@@ -4,14 +4,15 @@
 #include <sh/utility.h>
 
 #include "dzmethod.h"
+#include "dznull.h"
 #include "dzvalue.h"
 
 DzInstance::DzInstance(Gc& gc, DzClass* class_)
   : DzObject(Type::Instance), class_(class_) {
-  for (const auto& method : class_->methods) {
-    auto bound = gc.construct<DzMethod>(this, method);
-    auto string = gc.construct<DzString>(method->identifier);
-    fields.insert_or_assign(string, bound);  // Todo: ugly
+  for (const auto& function : class_->methods) {
+    auto string = gc.construct<DzString>(function->identifier);
+    auto method = gc.construct<DzMethod>(this, function);
+    fields.insert({ string, method });
   }
 }
 
@@ -25,4 +26,15 @@ auto DzInstance::repr() const -> std::string {
 
 auto DzInstance::name() const -> std::string_view {
   return class_->name();
+}
+
+auto DzInstance::get(DzString* name) -> DzValue {
+  auto pos = fields.find(name);
+  return pos != fields.end()
+    ? pos->second
+    : &null;
+}
+
+void DzInstance::set(DzString* name, const DzValue& value) {
+  fields.insert_or_assign(name, value);
 }

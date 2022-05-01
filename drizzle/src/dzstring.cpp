@@ -1,5 +1,8 @@
 #include "dzstring.h"
 
+DzString::DzString(const char* data)
+  : DzString(std::string_view(data)) {}
+
 DzString::DzString(std::string_view data)
   : DzString(std::string(data)) {}
 
