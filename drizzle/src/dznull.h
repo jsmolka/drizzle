@@ -12,4 +12,4 @@ public:
   auto name() const -> std::string_view;
 };
 
-inline static DzNull null;
+inline DzNull null;
