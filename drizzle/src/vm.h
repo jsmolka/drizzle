@@ -85,7 +85,6 @@ private:
   void true_();
 
   Gc& gc;
-  Frame frame;
   sh::stack<Frame, 32> frames;
   sh::stack<DzValue, 512> stack;
   DzString* init;

@@ -32,7 +32,6 @@ void Gc::mark() {
   for (const auto& frame : vm->frames) {
     mark(frame.function);
   }
-  mark(vm->frame.function);
 }
 
 void Gc::mark(const DzValue& value) {

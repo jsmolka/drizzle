@@ -22,9 +22,7 @@ Vm::Vm(Gc& gc)
 void Vm::interpret(DzFunction* function) {
   static_assert(int(Opcode::LastEnumValue) == 47);
 
-  frame.pc = function->chunk.code.data();
-  frame.sp = 0;
-  frame.function = function;
+  frames.emplace(function->chunk.code.data(), 0, function);
 
   while (true) {
     switch (static_cast<Opcode>(read<u8>())) {
@@ -87,6 +85,7 @@ exit:
 
 template<std::integral Integral>
 auto Vm::read() -> Integral {
+  auto& frame = frames.top();
   const auto value = sh::cast<Integral>(*frame.pc);
   frame.pc += sizeof(Integral);
   return value;
@@ -94,6 +93,7 @@ auto Vm::read() -> Integral {
 
 template<typename... Args>
 void Vm::raise(std::string_view format, Args&&... args) {
+  const auto& frame = frames.top();
   const auto line = frame.function->chunk.line(
     frame.pc -
     frame.function->chunk.code.data());
@@ -277,13 +277,10 @@ void Vm::call() {
 
   auto exec = [&](DzFunction* function, std::size_t argc) {
     check_arity(function->arity, argc);
-    frames.push(frame);
+    frames.emplace(function->chunk.code.data(), stack.size() - argc - 1, function);
     if (frames.size() == kMaximumRecursionDepth) {
       raise("maximum recursion depth exceeded");
     }
-    frame.pc = function->chunk.code.data();
-    frame.sp = stack.size() - argc - 1;
-    frame.function = function;
   };
 
   const auto argc = read<u8>();
@@ -331,7 +328,7 @@ void Vm::call() {
 template<typename Integral>
 void Vm::constant() {
   const auto index = read<Integral>();
-  stack.push(frame.function->chunk.constants[index]);
+  stack.push(frames.top().function->chunk.constants[index]);
 }
 
 void Vm::divide() {
@@ -410,27 +407,27 @@ void Vm::greaterEqual() {
 }
 
 void Vm::jump() {
-  frame.pc += read<s16>();
+  frames.top().pc += read<s16>();
 }
 
 void Vm::jumpFalse() {
   const auto offset = read<s16>();
   if (!stack.top()) {
-    frame.pc += offset;
+    frames.top().pc += offset;
   }
 }
 
 void Vm::jumpFalsePop() {
   const auto offset = read<s16>();
   if (!stack.pop_value()) {
-    frame.pc += offset;
+    frames.top().pc += offset;
   }
 }
 
 void Vm::jumpTrue() {
   const auto offset = read<s16>();
   if (stack.top()) {
-    frame.pc += offset;
+    frames.top().pc += offset;
   }
 }
 
@@ -455,7 +452,7 @@ void Vm::lessEqual() {
 template<typename Integral>
 void Vm::load() {
   const auto index = read<Integral>();
-  stack.push(stack[frame.sp + index]);
+  stack.push(stack[frames.top().sp + index]);
 }
 
 template<typename Integral>
@@ -538,9 +535,9 @@ void Vm::power() {
 
 void Vm::return_() {
   const auto result = stack.pop_value();
-  stack.pop(stack.size() - frame.sp);
+  stack.pop(stack.size() - frames.top().sp);
   stack.push(result);
-  frame = frames.pop_value();
+  frames.pop();
 }
 
 void Vm::set() {
@@ -560,7 +557,7 @@ void Vm::set() {
 template<typename Integral>
 void Vm::store() {
   const auto index = read<Integral>();
-  stack[frame.sp + index] = stack.top();
+  stack[frames.top().sp + index] = stack.top();
 }
 
 template<typename Integral>
