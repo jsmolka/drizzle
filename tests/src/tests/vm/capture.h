@@ -6,8 +6,7 @@ namespace tests_vm_capture {
 
 inline suite _ = [] {
   "vm_capture"_test = [] {
-    {
-      constexpr auto kSource = R"(
+    constexpr auto kSource = R"(
 var x = 0
 def set_x(value):
   x = value
@@ -19,8 +18,7 @@ assert(get_x() == 1)
 set_x(2)
 assert(get_x() == 2)
 )";
-      run(kSource);
-    }
+    run(kSource);
   };
 };
 

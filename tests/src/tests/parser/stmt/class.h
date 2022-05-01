@@ -42,6 +42,12 @@ class Test:
   if true:
     noop
 )",
+R"(
+class Test:
+  def test():
+    noop
+  def
+)",
       };
 
       for (const auto& source : kSources) {

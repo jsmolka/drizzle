@@ -253,5 +253,8 @@
     <ClInclude Include="src\tests\parser\expr\set.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\tests\vm\class.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
