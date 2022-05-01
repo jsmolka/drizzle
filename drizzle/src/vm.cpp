@@ -269,14 +269,14 @@ void Vm::bitwiseXor() {
 }
 
 void Vm::call() {
-  auto check_arity = [this](std::size_t expected, std::size_t got) {
-    if (expected != got) {
-      raise("expected {} argument(s) but got {}", expected, got);
+  auto check = [this](std::optional<std::size_t> expect, std::size_t got) {
+    if (expect && *expect != got) {
+      raise("expected {} argument(s) but got {}", *expect, got);
     }
   };
 
   auto exec = [&](DzFunction* function, std::size_t argc) {
-    check_arity(function->arity, argc);
+    check(function->arity, argc);
     frames.emplace(function->chunk.code.data(), stack.size() - argc - 1, function);
     if (frames.size() == kMaximumRecursionDepth) {
       raise("maximum recursion depth exceeded");
@@ -289,36 +289,35 @@ void Vm::call() {
     switch (callee.o->type) {
       case DzObject::Type::BuiltIn: {
         const auto builtin = static_cast<DzBuiltIn*>(callee.o);
-        if (builtin->arity && *builtin->arity != argc) {
-          raise("expected {} argument(s) but got {}", *builtin->arity, argc);
-        }
+        check(builtin->arity, argc);
         stack.top() = builtin->callback(*this, argc);
         return;
       }
 
       case DzObject::Type::Class: {
-        const auto class_ = static_cast<DzClass*>(callee.o);
-        auto instance = gc.construct<DzInstance>(gc, class_);
-        auto init = instance->get(this->init);
-        if (init != null) {
+        const auto instance = gc.construct<DzInstance>(gc, static_cast<DzClass*>(callee.o));
+        const auto init = instance->get(this->init);
+        if (init == null) {
+          check(0, argc);
+          stack.peek(argc) = instance;
+        } else {
           const auto function = static_cast<DzMethod*>(init.o)->function;
           callee = static_cast<DzMethod*>(init.o)->self;
-          return exec(function, argc);
-        } else if (argc > 0) {
-          raise("expected {} argument(s) but got {}", 0, argc);
+          exec(function, argc);
         }
-        stack.peek(argc) = instance;
+        return;
+      }
+
+      case DzObject::Type::Function: {
+        exec(static_cast<DzFunction*>(callee.o), argc);
         return;
       }
 
       case DzObject::Type::Method: {
         const auto function = static_cast<DzMethod*>(callee.o)->function;
         callee = static_cast<DzMethod*>(callee.o)->self;
-        return exec(function, argc);
-      }
-
-      case DzObject::Type::Function: {
-        return exec(static_cast<DzFunction*>(callee.o), argc);
+        exec(function, argc);
+        return;
       }
     }
   }
