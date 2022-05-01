@@ -135,7 +135,9 @@ void AstVisiter::visit(Statement::Program& program) {
 }
 
 void AstVisiter::visit(Statement::Return& return_) {
-  visit(return_.expression);
+  if (return_.expression) {
+    visit(*return_.expression);
+  }
 }
 
 void AstVisiter::visit(Statement::Var& var) {

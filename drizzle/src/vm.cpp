@@ -298,7 +298,7 @@ void Vm::call() {
       case DzObject::Type::Class: {
         const auto class_ = static_cast<DzClass*>(callee.o);
         auto instance = gc.construct<DzInstance>(gc, class_);
-        auto init = gc.construct<DzString>(std::string_view("new"));
+        auto init = gc.construct<DzString>(std::string_view("init"));
         auto i = instance->fields.find(init);
         if (i != instance->fields.end()) {
           const auto function = static_cast<DzBoundMethod*>(i->second.o)->function;

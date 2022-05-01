@@ -497,10 +497,8 @@ auto Parser::statementNoop() -> Stmt {
 
 auto Parser::statementReturn() -> Stmt {
   pushLocation();
-  Expr expr;
-  if (current->type == Token::Type::NewLine) {
-    expr = newExpr(Expression::Literal{});
-  } else {
+  std::optional<Expr> expr;
+  if (current->type != Token::Type::NewLine) {
     expr = expression();
   }
   expectNewLine();

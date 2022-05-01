@@ -9,8 +9,7 @@ inline suite _ = [] {
     {
       constexpr auto kSource = R"(return)";
       constexpr auto kExpect = R"(program
-  return
-    literal null)";
+  return)";
       parse(kSource, kExpect);
     }
     {

@@ -76,7 +76,7 @@ void Compiler::visit(Statement::Class& class_) {
     // Todo: method type?
     auto& def = method->def;
 
-    Compiler compiler(gc, def.identifier == "new" ? Type::New : Type::Function, this);
+    Compiler compiler(gc, def.identifier == "init" ? Type::Init : Type::Function, this);
     compiler.function->identifier = def.identifier;
     compiler.function->arity = def.parameters.size();
 
@@ -167,7 +167,10 @@ void Compiler::visit(Statement::Program& program) {
 void Compiler::visit(Statement::Return& return_) {
   if (type == Type::Main) {
     throw SyntaxError(locations.top(), "no matching function");
-  } else if (type == Type::New) {
+  } else if (type == Type::Init) {
+    if (return_.expression) {
+      throw SyntaxError(locations.top(), "cannot return value from initializer");
+    }
     emit(Opcode::Load, 0, Opcode::Return);
   } else {
     AstVisiter::visit(return_);

@@ -71,7 +71,7 @@ public:
   };
 
   struct Return {
-    Expr expression;
+    std::optional<Expr> expression;
   };
 
   struct Var {
