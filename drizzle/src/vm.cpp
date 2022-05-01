@@ -275,12 +275,12 @@ void Vm::call() {
     }
   };
 
-  auto exec = [&](DzFunction* function, std::size_t argc) {
-    check(function->arity, argc);
-    frames.emplace(function->chunk.code.data(), stack.size() - argc - 1, function);
+  auto call = [&](DzFunction* function, std::size_t argc) {
     if (frames.size() == kMaximumRecursionDepth) {
       raise("maximum recursion depth exceeded");
     }
+    check(function->arity, argc);
+    frames.emplace(function->chunk.code.data(), stack.size() - argc - 1, function);
   };
 
   const auto argc = read<u8>();
@@ -288,35 +288,35 @@ void Vm::call() {
   if (callee.type == DzValue::Type::Object) {
     switch (callee.o->type) {
       case DzObject::Type::BuiltIn: {
-        const auto builtin = static_cast<DzBuiltIn*>(callee.o);
+        const auto builtin = callee.as<DzBuiltIn>();
         check(builtin->arity, argc);
         stack.top() = builtin->callback(*this, argc);
         return;
       }
 
       case DzObject::Type::Class: {
-        const auto instance = gc.construct<DzInstance>(gc, static_cast<DzClass*>(callee.o));
+        const auto instance = gc.construct<DzInstance>(gc, callee.as<DzClass>());
         const auto init = instance->get(this->init);
         if (init == null) {
           check(0, argc);
           stack.peek(argc) = instance;
         } else {
-          const auto function = static_cast<DzMethod*>(init.o)->function;
-          callee = static_cast<DzMethod*>(init.o)->self;
-          exec(function, argc);
+          const auto method = init.as<DzMethod>();
+          callee = method->self;
+          call(method->function, argc);
         }
         return;
       }
 
       case DzObject::Type::Function: {
-        exec(static_cast<DzFunction*>(callee.o), argc);
+        call(callee.as<DzFunction>(), argc);
         return;
       }
 
       case DzObject::Type::Method: {
-        const auto function = static_cast<DzMethod*>(callee.o)->function;
-        callee = static_cast<DzMethod*>(callee.o)->self;
-        exec(function, argc);
+        const auto method = callee.as<DzMethod>();
+        callee = method->self;
+        call(method->function, argc);
         return;
       }
     }
@@ -382,8 +382,8 @@ void Vm::get() {
     raise("cannot get property '{}' of type '{}'", prop_v.repr(), inst_v.name());
   }
 
-  auto prop = static_cast<DzString*>(prop_v.o);
-  auto inst = static_cast<DzInstance*>(inst_v.o);
+  auto prop = prop_v.as<DzString>();
+  auto inst = inst_v.as<DzInstance>();
   stack.push(inst->get(prop));
 }
 
@@ -548,8 +548,8 @@ void Vm::set() {
     raise("cannot set property '{}' of type '{}'", prop_v.repr(), inst_v.name());
   }
 
-  auto prop = static_cast<DzString*>(prop_v.o);
-  auto inst = static_cast<DzInstance*>(inst_v.o);
+  auto prop = prop_v.as<DzString>();
+  auto inst = inst_v.as<DzInstance>();
   inst->set(prop, stack.top());
 }
 

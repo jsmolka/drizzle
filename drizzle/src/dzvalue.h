@@ -1,6 +1,7 @@
 #pragma once
 
 #include <sh/fmt.h>
+#include <sh/utility.h>
 
 #include "dzobject.h"
 #include "dzprimitives.h"
@@ -40,6 +41,13 @@ public:
   auto name() const -> std::string_view;
   auto is(Type type) const -> bool;
   auto is(DzObject::Type type) const -> bool;
+
+  template<typename T>
+    requires std::is_base_of_v<DzObject, T>
+  auto as() const -> T* {
+    assert(type == Type::Object);
+    return static_cast<T*>(o);
+  }
 
   Type type;
   union {
