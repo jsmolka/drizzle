@@ -8,6 +8,7 @@
 #include "token.h"
 
 class Compiler;
+class Gc;
 
 class Vm {
 public:
