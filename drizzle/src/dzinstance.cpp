@@ -19,7 +19,7 @@ DzInstance::operator bool() const {
 }
 
 auto DzInstance::repr() const -> std::string {
-  return fmt::format("<{} object at 0x{:016X}>", name(), sh::cast<sh::u64>(this));
+  return fmt::format("<{} instance at 0x{:016X}>", class_->identifier->repr(), sh::cast<sh::u64>(this));
 }
 
 auto DzInstance::name() const -> std::string_view {

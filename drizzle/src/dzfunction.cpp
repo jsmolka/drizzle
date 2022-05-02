@@ -8,7 +8,7 @@ DzFunction::operator bool() const {
 }
 
 auto DzFunction::repr() const -> std::string {
-  return fmt::format("<function {}>", identifier->data);
+  return fmt::format("<function {}>", identifier->repr());
 }
 
 auto DzFunction::name() const -> std::string_view {

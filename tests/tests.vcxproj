@@ -92,7 +92,9 @@
     <ClInclude Include="src\tests\vm\call.h" />
     <ClInclude Include="src\tests\vm\class.h" />
     <ClInclude Include="src\tests\vm\loop.h" />
+    <ClInclude Include="src\tests\vm\repr.h" />
     <ClInclude Include="src\tests\vm\scope.h" />
+    <ClInclude Include="src\tests\vm\type.h" />
     <ClInclude Include="src\tests\vm\unary.h" />
     <ClInclude Include="src\utils.h" />
     <ClInclude Include="src\ut.h" />
