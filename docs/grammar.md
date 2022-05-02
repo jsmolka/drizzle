@@ -8,10 +8,12 @@ program           → declaration* EOF
 ## Declarations
 A program is a series of declarations, which are the statements that bind new identifiers or any of the other statement types.
 ```
-declaration       → defDecl
+declaration       → classDecl
+                  | defDecl
                   | varDecl
                   | statement
-defDecl           → "def" function
+classDecl         → "class" IDENTIFIER ":" NEWLINE INDENT defDecl+ DEDENT
+defDecl           → "def" IDENTIFIER "(" parameters? ")" block
 varDecl           → "var" IDENTIFIER ( "=" expression )? NEWLINE
 ```
 
@@ -43,7 +45,7 @@ block             → ":" NEWLINE INDENT declaration+ DEDENT
 Expressions produce values. The precedence goes from high (bottom) to low (top).
 ```
 expression        → assignment
-assignment        → IDENTIFIER "=" assignment | or
+assignment        → ( call "." )? IDENTIFIER "=" assignment | or
 or                → and ( "||" and )*
 and               → bitOr ( "&&" bitOr )*
 bitOr             → bitXor ( "|" bitXor )*
@@ -55,13 +57,12 @@ bitShift          → term ( ( "<<" | ">>" | ">>>" ) term )*
 term              → factor ( ( "-" | "+" ) factor )*
 factor            → unary ( ( "/" | "//" | "*" | "**" | "%" ) unary )*
 unary             → ( "!" | "-" | "~" ) unary | call
-call              → primary ( "(" arguments? ")" )*
+call              → primary ( "(" arguments? ")" | "." IDENTIFIER )*
 primary           → "true" | "false" | "null" | NUMBER | STRING | IDENTIFIER | "(" expression ")"
 ```
 
 ### Utilities
 ```
-function          → IDENTIFIER "(" parameters? ")" block
 parameters        → IDENTIFIER ( "," IDENTIFIER )*
 arguments         → expression ( "," expression )*
 ```
@@ -105,6 +106,7 @@ DIGIT             → "0" ... "9"
 The following identifiers are reserved as words:
 - `block`
 - `break`
+- `class`
 - `continue`
 - `def`
 - `elif`
@@ -114,6 +116,7 @@ The following identifiers are reserved as words:
 - `noop`
 - `null`
 - `return`
+- `this`
 - `true`
 - `var`
 - `while`
