@@ -79,6 +79,8 @@ private:
   void increaseScope(Args&&... args);
   auto decreaseScope() -> Level;
 
+  void defineNativeFunctions();
+
   Gc& gc;
   Type type;
   Compiler* parent;

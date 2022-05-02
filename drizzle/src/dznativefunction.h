@@ -2,7 +2,6 @@
 
 #include <functional>
 #include <optional>
-#include <vector>
 
 #include "dzobject.h"
 #include "dzvalue.h"
@@ -13,7 +12,7 @@ class DzNativeFunction : public DzObject {
 public:
   using Callback = std::function<DzValue(Vm&, std::size_t)>;
 
-  static std::vector<DzNativeFunction> all;
+  DzNativeFunction(std::string_view identifier, std::optional<std::size_t> arity, const Callback& callback);
 
   operator bool() const;
 
@@ -23,7 +22,4 @@ public:
   std::string_view identifier;
   std::optional<std::size_t> arity;
   Callback callback;
-
-private:
-  DzNativeFunction(std::string_view identifier, std::optional<std::size_t> arity, const Callback& callback);
 };

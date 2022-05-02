@@ -7,11 +7,11 @@
 #include "error.h"
 #include "token.h"
 
-class Gc;
+class Compiler;
 
 class Vm {
 public:
-  friend class DzNativeFunction;
+  friend class Compiler;
   friend class Gc;
 
   Vm(Gc& gc);

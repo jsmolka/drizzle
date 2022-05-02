@@ -4,7 +4,6 @@
 #include <sh/utility.h>
 
 #include "dzclass.h"
-#include "dznativefunction.h"
 #include "dzstring.h"
 #include "error.h"
 #include "gc.h"
@@ -155,10 +154,7 @@ void Compiler::visit(Statement::If& if_) {
 
 void Compiler::visit(Statement::Program& program) {
   increaseScope(Level::Type::Block);
-  for (auto& function : DzNativeFunction::all) {
-    define(function.identifier);
-    emitConstant(&function);
-  }
+  defineNativeFunctions();
   AstVisiter::visit(program);
   decreaseScope();
   emit(Opcode::Exit);
