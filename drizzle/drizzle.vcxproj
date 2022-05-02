@@ -21,7 +21,7 @@
     <ClCompile Include="src\chunk.cpp" />
     <ClCompile Include="src\compiler.cpp" />
     <ClCompile Include="src\dzmethod.cpp" />
-    <ClCompile Include="src\dzbuiltin.cpp" />
+    <ClCompile Include="src\dznativefunction.cpp" />
     <ClCompile Include="src\dzclass.cpp" />
     <ClCompile Include="src\dzfunction.cpp" />
     <ClCompile Include="src\dzinstance.cpp" />
@@ -44,7 +44,7 @@
     <ClInclude Include="src\chunk.h" />
     <ClInclude Include="src\compiler.h" />
     <ClInclude Include="src\dzmethod.h" />
-    <ClInclude Include="src\dzbuiltin.h" />
+    <ClInclude Include="src\dznativefunction.h" />
     <ClInclude Include="src\dzclass.h" />
     <ClInclude Include="src\dzfunction.h" />
     <ClInclude Include="src\dzinstance.h" />

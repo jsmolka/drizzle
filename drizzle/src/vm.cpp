@@ -1,8 +1,8 @@
 #include "vm.h"
 
-#include "dzbuiltin.h"
 #include "dzclass.h"
 #include "dzinstance.h"
+#include "dznativefunction.h"
 #include "dznull.h"
 #include "gc.h"
 #include "opcode.h"
@@ -287,13 +287,6 @@ void Vm::call() {
   auto& callee = stack.peek(argc);
   if (callee.type == DzValue::Type::Object) {
     switch (callee.o->type) {
-      case DzObject::Type::BuiltIn: {
-        const auto builtin = callee.as<DzBuiltIn>();
-        check(builtin->arity, argc);
-        stack.top() = builtin->callback(*this, argc);
-        return;
-      }
-
       case DzObject::Type::Class: {
         const auto instance = gc.construct<DzInstance>(gc, callee.as<DzClass>());
         const auto init = instance->get(this->init);
@@ -317,6 +310,13 @@ void Vm::call() {
         const auto method = callee.as<DzMethod>();
         callee = method->self;
         call(method->function, argc);
+        return;
+      }
+
+      case DzObject::Type::NativeFunction: {
+        const auto builtin = callee.as<DzNativeFunction>();
+        check(builtin->arity, argc);
+        stack.top() = builtin->callback(*this, argc);
         return;
       }
     }

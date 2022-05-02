@@ -3,8 +3,8 @@
 #include <sh/ranges.h>
 #include <sh/utility.h>
 
-#include "dzbuiltin.h"
 #include "dzclass.h"
+#include "dznativefunction.h"
 #include "dzstring.h"
 #include "error.h"
 #include "gc.h"
@@ -155,9 +155,9 @@ void Compiler::visit(Statement::If& if_) {
 
 void Compiler::visit(Statement::Program& program) {
   increaseScope(Level::Type::Block);
-  for (auto& builtin : DzBuiltIn::all) {
-    emitConstant(&builtin);
-    define(builtin.identifier);
+  for (auto& function : DzNativeFunction::all) {
+    define(function.identifier);
+    emitConstant(&function);
   }
   AstVisiter::visit(program);
   decreaseScope();

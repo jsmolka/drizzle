@@ -1,4 +1,4 @@
-#include "dzbuiltin.h"
+#include "dznativefunction.h"
 
 #include <chrono>
 
@@ -6,22 +6,23 @@
 #include "gc.h"
 #include "vm.h"
 
-DzBuiltIn::DzBuiltIn(std::string_view identifier, std::optional<std::size_t> arity, const Callback& callback)
-  : DzObject(Type::BuiltIn), identifier(identifier), arity(arity), callback(callback) {}
+DzNativeFunction::DzNativeFunction(
+  std::string_view identifier, std::optional<std::size_t> arity, const Callback& callback)
+  : DzObject(Type::NativeFunction), identifier(identifier), arity(arity), callback(callback) {}
 
-DzBuiltIn::operator bool() const {
+DzNativeFunction::operator bool() const {
   return true;
 }
 
-auto DzBuiltIn::repr() const -> std::string {
+auto DzNativeFunction::repr() const -> std::string {
   return fmt::format("<function {}>", identifier);
 }
 
-auto DzBuiltIn::name() const -> std::string_view {
+auto DzNativeFunction::name() const -> std::string_view {
   return "function";
 }
 
-std::vector<DzBuiltIn> DzBuiltIn::all = {
+std::vector<DzNativeFunction> DzNativeFunction::all = {
   {
     "assert", 1, [](Vm& vm, std::size_t) {
       if (!vm.stack.pop_value()) {

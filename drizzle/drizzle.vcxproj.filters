@@ -60,7 +60,7 @@
     <ClCompile Include="src\dzfunction.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\dzbuiltin.cpp">
+    <ClCompile Include="src\dznativefunction.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\dznull.cpp">
@@ -145,7 +145,7 @@
     <ClInclude Include="src\identifier.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\dzbuiltin.h">
+    <ClInclude Include="src\dznativefunction.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\dznull.h">

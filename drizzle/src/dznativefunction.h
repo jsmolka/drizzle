@@ -9,11 +9,11 @@
 
 class Vm;
 
-class DzBuiltIn : public DzObject {
+class DzNativeFunction : public DzObject {
 public:
   using Callback = std::function<DzValue(Vm&, std::size_t)>;
 
-  static std::vector<DzBuiltIn> all;
+  static std::vector<DzNativeFunction> all;
 
   operator bool() const;
 
@@ -25,5 +25,5 @@ public:
   Callback callback;
 
 private:
-  DzBuiltIn(std::string_view identifier, std::optional<std::size_t> arity, const Callback& callback);
+  DzNativeFunction(std::string_view identifier, std::optional<std::size_t> arity, const Callback& callback);
 };

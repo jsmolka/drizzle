@@ -11,7 +11,7 @@ class Gc;
 
 class Vm {
 public:
-  friend class DzBuiltIn;
+  friend class DzNativeFunction;
   friend class Gc;
 
   Vm(Gc& gc);
