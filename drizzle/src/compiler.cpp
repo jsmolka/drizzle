@@ -72,12 +72,12 @@ void Compiler::visit(Statement::Break& break_) {
 void Compiler::visit(Statement::Class& class_) {
   define(class_.identifier);
 
-  auto object = gc.construct<DzClass>(std::string(class_.identifier));
+  auto object = gc.construct<DzClass>(gc.construct<DzString>(class_.identifier));
   for (const auto& method : class_.methods) {
     auto& def = method->def;
 
     Compiler compiler(gc, def.identifier == DzClass::kInit ? Type::Init : Type::Function, this);
-    compiler.function->identifier = def.identifier;
+    compiler.function->identifier = gc.construct<DzString>(def.identifier);
     compiler.function->arity = def.parameters.size();
 
     compiler.define("this");
@@ -113,7 +113,7 @@ void Compiler::visit(Statement::Def& def) {
   define(def.identifier);
 
   Compiler compiler(gc, Type::Function, this);
-  compiler.function->identifier = def.identifier;
+  compiler.function->identifier = gc.construct<DzString>(def.identifier);
   compiler.function->arity = def.parameters.size();
 
   compiler.define(def.identifier);

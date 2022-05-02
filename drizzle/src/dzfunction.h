@@ -1,7 +1,7 @@
 #pragma once
 
 #include "chunk.h"
-#include "dzobject.h"
+#include "dzstring.h"
 
 class DzFunction : public DzObject {
 public:
@@ -12,7 +12,7 @@ public:
   auto repr() const -> std::string;
   auto name() const -> std::string_view;
 
-  std::string identifier;
+  DzString* identifier;
   std::size_t arity = 0;
   Chunk chunk;
 };

@@ -10,9 +10,7 @@
 DzInstance::DzInstance(Gc& gc, DzClass* class_)
   : DzObject(Type::Instance), class_(class_) {
   for (const auto& function : class_->methods) {
-    auto string = gc.construct<DzString>(function->identifier);
-    auto method = gc.construct<DzMethod>(this, function);
-    fields.insert({ string, method });
+    fields.insert({ function->identifier, gc.construct<DzMethod>(this, function) });
   }
 }
 

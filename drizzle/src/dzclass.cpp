@@ -2,7 +2,7 @@
 
 #include <sh/fmt.h>
 
-DzClass::DzClass(const std::string& identifier)
+DzClass::DzClass(DzString* identifier)
   : DzObject(Type::Class), identifier(identifier) {}
 
 DzClass::operator bool() const {
@@ -14,5 +14,5 @@ auto DzClass::repr() const -> std::string {
 }
 
 auto DzClass::name() const -> std::string_view {
-  return identifier;
+  return identifier->data;
 }

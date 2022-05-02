@@ -3,19 +3,19 @@
 #include <string>
 
 #include "dzmethod.h"
-#include "dzobject.h"
+#include "dzstring.h"
 
 class DzClass : public DzObject {
 public:
   static constexpr auto kInit = "init";
 
-  DzClass(const std::string& identifier);
+  DzClass(DzString* identifier);
 
   operator bool() const;
 
   auto repr() const -> std::string;
   auto name() const -> std::string_view;
 
-  std::string identifier;
+  DzString* identifier;
   std::vector<DzFunction*> methods;
 };
