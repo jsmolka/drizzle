@@ -42,24 +42,35 @@ void Gc::mark(const DzValue& value) {
 
 void Gc::mark(DzObject* object) {
   static_assert(int(DzObject::Type::LastEnumValue) == 7);
-  assert(object);
-  if (object->marked) {
+  if (!object || object->marked) {
     return;
   }
 
   object->marked = true;
   switch (object->type) {
+    case DzObject::Type::Class: {
+      const auto class_ = static_cast<DzClass*>(object);
+      mark(class_->identifier);
+      for (const auto& method : class_->methods) {
+        mark(method);
+      }
+      break;
+    };
+
     case DzObject::Type::Function: {
       const auto function = static_cast<DzFunction*>(object);
-      for (const auto& value : function->chunk.constants) {
-        mark(value);
+      mark(function->identifier);
+      for (const auto& constant : function->chunk.constants) {
+        mark(constant);
       }
       break;
     }
 
     case DzObject::Type::Instance: {
       const auto instance = static_cast<DzInstance*>(object);
+      mark(instance->class_);
       for (const auto& [key, value] : instance->fields) {
+        mark(key);
         mark(value);
       }
       break;
