@@ -1,19 +1,20 @@
 #include "chunk.h"
 
 #include <sh/ranges.h>
-#include <sh/utility.h>
 
 auto Chunk::size() const -> std::size_t {
   return code.size();
 }
 
-auto Chunk::line(std::size_t index) const -> std::size_t {
-  for (const auto& [number, offset] : sh::reversed(lines)) {
-    if (offset <= index) {
-      return number;
+auto Chunk::line(u8* pc) const -> std::size_t {
+  if (pc >= code.data() && pc < code.data() + code.size()) {
+    const auto index = pc - code.data();
+    for (const auto& [number, offset] : sh::reversed(lines)) {
+      if (offset <= index) {
+        return number;
+      }
     }
   }
-  SH_UNREACHABLE;
   return 0;
 }
 

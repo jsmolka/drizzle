@@ -24,6 +24,7 @@ void Vm::interpret(DzFunction* function) {
   frames.emplace(function->chunk.code.data(), 0, function);
 
   while (true) {
+    opcode_pc = frames.top().pc;
     switch (static_cast<Opcode>(read<u8>())) {
       case Opcode::Add: add(); break;
       case Opcode::BitwiseAnd: bitwiseAnd(); break;
@@ -93,9 +94,7 @@ auto Vm::read() -> Integral {
 template<typename... Args>
 void Vm::raise(std::string_view format, Args&&... args) {
   const auto& frame = frames.top();
-  const auto line = frame.function->chunk.line(
-    frame.pc -
-    frame.function->chunk.code.data());
+  const auto line = frame.function->chunk.line(opcode_pc);
   throw RuntimeError(Location{.line = line}, format, std::forward<Args>(args)...);
 }
 
