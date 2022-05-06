@@ -101,6 +101,15 @@ def adder(x, y):
   return p.add
 assert(adder(0, 1)() == 1)
 )",
+R"(
+# This one used to cause a segfault
+class Vector:
+  noop
+Vector()
+class Point:
+  def init():
+    noop
+)",
       };
 
       for (const auto& source : kSources) {

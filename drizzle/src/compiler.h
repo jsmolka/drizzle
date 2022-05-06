@@ -64,7 +64,7 @@ private:
   template<typename... Bytes>
   void emit(Bytes... bytes);
   void emitExt(Opcode opcode, std::size_t value);
-  void emitConstant(DzValue value);
+  void emitConstant(const DzValue& value);
 
   auto jump(Opcode opcode, std::optional<std::size_t> label = std::nullopt) -> std::size_t;
   void patch(std::size_t jump);

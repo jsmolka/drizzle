@@ -1,7 +1,7 @@
 #include "dzfunction.h"
 
 DzFunction::DzFunction()
-  : DzObject(Type::Function) {}
+  : DzObject(Type::Function), identifier(nullptr) {}
 
 DzFunction::operator bool() const {
   return true;

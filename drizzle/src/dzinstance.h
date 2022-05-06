@@ -5,11 +5,10 @@
 #include "dzclass.h"
 #include "dzstring.h"
 #include "dzvalue.h"
-#include "gc.h"
 
 class DzInstance : public DzObject {
 public:
-  DzInstance(Gc& gc, DzClass* class_);
+  DzInstance(DzClass* class_);
 
   operator bool() const;
 

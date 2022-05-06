@@ -336,7 +336,7 @@ void Compiler::emitExt(Opcode opcode, std::size_t value) {
   }
 }
 
-void Compiler::emitConstant(DzValue value) {
+void Compiler::emitConstant(const DzValue& value) {
   emitExt(Opcode::Constant, function->chunk.constants.size());
   function->chunk.constants.push_back(value);
 }

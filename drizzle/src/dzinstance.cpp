@@ -7,12 +7,8 @@
 #include "dznull.h"
 #include "dzvalue.h"
 
-DzInstance::DzInstance(Gc& gc, DzClass* class_)
-  : DzObject(Type::Instance), class_(class_) {
-  for (const auto& function : class_->methods) {
-    fields.insert({ function->identifier, gc.construct<DzMethod>(this, function) });
-  }
-}
+DzInstance::DzInstance(DzClass* class_)
+  : DzObject(Type::Instance), class_(class_) {}
 
 DzInstance::operator bool() const {
   return true;

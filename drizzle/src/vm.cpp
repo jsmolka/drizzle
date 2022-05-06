@@ -14,9 +14,8 @@ template<typename A, typename B, template<typename, typename> typename Promote>
 using binary_t = std::conditional_t<dz_primitive<A, B>, Promote<A, B>, A>;
 
 Vm::Vm(Gc& gc)
-  : gc(gc) {
+  : gc(gc), init(gc.construct<DzString>(DzClass::kInit)) {
   gc.vm = this;
-  init = gc.construct<DzString>(DzClass::kInit);
 }
 
 void Vm::interpret(DzFunction* function) {
@@ -288,15 +287,23 @@ void Vm::call() {
   if (callee.type == DzValue::Type::Object) {
     switch (callee.o->type) {
       case DzObject::Type::Class: {
-        const auto instance = gc.construct<DzInstance>(gc, callee.as<DzClass>());
-        const auto init = instance->get(this->init);
-        if (init == null) {
-          check(0, argc);
-          stack.peek(argc) = instance;
+        const auto class_ = callee.as<DzClass>();
+        const auto instance = gc.construct<DzInstance>(class_);
+        callee = instance;
+
+        DzMethod* init = nullptr;
+        for (const auto& function : class_->methods) {
+          const auto method = gc.construct<DzMethod>(instance, function);
+          instance->fields.insert({ function->identifier, method });
+          if (function->identifier == this->init) {
+            init = method;
+          }
+        }
+
+        if (init) {
+          call(init->function, argc);
         } else {
-          const auto method = init.as<DzMethod>();
-          callee = method->self;
-          call(method->function, argc);
+          check(0, argc);
         }
         return;
       }
