@@ -17,10 +17,16 @@ Gc::~Gc() {
 }
 
 void Gc::collect() {
-  if (vm && allocated > threshold) {
-    mark();
-    sweep();
-    threshold *= kGrowthFactor;
+  if (vm) {
+    #ifndef DZ_FORCE_GC
+    if (allocated > threshold) {
+    #endif
+      mark();
+      sweep();
+    #ifndef DZ_FORCE_GC
+      threshold *= kGrowthFactor;
+    }
+    #endif
   }
 }
 

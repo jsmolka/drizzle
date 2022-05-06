@@ -21,6 +21,7 @@ file(GLOB_RECURSE SOURCE_FILES
 
 list(FILTER SOURCE_FILES EXCLUDE REGEX ".*/drizzle/src/main.cpp")
 
+add_definitions(-DDZ_FORCE_GC)
 add_executable(${CMAKE_PROJECT_NAME} ${SOURCE_FILES})
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
