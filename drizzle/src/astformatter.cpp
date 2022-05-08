@@ -9,7 +9,7 @@ auto AstFormatter::format(const Stmt& ast) -> std::string {
 }
 
 void AstFormatter::visit(Expr& expr) {
-  static_assert(int(Expression::Type::LastEnumValue) == 9);
+  static_assert(int(Expression::Type::LastEnumValue) == 10);
 
   writeIndent("{}", expr->type);
   switch (expr->type) {

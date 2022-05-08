@@ -23,6 +23,7 @@ public:
     Call,
     Get,
     Group,
+    List,
     Literal,
     Set,
     Unary,
@@ -80,6 +81,10 @@ public:
     Expr expression;
   };
 
+  struct List {
+    Exprs values;
+  };
+
   struct Literal {
     enum class Type {
       Boolean,
@@ -129,6 +134,7 @@ public:
   Expression(Call call, const Location& location);
   Expression(Get get, const Location& location);
   Expression(Group group, const Location& location);
+  Expression(List list, const Location& locations);
   Expression(Literal literal, const Location& location);
   Expression(Set set, const Location& location);
   Expression(Unary unary, const Location& location);
@@ -142,6 +148,7 @@ public:
     Call call;
     Get get;
     Group group;
+    List list;
     Literal literal;
     Set set;
     Unary unary;
@@ -152,7 +159,7 @@ public:
 
 template<>
 struct fmt::formatter<Expression::Type> : fmt::formatter<std::string_view> {
-  static_assert(int(Expression::Type::LastEnumValue) == 9);
+  static_assert(int(Expression::Type::LastEnumValue) == 10);
   template<typename FormatContext>
   auto format(const Expression::Type& value, FormatContext& ctx) const {
     auto repr = [](const Expression::Type& value) {
@@ -162,6 +169,7 @@ struct fmt::formatter<Expression::Type> : fmt::formatter<std::string_view> {
         case Expression::Type::Call:     return "call";
         case Expression::Type::Get:      return "get";
         case Expression::Type::Group:    return "group";
+        case Expression::Type::List:     return "list";
         case Expression::Type::Literal:  return "literal";
         case Expression::Type::Set:      return "set";
         case Expression::Type::Unary:    return "unary";

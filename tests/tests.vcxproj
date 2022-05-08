@@ -79,6 +79,7 @@
     <ClInclude Include="src\tests\parser\error.h" />
     <ClInclude Include="src\tests\parser\expr\call.h" />
     <ClInclude Include="src\tests\parser\expr\get.h" />
+    <ClInclude Include="src\tests\parser\expr\list.h" />
     <ClInclude Include="src\tests\parser\expr\set.h" />
     <ClInclude Include="src\tests\parser\stmt\class.h" />
     <ClInclude Include="src\tests\parser\stmt\def.h" />

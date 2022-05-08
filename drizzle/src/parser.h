@@ -43,6 +43,7 @@ private:
   void advance();
   auto match(Token::Type type) -> bool;
   void expect(Token::Type type, std::string_view error);
+  void expectBracketRight();
   void expectColon();
   void expectDedent();
   void expectDef();
@@ -59,6 +60,7 @@ private:
   void parseExpression(Precedence precedence);
   void and_(bool);
   void binary(bool);
+  void list(bool);
   void call(bool);
   void constant(bool);
   void dot(bool assign);

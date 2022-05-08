@@ -20,6 +20,7 @@ auto Parser::rule(Token::Type type) -> const Rule& {
       case Token::Type::And2:         return {nullptr,           &Parser::and_,   Precedence::And       };
       case Token::Type::Bang:         return {&Parser::unary,    nullptr,         Precedence::Term      };
       case Token::Type::BangEqual:    return {nullptr,           &Parser::binary, Precedence::Equality  };
+      case Token::Type::BracketLeft:  return {&Parser::list,     nullptr,         Precedence::None      };
       case Token::Type::Caret:        return {nullptr,           &Parser::binary, Precedence::BitXor    };
       case Token::Type::Dot:          return {nullptr,           &Parser::dot,    Precedence::Call      };
       case Token::Type::Equal2:       return {nullptr,           &Parser::binary, Precedence::Equality  };
@@ -73,13 +74,14 @@ void Parser::expect(Token::Type type, std::string_view error) {
   }
 }
 
-void Parser::expectColon()      { expect(Token::Type::Colon,      "expected colon");               }
-void Parser::expectDedent()     { expect(Token::Type::Dedent,     "expected dedent");              }
-void Parser::expectDef()        { expect(Token::Type::Def,        "expected function definition"); }
-void Parser::expectIndent()     { expect(Token::Type::Indent,     "expected indent");              }
-void Parser::expectNewLine()    { expect(Token::Type::NewLine,    "expected new line");            }
-void Parser::expectParenLeft()  { expect(Token::Type::ParenLeft,  "expected '('");                 }
-void Parser::expectParenRight() { expect(Token::Type::ParenRight, "expected ')'");                 }
+void Parser::expectBracketRight() { expect(Token::Type::BracketRight, "expected ']'");                 }
+void Parser::expectColon()        { expect(Token::Type::Colon,        "expected colon");               }
+void Parser::expectDedent()       { expect(Token::Type::Dedent,       "expected dedent");              }
+void Parser::expectDef()          { expect(Token::Type::Def,          "expected function definition"); }
+void Parser::expectIndent()       { expect(Token::Type::Indent,       "expected indent");              }
+void Parser::expectNewLine()      { expect(Token::Type::NewLine,      "expected new line");            }
+void Parser::expectParenLeft()    { expect(Token::Type::ParenLeft,    "expected '('");                 }
+void Parser::expectParenRight()   { expect(Token::Type::ParenRight,   "expected ')'");                 }
 
 auto Parser::expectIdentifier() -> Identifier {
   expect(Token::Type::Identifier, "expected identifier");
@@ -176,6 +178,19 @@ void Parser::binary(bool) {
     .type = type(token),
     .left = std::move(lhs),
     .right = std::move(rhs)
+  }));
+}
+
+void Parser::list(bool) {
+  Exprs values;
+  if (current->type != Token::Type::BracketRight) {
+    do {
+      values.push_back(expression());
+    } while (match(Token::Type::Comma));
+  }
+  expectBracketRight();
+  expressions.push(newExpr(Expression::List{
+    .values = std::move(values)
   }));
 }
 
