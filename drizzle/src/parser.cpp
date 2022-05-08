@@ -25,13 +25,13 @@ auto Parser::rule(Token::Type type) -> const Rule& {
       case Token::Type::Dot:          return {nullptr,           &Parser::dot,    Precedence::Call      };
       case Token::Type::Equal2:       return {nullptr,           &Parser::binary, Precedence::Equality  };
       case Token::Type::False:        return {&Parser::literal,  nullptr,         Precedence::None      };
-      case Token::Type::Float:        return {&Parser::constant, nullptr,         Precedence::Term      };
+      case Token::Type::Float:        return {&Parser::constant, nullptr,         Precedence::None      };
       case Token::Type::Greater:      return {nullptr,           &Parser::binary, Precedence::Comparison};
       case Token::Type::Greater2:     return {nullptr,           &Parser::binary, Precedence::BitShift  };
       case Token::Type::Greater3:     return {nullptr,           &Parser::binary, Precedence::BitShift  };
       case Token::Type::GreaterEqual: return {nullptr,           &Parser::binary, Precedence::Comparison};
       case Token::Type::Identifier:   return {&Parser::variable, nullptr,         Precedence::None      };
-      case Token::Type::Integer:      return {&Parser::constant, nullptr,         Precedence::Term      };
+      case Token::Type::Integer:      return {&Parser::constant, nullptr,         Precedence::None      };
       case Token::Type::Less:         return {nullptr,           &Parser::binary, Precedence::Comparison};
       case Token::Type::Less2:        return {nullptr,           &Parser::binary, Precedence::BitShift  };
       case Token::Type::LessEqual:    return {nullptr,           &Parser::binary, Precedence::Comparison};
