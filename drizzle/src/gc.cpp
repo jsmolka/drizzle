@@ -47,7 +47,7 @@ void Gc::mark(const DzValue& value) {
 }
 
 void Gc::mark(DzObject* object) {
-  static_assert(int(DzObject::Type::LastEnumValue) == 7);
+  static_assert(int(DzObject::Type::LastEnumValue) == 6);
   if (!object || object->marked) {
     return;
   }
@@ -66,8 +66,10 @@ void Gc::mark(DzObject* object) {
     case DzObject::Type::Function: {
       const auto function = static_cast<DzFunction*>(object);
       mark(function->identifier);
-      for (const auto& constant : function->chunk.constants) {
-        mark(constant);
+      if (function->isChunk()) {
+        for (const auto& constant : function->chunk().constants) {
+          mark(constant);
+        }
       }
       break;
     }

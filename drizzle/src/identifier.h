@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <string_view>
 
 #include <sh/fmt.h>
@@ -8,10 +9,12 @@
 
 class Identifier : public std::string_view {
 public:
-  Identifier(const char* value, const Location& location = Location())
-    : std::string_view(value), location(location) {}
-  Identifier(std::string_view value, const Location& location = Location())
-    : std::string_view(value), location(location) {}
+  Identifier(const char* string, const Location& location = Location())
+    : std::string_view(string), location(location) {}
+  Identifier(std::string_view string, const Location& location = Location())
+    : std::string_view(string), location(location) {}
+  Identifier(const std::string& string, const Location& location = Location())
+    : std::string_view(string), location(location) {}
 
   Location location;
 };

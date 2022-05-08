@@ -13,6 +13,7 @@ class Gc;
 class Vm {
 public:
   friend class Compiler;
+  friend class DzFunction;
   friend class Gc;
 
   Vm(Gc& gc);
@@ -30,8 +31,13 @@ private:
 
   template<std::integral Integral>
   auto read() -> Integral;
+
   template<typename... Args>
-  void raise(std::string_view format, Args&&... args);
+  void raise(std::string_view format, Args&&... args) {
+    const auto& frame = frames.top();
+    const auto line = frame.function->chunk().line(opcode_pc);
+    throw RuntimeError(Location{line}, format, std::forward<Args>(args)...);
+  }
 
   template<template<typename> typename Promote = promote_t, typename Callback>
   void unary(std::string_view operation, Callback callback);

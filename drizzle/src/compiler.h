@@ -79,7 +79,7 @@ private:
   void increaseScope(Args&&... args);
   auto decreaseScope() -> Level;
 
-  void defineNativeFunctions();
+  void defineFunctions();
 
   Gc& gc;
   Type type;

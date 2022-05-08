@@ -2,7 +2,6 @@
 
 #include "dzclass.h"
 #include "dzinstance.h"
-#include "dznativefunction.h"
 #include "dznull.h"
 #include "gc.h"
 #include "opcode.h"
@@ -21,7 +20,7 @@ Vm::Vm(Gc& gc)
 void Vm::interpret(DzFunction* function) {
   static_assert(int(Opcode::LastEnumValue) == 47);
 
-  frames.emplace(function->chunk.code.data(), 0, function);
+  frames.emplace(function->chunk().code.data(), 0, function);
 
   while (true) {
     opcode_pc = frames.top().pc;
@@ -89,13 +88,6 @@ auto Vm::read() -> Integral {
   const auto value = sh::cast<Integral>(*frame.pc);
   frame.pc += sizeof(Integral);
   return value;
-}
-
-template<typename... Args>
-void Vm::raise(std::string_view format, Args&&... args) {
-  const auto& frame = frames.top();
-  const auto line = frame.function->chunk.line(opcode_pc);
-  throw RuntimeError(Location{.line = line}, format, std::forward<Args>(args)...);
 }
 
 template<template<typename> typename Promote, typename Callback>
@@ -267,20 +259,6 @@ void Vm::bitwiseXor() {
 }
 
 void Vm::call() {
-  auto check = [this](std::optional<std::size_t> expect, std::size_t got) {
-    if (expect && *expect != got) {
-      raise("expected {} argument(s) but got {}", *expect, got);
-    }
-  };
-
-  auto call = [&](DzFunction* function, std::size_t argc) {
-    if (frames.size() == kMaximumRecursionDepth) {
-      raise("maximum recursion depth exceeded");
-    }
-    check(function->arity, argc);
-    frames.emplace(function->chunk.code.data(), stack.size() - argc - 1, function);
-  };
-
   const auto argc = read<u8>();
   auto& callee = stack.peek(argc);
   if (callee.type == DzValue::Type::Object) {
@@ -300,29 +278,22 @@ void Vm::call() {
         }
 
         if (init) {
-          call(init->function, argc);
-        } else {
-          check(0, argc);
+          init->function->call(*this, argc);
+        } else if (argc > 0) {
+          raise("expected 0 argument(s) but got {}", argc);
         }
         return;
       }
 
       case DzObject::Type::Function: {
-        call(callee.as<DzFunction>(), argc);
+        callee.as<DzFunction>()->call(*this, argc);
         return;
       }
 
       case DzObject::Type::Method: {
         const auto method = callee.as<DzMethod>();
         callee = method->self;
-        call(method->function, argc);
-        return;
-      }
-
-      case DzObject::Type::NativeFunction: {
-        const auto builtin = callee.as<DzNativeFunction>();
-        check(builtin->arity, argc);
-        stack.top() = builtin->callback(*this, argc);
+        method->function->call(*this, argc);
         return;
       }
     }
@@ -333,7 +304,7 @@ void Vm::call() {
 template<typename Integral>
 void Vm::constant() {
   const auto index = read<Integral>();
-  stack.push(frames.top().function->chunk.constants[index]);
+  stack.push(frames.top().function->chunk().constants[index]);
 }
 
 void Vm::divide() {

@@ -155,7 +155,7 @@ void Compiler::visit(Statement::If& if_) {
 
 void Compiler::visit(Statement::Program& program) {
   increaseScope(Level::Type::Block);
-  defineNativeFunctions();
+  defineFunctions();
   AstVisiter::visit(program);
   decreaseScope();
   emit(Opcode::Exit);
@@ -181,7 +181,7 @@ void Compiler::visit(Statement::Var& var) {
 }
 
 void Compiler::visit(Statement::While& while_) {
-  const auto condition = function->chunk.size();
+  const auto condition = function->chunk().size();
   visit(while_.condition);
   const auto exit = jump(Opcode::JumpFalsePop);
 
@@ -324,7 +324,7 @@ void Compiler::visit(Expression::Variable& variable) {
 
 template<typename... Bytes>
 void Compiler::emit(Bytes... bytes) {
-  (function->chunk.write(static_cast<u8>(bytes), locations.top().line), ...);
+  (function->chunk().write(static_cast<u8>(bytes), locations.top().line), ...);
 }
 
 void Compiler::emitExt(Opcode opcode, std::size_t value) {
@@ -338,12 +338,13 @@ void Compiler::emitExt(Opcode opcode, std::size_t value) {
 }
 
 void Compiler::emitConstant(const DzValue& value) {
-  emitExt(Opcode::Constant, function->chunk.constants.size());
-  function->chunk.constants.push_back(value);
+  auto& chunk = function->chunk();
+  emitExt(Opcode::Constant, chunk.constants.size());
+  chunk.constants.push_back(value);
 }
 
 auto Compiler::jump(Opcode opcode, std::optional<std::size_t> label) -> std::size_t {
-  const auto jump = function->chunk.size();
+  const auto jump = function->chunk().size();
   if (label) {
     const auto offset = static_cast<s64>(*label - jump - kJumpSize);
     if (offset < std::numeric_limits<s16>::min() || offset > -kJumpSize) {
@@ -357,12 +358,13 @@ auto Compiler::jump(Opcode opcode, std::optional<std::size_t> label) -> std::siz
 }
 
 void Compiler::patch(std::size_t jump) {
-  const auto offset = static_cast<s64>(function->chunk.size() - jump - kJumpSize);
+  auto& chunk = function->chunk();
+  const auto offset = static_cast<s64>(chunk.size() - jump - kJumpSize);
   if (offset < 0 || offset > std::numeric_limits<s16>::max()) {
     throw CompilerError(locations.top(), "cannot encode jump offset '{}'", offset);
   }
-  function->chunk.code[jump + 1] = offset;
-  function->chunk.code[jump + 2] = offset >> 8;
+  chunk.code[jump + 1] = offset;
+  chunk.code[jump + 2] = offset >> 8;
 }
 
 void Compiler::patch(const std::vector<std::size_t>& jumps) {
