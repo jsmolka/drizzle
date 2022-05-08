@@ -110,6 +110,16 @@ class Point:
   def init():
     noop
 )",
+R"(
+# This one used to cause a segfault
+class Test:
+  def test():
+    return 1
+  def test():
+    return 2
+var t = Test()
+assert(t.test() == 2)
+)",
       };
 
       for (const auto& source : kSources) {

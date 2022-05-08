@@ -72,7 +72,7 @@ void Compiler::visit(Statement::Class& class_) {
   define(class_.identifier);
 
   auto object = gc.construct<DzClass>(gc.construct<DzString>(class_.identifier));
-  for (const auto& method : class_.methods) {
+  for (const auto& method : class_.functions) {
     auto& def = method->def;
 
     const auto type = def.identifier == DzClass::kInit ? Type::Init : Type::Function;
@@ -90,7 +90,7 @@ void Compiler::visit(Statement::Class& class_) {
     compiler.decreaseScope();
     compiler.emit(Opcode::Load, 0, Opcode::Return);
 
-    object->methods.push_back(compiler.function);
+    object->add(compiler.function);
   }
   emitConstant(object);
 }

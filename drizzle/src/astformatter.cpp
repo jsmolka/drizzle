@@ -64,7 +64,7 @@ void AstFormatter::visit(Stmt& stmt) {
 }
 
 void AstFormatter::visit(Statement::Class& class_) {
-  if (class_.methods.empty()) {
+  if (class_.functions.empty()) {
     writeIndent("noop\n");
   } else {
     AstVisiter::visit(class_);

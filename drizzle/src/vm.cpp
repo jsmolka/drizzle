@@ -2,6 +2,7 @@
 
 #include "dzclass.h"
 #include "dzinstance.h"
+#include "dzmethod.h"
 #include "dznull.h"
 #include "gc.h"
 #include "opcode.h"
@@ -13,7 +14,7 @@ template<typename A, typename B, template<typename, typename> typename Promote>
 using binary_t = std::conditional_t<dz_primitive<A, B>, Promote<A, B>, A>;
 
 Vm::Vm(Gc& gc)
-  : gc(gc), init(gc.construct<DzString>(DzClass::kInit)) {
+  : gc(gc) {
   gc.vm = this;
 }
 
@@ -268,17 +269,8 @@ void Vm::call() {
         const auto instance = gc.construct<DzInstance>(class_);
         callee = instance;
 
-        DzMethod* init = nullptr;
-        for (const auto& function : class_->methods) {
-          const auto method = gc.construct<DzMethod>(instance, function);
-          instance->fields.insert({ function->identifier, method });
-          if (function->identifier == this->init) {
-            init = method;
-          }
-        }
-
-        if (init) {
-          init->function->call(*this, argc);
+        if (class_->init) {
+          class_->init->call(*this, argc);
         } else if (argc > 0) {
           raise("expected 0 argument(s) but got {}", argc);
         }
@@ -361,7 +353,13 @@ void Vm::get() {
 
   auto prop = prop_v.as<DzString>();
   auto inst = inst_v.as<DzInstance>();
-  stack.push(inst->get(prop));
+  if (const auto value = inst->get(prop)) {
+    stack.push(*value);
+  } else if (const auto value = inst->class_->get(prop)) {
+    stack.push(gc.construct<DzMethod>(inst, value));
+  } else {
+    stack.push(&null);
+  }
 }
 
 void Vm::greater() {

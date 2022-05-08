@@ -22,11 +22,11 @@ auto DzInstance::name() const -> std::string_view {
   return class_->name();
 }
 
-auto DzInstance::get(DzString* name) -> DzValue {
-  auto pos = fields.find(name);
+auto DzInstance::get(DzString* identifier) -> std::optional<DzValue> {
+  auto pos = fields.find(identifier);
   return pos != fields.end()
     ? pos->second
-    : &null;
+    : std::optional<DzValue>();
 }
 
 void DzInstance::set(DzString* name, const DzValue& value) {

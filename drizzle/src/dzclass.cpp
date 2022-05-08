@@ -16,3 +16,17 @@ auto DzClass::repr() const -> std::string {
 auto DzClass::name() const -> std::string_view {
   return "class";
 }
+
+void DzClass::add(DzFunction* function) {
+  if (function->identifier->data == kInit) {
+    init = function;
+  }
+  functions.insert_or_assign(function->identifier, function);
+}
+
+auto DzClass::get(DzString* identifier) -> DzFunction* {
+  auto pos = functions.find(identifier);
+  return pos != functions.end()
+    ? pos->second
+    : nullptr;
+}

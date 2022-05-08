@@ -1,9 +1,10 @@
 #pragma once
 
-#include <string>
+#include <optional>
 
-#include "dzmethod.h"
+#include "dzfunction.h"
 #include "dzstring.h"
+#include "map.h"
 
 class DzClass : public DzObject {
 public:
@@ -15,7 +16,10 @@ public:
 
   auto repr() const -> std::string;
   auto name() const -> std::string_view;
+  void add(DzFunction* function);
+  auto get(DzString* identifier) -> DzFunction*;
 
   DzString* identifier;
-  std::vector<DzFunction*> methods;
+  DzFunction* init = nullptr;
+  Map<DzFunction*> functions;
 };

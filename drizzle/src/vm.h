@@ -95,5 +95,4 @@ private:
   u8* opcode_pc = nullptr;
   sh::stack<Frame, 32> frames;
   sh::stack<DzValue, 512> stack;
-  DzString* init;
 };

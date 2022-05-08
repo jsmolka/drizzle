@@ -57,8 +57,9 @@ void Gc::mark(DzObject* object) {
     case DzObject::Type::Class: {
       const auto class_ = static_cast<DzClass*>(object);
       mark(class_->identifier);
-      for (const auto& method : class_->methods) {
-        mark(method);
+      for (const auto& [key, value] : class_->functions) {
+        mark(key);
+        mark(value);
       }
       break;
     };

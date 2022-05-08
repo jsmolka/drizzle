@@ -53,6 +53,7 @@
     <ClInclude Include="src\dzvalue.h" />
     <ClInclude Include="src\gc.h" />
     <ClInclude Include="src\identifier.h" />
+    <ClInclude Include="src\map.h" />
     <ClInclude Include="src\opcode.h" />
     <ClInclude Include="src\location.h" />
     <ClInclude Include="src\parser.h" />
