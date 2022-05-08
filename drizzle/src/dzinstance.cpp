@@ -3,7 +3,7 @@
 #include <sh/fmt.h>
 #include <sh/utility.h>
 
-#include "dzmethod.h"
+#include "dzboundmethod.h"
 #include "dznull.h"
 #include "dzvalue.h"
 

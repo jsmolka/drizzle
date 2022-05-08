@@ -2,9 +2,9 @@
 
 #include "dzfunction.h"
 
-class DzMethod : public DzObject {
+class DzBoundMethod : public DzObject {
 public:
-  DzMethod(DzObject* self, DzFunction* function);
+  DzBoundMethod(DzObject* self, DzFunction* function);
 
   operator bool() const;
 

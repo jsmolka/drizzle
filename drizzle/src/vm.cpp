@@ -1,8 +1,8 @@
 #include "vm.h"
 
+#include "dzboundmethod.h"
 #include "dzclass.h"
 #include "dzinstance.h"
-#include "dzmethod.h"
 #include "dznull.h"
 #include "gc.h"
 #include "opcode.h"
@@ -286,8 +286,8 @@ void Vm::call(DzValue& callee, std::size_t argc) {
         return;
       }
 
-      case DzObject::Type::Method: {
-        const auto method = callee.as<DzMethod>();
+      case DzObject::Type::BoundMethod: {
+        const auto method = callee.as<DzBoundMethod>();
         callee = method->self;
         method->function->call(*this, argc);
         return;
@@ -359,7 +359,7 @@ void Vm::get() {
   if (const auto value = inst->get(prop)) {
     stack.push(*value);
   } else if (const auto function = inst->class_->get(prop)) {
-    stack.push(gc.construct<DzMethod>(inst, function));
+    stack.push(gc.construct<DzBoundMethod>(inst, function));
   } else {
     stack.push(&null);
   }

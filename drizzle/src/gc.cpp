@@ -2,9 +2,9 @@
 
 #include <sh/utility.h>
 
+#include "dzboundmethod.h"
 #include "dzfunction.h"
 #include "dzinstance.h"
-#include "dzmethod.h"
 #include "vm.h"
 
 Gc::~Gc() {
@@ -85,8 +85,8 @@ void Gc::mark(DzObject* object) {
       break;
     }
 
-    case DzObject::Type::Method: {
-      const auto method = static_cast<DzMethod*>(object);
+    case DzObject::Type::BoundMethod: {
+      const auto method = static_cast<DzBoundMethod*>(object);
       mark(method->self);
       mark(method->function);
       break;

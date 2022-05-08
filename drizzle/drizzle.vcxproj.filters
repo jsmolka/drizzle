@@ -72,7 +72,7 @@
     <ClCompile Include="src\dzinstance.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\dzmethod.cpp">
+    <ClCompile Include="src\dzboundmethod.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\native.cpp">
@@ -157,7 +157,7 @@
     <ClInclude Include="src\dzinstance.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\dzmethod.h">
+    <ClInclude Include="src\dzboundmethod.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\map.h">
