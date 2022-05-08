@@ -5,7 +5,10 @@
 
 class DzFunction : public DzObject {
 public:
+  using Arity = std::optional<std::size_t>;
+
   DzFunction();
+  DzFunction(DzString* identifier, Arity arity);
 
   operator bool() const;
 
@@ -13,6 +16,6 @@ public:
   auto name() const -> std::string_view;
 
   DzString* identifier;
-  std::size_t arity = 0;
+  Arity arity;
   Chunk chunk;
 };

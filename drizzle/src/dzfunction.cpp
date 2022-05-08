@@ -1,7 +1,10 @@
 #include "dzfunction.h"
 
 DzFunction::DzFunction()
-  : DzObject(Type::Function), identifier(nullptr) {}
+  : DzFunction(nullptr, std::nullopt) {}
+
+DzFunction::DzFunction(DzString* identifier, Arity arity)
+  : DzObject(Type::Function), identifier(identifier), arity(arity) {}
 
 DzFunction::operator bool() const {
   return true;

@@ -9,10 +9,10 @@
 #include "gc.h"
 
 Compiler::Compiler(Gc& gc)
-  : Compiler(gc, Type::Main, nullptr) {}
+  : Compiler(gc, Type::Main, gc.construct<DzFunction>(), nullptr) {}
 
-Compiler::Compiler(Gc& gc, Type type, Compiler* parent)
-  : gc(gc), type(type), parent(parent), function(gc.construct<DzFunction>()) {
+Compiler::Compiler(Gc& gc, Type type, DzFunction* function, Compiler* parent)
+  : gc(gc), type(type), function(function), parent(parent) {
   if (parent) {
     locations.push(parent->locations.top());
   }
@@ -75,9 +75,10 @@ void Compiler::visit(Statement::Class& class_) {
   for (const auto& method : class_.methods) {
     auto& def = method->def;
 
-    Compiler compiler(gc, def.identifier == DzClass::kInit ? Type::Init : Type::Function, this);
-    compiler.function->identifier = gc.construct<DzString>(def.identifier);
-    compiler.function->arity = def.parameters.size();
+    const auto type = def.identifier == DzClass::kInit ? Type::Init : Type::Function;
+    const auto identifier = gc.construct<DzString>(def.identifier);
+    const auto function = gc.construct<DzFunction>(identifier, def.parameters.size());
+    Compiler compiler(gc, type, function, this);
 
     compiler.define("this");
     for (const auto& parameter : def.parameters) {
@@ -111,9 +112,9 @@ void Compiler::visit(Statement::Continue& continue_) {
 void Compiler::visit(Statement::Def& def) {
   define(def.identifier);
 
-  Compiler compiler(gc, Type::Function, this);
-  compiler.function->identifier = gc.construct<DzString>(def.identifier);
-  compiler.function->arity = def.parameters.size();
+  const auto identifier = gc.construct<DzString>(def.identifier);
+  const auto function = gc.construct<DzFunction>(identifier, def.parameters.size());
+  Compiler compiler(gc, Type::Function, function, this);
 
   compiler.define(def.identifier);
   for (const auto& parameter : def.parameters) {

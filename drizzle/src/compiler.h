@@ -59,7 +59,7 @@ private:
     std::size_t depth;
   };
 
-  Compiler(Gc& gc, Type type, Compiler* parent);
+  Compiler(Gc& gc, Type type, DzFunction* function, Compiler* parent);
 
   template<typename... Bytes>
   void emit(Bytes... bytes);
