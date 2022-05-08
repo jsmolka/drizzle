@@ -53,6 +53,7 @@ private:
   void bitwiseOr();
   void bitwiseXor();
   void call();
+  void call(DzValue& callee, std::size_t argc);
   template<typename Integral>
   void constant();
   void divide();
@@ -62,6 +63,7 @@ private:
   void get();
   void greater();
   void greaterEqual();
+  void invoke();
   void jump();
   void jumpFalse();
   void jumpFalsePop();

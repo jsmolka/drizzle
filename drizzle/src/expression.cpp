@@ -43,6 +43,9 @@ Expression::Expression(Get get, const Location& location)
 Expression::Expression(Group group, const Location& location)
   : type(Type::Group), group(std::move(group)), location(location) {}
 
+Expression::Expression(Invoke invoke, const Location& location)
+  : type(Type::Invoke), invoke(std::move(invoke)), location(location) {}
+
 Expression::Expression(List list, const Location& locations)
   : type(Type::List), list(std::move(list)), location(location) {}
 
@@ -65,6 +68,7 @@ Expression::~Expression() {
     case Type::Call:     std::destroy_at(&call); break;
     case Type::Get:      std::destroy_at(&get); break;
     case Type::Group:    std::destroy_at(&group); break;
+    case Type::Invoke:   std::destroy_at(&invoke); break;
     case Type::List:     std::destroy_at(&list); break;
     case Type::Literal:  std::destroy_at(&literal); break;
     case Type::Set:      std::destroy_at(&set); break;

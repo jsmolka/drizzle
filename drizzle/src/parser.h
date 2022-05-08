@@ -54,6 +54,8 @@ private:
   auto expectIdentifier() -> Identifier;
   auto identifier() const -> Identifier;
 
+  auto arguments() -> Exprs;
+
   template<typename T>
   auto newExpr(T expression) -> Expr;
   auto expression() -> Expr;

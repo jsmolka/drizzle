@@ -78,6 +78,7 @@
     <ClInclude Include="src\tests\parser\error.h" />
     <ClInclude Include="src\tests\parser\expr\call.h" />
     <ClInclude Include="src\tests\parser\expr\get.h" />
+    <ClInclude Include="src\tests\parser\expr\invoke.h" />
     <ClInclude Include="src\tests\parser\expr\list.h" />
     <ClInclude Include="src\tests\parser\expr\set.h" />
     <ClInclude Include="src\tests\parser\stmt\class.h" />
@@ -92,6 +93,7 @@
     <ClInclude Include="src\tests\vm\capture.h" />
     <ClInclude Include="src\tests\vm\call.h" />
     <ClInclude Include="src\tests\vm\class.h" />
+    <ClInclude Include="src\tests\vm\invoke.h" />
     <ClInclude Include="src\tests\vm\loop.h" />
     <ClInclude Include="src\tests\vm\repr.h" />
     <ClInclude Include="src\tests\vm\scope.h" />

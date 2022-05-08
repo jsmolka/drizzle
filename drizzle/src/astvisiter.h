@@ -12,6 +12,7 @@ protected:
   virtual void visit(Expression::Call& call);
   virtual void visit(Expression::Get& get);
   virtual void visit(Expression::Group& group);
+  virtual void visit(Expression::Invoke& invoke);
   virtual void visit(Expression::List& list);
   virtual void visit(Expression::Literal& literal);
   virtual void visit(Expression::Set& set);

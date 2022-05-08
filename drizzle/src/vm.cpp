@@ -19,7 +19,7 @@ Vm::Vm(Gc& gc)
 }
 
 void Vm::interpret(DzFunction* function) {
-  static_assert(int(Opcode::LastEnumValue) == 47);
+  static_assert(int(Opcode::LastEnumValue) == 48);
 
   frames.emplace(function->chunk().code.data(), 0, function);
 
@@ -45,6 +45,7 @@ void Vm::interpret(DzFunction* function) {
       case Opcode::Get: get(); break;
       case Opcode::Greater: greater(); break;
       case Opcode::GreaterEqual: greaterEqual(); break;
+      case Opcode::Invoke: invoke(); break;
       case Opcode::Jump: jump(); break;
       case Opcode::JumpFalse: jumpFalse(); break;
       case Opcode::JumpFalsePop: jumpFalsePop(); break;
@@ -261,7 +262,10 @@ void Vm::bitwiseXor() {
 
 void Vm::call() {
   const auto argc = read<u8>();
-  auto& callee = stack.peek(argc);
+  call(stack.peek(argc), argc);
+}
+
+void Vm::call(DzValue& callee, std::size_t argc) {
   if (callee.type == DzValue::Type::Object) {
     switch (callee.o->type) {
       case DzObject::Type::Class: {
@@ -346,7 +350,6 @@ void Vm::get() {
   auto prop_v = stack.pop_value();
   auto inst_v = stack.pop_value();
 
-  assert(prop_v.is(DzObject::Type::String));
   if (!inst_v.is(DzObject::Type::Instance)) {
     raise("cannot get property '{}' of type '{}'", prop_v.repr(), inst_v.name());
   }
@@ -355,8 +358,8 @@ void Vm::get() {
   auto inst = inst_v.as<DzInstance>();
   if (const auto value = inst->get(prop)) {
     stack.push(*value);
-  } else if (const auto value = inst->class_->get(prop)) {
-    stack.push(gc.construct<DzMethod>(inst, value));
+  } else if (const auto function = inst->class_->get(prop)) {
+    stack.push(gc.construct<DzMethod>(inst, function));
   } else {
     stack.push(&null);
   }
@@ -378,6 +381,28 @@ void Vm::greaterEqual() {
     }
     return std::nullopt;
   });
+}
+
+void Vm::invoke() {
+  const auto argc = read<u8>();
+  auto prop_v = stack.pop_value();
+  auto& inst_v = stack.peek(argc);
+
+  if (!inst_v.is(DzObject::Type::Instance)) {
+    raise("cannot get property '{}' of type '{}'", prop_v.repr(), inst_v.name());
+  }
+
+  auto prop = prop_v.as<DzString>();
+  auto inst = inst_v.as<DzInstance>();
+  if (const auto value = inst->get(prop)) {
+    inst_v = *value;
+  } else if (const auto function = inst->class_->get(prop)) {
+    function->call(*this, argc);
+    return;
+  } else {
+    inst_v = &null;
+  }
+  call(inst_v, argc);
 }
 
 void Vm::jump() {

@@ -263,7 +263,7 @@ void Compiler::visit(Expression::Binary& binary) {
 void Compiler::visit(Expression::Call& call) {
   const auto arguments = call.arguments.size();
   if (arguments > std::numeric_limits<u8>::max()) {
-    throw CompilerError(locations.top(), "cannot encode call argument count '{}'", arguments);
+    throw CompilerError(locations.top(), "cannot encode argument count '{}'", arguments);
   }
   AstVisiter::visit(call);
   emit(Opcode::Call, arguments);
@@ -273,6 +273,17 @@ void Compiler::visit(Expression::Get& get) {
   visit(get.self);
   emitConstant(gc.construct<DzString>(get.identifier));
   emit(Opcode::Get);
+}
+
+void Compiler::visit(Expression::Invoke& invoke) {
+  const auto arguments = invoke.arguments.size();
+  if (arguments > std::numeric_limits<u8>::max()) {
+    throw CompilerError(locations.top(), "cannot encode argument count '{}'", arguments);
+  }
+  visit(invoke.self);
+  visit(invoke.arguments);
+  emitConstant(gc.construct<DzString>(invoke.identifier));
+  emit(Opcode::Invoke, arguments);
 }
 
 void Compiler::visit(Expression::Literal& literal) {

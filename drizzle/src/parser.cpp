@@ -93,6 +93,17 @@ auto Parser::identifier() const -> Identifier {
   return Identifier(previous->lexeme, previous->location);
 }
 
+auto Parser::arguments() -> Exprs {
+  Exprs arguments;
+  if (current->type != Token::Type::ParenRight) {
+    do {
+      arguments.push_back(expression());
+    } while (match(Token::Type::Comma));
+  }
+  expectParenRight();
+  return arguments;
+}
+
 template<typename T>
 auto Parser::newExpr(T expression) -> Expr {
   return std::make_unique<Expression>(std::move(expression), previous->location);
@@ -195,19 +206,12 @@ void Parser::list(bool) {
 }
 
 void Parser::call(bool) {
-  Exprs arguments;
-  if (current->type != Token::Type::ParenRight) {
-    do {
-      arguments.push_back(expression());
-    } while (match(Token::Type::Comma));
-  }
-  expectParenRight();
+  auto arguments = this->arguments();
   expressions.push(newExpr(Expression::Call{
     .callee = expressions.pop_value(),
     .arguments = std::move(arguments)
   }));
 }
-
 
 void Parser::constant(bool) {
   switch (previous->type) {
@@ -229,6 +233,13 @@ void Parser::dot(bool assign) {
       .identifier = identifier,
       .self = std::move(self),
       .value = expression()
+    }));
+  } else if (match(Token::Type::ParenLeft)) {
+    auto arguments = this->arguments();
+    expressions.push(newExpr(Expression::Invoke{
+      .identifier = identifier,
+      .self = std::move(self),
+      .arguments = std::move(arguments)
     }));
   } else {
     expressions.push(newExpr(Expression::Get{
