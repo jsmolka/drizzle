@@ -2,8 +2,15 @@
 
 #include <sh/fmt.h>
 
+#include "dzinstance.h"
+#include "gc.h"
+
 DzClass::DzClass(DzString* identifier)
-  : DzObject(Type::Class), identifier(identifier) {}
+  : DzObject(Type::Class), identifier(identifier) {
+  construct = [this](Gc& gc) {
+    return gc.construct<DzInstance>(this);
+  };
+}
 
 DzClass::operator bool() const {
   return true;

@@ -31,7 +31,6 @@ void Gc::collect() {
 }
 
 void Gc::mark() {
-  assert(vm);
   for (const auto& value : vm->stack) {
     mark(value);
   }
@@ -54,6 +53,13 @@ void Gc::mark(DzObject* object) {
 
   object->marked = true;
   switch (object->type) {
+    case DzObject::Type::BoundMethod: {
+      const auto method = static_cast<DzBoundMethod*>(object);
+      mark(method->self);
+      mark(method->function);
+      break;
+    }
+
     case DzObject::Type::Class: {
       const auto class_ = static_cast<DzClass*>(object);
       mark(class_->identifier);
@@ -82,13 +88,6 @@ void Gc::mark(DzObject* object) {
         mark(key);
         mark(value);
       }
-      break;
-    }
-
-    case DzObject::Type::BoundMethod: {
-      const auto method = static_cast<DzBoundMethod*>(object);
-      mark(method->self);
-      mark(method->function);
       break;
     }
   }

@@ -270,9 +270,7 @@ void Vm::call(DzValue& callee, std::size_t argc) {
     switch (callee.o->type) {
       case DzObject::Type::Class: {
         const auto class_ = callee.as<DzClass>();
-        const auto instance = gc.construct<DzInstance>(class_);
-        callee = instance;
-
+        callee = class_->construct(gc);
         if (class_->init) {
           class_->init->call(*this, argc);
         } else if (argc > 0) {
@@ -385,7 +383,7 @@ void Vm::greaterEqual() {
 
 void Vm::invoke() {
   const auto argc = read<u8>();
-  auto prop_v = stack.pop_value();
+  auto  prop_v = stack.pop_value();
   auto& inst_v = stack.peek(argc);
 
   if (!inst_v.is(DzObject::Type::Instance)) {

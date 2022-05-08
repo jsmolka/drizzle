@@ -6,6 +6,8 @@
 #include "dzstring.h"
 #include "map.h"
 
+class Gc;
+
 class DzClass : public DzObject {
 public:
   static constexpr auto kInit = "init";
@@ -22,4 +24,5 @@ public:
   DzString* identifier;
   DzFunction* init = nullptr;
   Map<DzFunction*> functions;
+  std::function<DzValue(Gc&)> construct;
 };
