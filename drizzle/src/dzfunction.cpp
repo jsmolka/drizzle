@@ -6,10 +6,10 @@ DzFunction::DzFunction()
   : DzFunction(nullptr, std::nullopt) {}
 
 DzFunction::DzFunction(DzString* identifier, Arity arity)
-  : DzObject(Type::Function), identifier(identifier), arity(arity), implementation(Chunk{}) {}
+  : DzObject(Type::Function), identifier(identifier), arity(arity), body(Chunk{}) {}
 
 DzFunction::DzFunction(DzString* identifier, Arity arity, const Native& native)
-  : DzObject(Type::Function), identifier(identifier), arity(arity), implementation(native) {}
+  : DzObject(Type::Function), identifier(identifier), arity(arity), body(native) {}
 
 DzFunction::operator bool() const {
   return true;
@@ -24,19 +24,19 @@ auto DzFunction::name() const -> std::string_view {
 }
 
 auto DzFunction::isChunk() const -> bool {
-  return std::holds_alternative<Chunk>(implementation);
+  return std::holds_alternative<Chunk>(body);
 }
 
 auto DzFunction::chunk() -> Chunk& {
-  return std::get<Chunk>(implementation);
+  return std::get<Chunk>(body);
 }
 
 auto DzFunction::isNative() const -> bool {
-  return std::holds_alternative<Native>(implementation);
+  return std::holds_alternative<Native>(body);
 }
 
 auto DzFunction::native() -> Native& {
-  return std::get<Native>(implementation);
+  return std::get<Native>(body);
 }
 
 void DzFunction::call(Vm& vm, std::size_t argc) {

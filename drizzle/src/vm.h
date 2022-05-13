@@ -5,7 +5,6 @@
 #include "dzfunction.h"
 #include "dzstring.h"
 #include "error.h"
-#include "map.h"
 #include "token.h"
 
 class Compiler;
@@ -100,5 +99,5 @@ private:
   u8* opcode_pc = nullptr;
   sh::stack<Frame, 32> frames;
   sh::stack<DzValue, 512> stack;
-  Map<DzValue> globals;
+  sh::vector<DzValue, 256> globals;
 };

@@ -26,3 +26,14 @@ struct fmt::formatter<Identifier> : fmt::formatter<std::string_view> {
     return fmt::formatter<std::string_view>::format(identifier, ctx);
   }
 };
+
+namespace std {
+
+template<>
+struct hash<Identifier> {
+  auto operator()(const Identifier& identifier) const -> std::size_t {
+    return hash<std::string_view>()(identifier);
+  }
+};
+
+}  // namespace std

@@ -5,6 +5,7 @@
 
 #include "chunk.h"
 #include "dzstring.h"
+#include "map.h"
 
 class Vm;
 
@@ -18,6 +19,8 @@ public:
   DzFunction(DzString* identifier, Arity arity, const Native& native);
 
   operator bool() const;
+  // Todo: implement this
+  //void operator()(Vm& vm, std::size_t argc);
 
   auto repr() const -> std::string;
   auto name() const -> std::string_view;
@@ -28,7 +31,10 @@ public:
 
   void call(Vm& vm, std::size_t argc);
 
-  DzString* identifier;
   Arity arity;
-  std::variant<Chunk, Native> implementation;
+  DzString* identifier;
+  Map<std::size_t> globals;
+
+private:
+  std::variant<Chunk, Native> body;
 };

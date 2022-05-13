@@ -37,9 +37,8 @@ void Gc::mark() {
   for (const auto& frame : vm->frames) {
     mark(frame.function);
   }
-  for (const auto& [key, value] : vm->globals) {
-    mark(key);
-    mark(value);
+  for (const auto& global : vm->globals) {
+    mark(global);
   }
 }
 
@@ -80,6 +79,9 @@ void Gc::mark(DzObject* object) {
       if (function->isChunk()) {
         for (const auto& constant : function->chunk().constants) {
           mark(constant);
+        }
+        for (const auto& [key, value] : function->globals) {
+          mark(key);
         }
       }
       break;

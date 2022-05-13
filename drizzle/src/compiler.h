@@ -1,6 +1,7 @@
 #pragma once
 
 #include <sh/stack.h>
+#include <tsl/robin_set.h>
 
 #include "astvisiter.h"
 #include "dzfunction.h"
@@ -66,7 +67,6 @@ private:
   void emit(Bytes... bytes);
   void emitExt(Opcode opcode, std::size_t value);
   void emitConstant(const DzValue& value);
-  void emitGlobal(Opcode opcode, const Identifier& identifier);
 
   auto jump(Opcode opcode, std::optional<std::size_t> label = std::nullopt) -> std::size_t;
   void patch(std::size_t jump);
@@ -74,7 +74,7 @@ private:
 
   void define(const Identifier& identifier);
   auto resolveLocal(const Identifier& identifier) const -> std::optional<std::size_t>;
-  void ensureGlobal(const Identifier& identifier) const;
+  auto resolveGlobal(const Identifier& identifier) -> std::size_t;
   void pop(std::size_t depth);
 
   template<typename... Args>
@@ -85,7 +85,9 @@ private:
   Type type;
   Compiler* parent;
   DzFunction* function;
+  DzFunction* main;
   sh::stack<Level> scope;
   sh::stack<Variable> variables;
   sh::stack<Location> locations;
+  tsl::robin_set<Identifier> globals;
 };

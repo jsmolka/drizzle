@@ -19,9 +19,9 @@ Vm::Vm(Gc& gc)
 void Vm::interpret(DzFunction* function) {
   static_assert(int(Opcode::LastEnumValue) == 48);
 
-  defineFunctions();
-
   frames.emplace(function->chunk().code.data(), 0, function);
+
+  defineFunctions();
 
   gc.vm = this;
 
@@ -96,7 +96,7 @@ auto Vm::read() -> Integral {
 
 template<template<typename> typename Promote, typename Callback>
 void Vm::unary(std::string_view operation, Callback callback) {
-  static_assert(int(DzValue::Type::LastEnumValue) == 4);
+  static_assert(int(DzValue::Type::LastEnumValue) == 5);
 
   const auto& a = stack.top();
 
@@ -129,7 +129,7 @@ void Vm::unary(std::string_view operation, Callback callback) {
 
 template<template<typename, typename> typename Promote, typename Callback>
 void Vm::binary(std::string_view operation, Callback callback) {
-  static_assert(int(DzValue::Type::LastEnumValue) == 4);
+  static_assert(int(DzValue::Type::LastEnumValue) == 5);
 
   const auto& a = stack.peek(1);
   const auto& b = stack.peek(0);
@@ -456,13 +456,24 @@ void Vm::load() {
 
 template<typename Integral>
 void Vm::loadGlobal() {
+  auto undefined = [this](std::size_t index) {
+    for (const auto& global : frames[0].function->globals) {
+      if (global.second == index) {
+        raise("undefined variable '{}'", global.first->data);
+      }
+    }
+    raise("unknown undefined variable");
+  };
+
   const auto index = read<Integral>();
-  const auto identifier = frames.top().function->chunk().constants[index].as<DzString>();
-  const auto iter = globals.find(identifier);
-  if (iter == globals.end()) {
-    raise("undefined variable '{}'", identifier->data);
+  if (index >= globals.size()) {
+    undefined(index);
   }
-  stack.push(iter->second);
+  const auto& value = globals[index];
+  if (value.type == DzValue::Type::Undefined) {
+    undefined(index);
+  }
+  stack.push(value);
 }
 
 void Vm::modulo() {
@@ -567,8 +578,10 @@ void Vm::store() {
 template<typename Integral>
 void Vm::storeGlobal() {
   const auto index = read<Integral>();
-  const auto identifier = frames.top().function->chunk().constants[index].as<DzString>();
-  globals.insert_or_assign(identifier, stack.top());
+  if (index >= globals.size()) {
+    globals.resize(index + 1);
+  }
+  globals[index] = stack.top();
 }
 
 void Vm::subtract() {

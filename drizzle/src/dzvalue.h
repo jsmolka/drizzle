@@ -8,8 +8,9 @@
 
 class DzValue {
 public:
-  enum class Type { Bool, Int, Float, Object, LastEnumValue };
+  enum class Type { Bool, Int, Float, Object, Undefined, LastEnumValue };
 
+  DzValue();
   template<typename T>
     requires dz_primitive<T> || dz_object<T>
   DzValue(const T& value) {

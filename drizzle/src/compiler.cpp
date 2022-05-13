@@ -15,6 +15,9 @@ Compiler::Compiler(Gc& gc, Type type, DzFunction* function, Compiler* parent)
   : gc(gc), type(type), function(function), parent(parent) {
   if (parent) {
     locations.push(parent->locations.top());
+    main = parent->main;
+  } else {
+    main = function;
   }
 }
 
@@ -153,11 +156,7 @@ void Compiler::visit(Statement::If& if_) {
 }
 
 void Compiler::visit(Statement::Program& program) {
-  // Todo: block here seems useless with globals?
-  increaseScope(Level::Type::Block);
   AstVisiter::visit(program);
-  // Todo: also check if more values than needed are popped
-  decreaseScope();
   emit(Opcode::Exit);
 }
 
@@ -206,8 +205,7 @@ void Compiler::visit(Expression::Assign& assign) {
   if (const auto index = resolveLocal(identifier)) {
     emitExt(Opcode::Store, *index);
   } else {
-    ensureGlobal(identifier);
-    emitGlobal(Opcode::StoreGlobal, identifier);
+    emitExt(Opcode::StoreGlobal, resolveGlobal(identifier));
   }
 }
 
@@ -326,8 +324,7 @@ void Compiler::visit(Expression::Variable& variable) {
   if (const auto index = resolveLocal(identifier)) {
     emitExt(Opcode::Load, *index);
   } else {
-    ensureGlobal(identifier);
-    emitGlobal(Opcode::LoadGlobal, identifier);
+    emitExt(Opcode::LoadGlobal, resolveGlobal(identifier));
   }
 }
 
@@ -346,18 +343,10 @@ void Compiler::emitExt(Opcode opcode, std::size_t value) {
   }
 }
 
-// Todo: combine
 void Compiler::emitConstant(const DzValue& value) {
   auto& chunk = function->chunk();
   emitExt(Opcode::Constant, chunk.constants.size());
   chunk.constants.push_back(value);
-}
-
-void Compiler::emitGlobal(Opcode opcode, const Identifier& identifier) {
-  auto& chunk = function->chunk();
-  const auto string = gc.construct<DzString>(identifier);
-  emitExt(opcode, chunk.constants.size());
-  chunk.constants.push_back(string);
 }
 
 auto Compiler::jump(Opcode opcode, std::optional<std::size_t> label) -> std::size_t {
@@ -391,18 +380,26 @@ void Compiler::patch(const std::vector<std::size_t>& jumps) {
 }
 
 void Compiler::define(const Identifier& identifier) {
-  for (const auto& variable : sh::reversed(variables)) {
-    if (variable.depth != scope.size()) {
-      break;
-    } else if (variable.identifier == identifier) {
-      throw SyntaxError(identifier.location, "redefined variable '{}'", identifier);
-    }
-  }
-  variables.emplace(identifier, scope.size());
+  auto redefined = [this](const Identifier& identifier) {
+    throw SyntaxError(identifier.location, "redefined variable '{}'", identifier);
+  };
 
-  // Todo: use scope?
-  if (!parent) {
-    emitGlobal(Opcode::StoreGlobal, identifier);
+  if (parent || !scope.empty()) {
+    for (const auto& variable : sh::reversed(variables)) {
+      if (variable.depth != scope.size()) {
+        break;
+      } else if (variable.identifier == identifier) {
+        redefined(identifier);
+      }
+    }
+    variables.emplace(identifier, scope.size());
+  } else {
+    const auto [_, inserted] = globals.insert(identifier);
+    if (!inserted) {
+      redefined(identifier);
+    }
+    emitExt(Opcode::StoreGlobal, resolveGlobal(identifier));
+    emit(Opcode::Pop);
   }
 }
 
@@ -415,7 +412,7 @@ auto Compiler::resolveLocal(const Identifier& identifier) const -> std::optional
   return std::nullopt;
 }
 
-void Compiler::ensureGlobal(const Identifier& identifier) const {
+auto Compiler::resolveGlobal(const Identifier& identifier) -> std::size_t {
   for (auto compiler = parent; compiler; compiler = compiler->parent) {
     if (const auto index = compiler->resolveLocal(identifier)) {
       if (compiler->parent) {
@@ -423,6 +420,9 @@ void Compiler::ensureGlobal(const Identifier& identifier) const {
       }
     }
   }
+  const auto string = gc.construct<DzString>(identifier);
+  const auto [global, inserted] = main->globals.try_emplace(string, main->globals.size());
+  return global.value();
 }
 
 void Compiler::pop(std::size_t depth) {

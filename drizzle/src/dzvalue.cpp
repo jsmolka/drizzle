@@ -2,6 +2,9 @@
 
 #include <sh/utility.h>
 
+DzValue::DzValue()
+  : type(Type::Undefined) {}
+
 DzValue::operator bool() const {
   switch (type) {
     case Type::Bool:   return b;

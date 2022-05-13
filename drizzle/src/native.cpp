@@ -42,7 +42,15 @@ void Vm::defineFunctions() {
     ),
   };
 
+  const auto main = frames[0].function;
   for (const auto& function : functions) {
-    globals.insert({ function->identifier, function });
+    const auto iter = main->globals.find(function->identifier);
+    if (iter != main->globals.end()) {
+      const auto& [identifier, index] = *iter;
+      if (index >= globals.size()) {
+        globals.resize(index + 1);
+      }
+      globals[index] = function;
+    }
   }
 }
