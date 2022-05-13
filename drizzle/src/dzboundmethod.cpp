@@ -7,10 +7,10 @@ DzBoundMethod::operator bool() const {
   return true;
 }
 
-auto DzBoundMethod::repr() const -> std::string {
-  return function->repr();
+auto DzBoundMethod::kind() const -> std::string_view {
+  return function->kind();
 }
 
-auto DzBoundMethod::name() const -> std::string_view {
-  return function->name();
+auto DzBoundMethod::repr() const -> std::string {
+  return function->repr();
 }

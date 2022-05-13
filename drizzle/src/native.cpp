@@ -37,7 +37,7 @@ void Vm::defineFunctions() {
     ),
     gc.construct<DzFunction>(
       gc.construct<DzString>("type"), 1, [](Vm& vm, std::size_t) {
-        return vm.gc.construct<DzString>(vm.stack.pop_value().name());
+        return vm.gc.construct<DzString>(vm.stack.pop_value().kind());
       }
     ),
   };

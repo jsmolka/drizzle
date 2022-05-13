@@ -14,12 +14,12 @@ DzInstance::operator bool() const {
   return true;
 }
 
-auto DzInstance::repr() const -> std::string {
-  return fmt::format("<{} instance at 0x{:016X}>", class_->identifier->repr(), sh::cast<sh::u64>(this));
+auto DzInstance::kind() const -> std::string_view {
+  return class_->kind();
 }
 
-auto DzInstance::name() const -> std::string_view {
-  return class_->name();
+auto DzInstance::repr() const -> std::string {
+  return fmt::format("<{} instance at 0x{:016X}>", class_->identifier->repr(), sh::cast<sh::u64>(this));
 }
 
 auto DzInstance::get(DzString* identifier) -> std::optional<DzValue> {

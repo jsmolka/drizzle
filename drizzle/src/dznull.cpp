@@ -7,10 +7,10 @@ DzNull::operator bool() const {
   return false;
 }
 
-auto DzNull::repr() const -> std::string {
+auto DzNull::kind() const -> std::string_view {
   return "null";
 }
 
-auto DzNull::name() const -> std::string_view {
+auto DzNull::repr() const -> std::string {
   return "null";
 }

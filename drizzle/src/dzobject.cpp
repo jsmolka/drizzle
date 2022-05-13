@@ -34,6 +34,20 @@ auto DzObject::operator!=(const DzObject& other) const -> bool {
   return !(*this == other);
 }
 
+auto DzObject::kind() const -> std::string_view {
+  switch (type) {
+    case Type::BoundMethod: return as<DzBoundMethod>().kind();
+    case Type::Class:       return as<DzClass>().kind();
+    case Type::Function:    return as<DzFunction>().kind();
+    case Type::Instance:    return as<DzInstance>().kind();
+    case Type::Null:        return as<DzNull>().kind();
+    case Type::String:      return as<DzString>().kind();
+    default:
+      SH_UNREACHABLE;
+      return "unreachable";
+  }
+}
+
 auto DzObject::repr() const -> std::string {
   switch (type) {
     case Type::BoundMethod: return as<DzBoundMethod>().repr();
@@ -42,20 +56,6 @@ auto DzObject::repr() const -> std::string {
     case Type::Instance:    return as<DzInstance>().repr();
     case Type::Null:        return as<DzNull>().repr();
     case Type::String:      return as<DzString>().repr();
-    default:
-      SH_UNREACHABLE;
-      return "unreachable";
-  }
-}
-
-auto DzObject::name() const -> std::string_view {
-  switch (type) {
-    case Type::BoundMethod: return as<DzBoundMethod>().name();
-    case Type::Class:       return as<DzClass>().name();
-    case Type::Function:    return as<DzFunction>().name();
-    case Type::Instance:    return as<DzInstance>().name();
-    case Type::Null:        return as<DzNull>().name();
-    case Type::String:      return as<DzString>().name();
     default:
       SH_UNREACHABLE;
       return "unreachable";

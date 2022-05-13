@@ -13,9 +13,9 @@ public:
   operator bool() const;
   auto operator==(const DzObject& other) const -> bool;
   auto operator!=(const DzObject& other) const -> bool;
-
+  auto kind() const -> std::string_view;
   auto repr() const -> std::string;
-  auto name() const -> std::string_view;
+
   auto is(Type type) const -> bool;
 
   Type type;

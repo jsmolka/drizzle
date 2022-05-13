@@ -17,6 +17,18 @@ DzValue::operator bool() const {
   }
 }
 
+auto DzValue::kind() const -> std::string_view {
+  switch (type) {
+    case Type::Bool:   return "bool";
+    case Type::Int:    return "int";
+    case Type::Float:  return "float";
+    case Type::Object: return o->kind();
+    default:
+      SH_UNREACHABLE;
+      return "unreachable";
+  }
+}
+
 auto DzValue::repr() const -> std::string {
   auto whole = [](double value) {
     return std::fmod(value, 1.0) == 0.0;
@@ -27,18 +39,6 @@ auto DzValue::repr() const -> std::string {
     case DzValue::Type::Int:    return fmt::to_string(i);
     case DzValue::Type::Float:  return fmt::format(fmt::runtime(whole(f) ? "{:.1f}" : "{}"), f);
     case DzValue::Type::Object: return o->repr();
-    default:
-      SH_UNREACHABLE;
-      return "unreachable";
-  }
-}
-
-auto DzValue::name() const -> std::string_view {
-  switch (type) {
-    case Type::Bool:   return "bool";
-    case Type::Int:    return "int";
-    case Type::Float:  return "float";
-    case Type::Object: return o->name();
     default:
       SH_UNREACHABLE;
       return "unreachable";

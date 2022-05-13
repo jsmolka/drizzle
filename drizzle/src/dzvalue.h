@@ -37,16 +37,15 @@ public:
   }
 
   operator bool() const;
-
+  auto kind() const -> std::string_view;
   auto repr() const -> std::string;
-  auto name() const -> std::string_view;
+
   auto is(Type type) const -> bool;
   auto is(DzObject::Type type) const -> bool;
-
   template<typename T>
     requires std::is_base_of_v<DzObject, T>
   auto as() const -> T* {
-    assert(type == Type::Object);
+    assert(is(Type::Object));
     return static_cast<T*>(o);
   }
 

@@ -124,7 +124,7 @@ void Vm::unary(std::string_view operation, Callback callback) {
 
   #undef DZ_EVAL
 
-  raise("bad operand type for '{}': '{}'", operation, a.name());
+  raise("bad operand type for '{}': '{}'", operation, a.kind());
 }
 
 template<template<typename, typename> typename Promote, typename Callback>
@@ -175,7 +175,7 @@ void Vm::binary(std::string_view operation, Callback callback) {
   #undef DZ_EVAL
   #undef DZ_HASH
 
-  raise("bad operand types for '{}': '{}' and '{}'", operation, b.name(), a.name());
+  raise("bad operand types for '{}': '{}' and '{}'", operation, b.kind(), a.kind());
 }
 
 void Vm::add() {
@@ -351,7 +351,7 @@ void Vm::get() {
   auto inst_v = stack.pop_value();
 
   if (!inst_v.is(DzObject::Type::Instance)) {
-    raise("cannot get property '{}' of type '{}'", prop_v.repr(), inst_v.name());
+    raise("cannot get property '{}' of type '{}'", prop_v.repr(), inst_v.kind());
   }
 
   auto prop = prop_v.as<DzString>();
@@ -389,7 +389,7 @@ void Vm::invoke() {
   auto& inst_v = stack.peek(argc);
 
   if (!inst_v.is(DzObject::Type::Instance)) {
-    raise("cannot get property '{}' of type '{}'", prop_v.repr(), inst_v.name());
+    raise("cannot get property '{}' of type '{}'", prop_v.repr(), inst_v.kind());
   }
 
   auto prop = prop_v.as<DzString>();
@@ -561,7 +561,7 @@ void Vm::set() {
 
   assert(prop_v.is(DzObject::Type::String));
   if (!inst_v.is(DzObject::Type::Instance)) {
-    raise("cannot set property '{}' of type '{}'", prop_v.repr(), inst_v.name());
+    raise("cannot set property '{}' of type '{}'", prop_v.repr(), inst_v.kind());
   }
 
   auto prop = prop_v.as<DzString>();

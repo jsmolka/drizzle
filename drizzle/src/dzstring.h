@@ -21,9 +21,8 @@ public:
   DzString(const std::string& data);
 
   operator bool() const;
-
+  auto kind() const -> std::string_view;
   auto repr() const -> std::string;
-  auto name() const -> std::string_view;
 
   std::string data;
   std::size_t hash;

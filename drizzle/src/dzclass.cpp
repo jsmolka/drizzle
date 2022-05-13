@@ -16,12 +16,12 @@ DzClass::operator bool() const {
   return true;
 }
 
-auto DzClass::repr() const -> std::string {
-  return fmt::format("<class {}>", identifier->repr());
+auto DzClass::kind() const -> std::string_view {
+  return "class";
 }
 
-auto DzClass::name() const -> std::string_view {
-  return "class";
+auto DzClass::repr() const -> std::string {
+  return fmt::format("<class {}>", identifier->repr());
 }
 
 void DzClass::add(DzFunction* function) {
