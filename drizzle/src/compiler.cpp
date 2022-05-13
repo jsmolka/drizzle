@@ -69,8 +69,6 @@ void Compiler::visit(Statement::Break& break_) {
 }
 
 void Compiler::visit(Statement::Class& class_) {
-  define(class_.identifier);
-
   auto object = gc.construct<DzClass>(gc.construct<DzString>(class_.identifier));
   for (const auto& method : class_.functions) {
     auto& def = method->def;
@@ -92,7 +90,9 @@ void Compiler::visit(Statement::Class& class_) {
 
     object->add(compiler.function);
   }
+
   emitConstant(object);
+  define(class_.identifier);
 }
 
 void Compiler::visit(Statement::Continue& continue_) {
@@ -110,8 +110,6 @@ void Compiler::visit(Statement::Continue& continue_) {
 }
 
 void Compiler::visit(Statement::Def& def) {
-  define(def.identifier);
-
   const auto identifier = gc.construct<DzString>(def.identifier);
   const auto function = gc.construct<DzFunction>(identifier, def.parameters.size());
   Compiler compiler(gc, Type::Function, function, this);
@@ -127,6 +125,7 @@ void Compiler::visit(Statement::Def& def) {
   compiler.emit(Opcode::Null, Opcode::Return);
 
   emitConstant(compiler.function);
+  define(def.identifier);
 }
 
 void Compiler::visit(Statement::ExpressionStatement& expression_statement) {
@@ -154,9 +153,10 @@ void Compiler::visit(Statement::If& if_) {
 }
 
 void Compiler::visit(Statement::Program& program) {
+  // Todo: block here seems useless with globals?
   increaseScope(Level::Type::Block);
-  defineFunctions();
   AstVisiter::visit(program);
+  // Todo: also check if more values than needed are popped
   decreaseScope();
   emit(Opcode::Exit);
 }
@@ -203,12 +203,11 @@ void Compiler::visit(Expr& expr) {
 void Compiler::visit(Expression::Assign& assign) {
   AstVisiter::visit(assign);
   const auto& identifier = assign.identifier;
-  if (const auto index = resolve(identifier)) {
+  if (const auto index = resolveLocal(identifier)) {
     emitExt(Opcode::Store, *index);
-  } else if (const auto index = resolveAbsolute(identifier)) {
-    emitExt(Opcode::StoreAbsolute, *index);
   } else {
-    throw SyntaxError(identifier.location, "undefined variable '{}'", identifier);
+    ensureGlobal(identifier);
+    emitGlobal(Opcode::StoreGlobal, identifier);
   }
 }
 
@@ -324,12 +323,11 @@ void Compiler::visit(Expression::Unary& unary) {
 
 void Compiler::visit(Expression::Variable& variable) {
   const auto& identifier = variable.identifier;
-  if (const auto index = resolve(identifier)) {
+  if (const auto index = resolveLocal(identifier)) {
     emitExt(Opcode::Load, *index);
-  } else if (const auto index = resolveAbsolute(identifier)) {
-    emitExt(Opcode::LoadAbsolute, *index);
   } else {
-    throw SyntaxError(identifier.location, "undefined variable '{}'", identifier);
+    ensureGlobal(identifier);
+    emitGlobal(Opcode::LoadGlobal, identifier);
   }
 }
 
@@ -348,10 +346,18 @@ void Compiler::emitExt(Opcode opcode, std::size_t value) {
   }
 }
 
+// Todo: combine
 void Compiler::emitConstant(const DzValue& value) {
   auto& chunk = function->chunk();
   emitExt(Opcode::Constant, chunk.constants.size());
   chunk.constants.push_back(value);
+}
+
+void Compiler::emitGlobal(Opcode opcode, const Identifier& identifier) {
+  auto& chunk = function->chunk();
+  const auto string = gc.construct<DzString>(identifier);
+  emitExt(opcode, chunk.constants.size());
+  chunk.constants.push_back(string);
 }
 
 auto Compiler::jump(Opcode opcode, std::optional<std::size_t> label) -> std::size_t {
@@ -393,9 +399,14 @@ void Compiler::define(const Identifier& identifier) {
     }
   }
   variables.emplace(identifier, scope.size());
+
+  // Todo: use scope?
+  if (!parent) {
+    emitGlobal(Opcode::StoreGlobal, identifier);
+  }
 }
 
-auto Compiler::resolve(const Identifier& identifier) const -> std::optional<std::size_t> {
+auto Compiler::resolveLocal(const Identifier& identifier) const -> std::optional<std::size_t> {
   for (const auto& variable : sh::reversed(variables)) {
     if (variable.identifier == identifier) {
       return std::distance(variables.data(), &variable);
@@ -404,16 +415,14 @@ auto Compiler::resolve(const Identifier& identifier) const -> std::optional<std:
   return std::nullopt;
 }
 
-auto Compiler::resolveAbsolute(const Identifier& identifier) const -> std::optional<std::size_t> {
+void Compiler::ensureGlobal(const Identifier& identifier) const {
   for (auto compiler = parent; compiler; compiler = compiler->parent) {
-    if (const auto index = compiler->resolve(identifier)) {
+    if (const auto index = compiler->resolveLocal(identifier)) {
       if (compiler->parent) {
         throw SyntaxError(identifier.location, "cannot capture local variable");
       }
-      return index;
     }
   }
-  return std::nullopt;
 }
 
 void Compiler::pop(std::size_t depth) {

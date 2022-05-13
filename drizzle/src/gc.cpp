@@ -37,6 +37,10 @@ void Gc::mark() {
   for (const auto& frame : vm->frames) {
     mark(frame.function);
   }
+  for (const auto& [key, value] : vm->globals) {
+    mark(key);
+    mark(value);
+  }
 }
 
 void Gc::mark(const DzValue& value) {

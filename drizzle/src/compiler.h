@@ -66,21 +66,20 @@ private:
   void emit(Bytes... bytes);
   void emitExt(Opcode opcode, std::size_t value);
   void emitConstant(const DzValue& value);
+  void emitGlobal(Opcode opcode, const Identifier& identifier);
 
   auto jump(Opcode opcode, std::optional<std::size_t> label = std::nullopt) -> std::size_t;
   void patch(std::size_t jump);
   void patch(const std::vector<std::size_t>& jumps);
 
   void define(const Identifier& identifier);
-  auto resolve(const Identifier& identifier) const -> std::optional<std::size_t>;
-  auto resolveAbsolute(const Identifier& identifier) const -> std::optional<std::size_t>;
+  auto resolveLocal(const Identifier& identifier) const -> std::optional<std::size_t>;
+  void ensureGlobal(const Identifier& identifier) const;
   void pop(std::size_t depth);
 
   template<typename... Args>
   void increaseScope(Args&&... args);
   auto decreaseScope() -> Level;
-
-  void defineFunctions();
 
   Gc& gc;
   Type type;

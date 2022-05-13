@@ -5,6 +5,7 @@
 #include "dzfunction.h"
 #include "dzstring.h"
 #include "error.h"
+#include "map.h"
 #include "token.h"
 
 class Compiler;
@@ -38,6 +39,8 @@ private:
     const auto line = frame.function->chunk().line(opcode_pc);
     throw RuntimeError(Location{line}, format, std::forward<Args>(args)...);
   }
+
+  void defineFunctions();
 
   template<template<typename> typename Promote = promote_t, typename Callback>
   void unary(std::string_view operation, Callback callback);
@@ -73,7 +76,7 @@ private:
   template<typename Integral>
   void load();
   template<typename Integral>
-  void loadAbsolute();
+  void loadGlobal();
   void modulo();
   void multiply();
   void negate();
@@ -89,7 +92,7 @@ private:
   template<typename Integral>
   void store();
   template<typename Integral>
-  void storeAbsolute();
+  void storeGlobal();
   void subtract();
   void true_();
 
@@ -97,4 +100,5 @@ private:
   u8* opcode_pc = nullptr;
   sh::stack<Frame, 32> frames;
   sh::stack<DzValue, 512> stack;
+  Map<DzValue> globals;
 };

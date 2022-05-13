@@ -14,14 +14,16 @@ template<typename A, typename B, template<typename, typename> typename Promote>
 using binary_t = std::conditional_t<dz_primitive<A, B>, Promote<A, B>, A>;
 
 Vm::Vm(Gc& gc)
-  : gc(gc) {
-  gc.vm = this;
-}
+  : gc(gc) {}
 
 void Vm::interpret(DzFunction* function) {
   static_assert(int(Opcode::LastEnumValue) == 48);
 
+  defineFunctions();
+
   frames.emplace(function->chunk().code.data(), 0, function);
+
+  gc.vm = this;
 
   while (true) {
     opcode_pc = frames.top().pc;
@@ -54,8 +56,8 @@ void Vm::interpret(DzFunction* function) {
       case Opcode::LessEqual: lessEqual(); break;
       case Opcode::Load: load<u8>(); break;
       case Opcode::LoadExt: load<u16>(); break;
-      case Opcode::LoadAbsolute: loadAbsolute<u8>(); break;
-      case Opcode::LoadAbsoluteExt: loadAbsolute<u16>(); break;
+      case Opcode::LoadGlobal: loadGlobal<u8>(); break;
+      case Opcode::LoadGlobalExt: loadGlobal<u16>(); break;
       case Opcode::Modulo: modulo(); break;
       case Opcode::Multiply: multiply(); break;
       case Opcode::Negate: negate(); break;
@@ -70,8 +72,8 @@ void Vm::interpret(DzFunction* function) {
       case Opcode::Set: set(); break;
       case Opcode::Store: store<u8>(); break;
       case Opcode::StoreExt: store<u16>(); break;
-      case Opcode::StoreAbsolute: storeAbsolute<u8>(); break;
-      case Opcode::StoreAbsoluteExt: storeAbsolute<u16>(); break;
+      case Opcode::StoreGlobal: storeGlobal<u8>(); break;
+      case Opcode::StoreGlobalExt: storeGlobal<u16>(); break;
       case Opcode::Subtract: subtract(); break;
       case Opcode::True: true_(); break;
       default:
@@ -453,9 +455,14 @@ void Vm::load() {
 }
 
 template<typename Integral>
-void Vm::loadAbsolute() {
+void Vm::loadGlobal() {
   const auto index = read<Integral>();
-  stack.push(stack[index]);
+  const auto identifier = frames.top().function->chunk().constants[index].as<DzString>();
+  const auto iter = globals.find(identifier);
+  if (iter == globals.end()) {
+    raise("undefined variable '{}'", identifier->data);
+  }
+  stack.push(iter->second);
 }
 
 void Vm::modulo() {
@@ -558,9 +565,10 @@ void Vm::store() {
 }
 
 template<typename Integral>
-void Vm::storeAbsolute() {
+void Vm::storeGlobal() {
   const auto index = read<Integral>();
-  stack[index] = stack.top();
+  const auto identifier = frames.top().function->chunk().constants[index].as<DzString>();
+  globals.insert_or_assign(identifier, stack.top());
 }
 
 void Vm::subtract() {

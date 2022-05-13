@@ -35,8 +35,8 @@ enum class Opcode {
   LessEqual,
   Load,
   LoadExt,
-  LoadAbsolute,
-  LoadAbsoluteExt,
+  LoadGlobal,
+  LoadGlobalExt,
   Modulo,
   Multiply,
   Negate,
@@ -51,8 +51,8 @@ enum class Opcode {
   Set,
   Store,
   StoreExt,
-  StoreAbsolute,
-  StoreAbsoluteExt,
+  StoreGlobal,
+  StoreGlobalExt,
   Subtract,
   True,
   LastEnumValue,
@@ -95,8 +95,8 @@ struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
         case Opcode::LessEqual:         return "LessEqual";
         case Opcode::Load:              return "Load";
         case Opcode::LoadExt:           return "LoadExt";
-        case Opcode::LoadAbsolute:      return "LoadAbsolute";
-        case Opcode::LoadAbsoluteExt:   return "LoadAbsoluteExt";
+        case Opcode::LoadGlobal:        return "LoadGlobal";
+        case Opcode::LoadGlobalExt:     return "LoadGlobalExt";
         case Opcode::Modulo:            return "Modulo";
         case Opcode::Multiply:          return "Multiply";
         case Opcode::Negate:            return "Negate";
@@ -111,8 +111,8 @@ struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
         case Opcode::Set:               return "Set";
         case Opcode::Store:             return "Store";
         case Opcode::StoreExt:          return "StoreExt";
-        case Opcode::StoreAbsolute:     return "StoreAbsolute";
-        case Opcode::StoreAbsoluteExt:  return "StoreAbsoluteExt";
+        case Opcode::StoreGlobal:       return "StoreGlobal";
+        case Opcode::StoreGlobalExt:    return "StoreGlobalExt";
         case Opcode::Subtract:          return "Subtract";
         case Opcode::True:              return "True";
         default:

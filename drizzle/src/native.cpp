@@ -1,4 +1,4 @@
-#include "compiler.h"
+#include "vm.h"
 
 #include <chrono>
 
@@ -7,7 +7,7 @@
 #include "gc.h"
 #include "vm.h"
 
-void Compiler::defineFunctions() {
+void Vm::defineFunctions() {
   const auto functions = {
     gc.construct<DzFunction>(
       gc.construct<DzString>("assert"), 1, [](Vm& vm, std::size_t) {
@@ -43,7 +43,6 @@ void Compiler::defineFunctions() {
   };
 
   for (const auto& function : functions) {
-    define(function->identifier->data);
-    emitConstant(function);
+    globals.insert({ function->identifier, function });
   }
 }
