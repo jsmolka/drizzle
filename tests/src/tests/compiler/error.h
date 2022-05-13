@@ -34,6 +34,22 @@ def outer():
   def inner():
     var x = x
 )",
+R"(
+var x
+def outer():
+  var x
+  def inner():
+    var x = x
+)",
+R"(
+var x
+var x
+)",
+R"(
+block:
+  var x
+  var x
+)",
       };
 
       for (const auto& source : kSources) {
