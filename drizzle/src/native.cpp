@@ -47,9 +47,6 @@ void Vm::defineFunctions() {
     const auto iter = main->globals.find(function->identifier);
     if (iter != main->globals.end()) {
       const auto& [identifier, index] = *iter;
-      if (index >= globals.size()) {
-        globals.resize(index + 1);
-      }
       globals[index] = function;
     }
   }
