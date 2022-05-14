@@ -354,13 +354,13 @@ auto Parser::declarationClass() -> Stmt {
   expectNewLine();
   expectIndent();
 
-  Stmts functions;
+  Stmts methods;
   if (match(Token::Type::Noop)) {
     expectNewLine();
   } else {
     do {
       expectDef();
-      functions.push_back(declarationDef());
+      methods.push_back(declarationDef());
     }
     while (current->type != Token::Type::Dedent);
   }
@@ -368,7 +368,7 @@ auto Parser::declarationClass() -> Stmt {
   expectDedent();
   return newStmt(Statement::Class{
     .identifier = identifier,
-    .functions = std::move(functions)
+    .methods = std::move(methods)
   });
 }
 

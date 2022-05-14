@@ -4,7 +4,6 @@
 #include <sh/utility.h>
 
 #include "dzclass.h"
-#include "dzstring.h"
 #include "error.h"
 #include "gc.h"
 
@@ -12,16 +11,9 @@ Compiler::Compiler(Gc& gc)
   : Compiler(gc, Type::Main, gc.construct<DzFunction>(), nullptr) {}
 
 Compiler::Compiler(Gc& gc, Type type, DzFunction* function, Compiler* parent)
-  : gc(gc), type(type), function(function), parent(parent) {
-  if (parent) {
-    locations.push(parent->locations.top());
-    root = parent->root;
-  } else {
-    root = this;
-  }
-}
+  : gc(gc), type(type), function(function), parent(parent) {}
 
-DzFunction* Compiler::compile(const Stmt& ast) {
+auto Compiler::compile(const Stmt& ast) -> DzFunction* {
   visit(const_cast<Stmt&>(ast));
   return function;
 }
@@ -72,8 +64,8 @@ void Compiler::visit(Statement::Break& break_) {
 }
 
 void Compiler::visit(Statement::Class& class_) {
-  auto object = gc.construct<DzClass>(gc.construct<DzString>(class_.identifier));
-  for (const auto& method : class_.functions) {
+  auto class_obj = gc.construct<DzClass>(gc.construct<DzString>(class_.identifier));
+  for (const auto& method : class_.methods) {
     auto& def = method->def;
 
     const auto type = def.identifier == DzClass::kInit ? Type::Init : Type::Function;
@@ -91,10 +83,10 @@ void Compiler::visit(Statement::Class& class_) {
     compiler.decreaseScope();
     compiler.emit(Opcode::Load, 0, Opcode::Return);
 
-    object->add(compiler.function);
+    class_obj->add(compiler.function);
   }
 
-  emitConstant(object);
+  emitConstant(class_obj);
   define(class_.identifier);
 }
 
@@ -207,7 +199,7 @@ void Compiler::visit(Expr& expr) {
 void Compiler::visit(Expression::Assign& assign) {
   AstVisiter::visit(assign);
   const auto& identifier = assign.identifier;
-  if (const auto index = resolveLocal(identifier)) {
+  if (const auto index = resolve(identifier)) {
     emitExt(Opcode::Store, *index);
   } else {
     emitExt(Opcode::StoreGlobal, resolveGlobal(identifier).index);
@@ -326,7 +318,7 @@ void Compiler::visit(Expression::Unary& unary) {
 
 void Compiler::visit(Expression::Variable& variable) {
   const auto& identifier = variable.identifier;
-  if (const auto index = resolveLocal(identifier)) {
+  if (const auto index = resolve(identifier)) {
     emitExt(Opcode::Load, *index);
   } else {
     emitExt(Opcode::LoadGlobal, resolveGlobal(identifier).index);
@@ -335,7 +327,8 @@ void Compiler::visit(Expression::Variable& variable) {
 
 template<typename... Bytes>
 void Compiler::emit(Bytes... bytes) {
-  (function->chunk().write(static_cast<u8>(bytes), locations.top().line), ...);
+  const auto line = locations.empty() ? 0 : locations.top().line;
+  (function->chunk().write(static_cast<u8>(bytes), line), ...);
 }
 
 void Compiler::emitExt(Opcode opcode, std::size_t value) {
@@ -409,7 +402,7 @@ void Compiler::define(const Identifier& identifier) {
   }
 }
 
-auto Compiler::resolveLocal(const Identifier& identifier) const -> std::optional<std::size_t> {
+auto Compiler::resolve(const Identifier& identifier) const -> std::optional<std::size_t> {
   for (const auto& variable : sh::reversed(variables)) {
     if (variable.identifier == identifier) {
       return std::distance(variables.data(), &variable);
@@ -419,14 +412,16 @@ auto Compiler::resolveLocal(const Identifier& identifier) const -> std::optional
 }
 
 auto Compiler::resolveGlobal(const Identifier& identifier) -> Global& {
-  for (auto compiler = parent; compiler; compiler = compiler->parent) {
-    if (const auto index = compiler->resolveLocal(identifier)) {
+  auto compiler = this;
+  while (compiler->parent) {
+    compiler = compiler->parent;
+    if (const auto index = compiler->resolve(identifier)) {
       if (compiler->parent) {
         throw SyntaxError(identifier.location, "cannot capture local variable");
       }
     }
   }
-  const auto [iter, inserted] = root->globals.try_emplace(identifier, root->globals.size(), false);
+  const auto [iter, inserted] = compiler->globals.try_emplace(identifier, compiler->globals.size(), false);
   return iter.value();
 }
 

@@ -12,7 +12,7 @@ class Compiler final : public AstVisiter {
 public:
   Compiler(Gc& gc);
 
-  DzFunction* compile(const Stmt& ast);
+  auto compile(const Stmt& ast) -> DzFunction*;
 
 protected:
   using AstVisiter::visit;
@@ -77,7 +77,7 @@ private:
   void patch(const std::vector<std::size_t>& jumps);
 
   void define(const Identifier& identifier);
-  auto resolveLocal(const Identifier& identifier) const -> std::optional<std::size_t>;
+  auto resolve(const Identifier& identifier) const -> std::optional<std::size_t>;
   auto resolveGlobal(const Identifier& identifier) -> Global&;
   void pop(std::size_t depth);
 
@@ -87,7 +87,6 @@ private:
 
   Gc& gc;
   Type type;
-  Compiler* root;
   Compiler* parent;
   DzFunction* function;
   sh::stack<Level> scope;

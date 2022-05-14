@@ -114,7 +114,7 @@ void AstVisiter::visit(Statement::Break& break_) {
 }
 
 void AstVisiter::visit(Statement::Class& class_) {
-  visit(class_.functions);
+  visit(class_.methods);
 }
 
 void AstVisiter::visit(Statement::Continue& continue_) {
