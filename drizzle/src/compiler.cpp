@@ -15,9 +15,9 @@ Compiler::Compiler(Gc& gc, Type type, DzFunction* function, Compiler* parent)
   : gc(gc), type(type), function(function), parent(parent) {
   if (parent) {
     locations.push(parent->locations.top());
-    main = parent->main;
+    root = parent->root;
   } else {
-    main = function;
+    root = this;
   }
 }
 
@@ -158,6 +158,11 @@ void Compiler::visit(Statement::If& if_) {
 void Compiler::visit(Statement::Program& program) {
   AstVisiter::visit(program);
   emit(Opcode::Exit);
+
+  function->identifiers.reserve(globals.size());
+  for (const auto& [identifier, global] : globals) {
+    function->identifiers.insert({ gc.construct<DzString>(identifier), global.index });
+  }
 }
 
 void Compiler::visit(Statement::Return& return_) {
@@ -205,7 +210,7 @@ void Compiler::visit(Expression::Assign& assign) {
   if (const auto index = resolveLocal(identifier)) {
     emitExt(Opcode::Store, *index);
   } else {
-    emitExt(Opcode::StoreGlobal, resolveGlobal(identifier));
+    emitExt(Opcode::StoreGlobal, resolveGlobal(identifier).index);
   }
 }
 
@@ -324,7 +329,7 @@ void Compiler::visit(Expression::Variable& variable) {
   if (const auto index = resolveLocal(identifier)) {
     emitExt(Opcode::Load, *index);
   } else {
-    emitExt(Opcode::LoadGlobal, resolveGlobal(identifier));
+    emitExt(Opcode::LoadGlobal, resolveGlobal(identifier).index);
   }
 }
 
@@ -394,11 +399,12 @@ void Compiler::define(const Identifier& identifier) {
     }
     variables.emplace(identifier, scope.size());
   } else {
-    const auto [_, inserted] = globals.insert(identifier);
-    if (!inserted) {
+    auto& global = resolveGlobal(identifier);
+    if (global.defined) {
       redefined(identifier);
     }
-    emitExt(Opcode::StoreGlobal, resolveGlobal(identifier));
+    global.defined = true;
+    emitExt(Opcode::StoreGlobal, global.index);
     emit(Opcode::Pop);
   }
 }
@@ -412,7 +418,7 @@ auto Compiler::resolveLocal(const Identifier& identifier) const -> std::optional
   return std::nullopt;
 }
 
-auto Compiler::resolveGlobal(const Identifier& identifier) -> std::size_t {
+auto Compiler::resolveGlobal(const Identifier& identifier) -> Global& {
   for (auto compiler = parent; compiler; compiler = compiler->parent) {
     if (const auto index = compiler->resolveLocal(identifier)) {
       if (compiler->parent) {
@@ -420,9 +426,8 @@ auto Compiler::resolveGlobal(const Identifier& identifier) -> std::size_t {
       }
     }
   }
-  const auto string = gc.construct<DzString>(identifier);
-  const auto [global, inserted] = main->globals.try_emplace(string, main->globals.size());
-  return global.value();
+  const auto [iter, inserted] = root->globals.try_emplace(identifier, root->globals.size(), false);
+  return iter.value();
 }
 
 void Compiler::pop(std::size_t depth) {

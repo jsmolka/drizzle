@@ -21,7 +21,7 @@ void Vm::interpret(DzFunction* function) {
 
   frames.emplace(function->chunk().code.data(), 0, function);
 
-  globals.resize(function->globals.size());
+  globals.resize(function->identifiers.size());
   defineFunctions();
 
   gc.vm = this;
@@ -460,7 +460,7 @@ void Vm::loadGlobal() {
   const auto index = read<Integral>();
   const auto& value = globals[index];
   if (value.type == DzValue::Type::Undefined) {
-    for (const auto& global : frames[0].function->globals) {
+    for (const auto& global : frames[0].function->identifiers) {
       if (global.second == index) {
         raise("undefined variable '{}'", global.first->data);
       }

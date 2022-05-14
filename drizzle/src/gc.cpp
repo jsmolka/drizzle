@@ -80,7 +80,7 @@ void Gc::mark(DzObject* object) {
         for (const auto& constant : function->chunk().constants) {
           mark(constant);
         }
-        for (const auto& [key, value] : function->globals) {
+        for (const auto& [key, value] : function->identifiers) {
           mark(key);
         }
       }

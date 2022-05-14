@@ -30,7 +30,7 @@ public:
 
   Arity arity;
   DzString* identifier;
-  Map<std::size_t> globals;
+  Map<std::size_t> identifiers;
 
 private:
   std::variant<Chunk, Native> body;

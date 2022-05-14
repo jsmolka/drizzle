@@ -1,7 +1,6 @@
 #pragma once
 
 #include <sh/stack.h>
-#include <tsl/robin_set.h>
 
 #include "astvisiter.h"
 #include "dzfunction.h"
@@ -56,6 +55,11 @@ private:
     std::vector<std::size_t> continues;
   };
 
+  struct Global {
+    std::size_t index;
+    bool defined;
+  };
+
   struct Variable {
     Identifier identifier;
     std::size_t depth;
@@ -74,7 +78,7 @@ private:
 
   void define(const Identifier& identifier);
   auto resolveLocal(const Identifier& identifier) const -> std::optional<std::size_t>;
-  auto resolveGlobal(const Identifier& identifier) -> std::size_t;
+  auto resolveGlobal(const Identifier& identifier) -> Global&;
   void pop(std::size_t depth);
 
   template<typename... Args>
@@ -83,11 +87,11 @@ private:
 
   Gc& gc;
   Type type;
+  Compiler* root;
   Compiler* parent;
   DzFunction* function;
-  DzFunction* main;
   sh::stack<Level> scope;
   sh::stack<Variable> variables;
   sh::stack<Location> locations;
-  tsl::robin_set<Identifier> globals;
+  tsl::robin_map<Identifier, Global> globals;
 };
