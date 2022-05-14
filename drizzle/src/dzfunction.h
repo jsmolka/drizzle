@@ -19,17 +19,14 @@ public:
   DzFunction(DzString* identifier, Arity arity, const Native& native);
 
   operator bool() const;
-  // Todo: implement this
-  //void operator()(Vm& vm, std::size_t argc);
+  void operator()(Vm& vm, std::size_t argc);
   auto kind() const -> std::string_view;
   auto repr() const -> std::string;
 
   auto isChunk() const -> bool;
-  auto chunk() -> Chunk&;
   auto isNative() const -> bool;
+  auto chunk() -> Chunk&;
   auto native() -> Native&;
-
-  void call(Vm& vm, std::size_t argc);
 
   Arity arity;
   DzString* identifier;

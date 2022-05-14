@@ -15,6 +15,20 @@ DzFunction::operator bool() const {
   return true;
 }
 
+void DzFunction::operator()(Vm& vm, std::size_t argc) {
+  if (vm.frames.size() == Vm::kMaximumRecursionDepth) {
+    vm.raise("maximum recursion depth exceeded");
+  }
+  if (arity && *arity != argc) {
+    vm.raise("expected {} argument(s) but got {}", *arity, argc);
+  }
+  if (isChunk()) {
+    vm.frames.emplace(chunk().code.data(), vm.stack.size() - argc - 1, this);
+  } else {
+    vm.stack.top() = native()(vm, argc);
+  }
+}
+
 auto DzFunction::kind() const -> std::string_view {
   return "function";
 }
@@ -27,28 +41,14 @@ auto DzFunction::isChunk() const -> bool {
   return std::holds_alternative<Chunk>(body);
 }
 
-auto DzFunction::chunk() -> Chunk& {
-  return std::get<Chunk>(body);
-}
-
 auto DzFunction::isNative() const -> bool {
   return std::holds_alternative<Native>(body);
 }
 
-auto DzFunction::native() -> Native& {
-  return std::get<Native>(body);
+auto DzFunction::chunk() -> Chunk& {
+  return std::get<Chunk>(body);
 }
 
-void DzFunction::call(Vm& vm, std::size_t argc) {
-  if (vm.frames.size() == Vm::kMaximumRecursionDepth) {
-    vm.raise("maximum recursion depth exceeded");
-  }
-  if (arity && *arity != argc) {
-    vm.raise("expected {} argument(s) but got {}", *arity, argc);
-  }
-  if (isChunk()) {
-    vm.frames.emplace(chunk().code.data(), vm.stack.size() - argc - 1, this);
-  } else {
-    vm.stack.top() = native()(vm, argc);
-  }
+auto DzFunction::native() -> Native& {
+  return std::get<Native>(body);
 }

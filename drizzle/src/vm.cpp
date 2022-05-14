@@ -275,7 +275,7 @@ void Vm::call(DzValue& callee, std::size_t argc) {
         const auto class_ = callee.as<DzClass>();
         callee = class_->construct(gc);
         if (class_->init) {
-          class_->init->call(*this, argc);
+          (*class_->init)(*this, argc);
         } else if (argc > 0) {
           raise("expected 0 argument(s) but got {}", argc);
         }
@@ -283,14 +283,14 @@ void Vm::call(DzValue& callee, std::size_t argc) {
       }
 
       case DzObject::Type::Function: {
-        callee.as<DzFunction>()->call(*this, argc);
+        (*callee.as<DzFunction>())(*this, argc);
         return;
       }
 
       case DzObject::Type::BoundMethod: {
         const auto method = callee.as<DzBoundMethod>();
         callee = method->self;
-        method->function->call(*this, argc);
+        (*method->function)(*this, argc);
         return;
       }
     }
@@ -398,7 +398,7 @@ void Vm::invoke() {
   if (const auto value = inst->get(prop)) {
     inst_v = *value;
   } else if (const auto function = inst->class_->get(prop)) {
-    function->call(*this, argc);
+    (*function)(*this, argc);
     return;
   } else {
     inst_v = &null;
