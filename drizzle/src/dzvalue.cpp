@@ -3,7 +3,7 @@
 #include <sh/utility.h>
 
 DzValue::DzValue()
-  : type(Type::Undefined) {}
+  : type(Type::Object), o(nullptr) {}
 
 DzValue::operator bool() const {
   switch (type) {
@@ -51,4 +51,8 @@ auto DzValue::is(Type type) const -> bool {
 
 auto DzValue::is(DzObject::Type type) const -> bool {
   return is(Type::Object) && o->is(type);
+}
+
+auto DzValue::isUndefined() const -> bool {
+  return is(Type::Object) && o == nullptr;
 }

@@ -97,7 +97,7 @@ auto Vm::read() -> Integral {
 
 template<template<typename> typename Promote, typename Callback>
 void Vm::unary(std::string_view operation, Callback callback) {
-  static_assert(int(DzValue::Type::LastEnumValue) == 5);
+  static_assert(int(DzValue::Type::LastEnumValue) == 4);
 
   const auto& a = stack.top();
 
@@ -130,7 +130,7 @@ void Vm::unary(std::string_view operation, Callback callback) {
 
 template<template<typename, typename> typename Promote, typename Callback>
 void Vm::binary(std::string_view operation, Callback callback) {
-  static_assert(int(DzValue::Type::LastEnumValue) == 5);
+  static_assert(int(DzValue::Type::LastEnumValue) == 4);
 
   const auto& a = stack.peek(1);
   const auto& b = stack.peek(0);
@@ -459,7 +459,7 @@ template<typename Integral>
 void Vm::loadGlobal() {
   const auto index = read<Integral>();
   const auto& value = globals[index];
-  if (value.type == DzValue::Type::Undefined) {
+  if (value.isUndefined()) {
     for (const auto& identifier : frames[0].function->identifiers) {
       if (identifier.second == index) {
         raise("undefined variable '{}'", identifier.first->data);

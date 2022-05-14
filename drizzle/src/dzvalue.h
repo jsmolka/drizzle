@@ -8,7 +8,7 @@
 
 class DzValue {
 public:
-  enum class Type { Bool, Int, Float, Object, Undefined, LastEnumValue };
+  enum class Type { Bool, Int, Float, Object, LastEnumValue };
 
   DzValue();
   template<typename T>
@@ -42,6 +42,8 @@ public:
 
   auto is(Type type) const -> bool;
   auto is(DzObject::Type type) const -> bool;
+  auto isUndefined() const -> bool;
+
   template<typename T>
     requires std::is_base_of_v<DzObject, T>
   auto as() const -> T* {
