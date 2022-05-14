@@ -460,9 +460,9 @@ void Vm::loadGlobal() {
   const auto index = read<Integral>();
   const auto& value = globals[index];
   if (value.type == DzValue::Type::Undefined) {
-    for (const auto& global : frames[0].function->identifiers) {
-      if (global.second == index) {
-        raise("undefined variable '{}'", global.first->data);
+    for (const auto& identifier : frames[0].function->identifiers) {
+      if (identifier.second == index) {
+        raise("undefined variable '{}'", identifier.first->data);
       }
     }
     raise("unknown undefined variable");

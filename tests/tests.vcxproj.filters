@@ -217,9 +217,6 @@
     <ClInclude Include="src\tests\parser\stmt\return.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\tests\vm\capture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\tests\vm\assert.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -269,6 +266,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\tests\vm\invoke.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tests\vm\globals.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

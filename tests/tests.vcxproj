@@ -90,9 +90,9 @@
     <ClInclude Include="src\tests\vm\assert.h" />
     <ClInclude Include="src\tests\vm\block.h" />
     <ClInclude Include="src\tests\vm\branch.h" />
-    <ClInclude Include="src\tests\vm\capture.h" />
     <ClInclude Include="src\tests\vm\call.h" />
     <ClInclude Include="src\tests\vm\class.h" />
+    <ClInclude Include="src\tests\vm\globals.h" />
     <ClInclude Include="src\tests\vm\invoke.h" />
     <ClInclude Include="src\tests\vm\loop.h" />
     <ClInclude Include="src\tests\vm\repr.h" />
