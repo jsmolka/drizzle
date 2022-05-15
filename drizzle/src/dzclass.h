@@ -1,7 +1,5 @@
 #pragma once
 
-#include <optional>
-
 #include "dzfunction.h"
 #include "dzstring.h"
 #include "map.h"

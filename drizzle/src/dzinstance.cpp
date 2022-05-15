@@ -23,9 +23,9 @@ auto DzInstance::repr() const -> std::string {
 }
 
 auto DzInstance::get(DzString* identifier) -> std::optional<DzValue> {
-  auto pos = fields.find(identifier);
-  return pos != fields.end()
-    ? pos->second
+  const auto iter = fields.find(identifier);
+  return iter != fields.end()
+    ? iter->second
     : std::optional<DzValue>();
 }
 

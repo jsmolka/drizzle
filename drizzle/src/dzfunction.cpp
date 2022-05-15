@@ -41,12 +41,12 @@ auto DzFunction::isChunk() const -> bool {
   return std::holds_alternative<Chunk>(body);
 }
 
-auto DzFunction::isNative() const -> bool {
-  return std::holds_alternative<Native>(body);
-}
-
 auto DzFunction::chunk() -> Chunk& {
   return std::get<Chunk>(body);
+}
+
+auto DzFunction::isNative() const -> bool {
+  return std::holds_alternative<Native>(body);
 }
 
 auto DzFunction::native() -> Native& {

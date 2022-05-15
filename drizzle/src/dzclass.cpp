@@ -32,8 +32,8 @@ void DzClass::add(DzFunction* function) {
 }
 
 auto DzClass::get(DzString* identifier) -> DzFunction* {
-  auto pos = functions.find(identifier);
-  return pos != functions.end()
-    ? pos->second
+  const auto iter = functions.find(identifier);
+  return iter != functions.end()
+    ? iter->second
     : nullptr;
 }
