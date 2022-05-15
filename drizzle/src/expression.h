@@ -142,7 +142,7 @@ public:
   Expression(Get get, const Location& location);
   Expression(Group group, const Location& location);
   Expression(Invoke invoke, const Location& location);
-  Expression(List list, const Location& locations);
+  Expression(List list, const Location& location);
   Expression(Literal literal, const Location& location);
   Expression(Set set, const Location& location);
   Expression(Unary unary, const Location& location);

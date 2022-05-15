@@ -46,7 +46,7 @@ Expression::Expression(Group group, const Location& location)
 Expression::Expression(Invoke invoke, const Location& location)
   : type(Type::Invoke), invoke(std::move(invoke)), location(location) {}
 
-Expression::Expression(List list, const Location& locations)
+Expression::Expression(List list, const Location& location)
   : type(Type::List), list(std::move(list)), location(location) {}
 
 Expression::Expression(Literal literal, const Location& location)
