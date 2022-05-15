@@ -41,6 +41,9 @@ private:
     throw RuntimeError(Location{line}, format, std::forward<Args>(args)...);
   }
 
+  void expect(const DzValue& value, DzValue::Type type);
+  void expect(const DzValue& value, DzObject::Type type);
+
   template<template<typename> typename Promote = promote_t, typename Callback>
   void unary(std::string_view operation, Callback callback);
   template<template<typename, typename> typename Promote = promote_t, typename Callback>

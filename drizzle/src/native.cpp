@@ -58,9 +58,39 @@ void Vm::defineNativeClassList() {
 
   const auto functions = {
     gc.construct<DzFunction>(
-      gc.construct<DzString>("get"), 1, [](Vm& vm, std::size_t) {
+      gc.construct<DzString>("size"), 0, [](Vm& vm, std::size_t) {
+        const auto list = vm.stack.peek(0).as<DzList>();
+        return static_cast<dzint>(list->values.size());
+      }
+    ),
+    gc.construct<DzFunction>(
+      gc.construct<DzString>("push"), 1, [](Vm& vm, std::size_t) {
         const auto list = vm.stack.peek(1).as<DzList>();
-        return list->values[vm.stack.pop_value().i];
+        list->values.push_back(vm.stack.pop_value());
+        return static_cast<dzint>(list->values.size());
+      }
+    ),
+    gc.construct<DzFunction>(
+      gc.construct<DzString>("pop"), 0, [this](Vm& vm, std::size_t) {
+        const auto list = vm.stack.peek(0).as<DzList>();
+        if (list->values.empty()) {
+          raise("cannot pop from empty list");
+        }
+        const auto value = list->values.back();
+        list->values.pop_back();
+        return value;
+      }
+    ),
+    gc.construct<DzFunction>(
+      gc.construct<DzString>("contains"), 1, [this](Vm& vm, std::size_t) {
+        const auto list = vm.stack.peek(1).as<DzList>();
+        const auto find = vm.stack.pop_value();
+        for (const auto& value : list->values) {
+          if (value == find) {
+            return true;
+          }
+        }
+        return false;
       }
     ),
   };

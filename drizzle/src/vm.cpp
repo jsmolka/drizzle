@@ -185,6 +185,20 @@ void Vm::binary(std::string_view operation, Callback callback) {
   raise("bad operand types for '{}': '{}' and '{}'", operation, b.kind(), a.kind());
 }
 
+void Vm::expect(const DzValue& value, DzValue::Type type) {
+  if (!value.is(type)) {
+    raise("expected type '{}' but got '{}'", type, value.type);
+  }
+}
+
+void Vm::expect(const DzValue& value, DzObject::Type type) {
+  if (!value.is(DzValue::Type::Object)) {
+    raise("expected type '{}' but got '{}'", type, value.type);
+  } else if (!value.is(type)) {
+    raise("expected type '{}' but got '{}'", type, value.o->type);
+  }
+}
+
 void Vm::add() {
   binary("+", [this]<typename A, typename B>(const A& a, const B& b) -> std::optional<DzValue> {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
