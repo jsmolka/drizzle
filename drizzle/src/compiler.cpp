@@ -274,8 +274,7 @@ void Compiler::visit(Expression::Invoke& invoke) {
   if (arguments > std::numeric_limits<u8>::max()) {
     throw CompilerError(locations.top(), "cannot encode argument count '{}'", arguments);
   }
-  visit(invoke.self);
-  visit(invoke.arguments);
+  AstVisiter::visit(invoke);
   emitConstant(gc.construct<DzString>(invoke.identifier));
   emit(Opcode::Invoke, arguments);
 }
@@ -293,6 +292,11 @@ void Compiler::visit(Expression::Literal& literal) {
       SH_UNREACHABLE;
       break;
   }
+}
+
+void Compiler::visit(Expression::List& list) {
+  AstVisiter::visit(list);
+  emitExt(Opcode::List, list.values.size());
 }
 
 void Compiler::visit(Expression::Set& set) {

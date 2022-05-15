@@ -24,6 +24,7 @@
     <ClCompile Include="src\dzclass.cpp" />
     <ClCompile Include="src\dzfunction.cpp" />
     <ClCompile Include="src\dzinstance.cpp" />
+    <ClCompile Include="src\dzlist.cpp" />
     <ClCompile Include="src\dznull.cpp" />
     <ClCompile Include="src\dzstring.cpp" />
     <ClCompile Include="src\astformatter.cpp" />
@@ -47,6 +48,7 @@
     <ClInclude Include="src\dzclass.h" />
     <ClInclude Include="src\dzfunction.h" />
     <ClInclude Include="src\dzinstance.h" />
+    <ClInclude Include="src\dzlist.h" />
     <ClInclude Include="src\dznull.h" />
     <ClInclude Include="src\dzobject.h" />
     <ClInclude Include="src\dzstring.h" />

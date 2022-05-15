@@ -6,6 +6,7 @@
 #include "dzclass.h"
 #include "dzfunction.h"
 #include "dzinstance.h"
+#include "dzlist.h"
 #include "dznull.h"
 #include "dzstring.h"
 
@@ -18,6 +19,7 @@ DzObject::operator bool() const {
     case Type::Class:       return as<DzClass>();
     case Type::Function:    return as<DzFunction>();
     case Type::Instance:    return as<DzInstance>();
+    case Type::List:        return as<DzList>();
     case Type::Null:        return as<DzNull>();
     case Type::String:      return as<DzString>();
     default:
@@ -40,6 +42,7 @@ auto DzObject::kind() const -> std::string_view {
     case Type::Class:       return as<DzClass>().kind();
     case Type::Function:    return as<DzFunction>().kind();
     case Type::Instance:    return as<DzInstance>().kind();
+    case Type::List:        return as<DzList>().kind();
     case Type::Null:        return as<DzNull>().kind();
     case Type::String:      return as<DzString>().kind();
     default:
@@ -54,6 +57,7 @@ auto DzObject::repr() const -> std::string {
     case Type::Class:       return as<DzClass>().repr();
     case Type::Function:    return as<DzFunction>().repr();
     case Type::Instance:    return as<DzInstance>().repr();
+    case Type::List:        return as<DzList>().repr();
     case Type::Null:        return as<DzNull>().repr();
     case Type::String:      return as<DzString>().repr();
     default:

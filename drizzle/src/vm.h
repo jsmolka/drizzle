@@ -2,6 +2,7 @@
 
 #include <sh/stack.h>
 
+#include "dzclass.h"
 #include "dzfunction.h"
 #include "dzstring.h"
 #include "error.h"
@@ -27,8 +28,8 @@ private:
     DzFunction* function;
   };
 
-  void defineNative(DzString* identifier, const DzValue& value);
   void defineNativeFunctions();
+  void defineNativeClassList();
 
   template<std::integral Integral>
   auto read() -> Integral;
@@ -56,7 +57,7 @@ private:
   void call();
   void call(DzValue& callee, std::size_t argc);
   void call(DzFunction* function, std::size_t argc);
-  template<typename Integral>
+  template<std::integral Integral>
   void constant();
   void divide();
   void divideInt();
@@ -72,9 +73,11 @@ private:
   void jumpTrue();
   void less();
   void lessEqual();
-  template<typename Integral>
+  template<std::integral Integral>
+  void list();
+  template<std::integral Integral>
   void load();
-  template<typename Integral>
+  template<std::integral Integral>
   void loadGlobal();
   void modulo();
   void multiply();
@@ -83,17 +86,21 @@ private:
   void notEqual();
   void null_();
   void pop();
-  template<typename Integral>
+  template<std::integral Integral>
   void popMultiple();
   void power();
   void return_();
   void set();
-  template<typename Integral>
+  template<std::integral Integral>
   void store();
-  template<typename Integral>
+  template<std::integral Integral>
   void storeGlobal();
   void subtract();
   void true_();
+
+  struct Functions {
+    DzClass* list;
+  } classes;
 
   Gc& gc;
   u8* opcode_pc = nullptr;

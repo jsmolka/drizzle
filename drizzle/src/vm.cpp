@@ -1,8 +1,11 @@
 #include "vm.h"
 
+#include <sh/ranges.h>
+
 #include "dzboundmethod.h"
 #include "dzclass.h"
 #include "dzinstance.h"
+#include "dzlist.h"
 #include "dznull.h"
 #include "gc.h"
 #include "opcode.h"
@@ -17,7 +20,7 @@ Vm::Vm(Gc& gc)
   : gc(gc) {}
 
 void Vm::interpret(DzFunction* main) {
-  static_assert(int(Opcode::LastEnumValue) == 48);
+  static_assert(int(Opcode::LastEnumValue) == 50);
 
   globals.resize(main->identifiers.size());
   frames.emplace(main->chunk().code.data(), 0, main);
@@ -55,6 +58,8 @@ void Vm::interpret(DzFunction* main) {
       case Opcode::JumpTrue: jumpTrue(); break;
       case Opcode::Less: less(); break;
       case Opcode::LessEqual: lessEqual(); break;
+      case Opcode::List: list<u8>(); break;
+      case Opcode::ListExt: list<u16>(); break;
       case Opcode::Load: load<u8>(); break;
       case Opcode::LoadExt: load<u16>(); break;
       case Opcode::LoadGlobal: loadGlobal<u8>(); break;
@@ -312,7 +317,7 @@ void Vm::call(DzFunction* function, std::size_t argc) {
   }
 }
 
-template<typename Integral>
+template<std::integral Integral>
 void Vm::constant() {
   const auto index = read<Integral>();
   stack.push(frames.top().function->chunk().constants[index]);
@@ -462,13 +467,25 @@ void Vm::lessEqual() {
   });
 }
 
-template<typename Integral>
+template<std::integral Integral>
+void Vm::list() {
+  const auto size = read<Integral>();
+  const auto list = gc.construct<DzList>(classes.list);
+  list->values.reserve(size);
+  for (const auto& value : sh::range(stack.end() - size, stack.end())) {
+    list->values.push_back(value);
+  }
+  stack.pop(size);
+  stack.push(list);
+}
+
+template<std::integral Integral>
 void Vm::load() {
   const auto index = read<Integral>();
   stack.push(stack[frames.top().sp + index]);
 }
 
-template<typename Integral>
+template<std::integral Integral>
 void Vm::loadGlobal() {
   const auto index = read<Integral>();
   const auto& value = globals[index];
@@ -541,7 +558,7 @@ void Vm::pop() {
   stack.pop();
 }
 
-template<typename Integral>
+template<std::integral Integral>
 void Vm::popMultiple() {
   const auto count = read<Integral>();
   stack.pop(count);
@@ -575,13 +592,13 @@ void Vm::set() {
   inst->set(prop, stack.top());
 }
 
-template<typename Integral>
+template<std::integral Integral>
 void Vm::store() {
   const auto index = read<Integral>();
   stack[frames.top().sp + index] = stack.top();
 }
 
-template<typename Integral>
+template<std::integral Integral>
 void Vm::storeGlobal() {
   const auto index = read<Integral>();
   globals[index] = stack.top();

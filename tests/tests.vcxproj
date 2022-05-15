@@ -22,6 +22,7 @@
     <ClCompile Include="..\drizzle\src\dzclass.cpp" />
     <ClCompile Include="..\drizzle\src\dzfunction.cpp" />
     <ClCompile Include="..\drizzle\src\dzinstance.cpp" />
+    <ClCompile Include="..\drizzle\src\dzlist.cpp" />
     <ClCompile Include="..\drizzle\src\dznull.cpp" />
     <ClCompile Include="..\drizzle\src\dzobject.cpp" />
     <ClCompile Include="..\drizzle\src\dzstring.cpp" />

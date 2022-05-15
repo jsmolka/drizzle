@@ -37,6 +37,7 @@ protected:
   void visit(Expression::Get& get) final;
   void visit(Expression::Invoke& invoke) final;
   void visit(Expression::Literal& literal) final;
+  void visit(Expression::List& list) final;
   void visit(Expression::Set& set) final;
   void visit(Expression::Unary& unary) final;
   void visit(Expression::Variable& variable) final;

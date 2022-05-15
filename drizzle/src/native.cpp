@@ -7,15 +7,6 @@
 #include "gc.h"
 #include "vm.h"
 
-void Vm::defineNative(DzString* identifier, const DzValue& value) {
-  const auto main = frames[0].function;
-  const auto iter = main->identifiers.find(identifier);
-  if (iter != main->identifiers.end()) {
-    const auto& [identifier, index] = *iter;
-    globals[index] = value;
-  }
-}
-
 void Vm::defineNativeFunctions() {
   const auto functions = {
     gc.construct<DzFunction>(
@@ -51,7 +42,16 @@ void Vm::defineNativeFunctions() {
     ),
   };
 
+  const auto main = frames[0].function;
   for (const auto& function : functions) {
-    defineNative(function->identifier, function);
+    const auto iter = main->identifiers.find(function->identifier);
+    if (iter != main->identifiers.end()) {
+      const auto& [identifier, index] = *iter;
+      globals[index] = function;
+    }
   }
+}
+
+void Vm::defineNativeClassList() {
+  classes.list = gc.construct<DzClass>(gc.construct<DzString>("list"));
 }

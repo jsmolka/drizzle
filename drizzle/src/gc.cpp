@@ -5,6 +5,7 @@
 #include "dzboundmethod.h"
 #include "dzfunction.h"
 #include "dzinstance.h"
+#include "dzlist.h"
 #include "vm.h"
 
 Gc::~Gc() {
@@ -31,6 +32,7 @@ void Gc::collect() {
 }
 
 void Gc::mark() {
+  mark(vm->classes.list);
   for (const auto& value : vm->stack) {
     mark(value);
   }
@@ -49,7 +51,7 @@ void Gc::mark(const DzValue& value) {
 }
 
 void Gc::mark(DzObject* object) {
-  static_assert(int(DzObject::Type::LastEnumValue) == 6);
+  static_assert(int(DzObject::Type::LastEnumValue) == 7);
   if (!object || object->marked) {
     return;
   }
@@ -92,6 +94,15 @@ void Gc::mark(DzObject* object) {
       mark(instance->class_);
       for (const auto& [key, value] : instance->fields) {
         mark(key);
+        mark(value);
+      }
+      break;
+    }
+
+    case DzObject::Type::List: {
+      const auto list = static_cast<DzList*>(object);
+      mark(list->class_);
+      for (const auto& value : list->values) {
         mark(value);
       }
       break;

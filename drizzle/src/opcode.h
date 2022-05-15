@@ -33,6 +33,8 @@ enum class Opcode {
   JumpTrue,
   Less,
   LessEqual,
+  List,
+  ListExt,
   Load,
   LoadExt,
   LoadGlobal,
@@ -62,7 +64,7 @@ static_assert(int(Opcode::LastEnumValue) <= std::numeric_limits<u8>::max());
 
 template<>
 struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
-  static_assert(int(Opcode::LastEnumValue) == 48);
+  static_assert(int(Opcode::LastEnumValue) == 50);
   template<typename FormatContext>
   auto format(const Opcode& opcode, FormatContext& ctx) const {
     auto repr = [](const Opcode& opcode) {
@@ -93,6 +95,8 @@ struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
         case Opcode::JumpTrue:          return "JumpTrue";
         case Opcode::Less:              return "Less";
         case Opcode::LessEqual:         return "LessEqual";
+        case Opcode::List:              return "List";
+        case Opcode::ListExt:           return "ListExt";
         case Opcode::Load:              return "Load";
         case Opcode::LoadExt:           return "LoadExt";
         case Opcode::LoadGlobal:        return "LoadGlobal";

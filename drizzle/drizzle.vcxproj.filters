@@ -78,6 +78,9 @@
     <ClCompile Include="src\native.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\dzlist.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="drizzle.rc">
@@ -161,6 +164,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\map.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dzlist.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
