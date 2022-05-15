@@ -273,7 +273,7 @@ void Vm::call(DzValue& callee, std::size_t argc) {
     switch (callee.o->type) {
       case DzObject::Type::Class: {
         const auto class_ = callee.as<DzClass>();
-        callee = class_->construct(gc);
+        callee = gc.construct<DzInstance>(class_);
         if (class_->init) {
           call(class_->init, argc);
         } else if (argc > 0) {

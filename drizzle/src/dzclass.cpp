@@ -6,11 +6,7 @@
 #include "gc.h"
 
 DzClass::DzClass(DzString* identifier)
-  : DzObject(Type::Class), identifier(identifier) {
-  construct = [this](Gc& gc) {
-    return gc.construct<DzInstance>(this);
-  };
-}
+  : DzObject(Type::Class), identifier(identifier) {}
 
 DzClass::operator bool() const {
   return true;

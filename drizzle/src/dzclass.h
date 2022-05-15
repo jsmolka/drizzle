@@ -22,5 +22,4 @@ public:
   DzString* identifier;
   DzFunction* init = nullptr;
   Map<DzFunction*> functions;
-  std::function<DzValue(Gc&)> construct;
 };
