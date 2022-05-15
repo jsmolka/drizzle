@@ -2,16 +2,16 @@
 
 #include <vector>
 
-#include "dzclass.h"
+#include "dzobject.h"
+#include "dzvalue.h"
 
 class DzList : public DzObject {
 public:
-  DzList(DzClass* class_);
+  DzList();
 
   operator bool() const;
   auto kind() const -> std::string_view;
   auto repr() const -> std::string;
 
-  DzClass* class_;
   std::vector<DzValue> values;
 };

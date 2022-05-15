@@ -53,9 +53,7 @@ void Vm::defineNativeFunctions() {
   }
 }
 
-void Vm::defineNativeClassList() {
-  classes.list = gc.construct<DzClass>(gc.construct<DzString>("list"));
-
+void Vm::defineNativeMembersList() {
   const auto functions = {
     gc.construct<DzFunction>(
       gc.construct<DzString>("size"), 0, [](Vm& vm, std::size_t) {
@@ -96,6 +94,6 @@ void Vm::defineNativeClassList() {
   };
 
   for (const auto& function : functions) {
-    classes.list->functions.insert_or_assign(function->identifier, function);
+    extensions[int(DzObject::Type::List)].insert_or_assign(function->identifier, function);
   }
 }

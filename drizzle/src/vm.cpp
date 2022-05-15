@@ -26,7 +26,7 @@ void Vm::interpret(DzFunction* main) {
   frames.emplace(main->chunk().code.data(), 0, main);
 
   defineNativeFunctions();
-  defineNativeClassList();
+  defineNativeMembersList();
 
   gc.vm = this;
 
@@ -421,29 +421,35 @@ void Vm::invoke() {
   const auto argc = read<u8>();
   const auto prop = stack.pop_value().as<DzString>();
 
-  auto& data_v = stack.peek(argc);
-  if (data_v.is(DzObject::Type::Instance)) {
-    auto inst = data_v.as<DzInstance>();
-    if (const auto value = inst->get(prop)) {
-      data_v = *value;
-    } else if (const auto function = inst->class_->get(prop)) {
-      call(function, argc);
-      return;
+  auto& callee = stack.peek(argc);
+  if (callee.is(DzValue::Type::Object)) {
+    if (callee.o->is(DzObject::Type::Instance)) {
+      const auto instance = static_cast<DzInstance*>(callee.o);
+      if (const auto value = instance->get(prop)) {
+        callee = *value;
+      } else if (const auto function = instance->class_->get(prop)) {
+        return call(function, argc);
+      } else {
+        callee = &null;
+      }
     } else {
-      data_v = &null;
-    }
-  } else if (data_v.is(DzObject::Type::List)) {
-    auto list = data_v.as<DzList>();
-    if (const auto function = list->class_->get(prop)) {
-      call(function, argc);
-      return;
-    } else {
-      data_v = &null;
+      const auto type = int(callee.o->type);
+      const auto iter = extensions[type].find(prop);
+      if (iter != extensions[type].end()) {
+        const auto& [identifier, function] = *iter;
+        return call(function, argc);
+      } else {
+        goto error;
+      }
     }
   } else {
-    raise("cannot get property '{}' of type '{}'", prop->repr(), data_v.kind());
+    goto error;
   }
-  call(data_v, argc);
+
+  return call(callee, argc);
+
+error:
+  raise("cannot get property '{}' of type '{}'", prop->repr(), callee.kind());
 }
 
 void Vm::jump() {
@@ -492,7 +498,7 @@ void Vm::lessEqual() {
 template<std::integral Integral>
 void Vm::list() {
   const auto size = read<Integral>();
-  const auto list = gc.construct<DzList>(classes.list);
+  const auto list = gc.construct<DzList>();
   list->values.reserve(size);
   for (const auto& value : sh::range(stack.end() - size, stack.end())) {
     list->values.push_back(value);

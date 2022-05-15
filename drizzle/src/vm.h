@@ -29,7 +29,7 @@ private:
   };
 
   void defineNativeFunctions();
-  void defineNativeClassList();
+  void defineNativeMembersList();
 
   template<std::integral Integral>
   auto read() -> Integral;
@@ -101,13 +101,10 @@ private:
   void subtract();
   void true_();
 
-  struct Functions {
-    DzClass* list;
-  } classes;
-
   Gc& gc;
   u8* opcode_pc = nullptr;
   sh::stack<Frame, 32> frames;
   sh::stack<DzValue, 512> stack;
   sh::vector<DzValue, 256> globals;
+  Map<DzFunction*> members[int(DzObject::Type::LastEnumValue)];
 };

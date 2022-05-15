@@ -2,8 +2,8 @@
 
 #include <sh/fmt.h>
 
-DzList::DzList(DzClass* class_)
-  : DzObject(Type::List), class_(class_) {}
+DzList::DzList()
+  : DzObject(Type::List) {}
 
 DzList::operator bool() const {
   return !values.empty();

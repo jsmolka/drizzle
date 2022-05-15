@@ -32,7 +32,6 @@ void Gc::collect() {
 }
 
 void Gc::mark() {
-  mark(vm->classes.list);
   for (const auto& value : vm->stack) {
     mark(value);
   }
@@ -41,6 +40,12 @@ void Gc::mark() {
   }
   for (const auto& global : vm->globals) {
     mark(global);
+  }
+  for (const auto& extension : vm->extensions) {
+    for (const auto& [key, value] : extension) {
+      mark(key);
+      mark(value);
+    }
   }
 }
 
@@ -101,7 +106,6 @@ void Gc::mark(DzObject* object) {
 
     case DzObject::Type::List: {
       const auto list = static_cast<DzList*>(object);
-      mark(list->class_);
       for (const auto& value : list->values) {
         mark(value);
       }
