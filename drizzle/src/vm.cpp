@@ -382,20 +382,35 @@ void Vm::false_() {
 }
 
 void Vm::get() {
-  auto prop_v = stack.pop_value();
-  auto inst_v = stack.pop_value();
-  if (!inst_v.is(DzObject::Type::Instance)) {
-    raise("cannot get property '{}' of type '{}'", prop_v.repr(), inst_v.kind());
-  }
+  auto error = [this](const DzValue& prop, const DzValue& self) {
+    raise("cannot get property '{}' of type '{}'", prop.repr(), self.kind());
+  };
 
-  auto prop = prop_v.as<DzString>();
-  auto inst = inst_v.as<DzInstance>();
-  if (const auto value = inst->get(prop)) {
-    stack.push(*value);
-  } else if (const auto function = inst->class_->get(prop)) {
-    stack.push(gc.construct<DzBoundMethod>(inst, function));
+  const auto prop = stack.pop_value().as<DzString>();
+  const auto self = stack.pop_value();
+
+  if (self.is(DzValue::Type::Object)) {
+    if (self.o->is(DzObject::Type::Instance)) {
+      const auto instance = static_cast<DzInstance*>(self.o);
+      if (const auto value = instance->get(prop)) {
+        stack.push(*value);
+      } else if (const auto function = instance->class_->get(prop)) {
+        stack.push(gc.construct<DzBoundMethod>(instance, function));
+      } else {
+        stack.push(&null);
+      }
+    } else {
+      const auto type = int(self.o->type);
+      const auto iter = members[type].find(prop);
+      if (iter != members[type].end()) {
+        const auto& [identifier, function] = *iter;
+        stack.push(gc.construct<DzBoundMethod>(self.o, function));
+      } else {
+        error(prop, self);
+      }
+    }
   } else {
-    stack.push(&null);
+    error(prop, self);
   }
 }
 
@@ -418,38 +433,38 @@ void Vm::greaterEqual() {
 }
 
 void Vm::invoke() {
+  auto error = [this](const DzValue& prop, const DzValue& self) {
+    raise("cannot get property '{}' of type '{}'", prop.repr(), self.kind());
+  };
+
   const auto argc = read<u8>();
   const auto prop = stack.pop_value().as<DzString>();
 
-  auto& callee = stack.peek(argc);
-  if (callee.is(DzValue::Type::Object)) {
-    if (callee.o->is(DzObject::Type::Instance)) {
-      const auto instance = static_cast<DzInstance*>(callee.o);
+  auto& self = stack.peek(argc);
+  if (self.is(DzValue::Type::Object)) {
+    if (self.o->is(DzObject::Type::Instance)) {
+      const auto instance = static_cast<DzInstance*>(self.o);
       if (const auto value = instance->get(prop)) {
-        callee = *value;
+        self = *value;
       } else if (const auto function = instance->class_->get(prop)) {
         return call(function, argc);
       } else {
-        callee = &null;
+        self = &null;
       }
     } else {
-      const auto type = int(callee.o->type);
+      const auto type = int(self.o->type);
       const auto iter = members[type].find(prop);
       if (iter != members[type].end()) {
         const auto& [identifier, function] = *iter;
         return call(function, argc);
       } else {
-        goto error;
+        error(prop, self);
       }
     }
   } else {
-    goto error;
+    error(prop, self);
   }
-
-  return call(callee, argc);
-
-error:
-  raise("cannot get property '{}' of type '{}'", prop->repr(), callee.kind());
+  call(self, argc);
 }
 
 void Vm::jump() {
