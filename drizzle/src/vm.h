@@ -7,18 +7,16 @@
 #include "error.h"
 #include "token.h"
 
-class Compiler;
 class Gc;
 
 class Vm {
 public:
-  friend class Compiler;
   friend class DzFunction;
   friend class Gc;
 
   Vm(Gc& gc);
 
-  void interpret(DzFunction* function);
+  void interpret(DzFunction* main);
 
 private:
   static constexpr auto kMaximumRecursionDepth = 1000;
@@ -29,6 +27,8 @@ private:
     DzFunction* function;
   };
 
+  void defineNative(DzFunction* main);
+
   template<std::integral Integral>
   auto read() -> Integral;
 
@@ -38,8 +38,6 @@ private:
     const auto line = frame.function->chunk().line(opcode_pc);
     throw RuntimeError(Location{line}, format, std::forward<Args>(args)...);
   }
-
-  void defineFunctions();
 
   template<template<typename> typename Promote = promote_t, typename Callback>
   void unary(std::string_view operation, Callback callback);
@@ -56,6 +54,7 @@ private:
   void bitwiseXor();
   void call();
   void call(DzValue& callee, std::size_t argc);
+  void call(DzFunction* function, std::size_t argc);
   template<typename Integral>
   void constant();
   void divide();

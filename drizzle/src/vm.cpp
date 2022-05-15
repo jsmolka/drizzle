@@ -16,15 +16,14 @@ using binary_t = std::conditional_t<dz_primitive<A, B>, Promote<A, B>, A>;
 Vm::Vm(Gc& gc)
   : gc(gc) {}
 
-void Vm::interpret(DzFunction* function) {
+void Vm::interpret(DzFunction* main) {
   static_assert(int(Opcode::LastEnumValue) == 48);
 
-  frames.emplace(function->chunk().code.data(), 0, function);
-
-  globals.resize(function->identifiers.size());
-  defineFunctions();
+  defineNative(main);
 
   gc.vm = this;
+
+  frames.emplace(main->chunk().code.data(), 0, main);
 
   while (true) {
     opcode_pc = frames.top().pc;
@@ -99,8 +98,6 @@ template<template<typename> typename Promote, typename Callback>
 void Vm::unary(std::string_view operation, Callback callback) {
   static_assert(int(DzValue::Type::LastEnumValue) == 4);
 
-  const auto& a = stack.top();
-
   #define DZ_EVAL(a)                   \
   {                                    \
     using A  = decltype(a);            \
@@ -112,6 +109,8 @@ void Vm::unary(std::string_view operation, Callback callback) {
       break;                           \
     }                                  \
   }
+
+  const auto& a = stack.top();
 
   switch (a.type) {
     case DzValue::Type::Bool:   DZ_EVAL(a.b);
@@ -132,9 +131,6 @@ template<template<typename, typename> typename Promote, typename Callback>
 void Vm::binary(std::string_view operation, Callback callback) {
   static_assert(int(DzValue::Type::LastEnumValue) == 4);
 
-  const auto& a = stack.peek(1);
-  const auto& b = stack.peek(0);
-
   #define DZ_HASH(a, b) int(DzValue::Type::LastEnumValue) * int(a) + int(b)
   #define DZ_EVAL(a, b)                       \
   {                                           \
@@ -150,6 +146,9 @@ void Vm::binary(std::string_view operation, Callback callback) {
       break;                                  \
     }                                         \
   }
+
+  const auto& a = stack.peek(1);
+  const auto& b = stack.peek(0);
 
   switch (DZ_HASH(a.type, b.type)) {
     case DZ_HASH(DzValue::Type::Bool,   DzValue::Type::Bool  ): DZ_EVAL(a.b, b.b);
@@ -269,13 +268,13 @@ void Vm::call() {
 }
 
 void Vm::call(DzValue& callee, std::size_t argc) {
-  if (callee.type == DzValue::Type::Object) {
+  if (callee.is(DzValue::Type::Object)) {
     switch (callee.o->type) {
       case DzObject::Type::Class: {
         const auto class_ = callee.as<DzClass>();
         callee = class_->construct(gc);
         if (class_->init) {
-          (*class_->init)(*this, argc);
+          call(class_->init, argc);
         } else if (argc > 0) {
           raise("expected 0 argument(s) but got {}", argc);
         }
@@ -283,19 +282,33 @@ void Vm::call(DzValue& callee, std::size_t argc) {
       }
 
       case DzObject::Type::Function: {
-        (*callee.as<DzFunction>())(*this, argc);
+        call(callee.as<DzFunction>(), argc);
         return;
       }
 
       case DzObject::Type::BoundMethod: {
         const auto method = callee.as<DzBoundMethod>();
         callee = method->self;
-        (*method->function)(*this, argc);
+        call(method->function, argc);
         return;
       }
     }
   }
   raise("'{}' is not callable", callee);
+}
+
+void Vm::call(DzFunction* function, std::size_t argc) {
+  if (frames.size() == kMaximumRecursionDepth) {
+    raise("maximum recursion depth exceeded");
+  }
+  if (function->arity && *function->arity != argc) {
+    raise("expected {} argument(s) but got {}", *function->arity, argc);
+  }
+  if (function->isChunk()) {
+    frames.emplace(function->chunk().code.data(), stack.size() - argc - 1, function);
+  } else {
+    stack.top() = function->native()(*this, argc);
+  }
 }
 
 template<typename Integral>
@@ -350,7 +363,6 @@ void Vm::false_() {
 void Vm::get() {
   auto prop_v = stack.pop_value();
   auto inst_v = stack.pop_value();
-
   if (!inst_v.is(DzObject::Type::Instance)) {
     raise("cannot get property '{}' of type '{}'", prop_v.repr(), inst_v.kind());
   }
@@ -398,7 +410,7 @@ void Vm::invoke() {
   if (const auto value = inst->get(prop)) {
     inst_v = *value;
   } else if (const auto function = inst->class_->get(prop)) {
-    (*function)(*this, argc);
+    call(function, argc);
     return;
   } else {
     inst_v = &null;
@@ -460,7 +472,8 @@ void Vm::loadGlobal() {
   const auto index = read<Integral>();
   const auto& value = globals[index];
   if (value.isUndefined()) {
-    for (const auto& identifier : frames[0].function->identifiers) {
+    const auto main = frames[0].function;
+    for (const auto& identifier : main->identifiers) {
       if (identifier.second == index) {
         raise("undefined variable '{}'", identifier.first->data);
       }
@@ -552,8 +565,6 @@ void Vm::return_() {
 void Vm::set() {
   auto prop_v = stack.pop_value();
   auto inst_v = stack.pop_value();
-
-  assert(prop_v.is(DzObject::Type::String));
   if (!inst_v.is(DzObject::Type::Instance)) {
     raise("cannot set property '{}' of type '{}'", prop_v.repr(), inst_v.kind());
   }

@@ -76,12 +76,12 @@ void Gc::mark(DzObject* object) {
     case DzObject::Type::Function: {
       const auto function = static_cast<DzFunction*>(object);
       mark(function->identifier);
+      for (const auto& [key, value] : function->identifiers) {
+        mark(key);
+      }
       if (function->isChunk()) {
         for (const auto& constant : function->chunk().constants) {
           mark(constant);
-        }
-        for (const auto& [key, value] : function->identifiers) {
-          mark(key);
         }
       }
       break;

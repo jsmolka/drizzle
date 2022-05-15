@@ -28,10 +28,10 @@ public:
     collect();
     if constexpr (std::same_as<T, DzString>) {
       DzString string(std::forward<Args>(args)...);
-      auto pos = pool.find(&string);
-      return pos == pool.end() 
+      const auto iter = pool.find(&string);
+      return iter == pool.end() 
         ? *pool.insert(allocate(std::move(string))).first
-        : *pos;
+        : *iter;
     } else {
       return allocate(std::forward<Args>(args)...);
     }

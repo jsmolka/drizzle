@@ -1,7 +1,5 @@
 #include "dzfunction.h"
 
-#include "vm.h"
-
 DzFunction::DzFunction()
   : DzFunction(nullptr, std::nullopt) {}
 
@@ -13,20 +11,6 @@ DzFunction::DzFunction(DzString* identifier, Arity arity, const Native& native)
 
 DzFunction::operator bool() const {
   return true;
-}
-
-void DzFunction::operator()(Vm& vm, std::size_t argc) {
-  if (vm.frames.size() == Vm::kMaximumRecursionDepth) {
-    vm.raise("maximum recursion depth exceeded");
-  }
-  if (arity && *arity != argc) {
-    vm.raise("expected {} argument(s) but got {}", *arity, argc);
-  }
-  if (isChunk()) {
-    vm.frames.emplace(chunk().code.data(), vm.stack.size() - argc - 1, this);
-  } else {
-    vm.stack.top() = native()(vm, argc);
-  }
 }
 
 auto DzFunction::kind() const -> std::string_view {

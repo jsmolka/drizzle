@@ -7,8 +7,8 @@
 #include "gc.h"
 #include "vm.h"
 
-void Vm::defineFunctions() {
-  const auto functions = {
+void Vm::defineNative(DzFunction* main) {
+  DzFunction* functions[] = {
     gc.construct<DzFunction>(
       gc.construct<DzString>("assert"), 1, [](Vm& vm, std::size_t) {
         if (!vm.stack.pop_value()) {
@@ -42,7 +42,7 @@ void Vm::defineFunctions() {
     ),
   };
 
-  const auto main = frames[0].function;
+  globals.resize(main->identifiers.size());
   for (const auto& function : functions) {
     const auto iter = main->identifiers.find(function->identifier);
     if (iter != main->identifiers.end()) {
