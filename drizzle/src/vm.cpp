@@ -434,8 +434,8 @@ void Vm::invoke() {
       }
     } else {
       const auto type = int(callee.o->type);
-      const auto iter = extensions[type].find(prop);
-      if (iter != extensions[type].end()) {
+      const auto iter = functions[type].find(prop);
+      if (iter != functions[type].end()) {
         const auto& [identifier, function] = *iter;
         return call(function, argc);
       } else {

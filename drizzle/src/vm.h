@@ -106,5 +106,5 @@ private:
   sh::stack<Frame, 32> frames;
   sh::stack<DzValue, 512> stack;
   sh::vector<DzValue, 256> globals;
-  Map<DzFunction*> members[int(DzObject::Type::LastEnumValue)];
+  Map<DzFunction*> functions[int(DzObject::Type::LastEnumValue)];
 };

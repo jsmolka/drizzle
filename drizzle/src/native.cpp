@@ -94,6 +94,6 @@ void Vm::defineNativeMembersList() {
   };
 
   for (const auto& function : functions) {
-    extensions[int(DzObject::Type::List)].insert_or_assign(function->identifier, function);
+    functions[int(DzObject::Type::List)].insert_or_assign(function->identifier, function);
   }
 }
