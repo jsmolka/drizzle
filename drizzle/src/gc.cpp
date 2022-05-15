@@ -41,8 +41,8 @@ void Gc::mark() {
   for (const auto& global : vm->globals) {
     mark(global);
   }
-  for (const auto& functions : vm->functions) {
-    for (const auto& [key, value] : functions) {
+  for (const auto& members : vm->members) {
+    for (const auto& [key, value] : members) {
       mark(key);
       mark(value);
     }
