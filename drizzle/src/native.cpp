@@ -3,6 +3,7 @@
 #include <chrono>
 
 #include "dzfunction.h"
+#include "dzlist.h"
 #include "dznull.h"
 #include "gc.h"
 #include "vm.h"
@@ -54,4 +55,17 @@ void Vm::defineNativeFunctions() {
 
 void Vm::defineNativeClassList() {
   classes.list = gc.construct<DzClass>(gc.construct<DzString>("list"));
+
+  const auto functions = {
+    gc.construct<DzFunction>(
+      gc.construct<DzString>("get"), 1, [](Vm& vm, std::size_t) {
+        const auto list = vm.stack.peek(1).as<DzList>();
+        return list->values[vm.stack.pop_value().i];
+      }
+    ),
+  };
+
+  for (const auto& function : functions) {
+    classes.list->functions.insert_or_assign(function->identifier, function);
+  }
 }

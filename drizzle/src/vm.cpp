@@ -26,6 +26,7 @@ void Vm::interpret(DzFunction* main) {
   frames.emplace(main->chunk().code.data(), 0, main);
 
   defineNativeFunctions();
+  defineNativeClassList();
 
   gc.vm = this;
 
@@ -404,24 +405,31 @@ void Vm::greaterEqual() {
 
 void Vm::invoke() {
   const auto argc = read<u8>();
-  auto  prop_v = stack.pop_value();
-  auto& inst_v = stack.peek(argc);
+  const auto prop = stack.pop_value().as<DzString>();
 
-  if (!inst_v.is(DzObject::Type::Instance)) {
-    raise("cannot get property '{}' of type '{}'", prop_v.repr(), inst_v.kind());
-  }
-
-  auto prop = prop_v.as<DzString>();
-  auto inst = inst_v.as<DzInstance>();
-  if (const auto value = inst->get(prop)) {
-    inst_v = *value;
-  } else if (const auto function = inst->class_->get(prop)) {
-    call(function, argc);
-    return;
+  auto& data_v = stack.peek(argc);
+  if (data_v.is(DzObject::Type::Instance)) {
+    auto inst = data_v.as<DzInstance>();
+    if (const auto value = inst->get(prop)) {
+      data_v = *value;
+    } else if (const auto function = inst->class_->get(prop)) {
+      call(function, argc);
+      return;
+    } else {
+      data_v = &null;
+    }
+  } else if (data_v.is(DzObject::Type::List)) {
+    auto list = data_v.as<DzList>();
+    if (const auto function = list->class_->get(prop)) {
+      call(function, argc);
+      return;
+    } else {
+      data_v = &null;
+    }
   } else {
-    inst_v = &null;
+    raise("cannot get property '{}' of type '{}'", prop->repr(), data_v.kind());
   }
-  call(inst_v, argc);
+  call(data_v, argc);
 }
 
 void Vm::jump() {
