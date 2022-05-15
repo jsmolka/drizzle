@@ -27,7 +27,8 @@ private:
     DzFunction* function;
   };
 
-  void defineNative(DzFunction* main);
+  void defineNative(DzString* identifier, const DzValue& value);
+  void defineNativeFunctions();
 
   template<std::integral Integral>
   auto read() -> Integral;

@@ -19,11 +19,12 @@ Vm::Vm(Gc& gc)
 void Vm::interpret(DzFunction* main) {
   static_assert(int(Opcode::LastEnumValue) == 48);
 
-  defineNative(main);
+  globals.resize(main->identifiers.size());
+  frames.emplace(main->chunk().code.data(), 0, main);
+
+  defineNativeFunctions();
 
   gc.vm = this;
-
-  frames.emplace(main->chunk().code.data(), 0, main);
 
   while (true) {
     opcode_pc = frames.top().pc;

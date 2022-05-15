@@ -7,8 +7,17 @@
 #include "gc.h"
 #include "vm.h"
 
-void Vm::defineNative(DzFunction* main) {
-  DzFunction* functions[] = {
+void Vm::defineNative(DzString* identifier, const DzValue& value) {
+  const auto main = frames[0].function;
+  const auto iter = main->identifiers.find(identifier);
+  if (iter != main->identifiers.end()) {
+    const auto& [identifier, index] = *iter;
+    globals[index] = value;
+  }
+}
+
+void Vm::defineNativeFunctions() {
+  const auto functions = {
     gc.construct<DzFunction>(
       gc.construct<DzString>("assert"), 1, [](Vm& vm, std::size_t) {
         if (!vm.stack.pop_value()) {
@@ -42,12 +51,7 @@ void Vm::defineNative(DzFunction* main) {
     ),
   };
 
-  globals.resize(main->identifiers.size());
   for (const auto& function : functions) {
-    const auto iter = main->identifiers.find(function->identifier);
-    if (iter != main->identifiers.end()) {
-      const auto& [identifier, index] = *iter;
-      globals[index] = function;
-    }
+    defineNative(function->identifier, function);
   }
 }
