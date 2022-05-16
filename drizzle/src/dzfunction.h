@@ -23,8 +23,8 @@ public:
   auto repr() const -> std::string;
 
   auto isChunk() const -> bool;
-  auto isNative() const -> bool;
   auto chunk() -> Chunk&;
+  auto isNative() const -> bool;
   auto native() -> Native&;
 
   Arity arity;

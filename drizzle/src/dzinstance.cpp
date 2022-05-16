@@ -3,10 +3,6 @@
 #include <sh/fmt.h>
 #include <sh/utility.h>
 
-#include "dzboundmethod.h"
-#include "dznull.h"
-#include "dzvalue.h"
-
 DzInstance::DzInstance(DzClass* class_)
   : DzObject(Type::Instance), class_(class_) {}
 
