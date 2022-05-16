@@ -70,20 +70,21 @@ struct fmt::formatter<DzValue> : fmt::formatter<std::string> {
 
 template<>
 struct fmt::formatter<DzValue::Type> : fmt::formatter<std::string_view> {
-  static_assert(int(DzValue::Type::LastEnumValue) == 4);
+  static auto repr(const DzValue::Type& type) -> std::string_view {
+    static_assert(int(DzValue::Type::LastEnumValue) == 4);
+    switch (type) {
+      case DzValue::Type::Bool:   return "bool";
+      case DzValue::Type::Int:    return "int";
+      case DzValue::Type::Float:  return "float";
+      case DzValue::Type::Object: return "object";
+      default:
+        SH_UNREACHABLE;
+        return "unreachable";
+    }
+  }
+  
   template<typename FormatContext>
   auto format(const DzValue::Type& type, FormatContext& ctx) const {
-    auto repr = [](const DzValue::Type& type) {
-      switch (type) {
-        case DzValue::Type::Bool:   return "bool";
-        case DzValue::Type::Int:    return "int";
-        case DzValue::Type::Float:  return "float";
-        case DzValue::Type::Object: return "object";
-        default:
-          SH_UNREACHABLE;
-          return "unreachable";
-      }
-    };
     return fmt::formatter<std::string_view>::format(repr(type), ctx);
   }
 };

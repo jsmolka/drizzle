@@ -624,15 +624,13 @@ void Vm::return_() {
 }
 
 void Vm::set() {
-  auto prop_v = stack.pop_value();
-  auto inst_v = stack.pop_value();
-  if (!inst_v.is(DzObject::Type::Instance)) {
-    raise("cannot set property '{}' of type '{}'", prop_v.repr(), inst_v.kind());
+  const auto prop = stack.pop_value().as<DzString>();
+  const auto self = stack.pop_value();
+  if (self.is(DzObject::Type::Instance)) {
+    static_cast<DzInstance*>(self.o)->set(prop, stack.top());
+  } else {
+    raise("cannot set property '{}' of type '{}'", prop->repr(), self.kind());
   }
-
-  auto prop = prop_v.as<DzString>();
-  auto inst = inst_v.as<DzInstance>();
-  inst->set(prop, stack.top());
 }
 
 template<std::integral Integral>

@@ -21,7 +21,6 @@ public:
   DzString(const std::string& data);
 
   operator bool() const;
-  auto kind() const -> std::string_view;
   auto repr() const -> std::string;
 
   std::string data;

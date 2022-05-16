@@ -36,21 +36,6 @@ auto DzObject::operator!=(const DzObject& other) const -> bool {
   return !(*this == other);
 }
 
-auto DzObject::kind() const -> std::string_view {
-  switch (type) {
-    case Type::BoundMethod: return as<DzBoundMethod>().kind();
-    case Type::Class:       return as<DzClass>().kind();
-    case Type::Function:    return as<DzFunction>().kind();
-    case Type::Instance:    return as<DzInstance>().kind();
-    case Type::List:        return as<DzList>().kind();
-    case Type::Null:        return as<DzNull>().kind();
-    case Type::String:      return as<DzString>().kind();
-    default:
-      SH_UNREACHABLE;
-      return "unreachable";
-  }
-}
-
 auto DzObject::repr() const -> std::string {
   switch (type) {
     case Type::BoundMethod: return as<DzBoundMethod>().repr();

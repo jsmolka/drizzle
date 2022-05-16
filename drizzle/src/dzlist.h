@@ -10,7 +10,6 @@ public:
   DzList();
 
   operator bool() const;
-  auto kind() const -> std::string_view;
   auto repr() const -> std::string;
 
   std::vector<DzValue> values;

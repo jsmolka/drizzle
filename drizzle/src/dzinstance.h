@@ -10,7 +10,6 @@ public:
   DzInstance(DzClass* class_);
 
   operator bool() const;
-  auto kind() const -> std::string_view;
   auto repr() const -> std::string;
 
   auto get(DzString* identifier) -> std::optional<DzValue>;

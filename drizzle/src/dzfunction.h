@@ -20,7 +20,6 @@ public:
   DzFunction(DzString* identifier, Arity arity, const Native& native);
 
   operator bool() const;
-  auto kind() const -> std::string_view;
   auto repr() const -> std::string;
 
   auto isChunk() const -> bool;

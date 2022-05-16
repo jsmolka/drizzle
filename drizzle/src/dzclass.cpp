@@ -12,10 +12,6 @@ DzClass::operator bool() const {
   return true;
 }
 
-auto DzClass::kind() const -> std::string_view {
-  return "class";
-}
-
 auto DzClass::repr() const -> std::string {
   return fmt::format("<class {}>", identifier->repr());
 }

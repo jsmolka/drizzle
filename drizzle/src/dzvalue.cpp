@@ -18,15 +18,9 @@ DzValue::operator bool() const {
 }
 
 auto DzValue::kind() const -> std::string_view {
-  switch (type) {
-    case Type::Bool:   return "bool";
-    case Type::Int:    return "int";
-    case Type::Float:  return "float";
-    case Type::Object: return o->kind();
-    default:
-      SH_UNREACHABLE;
-      return "unreachable";
-  }
+  return type == Type::Object
+    ? fmt::formatter<DzObject::Type>::repr(o->type)
+    : fmt::formatter<Type>::repr(type);
 }
 
 auto DzValue::repr() const -> std::string {

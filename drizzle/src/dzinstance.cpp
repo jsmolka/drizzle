@@ -14,10 +14,6 @@ DzInstance::operator bool() const {
   return true;
 }
 
-auto DzInstance::kind() const -> std::string_view {
-  return class_->kind();
-}
-
 auto DzInstance::repr() const -> std::string {
   return fmt::format("<{} instance at 0x{:016X}>", class_->identifier->repr(), sh::cast<sh::u64>(this));
 }

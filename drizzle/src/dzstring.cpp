@@ -13,10 +13,6 @@ DzString::operator bool() const {
   return !data.empty();
 }
 
-auto DzString::kind() const -> std::string_view {
-  return "string";
-}
-
 auto DzString::repr() const -> std::string {
     return data;
 }

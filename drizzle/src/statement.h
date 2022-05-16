@@ -118,28 +118,29 @@ public:
 
 template<>
 struct fmt::formatter<Statement::Type> : fmt::formatter<std::string_view> {
-  static_assert(int(Statement::Type::LastEnumValue) == 12);
+  static auto repr(const Statement::Type& value) -> std::string_view {
+    static_assert(int(Statement::Type::LastEnumValue) == 12);
+    switch (value) {
+      case Statement::Type::Block:               return "block";
+      case Statement::Type::Break:               return "break";
+      case Statement::Type::Class:               return "class";
+      case Statement::Type::Continue:            return "continue";
+      case Statement::Type::Def:                 return "def";
+      case Statement::Type::ExpressionStatement: return "expression_statement";
+      case Statement::Type::If:                  return "if";
+      case Statement::Type::Noop:                return "noop";
+      case Statement::Type::Program:             return "program";
+      case Statement::Type::Return:              return "return";
+      case Statement::Type::Var:                 return "var";
+      case Statement::Type::While:               return "while";
+      default:
+        SH_UNREACHABLE;
+        return "unreachable";
+    }
+  }
+  
   template<typename FormatContext>
   auto format(const Statement::Type& value, FormatContext& ctx) const {
-    auto repr = [](const Statement::Type& value) {
-      switch (value) {
-        case Statement::Type::Block:               return "block";
-        case Statement::Type::Break:               return "break";
-        case Statement::Type::Class:               return "class";
-        case Statement::Type::Continue:            return "continue";
-        case Statement::Type::Def:                 return "def";
-        case Statement::Type::ExpressionStatement: return "expression_statement";
-        case Statement::Type::If:                  return "if";
-        case Statement::Type::Noop:                return "noop";
-        case Statement::Type::Program:             return "program";
-        case Statement::Type::Return:              return "return";
-        case Statement::Type::Var:                 return "var";
-        case Statement::Type::While:               return "while";
-        default:
-          SH_UNREACHABLE;
-          return "unreachable";
-      }
-    };
     return fmt::formatter<std::string_view>::format(repr(value), ctx);
   }
 };
