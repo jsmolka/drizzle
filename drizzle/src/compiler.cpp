@@ -64,7 +64,7 @@ void Compiler::visit(Statement::Break& break_) {
 }
 
 void Compiler::visit(Statement::Class& class_) {
-  auto class_obj = gc.construct<DzClass>(gc.construct<DzString>(class_.identifier));
+  auto object = gc.construct<DzClass>(gc.construct<DzString>(class_.identifier));
   for (const auto& method : class_.methods) {
     auto& def = method->def;
 
@@ -83,10 +83,10 @@ void Compiler::visit(Statement::Class& class_) {
     compiler.decreaseScope();
     compiler.emit(Opcode::Load, 0, Opcode::Return);
 
-    class_obj->add(compiler.function);
+    object->set(function->identifier, function);
   }
 
-  emitConstant(class_obj);
+  emitConstant(object);
   define(class_.identifier);
 }
 
@@ -382,7 +382,7 @@ void Compiler::patch(const std::vector<std::size_t>& jumps) {
 }
 
 void Compiler::define(const Identifier& identifier) {
-  auto redefined = [this](const Identifier& identifier) {
+  auto redefined = [](const Identifier& identifier) {
     throw SyntaxError(identifier.location, "redefined variable '{}'", identifier);
   };
 

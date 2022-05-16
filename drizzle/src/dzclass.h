@@ -4,8 +4,6 @@
 #include "dzstring.h"
 #include "map.h"
 
-class Gc;
-
 class DzClass : public DzObject {
 public:
   static constexpr auto kInit = "init";
@@ -15,8 +13,8 @@ public:
   operator bool() const;
   auto repr() const -> std::string;
 
-  void add(DzFunction* function);
   auto get(DzString* identifier) -> DzFunction*;
+  void set(DzString* identifier, DzFunction* function);
 
   DzString* identifier;
   DzFunction* init = nullptr;
