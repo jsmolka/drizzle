@@ -11,7 +11,7 @@
 void Vm::defineNativeFunctions() {
   const auto functions = {
     gc.construct<DzFunction>(
-      gc.construct<DzString>("assert"), 1, [](Vm& vm, std::size_t) {
+      gc.construct<DzString>("assert"), Arity::equal(1), [](Vm& vm, std::size_t) {
         if (!vm.stack.pop_value()) {
           vm.raise("assertion failed");
         }
@@ -19,25 +19,25 @@ void Vm::defineNativeFunctions() {
       }
     ),
     gc.construct<DzFunction>(
-      gc.construct<DzString>("print"), std::nullopt, [](Vm& vm, std::size_t argc) {
+      gc.construct<DzString>("print"), Arity::greaterEqual(1), [](Vm& vm, std::size_t argc) {
         fmt::print("{}\n", fmt::join(vm.stack.end() - argc, vm.stack.end(), " "));
         vm.stack.pop(argc);
         return &null;
       }
     ),
     gc.construct<DzFunction>(
-      gc.construct<DzString>("repr"), 1, [](Vm& vm, std::size_t) {
+      gc.construct<DzString>("repr"), Arity::equal(1), [](Vm& vm, std::size_t) {
         return vm.gc.construct<DzString>(vm.stack.pop_value().repr());
       }
     ),
     gc.construct<DzFunction>(
-      gc.construct<DzString>("time"), 0, [](Vm& vm, std::size_t) {
+      gc.construct<DzString>("time"), Arity::equal(0), [](Vm& vm, std::size_t) {
         using namespace std::chrono;
         return duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count();
       }
     ),
     gc.construct<DzFunction>(
-      gc.construct<DzString>("type"), 1, [](Vm& vm, std::size_t) {
+      gc.construct<DzString>("type"), Arity::equal(1), [](Vm& vm, std::size_t) {
         return vm.gc.construct<DzString>(vm.stack.pop_value().kind());
       }
     ),
@@ -56,20 +56,21 @@ void Vm::defineNativeFunctions() {
 void Vm::defineNativeMembersList() {
   const auto functions = {
     gc.construct<DzFunction>(
-      gc.construct<DzString>("size"), 0, [](Vm& vm, std::size_t) {
+      gc.construct<DzString>("size"), Arity::equal(0), [](Vm& vm, std::size_t) {
         const auto list = vm.stack.peek(0).as<DzList>();
         return static_cast<dzint>(list->values.size());
       }
     ),
     gc.construct<DzFunction>(
-      gc.construct<DzString>("push"), 1, [](Vm& vm, std::size_t) {
+      gc.construct<DzString>("push"), Arity::equal(1), [](Vm& vm, std::size_t) {
+        // Todo: support args >= 1
         const auto list = vm.stack.peek(1).as<DzList>();
         list->values.push_back(vm.stack.pop_value());
         return static_cast<dzint>(list->values.size());
       }
     ),
     gc.construct<DzFunction>(
-      gc.construct<DzString>("pop"), 0, [this](Vm& vm, std::size_t) {
+      gc.construct<DzString>("pop"), Arity::equal(0), [this](Vm& vm, std::size_t) {
         const auto list = vm.stack.peek(0).as<DzList>();
         if (list->values.empty()) {
           raise("cannot pop from empty list");
@@ -80,7 +81,7 @@ void Vm::defineNativeMembersList() {
       }
     ),
     gc.construct<DzFunction>(
-      gc.construct<DzString>("contains"), 1, [this](Vm& vm, std::size_t) {
+      gc.construct<DzString>("contains"), Arity::equal(1), [this](Vm& vm, std::size_t) {
         const auto list = vm.stack.peek(1).as<DzList>();
         const auto find = vm.stack.pop_value();
         for (const auto& value : list->values) {

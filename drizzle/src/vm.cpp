@@ -319,11 +319,12 @@ void Vm::call(DzValue& callee, std::size_t argc) {
 }
 
 void Vm::call(DzFunction* function, std::size_t argc) {
+  const auto& arity = function->arity;
+  if (!arity.matches(argc)) {
+    raise(arity.message(), arity.value, argc);
+  }
   if (frames.size() == kMaximumRecursionDepth) {
     raise("maximum recursion depth exceeded");
-  }
-  if (function->arity && *function->arity != argc) {
-    raise("expected {} argument(s) but got {}", *function->arity, argc);
   }
   if (function->isChunk()) {
     frames.emplace(function->chunk().code.data(), stack.size() - argc - 1, function);

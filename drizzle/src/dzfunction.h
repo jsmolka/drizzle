@@ -1,9 +1,9 @@
 #pragma once
 
 #include <functional>
-#include <optional>
 #include <variant>
 
+#include "arity.h"
 #include "chunk.h"
 #include "dzstring.h"
 #include "map.h"
@@ -12,12 +12,11 @@ class Vm;
 
 class DzFunction : public DzObject {
 public:
-  using Arity = std::optional<std::size_t>;
   using Native = std::function<DzValue(Vm&, std::size_t)>;
 
   DzFunction();
-  DzFunction(DzString* identifier, Arity arity);
-  DzFunction(DzString* identifier, Arity arity, const Native& native);
+  DzFunction(DzString* identifier, const Arity& arity);
+  DzFunction(DzString* identifier, const Arity& arity, const Native& native);
 
   operator bool() const;
   auto repr() const -> std::string;

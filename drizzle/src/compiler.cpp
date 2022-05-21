@@ -70,7 +70,7 @@ void Compiler::visit(Statement::Class& class_) {
 
     const auto type = def.identifier == DzClass::kInit ? Type::Init : Type::Function;
     const auto identifier = gc.construct<DzString>(def.identifier);
-    const auto function = gc.construct<DzFunction>(identifier, def.parameters.size());
+    const auto function = gc.construct<DzFunction>(identifier, Arity::equal(def.parameters.size()));
     Compiler compiler(gc, type, function, this);
 
     compiler.define("this");
@@ -106,7 +106,7 @@ void Compiler::visit(Statement::Continue& continue_) {
 
 void Compiler::visit(Statement::Def& def) {
   const auto identifier = gc.construct<DzString>(def.identifier);
-  const auto function = gc.construct<DzFunction>(identifier, def.parameters.size());
+  const auto function = gc.construct<DzFunction>(identifier, Arity::equal(def.parameters.size()));
   Compiler compiler(gc, Type::Function, function, this);
 
   compiler.define(def.identifier);

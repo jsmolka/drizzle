@@ -1,12 +1,12 @@
 #include "dzfunction.h"
 
 DzFunction::DzFunction()
-  : DzFunction(nullptr, std::nullopt) {}
+  : DzFunction(nullptr, Arity::equal(0)) {}
 
-DzFunction::DzFunction(DzString* identifier, Arity arity)
+DzFunction::DzFunction(DzString* identifier, const Arity& arity)
   : DzObject(Type::Function), identifier(identifier), arity(arity), body(Chunk{}) {}
 
-DzFunction::DzFunction(DzString* identifier, Arity arity, const Native& native)
+DzFunction::DzFunction(DzString* identifier, const Arity& arity, const Native& native)
   : DzObject(Type::Function), identifier(identifier), arity(arity), body(native) {}
 
 DzFunction::operator bool() const {
