@@ -120,6 +120,17 @@ class Test:
 var t = Test()
 assert(t.test() == 2)
 )",
+R"(
+class Test:
+  noop
+var t = Test()
+t.prop = 1
+assert(t.prop == 1)
+assert(t["prop"] == 1)
+t["prop2"] = 2
+assert(t.prop2 == 2)
+assert(t["prop2"] == 2)
+)",
       };
 
       for (const auto& source : kSources) {

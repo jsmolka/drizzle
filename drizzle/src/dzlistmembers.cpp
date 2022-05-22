@@ -32,9 +32,8 @@ void Vm::defineListMembers() {
       }
     ),
     gc.construct<DzFunction>(
-      gc.construct<DzString>("insert"), Arity::equal(2), [](Vm& vm, std::size_t) {
+      gc.construct<DzString>("insert"), Arity::equal(2), [](Vm& vm, std::size_t) -> dzint {
         vm.expect(vm.stack.peek(1), DzValue::Type::Int);
-
         const auto list  = vm.stack.peek(2).as<DzList>();
         const auto value = vm.stack.pop_value();
         const auto index = vm.stack.pop_value().i;
@@ -42,7 +41,7 @@ void Vm::defineListMembers() {
           vm.raise("insert index out of range");
         }
         list->values.insert(list->values.begin() + index, value);
-        return &null;
+        return list->values.size();
       }
     ),
     gc.construct<DzFunction>(
@@ -57,13 +56,14 @@ void Vm::defineListMembers() {
     gc.construct<DzFunction>(
       gc.construct<DzString>("remove"), Arity::equal(1), [](Vm& vm, std::size_t) {
         vm.expect(vm.stack.peek(0), DzValue::Type::Int);
-
         const auto list  = vm.stack.peek(1).as<DzList>();
         const auto index = vm.stack.pop_value().i;
         if (index >= list->values.size()) {
           vm.raise("remove index out of range");
         }
-        return &null;
+        const auto value = list->values[index];
+        list->values.erase(list->values.begin() + index);
+        return value;
       }
     ),
     gc.construct<DzFunction>(

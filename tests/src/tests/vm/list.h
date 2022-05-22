@@ -15,6 +15,9 @@ assert(x.size() == 0)
 R"(
 var x = [1, 2, 3]
 assert(x.size() == 3)
+assert(x[0] == 1)
+assert(x[1] == 2)
+assert(x[2] == 3)
 )",
 R"(
 var x = [1, 2, 3]
@@ -28,6 +31,41 @@ assert(x.push(1) == 1)
 assert(x.push(2) == 2)
 assert(x.push(3) == 3)
 assert(x.push(4, 5, 6) == 6)
+assert(x[0] == 1)
+assert(x[5] == 6)
+)",
+R"(
+var x = []
+assert(x.insert(0, 1) == 1)
+assert(x.size() == 1)
+assert(x[0] == 1)
+assert(x.insert(0, 2) == 2)
+assert(x.size() == 2)
+assert(x[0] == 2)
+assert(x.insert(1, 3) == 3)
+assert(x.size() == 3)
+assert(x[1] == 3)
+)",
+R"(
+var x = [1, 2, 3]
+assert(x.pop() == 3)
+assert(x.pop() == 2)
+assert(x.pop() == 1)
+assert(x.size() == 0)
+)",
+R"(
+var x = [1, 2, 3]
+assert(x.remove(1) == 2)
+assert(x.remove(0) == 1)
+assert(x.remove(0) == 3)
+assert(x.size() == 0)
+)",
+R"(
+var x = [1, 2, 3, 1]
+assert(x.index(1) == 0)
+assert(x.index(2) == 1)
+assert(x.index(3) == 2)
+assert(x.index(4) == -1)
 )",
       };
 
@@ -36,12 +74,20 @@ assert(x.push(4, 5, 6) == 6)
       }
     }
     {
-      //constexpr const char* kSources[] = {
-      //};
+      constexpr const char* kSources[] = {
+R"([].insert())",
+R"([].insert(1))",
+R"([].insert("test", 0))",
+R"([].insert(1, 0))",
+R"([].remove())",
+R"([].remove("test"))",
+R"([].remove(1))",
+R"([].index())",
+      };
 
-      //for (const auto& source : kSources) {
-      //  runThrows(source);
-      //}
+      for (const auto& source : kSources) {
+        runThrows(source);
+      }
     }
   };
 };
