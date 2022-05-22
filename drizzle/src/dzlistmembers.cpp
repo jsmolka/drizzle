@@ -22,6 +22,19 @@ void Vm::defineListMembers() {
       }
     ),
     gc.construct<DzFunction>(
+      gc.construct<DzString>("resize"), Arity::equal(2), [](Vm& vm, std::size_t) {
+        vm.expect(vm.stack.peek(1), DzValue::Type::Int);
+        const auto list = vm.stack.peek(2).as<DzList>();
+        const auto init = vm.stack.pop_value();
+        const auto size = vm.stack.pop_value().i;
+        if (size < 0) {
+          vm.raise("negative resize size");
+        }
+        list->values.resize(size, init);
+        return &null;
+      }
+    ),
+    gc.construct<DzFunction>(
       gc.construct<DzString>("push"), Arity::greaterEqual(1), [](Vm& vm, std::size_t argc) -> dzint {
         const auto list = vm.stack.peek(argc).as<DzList>();
         for (const auto& value : sh::range(vm.stack.end() - argc, vm.stack.end())) {

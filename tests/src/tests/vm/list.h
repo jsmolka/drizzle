@@ -67,6 +67,21 @@ assert(x.index(2) == 1)
 assert(x.index(3) == 2)
 assert(x.index(4) == -1)
 )",
+R"(
+var x = []
+x.resize(8, 0)
+assert(x.size() == 8)
+assert(x[0] == 0)
+assert(x[7] == 0)
+x.resize(4, 0)
+assert(x.size() == 4)
+assert(x[0] == 0)
+assert(x[3] == 0)
+x.resize(8, 1)
+assert(x.size() == 8)
+assert(x[0] == 0)
+assert(x[7] == 1)
+)",
       };
 
       for (const auto& source : kSources) {
@@ -83,6 +98,9 @@ R"([].remove())",
 R"([].remove("test"))",
 R"([].remove(1))",
 R"([].index())",
+R"([].resize())",
+R"([].resize(1))",
+R"([].resize("test", 1))",
       };
 
       for (const auto& source : kSources) {
