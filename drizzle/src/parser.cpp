@@ -16,40 +16,40 @@ auto Parser::rule(Token::Type type) -> const Rule& {
   static constexpr auto kRulesSize = std::size_t(Token::Type::LastEnumValue);
   static constexpr auto kRules = sh::make_array<Rule, kRulesSize>([](std::size_t type) -> Rule {
     switch (Token::Type(type)) {
-      case Token::Type::And:          return {nullptr,           &Parser::binary,  Precedence::BitAnd    };
-      case Token::Type::And2:         return {nullptr,           &Parser::and_,    Precedence::And       };
-      case Token::Type::Bang:         return {&Parser::unary,    nullptr,          Precedence::Term      };
-      case Token::Type::BangEqual:    return {nullptr,           &Parser::binary,  Precedence::Equality  };
-      case Token::Type::BracketLeft:  return {&Parser::list,     &Parser::bracket, Precedence::Call      };
-      case Token::Type::Caret:        return {nullptr,           &Parser::binary,  Precedence::BitXor    };
-      case Token::Type::Dot:          return {nullptr,           &Parser::dot,     Precedence::Call      };
-      case Token::Type::Equal2:       return {nullptr,           &Parser::binary,  Precedence::Equality  };
-      case Token::Type::False:        return {&Parser::literal,  nullptr,          Precedence::None      };
-      case Token::Type::Float:        return {&Parser::constant, nullptr,          Precedence::None      };
-      case Token::Type::Greater:      return {nullptr,           &Parser::binary,  Precedence::Comparison};
-      case Token::Type::Greater2:     return {nullptr,           &Parser::binary,  Precedence::BitShift  };
-      case Token::Type::Greater3:     return {nullptr,           &Parser::binary,  Precedence::BitShift  };
-      case Token::Type::GreaterEqual: return {nullptr,           &Parser::binary,  Precedence::Comparison};
-      case Token::Type::Identifier:   return {&Parser::variable, nullptr,          Precedence::None      };
-      case Token::Type::Integer:      return {&Parser::constant, nullptr,          Precedence::None      };
-      case Token::Type::Less:         return {nullptr,           &Parser::binary,  Precedence::Comparison};
-      case Token::Type::Less2:        return {nullptr,           &Parser::binary,  Precedence::BitShift  };
-      case Token::Type::LessEqual:    return {nullptr,           &Parser::binary,  Precedence::Comparison};
-      case Token::Type::Minus:        return {&Parser::unary,    &Parser::binary,  Precedence::Term      };
-      case Token::Type::Null:         return {&Parser::literal,  nullptr,          Precedence::None      };
-      case Token::Type::ParenLeft:    return {&Parser::group,    &Parser::call,    Precedence::Call      };
-      case Token::Type::Percent:      return {nullptr,           &Parser::binary,  Precedence::Factor    };
-      case Token::Type::Pipe:         return {nullptr,           &Parser::binary,  Precedence::BitOr     };
-      case Token::Type::Pipe2:        return {nullptr,           &Parser::or_,     Precedence::Or        };
-      case Token::Type::Plus:         return {nullptr,           &Parser::binary,  Precedence::Term      };
-      case Token::Type::Slash:        return {nullptr,           &Parser::binary,  Precedence::Factor    };
-      case Token::Type::Slash2:       return {nullptr,           &Parser::binary,  Precedence::Factor    };
-      case Token::Type::Star:         return {nullptr,           &Parser::binary,  Precedence::Factor    };
-      case Token::Type::Star2:        return {nullptr,           &Parser::binary,  Precedence::Factor    };
-      case Token::Type::String:       return {&Parser::constant, nullptr,          Precedence::None      };
-      case Token::Type::This:         return {&Parser::this_,    nullptr,          Precedence::None      };
-      case Token::Type::Tilde:        return {&Parser::unary,    nullptr,          Precedence::Unary     };
-      case Token::Type::True:         return {&Parser::literal,  nullptr,          Precedence::None      };
+      case Token::Type::And:          return {nullptr,           &Parser::binary,    Precedence::BitAnd    };
+      case Token::Type::And2:         return {nullptr,           &Parser::and_,      Precedence::And       };
+      case Token::Type::Bang:         return {&Parser::unary,    nullptr,            Precedence::Term      };
+      case Token::Type::BangEqual:    return {nullptr,           &Parser::binary,    Precedence::Equality  };
+      case Token::Type::BracketLeft:  return {&Parser::list,     &Parser::subscript, Precedence::Call      };
+      case Token::Type::Caret:        return {nullptr,           &Parser::binary,    Precedence::BitXor    };
+      case Token::Type::Dot:          return {nullptr,           &Parser::dot,       Precedence::Call      };
+      case Token::Type::Equal2:       return {nullptr,           &Parser::binary,    Precedence::Equality  };
+      case Token::Type::False:        return {&Parser::literal,  nullptr,            Precedence::None      };
+      case Token::Type::Float:        return {&Parser::constant, nullptr,            Precedence::None      };
+      case Token::Type::Greater:      return {nullptr,           &Parser::binary,    Precedence::Comparison};
+      case Token::Type::Greater2:     return {nullptr,           &Parser::binary,    Precedence::BitShift  };
+      case Token::Type::Greater3:     return {nullptr,           &Parser::binary,    Precedence::BitShift  };
+      case Token::Type::GreaterEqual: return {nullptr,           &Parser::binary,    Precedence::Comparison};
+      case Token::Type::Identifier:   return {&Parser::variable, nullptr,            Precedence::None      };
+      case Token::Type::Integer:      return {&Parser::constant, nullptr,            Precedence::None      };
+      case Token::Type::Less:         return {nullptr,           &Parser::binary,    Precedence::Comparison};
+      case Token::Type::Less2:        return {nullptr,           &Parser::binary,    Precedence::BitShift  };
+      case Token::Type::LessEqual:    return {nullptr,           &Parser::binary,    Precedence::Comparison};
+      case Token::Type::Minus:        return {&Parser::unary,    &Parser::binary,    Precedence::Term      };
+      case Token::Type::Null:         return {&Parser::literal,  nullptr,            Precedence::None      };
+      case Token::Type::ParenLeft:    return {&Parser::group,    &Parser::call,      Precedence::Call      };
+      case Token::Type::Percent:      return {nullptr,           &Parser::binary,    Precedence::Factor    };
+      case Token::Type::Pipe:         return {nullptr,           &Parser::binary,    Precedence::BitOr     };
+      case Token::Type::Pipe2:        return {nullptr,           &Parser::or_,       Precedence::Or        };
+      case Token::Type::Plus:         return {nullptr,           &Parser::binary,    Precedence::Term      };
+      case Token::Type::Slash:        return {nullptr,           &Parser::binary,    Precedence::Factor    };
+      case Token::Type::Slash2:       return {nullptr,           &Parser::binary,    Precedence::Factor    };
+      case Token::Type::Star:         return {nullptr,           &Parser::binary,    Precedence::Factor    };
+      case Token::Type::Star2:        return {nullptr,           &Parser::binary,    Precedence::Factor    };
+      case Token::Type::String:       return {&Parser::constant, nullptr,            Precedence::None      };
+      case Token::Type::This:         return {&Parser::this_,    nullptr,            Precedence::None      };
+      case Token::Type::Tilde:        return {&Parser::unary,    nullptr,            Precedence::Unary     };
+      case Token::Type::True:         return {&Parser::literal,  nullptr,            Precedence::None      };
     }
     return {nullptr, nullptr, Precedence::None};
   });
@@ -192,25 +192,6 @@ void Parser::binary(bool) {
   }));
 }
 
-void Parser::bracket(bool assign) {
-  auto self = expressions.pop_value();
-  auto expr = expression();
-  expectBracketRight();
-
-  if (assign && match(Token::Type::Equal)) {
-    expressions.push(newExpr(Expression::BracketSet{
-      .self = std::move(self),
-      .expression = std::move(expr),
-      .value = expression()
-    }));
-  } else {
-    expressions.push(newExpr(Expression::BracketGet{
-      .self = std::move(self),
-      .expression = std::move(expr)
-    }));
-  }
-}
-
 void Parser::list(bool) {
   Exprs values;
   if (current->type != Token::Type::BracketRight) {
@@ -294,6 +275,25 @@ void Parser::or_(bool) {
     .left = std::move(lhs),
     .right = std::move(rhs)
   }));
+}
+
+void Parser::subscript(bool assign) {
+  auto self = expressions.pop_value();
+  auto expr = expression();
+  expectBracketRight();
+
+  if (assign && match(Token::Type::Equal)) {
+    expressions.push(newExpr(Expression::SubscriptSet{
+      .self = std::move(self),
+      .expression = std::move(expr),
+      .value = expression()
+    }));
+  } else {
+    expressions.push(newExpr(Expression::SubscriptGet{
+      .self = std::move(self),
+      .expression = std::move(expr)
+    }));
+  }
 }
 
 void Parser::this_(bool) {

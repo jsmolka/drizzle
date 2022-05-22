@@ -35,8 +35,6 @@ void Vm::interpret(DzFunction* main) {
       case Opcode::BitwiseLsl: bitwiseLsl(); break;
       case Opcode::BitwiseOr: bitwiseOr(); break;
       case Opcode::BitwiseXor: bitwiseXor(); break;
-      case Opcode::BracketGet: bracketGet(); break;
-      case Opcode::BracketSet: bracketSet(); break;
       case Opcode::Call: call(); break;
       case Opcode::Constant: constant<u8>(); break;
       case Opcode::ConstantExt: constant<u16>(); break;
@@ -77,6 +75,8 @@ void Vm::interpret(DzFunction* main) {
       case Opcode::StoreExt: store<u16>(); break;
       case Opcode::StoreGlobal: storeGlobal<u8>(); break;
       case Opcode::StoreGlobalExt: storeGlobal<u16>(); break;
+      case Opcode::SubscriptGet: subscriptGet(); break;
+      case Opcode::SubscriptSet: subscriptSet(); break;
       case Opcode::Subtract: subtract(); break;
       case Opcode::True: true_(); break;
       default:
@@ -215,84 +215,6 @@ void Vm::bitwiseXor() {
     }
     return std::nullopt;
   });
-}
-
-void Vm::bracketGet() {
-  auto error = [this](const DzValue& self) {
-    raise("'{}' object is not subscriptable", self.kind());
-  };
-
-  const auto expr = stack.pop_value();
-  const auto self = stack.pop_value();
-  if (!self.is(DzValue::Type::Object)) {
-    error(self);
-  }
-
-  switch (self.o->type) {
-    case DzObject::Type::Instance: {
-      expect(expr, DzObject::Type::String);
-      const auto inst = self.as<DzInstance>();
-      const auto prop = expr.as<DzString>();
-      if (const auto value = inst->get(prop)) {
-        stack.push(*value);
-      } else if (const auto function = inst->class_->get(prop)) {
-        stack.push(gc.construct<DzBoundMethod>(inst, function));
-      } else {
-        stack.push(&null);
-      }
-      break;
-    }
-    case DzObject::Type::List: {
-      expect(expr, DzValue::Type::Int);
-      const auto list  = self.as<DzList>();
-      const auto index = expr.i;
-      if (index >= list->values.size()) {
-        raise("list index out of range");
-      }
-      stack.push(list->values[index]);
-      break;
-    }
-    default: {
-      error(self);
-      break;
-    }
-  }
-}
-
-void Vm::bracketSet() {
-  auto error = [this](const DzValue& self) {
-    raise("'{}' object is not subscriptable", self.kind());
-  };
-
-  const auto expr = stack.pop_value();
-  const auto self = stack.pop_value();
-  if (!self.is(DzValue::Type::Object)) {
-    error(self);
-  }
-
-  switch (self.o->type) {
-    case DzObject::Type::Instance: {
-      expect(expr, DzObject::Type::String);
-      const auto inst = self.as<DzInstance>();
-      const auto prop = expr.as<DzString>();
-      inst->set(prop, stack.top());
-      break;
-    }
-    case DzObject::Type::List: {
-      expect(expr, DzValue::Type::Int);
-      const auto list  = self.as<DzList>();
-      const auto index = expr.i;
-      if (index >= list->values.size()) {
-        raise("list index out of range");
-      }
-      list->values[index] = stack.top();
-      break;
-    }
-    default: {
-      error(self);
-      break;
-    }
-  }
 }
 
 void Vm::call() {
@@ -644,6 +566,85 @@ template<std::integral Integral>
 void Vm::storeGlobal() {
   const auto index = read<Integral>();
   globals[index] = stack.top();
+}
+
+
+void Vm::subscriptGet() {
+  auto error = [this](const DzValue& self) {
+    raise("'{}' object is not subscriptable", self.kind());
+  };
+
+  const auto expr = stack.pop_value();
+  const auto self = stack.pop_value();
+  if (!self.is(DzValue::Type::Object)) {
+    error(self);
+  }
+
+  switch (self.o->type) {
+    case DzObject::Type::Instance: {
+      expect(expr, DzObject::Type::String);
+      const auto inst = self.as<DzInstance>();
+      const auto prop = expr.as<DzString>();
+      if (const auto value = inst->get(prop)) {
+        stack.push(*value);
+      } else if (const auto function = inst->class_->get(prop)) {
+        stack.push(gc.construct<DzBoundMethod>(inst, function));
+      } else {
+        stack.push(&null);
+      }
+      break;
+    }
+    case DzObject::Type::List: {
+      expect(expr, DzValue::Type::Int);
+      const auto list  = self.as<DzList>();
+      const auto index = expr.i;
+      if (index >= list->values.size()) {
+        raise("list index out of range");
+      }
+      stack.push(list->values[index]);
+      break;
+    }
+    default: {
+      error(self);
+      break;
+    }
+  }
+}
+
+void Vm::subscriptSet() {
+  auto error = [this](const DzValue& self) {
+    raise("'{}' object is not subscriptable", self.kind());
+  };
+
+  const auto expr = stack.pop_value();
+  const auto self = stack.pop_value();
+  if (!self.is(DzValue::Type::Object)) {
+    error(self);
+  }
+
+  switch (self.o->type) {
+    case DzObject::Type::Instance: {
+      expect(expr, DzObject::Type::String);
+      const auto inst = self.as<DzInstance>();
+      const auto prop = expr.as<DzString>();
+      inst->set(prop, stack.top());
+      break;
+    }
+    case DzObject::Type::List: {
+      expect(expr, DzValue::Type::Int);
+      const auto list  = self.as<DzList>();
+      const auto index = expr.i;
+      if (index >= list->values.size()) {
+        raise("list index out of range");
+      }
+      list->values[index] = stack.top();
+      break;
+    }
+    default: {
+      error(self);
+      break;
+    }
+  }
 }
 
 void Vm::subtract() {

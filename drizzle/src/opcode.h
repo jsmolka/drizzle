@@ -15,8 +15,6 @@ enum class Opcode {
   BitwiseLsr,
   BitwiseOr,
   BitwiseXor,
-  BracketGet,
-  BracketSet,
   Call,
   Constant,
   ConstantExt,
@@ -57,6 +55,8 @@ enum class Opcode {
   StoreExt,
   StoreGlobal,
   StoreGlobalExt,
+  SubscriptGet,
+  SubscriptSet,
   Subtract,
   True,
   LastEnumValue,
@@ -77,8 +77,6 @@ struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
       case Opcode::BitwiseLsr:        return "BitwiseLsr";
       case Opcode::BitwiseOr:         return "BitwiseOr";
       case Opcode::BitwiseXor:        return "BitwiseXor";
-      case Opcode::BracketGet:        return "BracketGet";
-      case Opcode::BracketSet:        return "BracketSet";
       case Opcode::Call:              return "Call";
       case Opcode::Constant:          return "Constant";
       case Opcode::ConstantExt:       return "ConstantExt";
@@ -119,6 +117,8 @@ struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
       case Opcode::StoreExt:          return "StoreExt";
       case Opcode::StoreGlobal:       return "StoreGlobal";
       case Opcode::StoreGlobalExt:    return "StoreGlobalExt";
+      case Opcode::SubscriptGet:      return "SubscriptGet";
+      case Opcode::SubscriptSet:      return "SubscriptSet";
       case Opcode::Subtract:          return "Subtract";
       case Opcode::True:              return "True";
       default:

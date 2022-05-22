@@ -33,14 +33,14 @@ protected:
   void visit(Expr& expr) final;
   void visit(Expression::Assign& assign) final;
   void visit(Expression::Binary& binary) final;
-  void visit(Expression::BracketGet& bracket_get) final;
-  void visit(Expression::BracketSet& bracket_set) final;
   void visit(Expression::Call& call) final;
   void visit(Expression::Get& get) final;
   void visit(Expression::Invoke& invoke) final;
   void visit(Expression::Literal& literal) final;
   void visit(Expression::List& list) final;
   void visit(Expression::Set& set) final;
+  void visit(Expression::SubscriptGet& subscript_get) final;
+  void visit(Expression::SubscriptSet& subscript_set) final;
   void visit(Expression::Unary& unary) final;
   void visit(Expression::Variable& variable) final;
 

@@ -6,19 +6,19 @@ void AstVisiter::visit(Expr& expr) {
   static_assert(int(Expression::Type::LastEnumValue) == 13);
 
   switch (expr->type) {
-    case Expression::Type::Assign:     visit(expr->assign); break;
-    case Expression::Type::Binary:     visit(expr->binary); break;
-    case Expression::Type::BracketGet: visit(expr->bracket_get); break;
-    case Expression::Type::BracketSet: visit(expr->bracket_set); break;
-    case Expression::Type::Call:       visit(expr->call); break;
-    case Expression::Type::Get:        visit(expr->get); break;
-    case Expression::Type::Group:      visit(expr->group); break;
-    case Expression::Type::Invoke:     visit(expr->invoke); break;
-    case Expression::Type::List:       visit(expr->list); break;
-    case Expression::Type::Literal:    visit(expr->literal); break;
-    case Expression::Type::Set:        visit(expr->set); break;
-    case Expression::Type::Unary:      visit(expr->unary); break;
-    case Expression::Type::Variable:   visit(expr->variable); break;
+    case Expression::Type::Assign:       visit(expr->assign); break;
+    case Expression::Type::Binary:       visit(expr->binary); break;
+    case Expression::Type::Call:         visit(expr->call); break;
+    case Expression::Type::Get:          visit(expr->get); break;
+    case Expression::Type::Group:        visit(expr->group); break;
+    case Expression::Type::Invoke:       visit(expr->invoke); break;
+    case Expression::Type::List:         visit(expr->list); break;
+    case Expression::Type::Literal:      visit(expr->literal); break;
+    case Expression::Type::Set:          visit(expr->set); break;
+    case Expression::Type::SubscriptGet: visit(expr->subscript_get); break;
+    case Expression::Type::SubscriptSet: visit(expr->subscript_set); break;
+    case Expression::Type::Unary:        visit(expr->unary); break;
+    case Expression::Type::Variable:     visit(expr->variable); break;
     default:
       SH_UNREACHABLE;
       break;
@@ -38,17 +38,6 @@ void AstVisiter::visit(Expression::Assign& assign) {
 void AstVisiter::visit(Expression::Binary& binary) {
   visit(binary.left);
   visit(binary.right);
-}
-
-void AstVisiter::visit(Expression::BracketGet& bracket_get) {
-  visit(bracket_get.self);
-  visit(bracket_get.expression);
-}
-
-void AstVisiter::visit(Expression::BracketSet& bracket_set) {
-  visit(bracket_set.self);
-  visit(bracket_set.expression);
-  visit(bracket_set.value);
 }
 
 void AstVisiter::visit(Expression::Call& call) {
@@ -80,6 +69,17 @@ void AstVisiter::visit(Expression::Literal& literal) {
 void AstVisiter::visit(Expression::Set& set) {
   visit(set.self);
   visit(set.value);
+}
+
+void AstVisiter::visit(Expression::SubscriptGet& subscript_get) {
+  visit(subscript_get.self);
+  visit(subscript_get.expression);
+}
+
+void AstVisiter::visit(Expression::SubscriptSet& subscript_set) {
+  visit(subscript_set.self);
+  visit(subscript_set.expression);
+  visit(subscript_set.value);
 }
 
 void AstVisiter::visit(Expression::Unary& unary) {

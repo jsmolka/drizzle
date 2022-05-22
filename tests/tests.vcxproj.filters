@@ -283,7 +283,7 @@
     <ClInclude Include="src\tests\vm\list.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\tests\parser\expr\bracket.h">
+    <ClInclude Include="src\tests\parser\expr\subscript.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

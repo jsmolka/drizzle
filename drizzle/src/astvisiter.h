@@ -9,8 +9,6 @@ protected:
   virtual void visit(Exprs& exprs);
   virtual void visit(Expression::Assign& assign);
   virtual void visit(Expression::Binary& binary);
-  virtual void visit(Expression::BracketGet& bracket_get);
-  virtual void visit(Expression::BracketSet& bracket_set);
   virtual void visit(Expression::Call& call);
   virtual void visit(Expression::Get& get);
   virtual void visit(Expression::Group& group);
@@ -18,6 +16,8 @@ protected:
   virtual void visit(Expression::List& list);
   virtual void visit(Expression::Literal& literal);
   virtual void visit(Expression::Set& set);
+  virtual void visit(Expression::SubscriptGet& subscript_get);
+  virtual void visit(Expression::SubscriptSet& subscript_set);
   virtual void visit(Expression::Unary& unary);
   virtual void visit(Expression::Variable& variable);
 

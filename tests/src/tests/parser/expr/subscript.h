@@ -2,15 +2,15 @@
 
 #include "utils.h"
 
-namespace tests_parser_expr_bracket {
+namespace tests_parser_expr_subscript {
 
 inline suite _ = [] {
-  "parser_expr_bracket"_test = [] {
+  "parser_expr_subscript"_test = [] {
     {
       constexpr auto kSource = R"(x[0])";
       constexpr auto kExpect = R"(program
   expression_statement
-    bracket_get
+    subscript_get
       variable x
       literal 0)";
       parse(kSource, kExpect);
@@ -19,7 +19,7 @@ inline suite _ = [] {
       constexpr auto kSource = R"(x.y[0])";
       constexpr auto kExpect = R"(program
   expression_statement
-    bracket_get
+    subscript_get
       get y
         variable x
       literal 0)";
@@ -29,7 +29,7 @@ inline suite _ = [] {
       constexpr auto kSource = R"(x.y[0 + 1])";
       constexpr auto kExpect = R"(program
   expression_statement
-    bracket_get
+    subscript_get
       get y
         variable x
       binary +
@@ -41,7 +41,7 @@ inline suite _ = [] {
       constexpr auto kSource = R"(x[0] = 1)";
       constexpr auto kExpect = R"(program
   expression_statement
-    bracket_set
+    subscript_set
       variable x
       literal 0
       literal 1)";
@@ -51,7 +51,7 @@ inline suite _ = [] {
       constexpr auto kSource = R"(x.y[0] = 1)";
       constexpr auto kExpect = R"(program
   expression_statement
-    bracket_set
+    subscript_set
       get y
         variable x
       literal 0
@@ -62,7 +62,7 @@ inline suite _ = [] {
       constexpr auto kSource = R"(x.y[0 + 1] = 1)";
       constexpr auto kExpect = R"(program
   expression_statement
-    bracket_set
+    subscript_set
       get y
         variable x
       binary +
@@ -75,7 +75,7 @@ inline suite _ = [] {
       constexpr auto kSource = R"(x.y[0 + 1] = 1 + 2)";
       constexpr auto kExpect = R"(program
   expression_statement
-    bracket_set
+    subscript_set
       get y
         variable x
       binary +
@@ -89,4 +89,4 @@ inline suite _ = [] {
   };
 };
 
-}  // tests_parser_expr_bracket
+}  // tests_parser_expr_subscript

@@ -57,8 +57,6 @@ private:
   void bitwiseLsr();
   void bitwiseOr();
   void bitwiseXor();
-  void bracketGet();
-  void bracketSet();
   void call();
   void call(DzValue& callee, std::size_t argc);
   void call(DzFunction* function, std::size_t argc);
@@ -100,6 +98,8 @@ private:
   void store();
   template<std::integral Integral>
   void storeGlobal();
+  void subscriptGet();
+  void subscriptSet();
   void subtract();
   void true_();
 
