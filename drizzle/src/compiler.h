@@ -33,6 +33,8 @@ protected:
   void visit(Expr& expr) final;
   void visit(Expression::Assign& assign) final;
   void visit(Expression::Binary& binary) final;
+  void visit(Expression::BracketGet& bracket_get) final;
+  void visit(Expression::BracketSet& bracket_set) final;
   void visit(Expression::Call& call) final;
   void visit(Expression::Get& get) final;
   void visit(Expression::Invoke& invoke) final;

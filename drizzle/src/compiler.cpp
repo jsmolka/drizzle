@@ -254,6 +254,19 @@ void Compiler::visit(Expression::Binary& binary) {
   }
 }
 
+void Compiler::visit(Expression::BracketGet& bracket_get) {
+  visit(bracket_get.self);
+  visit(bracket_get.expression);
+  emit(Opcode::BracketGet);
+}
+
+void Compiler::visit(Expression::BracketSet& bracket_set) {
+  visit(bracket_set.value);
+  visit(bracket_set.self);
+  visit(bracket_set.expression);
+  emit(Opcode::BracketSet);
+}
+
 void Compiler::visit(Expression::Call& call) {
   const auto arguments = call.arguments.size();
   if (arguments > std::numeric_limits<u8>::max()) {

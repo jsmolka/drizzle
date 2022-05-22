@@ -15,6 +15,8 @@ enum class Opcode {
   BitwiseLsr,
   BitwiseOr,
   BitwiseXor,
+  BracketGet,
+  BracketSet,
   Call,
   Constant,
   ConstantExt,
@@ -65,7 +67,7 @@ static_assert(int(Opcode::LastEnumValue) <= std::numeric_limits<u8>::max());
 template<>
 struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
   static auto repr(const Opcode& opcode) -> std::string_view {
-    static_assert(int(Opcode::LastEnumValue) == 50);
+    static_assert(int(Opcode::LastEnumValue) == 52);
     switch (opcode) {
       case Opcode::Add:               return "Add";
       case Opcode::BitwiseAnd:        return "BitwiseAnd";
@@ -75,6 +77,8 @@ struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
       case Opcode::BitwiseLsr:        return "BitwiseLsr";
       case Opcode::BitwiseOr:         return "BitwiseOr";
       case Opcode::BitwiseXor:        return "BitwiseXor";
+      case Opcode::BracketGet:        return "BracketGet";
+      case Opcode::BracketSet:        return "BracketSet";
       case Opcode::Call:              return "Call";
       case Opcode::Constant:          return "Constant";
       case Opcode::ConstantExt:       return "ConstantExt";

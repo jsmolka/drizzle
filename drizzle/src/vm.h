@@ -57,6 +57,8 @@ private:
   void bitwiseLsr();
   void bitwiseOr();
   void bitwiseXor();
+  void bracketGet();
+  void bracketSet();
   void call();
   void call(DzValue& callee, std::size_t argc);
   void call(DzFunction* function, std::size_t argc);
