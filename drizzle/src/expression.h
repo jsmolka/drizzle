@@ -20,6 +20,8 @@ public:
   enum class Type {
     Assign,
     Binary,
+    BracketGet,
+    BracketSet,
     Call,
     Get,
     Group,
@@ -66,6 +68,17 @@ public:
     Type type;
     Expr left;
     Expr right;
+  };
+
+  struct BracketGet {
+    Expr self;
+    Expr expression;
+  };
+
+  struct BracketSet {
+    Expr self;
+    Expr expression;
+    Expr value;
   };
 
   struct Call {
@@ -138,6 +151,8 @@ public:
 
   Expression(Assign assign, const Location& location);
   Expression(Binary binary, const Location& location);
+  Expression(BracketGet bracket_get, const Location& location);
+  Expression(BracketSet bracket_set, const Location& location);
   Expression(Call call, const Location& location);
   Expression(Get get, const Location& location);
   Expression(Group group, const Location& location);
@@ -153,6 +168,8 @@ public:
   union {
     Assign assign;
     Binary binary;
+    BracketGet bracket_get;
+    BracketSet bracket_set;
     Call call;
     Get get;
     Group group;
@@ -169,19 +186,21 @@ public:
 template<>
 struct fmt::formatter<Expression::Type> : fmt::formatter<std::string_view> {
   static auto repr(const Expression::Type& value) -> std::string_view {
-    static_assert(int(Expression::Type::LastEnumValue) == 11);
+    static_assert(int(Expression::Type::LastEnumValue) == 13);
     switch (value) {
-      case Expression::Type::Assign:   return "assign";
-      case Expression::Type::Binary:   return "binary";
-      case Expression::Type::Call:     return "call";
-      case Expression::Type::Get:      return "get";
-      case Expression::Type::Group:    return "group";
-      case Expression::Type::Invoke:   return "invoke";
-      case Expression::Type::List:     return "list";
-      case Expression::Type::Literal:  return "literal";
-      case Expression::Type::Set:      return "set";
-      case Expression::Type::Unary:    return "unary";
-      case Expression::Type::Variable: return "variable";
+      case Expression::Type::Assign:     return "assign";
+      case Expression::Type::Binary:     return "binary";
+      case Expression::Type::BracketGet: return "bracket_get";
+      case Expression::Type::BracketSet: return "bracket_set";
+      case Expression::Type::Call:       return "call";
+      case Expression::Type::Get:        return "get";
+      case Expression::Type::Group:      return "group";
+      case Expression::Type::Invoke:     return "invoke";
+      case Expression::Type::List:       return "list";
+      case Expression::Type::Literal:    return "literal";
+      case Expression::Type::Set:        return "set";
+      case Expression::Type::Unary:      return "unary";
+      case Expression::Type::Variable:   return "variable";
       default:
         SH_UNREACHABLE;
         return "unreachable";

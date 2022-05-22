@@ -9,6 +9,8 @@ protected:
   virtual void visit(Exprs& exprs);
   virtual void visit(Expression::Assign& assign);
   virtual void visit(Expression::Binary& binary);
+  virtual void visit(Expression::BracketGet& bracket_get);
+  virtual void visit(Expression::BracketSet& bracket_set);
   virtual void visit(Expression::Call& call);
   virtual void visit(Expression::Get& get);
   virtual void visit(Expression::Group& group);

@@ -62,6 +62,7 @@ private:
   void parseExpression(Precedence precedence);
   void and_(bool);
   void binary(bool);
+  void bracket(bool assign);
   void list(bool);
   void call(bool);
   void constant(bool);
