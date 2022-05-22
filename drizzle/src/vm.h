@@ -35,10 +35,9 @@ private:
   auto read() -> Integral;
 
   template<typename... Args>
-  void raise(std::string_view format, Args&&... args) {
-    const auto& frame = frames.top();
-    const auto line = frame.function->chunk().line(opcode_pc);
-    throw RuntimeError(Location{line}, format, std::forward<Args>(args)...);
+  void raise(Args&&... args) {
+    const auto line = frames.top().function->chunk().line(opcode_pc);
+    throw RuntimeError(Location{line}, std::forward<Args>(args)...);
   }
 
   void expect(const DzValue& value, DzValue::Type type);

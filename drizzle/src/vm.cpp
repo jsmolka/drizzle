@@ -255,7 +255,7 @@ void Vm::call(DzValue& callee, std::size_t argc) {
 void Vm::call(DzFunction* function, std::size_t argc) {
   const auto& arity = function->arity;
   if (!arity.matches(argc)) {
-    raise(arity.message(), arity.value, argc);
+    raise(arity.message(argc));
   }
   if (frames.size() == kMaximumRecursionDepth) {
     raise("maximum recursion depth exceeded");

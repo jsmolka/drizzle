@@ -7,8 +7,8 @@
 class Error : public sh::error {
 public:
   template<typename... Args>
-  Error(const Location& location, std::string_view format, Args&&... args)
-    : error(format, std::forward<Args>(args)...), location(location) {}
+  Error(const Location& location, Args&&... args)
+    : error(std::forward<Args>(args)...), location(location) {}
 
   virtual auto name() const -> std::string_view = 0;
 
