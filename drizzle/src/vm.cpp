@@ -10,12 +10,6 @@
 #include "gc.h"
 #include "opcode.h"
 
-template<typename A, template<typename> typename Promote>
-using unary_t = std::conditional_t<dz_primitive<A>, Promote<A>, A>;
-
-template<typename A, typename B, template<typename, typename> typename Promote>
-using binary_t = std::conditional_t<dz_primitive<A, B>, Promote<A, B>, A>;
-
 Vm::Vm(Gc& gc)
   : gc(gc) {}
 
@@ -103,86 +97,24 @@ auto Vm::read() -> Integral {
 
 template<template<typename> typename Promote, typename Callback>
 void Vm::unary(std::string_view operation, Callback callback) {
-  static_assert(int(DzValue::Type::LastEnumValue) == 4);
-
-  #define DZ_EVAL(a)                   \
-  {                                    \
-    using A  = decltype(a);            \
-    using AP = unary_t<A, Promote>;    \
-    if (auto res = callback(AP(a))) {  \
-      stack.top() = *res;              \
-      return;                          \
-    } else {                           \
-      break;                           \
-    }                                  \
-  }
-
   const auto& a = stack.top();
-
-  switch (a.type) {
-    case DzValue::Type::Bool:   DZ_EVAL(a.b);
-    case DzValue::Type::Int:    DZ_EVAL(a.i);
-    case DzValue::Type::Float:  DZ_EVAL(a.f);
-    case DzValue::Type::Object: DZ_EVAL(a.o);
-    default:
-      SH_UNREACHABLE;
-      break;
+  if (const auto value = DzValue::unary<Promote>(a, callback)) {
+    stack.top() = *value;
+  } else {
+    raise("bad operand type for '{}': '{}'", operation, a.kind());
   }
-
-  #undef DZ_EVAL
-
-  raise("bad operand type for '{}': '{}'", operation, a.kind());
 }
 
 template<template<typename, typename> typename Promote, typename Callback>
 void Vm::binary(std::string_view operation, Callback callback) {
-  static_assert(int(DzValue::Type::LastEnumValue) == 4);
-
-  #define DZ_HASH(a, b) int(DzValue::Type::LastEnumValue) * int(a) + int(b)
-  #define DZ_EVAL(a, b)                       \
-  {                                           \
-    using A  = decltype(a);                   \
-    using B  = decltype(b);                   \
-    using AP = binary_t<A, B, Promote>;       \
-    using BP = binary_t<B, A, Promote>;       \
-    if (auto res = callback(AP(a), BP(b))) {  \
-      stack.pop();                            \
-      stack.top() = *res;                     \
-      return;                                 \
-    } else {                                  \
-      break;                                  \
-    }                                         \
-  }
-
   const auto& a = stack.peek(1);
   const auto& b = stack.peek(0);
-
-  switch (DZ_HASH(a.type, b.type)) {
-    case DZ_HASH(DzValue::Type::Bool,   DzValue::Type::Bool  ): DZ_EVAL(a.b, b.b);
-    case DZ_HASH(DzValue::Type::Bool,   DzValue::Type::Int   ): DZ_EVAL(a.b, b.i);
-    case DZ_HASH(DzValue::Type::Bool,   DzValue::Type::Float ): DZ_EVAL(a.b, b.f);
-    case DZ_HASH(DzValue::Type::Bool,   DzValue::Type::Object): DZ_EVAL(a.b, b.o);
-    case DZ_HASH(DzValue::Type::Int,    DzValue::Type::Bool  ): DZ_EVAL(a.i, b.b);
-    case DZ_HASH(DzValue::Type::Int,    DzValue::Type::Int   ): DZ_EVAL(a.i, b.i);
-    case DZ_HASH(DzValue::Type::Int,    DzValue::Type::Float ): DZ_EVAL(a.i, b.f);
-    case DZ_HASH(DzValue::Type::Int,    DzValue::Type::Object): DZ_EVAL(a.i, b.o);
-    case DZ_HASH(DzValue::Type::Float,  DzValue::Type::Bool  ): DZ_EVAL(a.f, b.b);
-    case DZ_HASH(DzValue::Type::Float,  DzValue::Type::Int   ): DZ_EVAL(a.f, b.i);
-    case DZ_HASH(DzValue::Type::Float,  DzValue::Type::Float ): DZ_EVAL(a.f, b.f);
-    case DZ_HASH(DzValue::Type::Float,  DzValue::Type::Object): DZ_EVAL(a.f, b.o);
-    case DZ_HASH(DzValue::Type::Object, DzValue::Type::Bool  ): DZ_EVAL(a.o, b.b);
-    case DZ_HASH(DzValue::Type::Object, DzValue::Type::Int   ): DZ_EVAL(a.o, b.i);
-    case DZ_HASH(DzValue::Type::Object, DzValue::Type::Float ): DZ_EVAL(a.o, b.f);
-    case DZ_HASH(DzValue::Type::Object, DzValue::Type::Object): DZ_EVAL(a.o, b.o);
-    default:
-      SH_UNREACHABLE;
-      break;
+  if (const auto value = DzValue::binary<Promote>(a, b, callback)) {
+    stack.pop();
+    stack.top() = *value;
+  } else {
+    raise("bad operand types for '{}': '{}' and '{}'", operation, b.kind(), a.kind());
   }
-
-  #undef DZ_EVAL
-  #undef DZ_HASH
-
-  raise("bad operand types for '{}': '{}' and '{}'", operation, b.kind(), a.kind());
 }
 
 void Vm::expect(const DzValue& value, DzValue::Type type) {
@@ -368,14 +300,8 @@ void Vm::divideInt() {
 }
 
 void Vm::equal() {
-  binary("==", []<typename A, typename B>(const A& a, const B& b) -> std::optional<DzValue> {
-    if constexpr (dz_primitive<A, B>) {
-      return a == b;
-    } else if constexpr (dz_object<A, B>) {
-      return *a == *b;
-    }
-    return std::nullopt;
-  });
+  const auto other = stack.pop_value();
+  stack.top() = stack.top() == other;
 }
 
 void Vm::false_() {
@@ -584,14 +510,8 @@ void Vm::not_() {
 }
 
 void Vm::notEqual() {
-  binary("!=", []<typename A, typename B>(const A& a, const B& b) -> std::optional<DzValue> {
-    if constexpr (dz_primitive<A, B>) {
-      return a != b;
-    } else if constexpr (dz_object<A, B>) {
-      return *a != *b;
-    }
-    return std::nullopt;
-  });
+  const auto other = stack.pop_value();
+  stack.top() = stack.top() != other;
 }
 
 void Vm::null_() {

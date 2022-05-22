@@ -6,6 +6,12 @@
 #include "dzobject.h"
 #include "dzprimitives.h"
 
+template<typename A, template<typename> typename Promote>
+using unary_t = std::conditional_t<dz_primitive<A>, Promote<A>, A>;
+
+template<typename A, typename B, template<typename, typename> typename Promote>
+using binary_t = std::conditional_t<dz_primitive<A, B>, Promote<A, B>, A>;
+
 class DzValue {
 public:
   enum class Type { Bool, Int, Float, Object, LastEnumValue };
@@ -15,6 +21,70 @@ public:
     requires dz_primitive<T> || dz_object<T>
   DzValue(const T& value) {
     *this = value;
+  }
+
+  template<template<typename> typename Promote = promote_t, typename Callback>
+  static auto unary(const DzValue& a, Callback callback) {
+    static_assert(int(Type::LastEnumValue) == 4);
+
+    #define DZ_EVAL(a)                 \
+    {                                  \
+      using A  = decltype(a);          \
+      using AP = unary_t<A, Promote>;  \
+      return callback(AP(a));          \
+    }
+
+    switch (a.type) {
+      case DzValue::Type::Bool:   DZ_EVAL(a.b);
+      case DzValue::Type::Int:    DZ_EVAL(a.i);
+      case DzValue::Type::Float:  DZ_EVAL(a.f);
+      case DzValue::Type::Object: DZ_EVAL(a.o);
+      default:
+        SH_UNREACHABLE;
+        return callback(0);
+    }
+
+    #undef DZ_EVAL
+  }
+
+  template<template<typename, typename> typename Promote = promote_t, typename Callback>
+  static auto binary(const DzValue& a, const DzValue& b, Callback callback) {
+    static_assert(int(Type::LastEnumValue) == 4);
+
+    #define DZ_HASH(a, b) int(Type::LastEnumValue) * int(a) + int(b)
+    #define DZ_EVAL(a, b)                  \
+    {                                      \
+      using A  = decltype(a);              \
+      using B  = decltype(b);              \
+      using AP = binary_t<A, B, Promote>;  \
+      using BP = binary_t<B, A, Promote>;  \
+      return callback(AP(a), BP(b));       \
+    }
+
+    switch (DZ_HASH(a.type, b.type)) {
+      case DZ_HASH(DzValue::Type::Bool,   DzValue::Type::Bool  ): DZ_EVAL(a.b, b.b);
+      case DZ_HASH(DzValue::Type::Bool,   DzValue::Type::Int   ): DZ_EVAL(a.b, b.i);
+      case DZ_HASH(DzValue::Type::Bool,   DzValue::Type::Float ): DZ_EVAL(a.b, b.f);
+      case DZ_HASH(DzValue::Type::Bool,   DzValue::Type::Object): DZ_EVAL(a.b, b.o);
+      case DZ_HASH(DzValue::Type::Int,    DzValue::Type::Bool  ): DZ_EVAL(a.i, b.b);
+      case DZ_HASH(DzValue::Type::Int,    DzValue::Type::Int   ): DZ_EVAL(a.i, b.i);
+      case DZ_HASH(DzValue::Type::Int,    DzValue::Type::Float ): DZ_EVAL(a.i, b.f);
+      case DZ_HASH(DzValue::Type::Int,    DzValue::Type::Object): DZ_EVAL(a.i, b.o);
+      case DZ_HASH(DzValue::Type::Float,  DzValue::Type::Bool  ): DZ_EVAL(a.f, b.b);
+      case DZ_HASH(DzValue::Type::Float,  DzValue::Type::Int   ): DZ_EVAL(a.f, b.i);
+      case DZ_HASH(DzValue::Type::Float,  DzValue::Type::Float ): DZ_EVAL(a.f, b.f);
+      case DZ_HASH(DzValue::Type::Float,  DzValue::Type::Object): DZ_EVAL(a.f, b.o);
+      case DZ_HASH(DzValue::Type::Object, DzValue::Type::Bool  ): DZ_EVAL(a.o, b.b);
+      case DZ_HASH(DzValue::Type::Object, DzValue::Type::Int   ): DZ_EVAL(a.o, b.i);
+      case DZ_HASH(DzValue::Type::Object, DzValue::Type::Float ): DZ_EVAL(a.o, b.f);
+      case DZ_HASH(DzValue::Type::Object, DzValue::Type::Object): DZ_EVAL(a.o, b.o);
+      default:
+        SH_UNREACHABLE;
+        return callback(0, 0);
+    }
+
+    #undef DZ_EVAL
+    #undef DZ_HASH
   }
 
   template<typename T>
@@ -37,6 +107,8 @@ public:
   }
 
   operator bool() const;
+  auto operator==(const DzValue& other) const -> bool;
+  auto operator!=(const DzValue& other) const -> bool;
   auto kind() const -> std::string_view;
   auto repr() const -> std::string;
 

@@ -17,6 +17,22 @@ DzValue::operator bool() const {
   }
 }
 
+auto DzValue::operator==(const DzValue& other) const -> bool {
+  return binary(*this, other, []<typename A, typename B>(const A& a, const B& b) {
+    if constexpr (dz_primitive<A, B>) {
+      return a == b;
+    } else if constexpr (dz_object<A, B>) {
+      return *a == *b;
+    } else {
+      return false;
+    }
+  });
+}
+
+auto DzValue::operator!=(const DzValue& other) const -> bool {
+  return !(*this == other);
+}
+
 auto DzValue::kind() const -> std::string_view {
   return type == Type::Object
     ? fmt::formatter<DzObject::Type>::repr(o->type)
