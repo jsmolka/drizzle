@@ -3,6 +3,7 @@
 #include <sh/ranges.h>
 
 #include "dzlist.h"
+#include "dznull.h"
 #include "gc.h"
 
 void Vm::defineListMembers() {
@@ -13,7 +14,13 @@ void Vm::defineListMembers() {
         return list->values.size();
       }
     ),
-    // clear()
+    gc.construct<DzFunction>(
+      gc.construct<DzString>("clear"), Arity::equal(0), [](Vm& vm, std::size_t) {
+        const auto list = vm.stack.peek(0).as<DzList>();
+        list->values.clear();
+        return &null;
+      }
+    ),
     gc.construct<DzFunction>(
       gc.construct<DzString>("push"), Arity::greaterEqual(1), [](Vm& vm, std::size_t argc) -> dzint {
         const auto list = vm.stack.peek(argc).as<DzList>();
@@ -24,22 +31,47 @@ void Vm::defineListMembers() {
         return list->values.size();
       }
     ),
-    // insert(i, v)
     gc.construct<DzFunction>(
-      gc.construct<DzString>("pop"), Arity::equal(0), [this](Vm& vm, std::size_t) {
+      gc.construct<DzString>("insert"), Arity::equal(2), [](Vm& vm, std::size_t) {
+        vm.expect(vm.stack.peek(1), DzValue::Type::Int);
+
+        const auto list  = vm.stack.peek(2).as<DzList>();
+        const auto value = vm.stack.pop_value();
+        const auto index = vm.stack.pop_value().i;
+        if (index > list->values.size()) {
+          vm.raise("insert index out of range");
+        }
+        list->values.insert(list->values.begin() + index, value);
+        return &null;
+      }
+    ),
+    gc.construct<DzFunction>(
+      gc.construct<DzString>("pop"), Arity::equal(0), [](Vm& vm, std::size_t) {
         const auto list = vm.stack.peek(0).as<DzList>();
         if (list->values.empty()) {
-          raise("cannot pop from empty list");
+          vm.raise("pop from empty list");
         }
         return list->values.pop_back_value();
       }
     ),
     gc.construct<DzFunction>(
-      gc.construct<DzString>("index"), Arity::equal(1), [this](Vm& vm, std::size_t) -> dzint {
+      gc.construct<DzString>("remove"), Arity::equal(1), [](Vm& vm, std::size_t) {
+        vm.expect(vm.stack.peek(0), DzValue::Type::Int);
+
+        const auto list  = vm.stack.peek(1).as<DzList>();
+        const auto index = vm.stack.pop_value().i;
+        if (index >= list->values.size()) {
+          vm.raise("remove index out of range");
+        }
+        return &null;
+      }
+    ),
+    gc.construct<DzFunction>(
+      gc.construct<DzString>("index"), Arity::equal(1), [](Vm& vm, std::size_t) -> dzint {
         const auto list = vm.stack.peek(1).as<DzList>();
         const auto find = vm.stack.pop_value();
         for (const auto [index, value] : sh::enumerate(list->values)) {
-          if (value == find) {  // Todo: proper value compare
+          if (value == find) {
             return index;
           }
         }

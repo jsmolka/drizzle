@@ -97,6 +97,7 @@
     <ClInclude Include="src\tests\vm\class.h" />
     <ClInclude Include="src\tests\vm\globals.h" />
     <ClInclude Include="src\tests\vm\invoke.h" />
+    <ClInclude Include="src\tests\vm\list.h" />
     <ClInclude Include="src\tests\vm\loop.h" />
     <ClInclude Include="src\tests\vm\repr.h" />
     <ClInclude Include="src\tests\vm\scope.h" />

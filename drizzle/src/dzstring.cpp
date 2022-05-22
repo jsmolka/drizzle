@@ -14,5 +14,5 @@ DzString::operator bool() const {
 }
 
 auto DzString::repr() const -> std::string {
-    return data;
+  return data;
 }
