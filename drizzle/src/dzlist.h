@@ -1,6 +1,6 @@
 #pragma once
 
-#include <vector>
+#include <sh/vector.h>
 
 #include "dzobject.h"
 #include "dzvalue.h"
@@ -12,5 +12,5 @@ public:
   operator bool() const;
   auto repr() const -> std::string;
 
-  std::vector<DzValue> values;
+  sh::vector<DzValue> values;
 };

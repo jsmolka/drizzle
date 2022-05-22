@@ -26,6 +26,7 @@
     <ClCompile Include="src\dzfunction.cpp" />
     <ClCompile Include="src\dzinstance.cpp" />
     <ClCompile Include="src\dzlist.cpp" />
+    <ClCompile Include="src\dzlistmembers.cpp" />
     <ClCompile Include="src\dznull.cpp" />
     <ClCompile Include="src\dzstring.cpp" />
     <ClCompile Include="src\astformatter.cpp" />

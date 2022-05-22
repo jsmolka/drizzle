@@ -26,7 +26,7 @@ void Vm::interpret(DzFunction* main) {
   frames.emplace(main->chunk().code.data(), 0, main);
 
   defineNativeFunctions();
-  defineNativeMembersList();
+  defineListMembers();
 
   gc.vm = this;
 

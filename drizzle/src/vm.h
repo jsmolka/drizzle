@@ -29,7 +29,7 @@ private:
   };
 
   void defineNativeFunctions();
-  void defineNativeMembersList();
+  void defineListMembers();
 
   template<std::integral Integral>
   auto read() -> Integral;
