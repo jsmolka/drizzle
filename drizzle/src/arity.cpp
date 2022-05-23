@@ -20,16 +20,11 @@ auto Arity::matches(std::size_t value) const -> bool {
 }
 
 auto Arity::message(std::size_t value) const -> std::string {
-  static constexpr std::string_view kFormats[2][2] = {
-    {
-      "expected {} arguments but got {}",
-      "expected at least {} arguments but got {}"
-    },
-    {
-      "expected {} argument but got {}",
-      "expected at least {} argument but got {}"
-    }
+  static constexpr const char* kFormats[] = {
+    "expected {} argument{} but got {}",
+    "expected at least {} argument{} but got {}"
   };
-  const auto format = kFormats[this->value == 1][int(compare)];
-  return fmt::format(fmt::runtime(format), this->value, value);
+  const auto format = kFormats[int(compare)];
+  const auto ending = this->value == 1 ? "" : "s";
+  return fmt::format(fmt::runtime(format), this->value, ending, value);
 }
