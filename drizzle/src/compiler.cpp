@@ -27,7 +27,7 @@ void Compiler::visit(Stmt& stmt) {
 void Compiler::visit(Statement::Block& block) {
   if (block.identifier) {
     for (const auto& level : scope) {
-      if (level.identifier == *block.identifier) {
+      if (level.type == Level::Type::Block && level.identifier == *block.identifier) {
         throw SyntaxError(block.identifier->location, "redefined block '{}'", *block.identifier);
       }
     }
@@ -47,14 +47,14 @@ void Compiler::visit(Statement::Break& break_) {
           return level;
         }
       }
-      throw SyntaxError(identifier->location, "no matching block '{}'", *identifier);
+      throw SyntaxError(identifier->location, "unknown block '{}'", *identifier);
     } else {
       for (auto& level : sh::reversed(scope)) {
         if (level.type == Level::Type::Loop) {
           return level;
         }
       }
-      throw SyntaxError(locations.top(), "no matching loop");
+      throw SyntaxError(locations.top(), "'break' outside loop");
     }
   };
 
@@ -97,7 +97,7 @@ void Compiler::visit(Statement::Continue& continue_) {
         return level;
       }
     }
-    throw SyntaxError(locations.top(), "no matching loop");
+    throw SyntaxError(locations.top(), "'continue' outside loop");
   };
 
   auto& level = resolve();
@@ -159,10 +159,10 @@ void Compiler::visit(Statement::Program& program) {
 
 void Compiler::visit(Statement::Return& return_) {
   if (type == Type::Main) {
-    throw SyntaxError(locations.top(), "no matching function");
+    throw SyntaxError(locations.top(), "'return' outside function");
   } else if (type == Type::Init) {
     if (return_.expression) {
-      throw SyntaxError(locations.top(), "cannot return value from initializer");
+      throw SyntaxError(locations.top(), "init() cannot return value");
     }
     emit(Opcode::Load, 0, Opcode::Return);
   } else {
@@ -259,7 +259,8 @@ void Compiler::visit(Expression::Call& call) {
   if (arguments > std::numeric_limits<u8>::max()) {
     throw CompilerError(locations.top(), "cannot encode argument count '{}'", arguments);
   }
-  AstVisiter::visit(call);
+  visit(call.callee);
+  visit(call.arguments);
   emit(Opcode::Call, arguments);
 }
 
@@ -274,7 +275,8 @@ void Compiler::visit(Expression::Invoke& invoke) {
   if (arguments > std::numeric_limits<u8>::max()) {
     throw CompilerError(locations.top(), "cannot encode argument count '{}'", arguments);
   }
-  AstVisiter::visit(invoke);
+  visit(invoke.self);
+  visit(invoke.arguments);
   emitConstant(gc.construct<DzString>(invoke.identifier));
   emit(Opcode::Invoke, arguments);
 }
