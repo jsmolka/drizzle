@@ -596,9 +596,12 @@ void Vm::subscriptGet() {
     }
     case DzObject::Type::List: {
       expect(expr, DzValue::Type::Int);
-      const auto list  = self.as<DzList>();
-      const auto index = expr.i;
-      if (index >= list->values.size()) {
+      const auto list = self.as<DzList>();
+      auto index = expr.i;
+      if (index < 0) {
+        index += list->values.size();
+      }
+      if (index < 0 || index >= list->values.size()) {
         raise("list index out of range");
       }
       stack.push(list->values[index]);
@@ -632,9 +635,12 @@ void Vm::subscriptSet() {
     }
     case DzObject::Type::List: {
       expect(expr, DzValue::Type::Int);
-      const auto list  = self.as<DzList>();
-      const auto index = expr.i;
-      if (index >= list->values.size()) {
+      const auto list = self.as<DzList>();
+      auto index = expr.i;
+      if (index < 0) {
+        index += list->values.size();
+      }
+      if (index < 0 || index >= list->values.size()) {
         raise("list index out of range");
       }
       list->values[index] = stack.top();
