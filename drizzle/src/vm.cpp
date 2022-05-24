@@ -139,22 +139,26 @@ void Vm::add() {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       return a + b;
     } else if constexpr (dz_object<A, B>) {
-      if (a->is(DzObject::Type::List) && b->is(DzObject::Type::List)) {
-        const auto list_a = static_cast<DzList*>(a);
-        const auto list_b = static_cast<DzList*>(b);
-        const auto list = gc.construct<DzList>();
-        list->values.reserve(list_a->values.size() + list_b->values.size());
-        for (const auto& value : list_a->values) {
-          list->values.push_back(value);
+      if (a->type == b->type) {
+        switch (a->type) {
+          case DzObject::Type::List: {
+            const auto list_a = static_cast<DzList*>(a);
+            const auto list_b = static_cast<DzList*>(b);
+            const auto list = gc.construct<DzList>();
+            list->values.reserve(list_a->values.size() + list_b->values.size());
+            for (const auto& values : {list_a->values, list_b->values}) {
+              for (const auto& value : values) {
+                list->values.push_back(value);
+              }
+            }
+            return list;
+          }
+          case DzObject::Type::String: {
+            const auto string_a = static_cast<DzString*>(a);
+            const auto string_b = static_cast<DzString*>(b);
+            return gc.construct<DzString>(string_a->data + string_b->data);
+          }
         }
-        for (const auto& value : list_b->values) {
-          list->values.push_back(value);
-        }
-        return list;
-      } else if (a->is(DzObject::Type::String) && b->is(DzObject::Type::String)) {
-        const auto string_a = static_cast<DzString*>(a);
-        const auto string_b = static_cast<DzString*>(b);
-        return gc.construct<DzString>(string_a->data + string_b->data);
       }
     }
     return std::nullopt;
