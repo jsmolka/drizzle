@@ -608,6 +608,22 @@ void Vm::subscriptGet() {
       stack.push(list->values[index]);
       break;
     }
+    case DzObject::Type::String: {
+      const auto string = self.as<DzString>();
+      auto index = expr.i;
+      if (index < 0) {
+        index += string->data.size();
+      }
+      if (index < 0 || index >= string->data.size()) {
+        raise("string index out of range");
+      }
+      std::string_view data(
+        string->data.begin() + index,
+        string->data.begin() + index + 1
+      );
+      stack.push(gc.construct<DzString>(data));
+      break;
+    }
     default: {
       error(self);
       break;
