@@ -110,6 +110,11 @@ assert(x[0] == 1)
 assert(x[1] == 2)
 assert(x[2] == 3)
 )",
+R"(
+assert([1, 2, 3] == [1, 2, 3])
+assert([1, 2, 2] != [1, 2, 3])
+assert([true, false] == [1, 0])
+)",
       };
 
       for (const auto& source : kSources) {

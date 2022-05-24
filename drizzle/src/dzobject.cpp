@@ -27,7 +27,13 @@ DzObject::operator bool() const {
 }
 
 auto DzObject::operator==(const DzObject& other) const -> bool {
-  return this == &other;
+  if (type != other.type) {
+    return false;
+  } else if (type == Type::List) {
+    return as<DzList>() == other.as<DzList>();
+  } else {
+    return this == &other;
+  }
 }
 
 auto DzObject::operator!=(const DzObject& other) const -> bool {

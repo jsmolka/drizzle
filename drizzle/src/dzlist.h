@@ -10,6 +10,7 @@ public:
   DzList();
 
   operator bool() const;
+  auto operator==(const DzList& other) const -> bool;
   auto repr() const -> std::string;
 
   sh::vector<DzValue> values;
