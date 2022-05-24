@@ -5,9 +5,8 @@
 #include "dzfunction.h"
 #include "dznull.h"
 #include "gc.h"
-#include "vm.h"
 
-void Vm::defineNativeFunctions() {
+void Vm::defineFunctions() {
   const auto functions = {
     gc.construct<DzFunction>(
       gc.construct<DzString>("assert"), Arity::equal(1), [](Vm& vm, std::size_t) {
@@ -22,11 +21,6 @@ void Vm::defineNativeFunctions() {
         fmt::print("{}\n", fmt::join(vm.stack.end() - argc, vm.stack.end(), " "));
         vm.stack.pop(argc);
         return &null;
-      }
-    ),
-    gc.construct<DzFunction>(
-      gc.construct<DzString>("repr"), Arity::equal(1), [](Vm& vm, std::size_t) {
-        return vm.gc.construct<DzString>(vm.stack.pop_value().repr());
       }
     ),
     gc.construct<DzFunction>(

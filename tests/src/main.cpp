@@ -52,7 +52,6 @@ static_assert(int(Statement::Type::LastEnumValue) == 12);
 #include "tests/vm/invoke.h"
 #include "tests/vm/list.h"
 #include "tests/vm/loop.h"
-#include "tests/vm/repr.h"
 #include "tests/vm/scope.h"
 #include "tests/vm/type.h"
 #include "tests/vm/unary.h"

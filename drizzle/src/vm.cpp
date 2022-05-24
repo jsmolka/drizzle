@@ -19,7 +19,7 @@ void Vm::interpret(DzFunction* main) {
   globals.resize(main->identifiers.size());
   frames.emplace(main->chunk().code.data(), 0, main);
 
-  defineNativeFunctions();
+  defineFunctions();
   defineListMembers();
 
   gc.vm = this;

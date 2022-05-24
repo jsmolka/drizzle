@@ -28,7 +28,7 @@ private:
     DzFunction* function;
   };
 
-  void defineNativeFunctions();
+  void defineFunctions();
   void defineListMembers();
 
   template<std::integral Integral>

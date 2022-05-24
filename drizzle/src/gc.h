@@ -27,11 +27,15 @@ public:
 
     collect();
     if constexpr (std::same_as<T, DzString>) {
-      DzString string(std::forward<Args>(args)...);
-      const auto iter = pool.find(&string);
-      return iter == pool.end() 
-        ? *pool.insert(allocate(std::move(string))).first
-        : *iter;
+      T stack(std::forward<Args>(args)...);
+      const auto iter = pool.find(&stack);
+      if (iter == pool.end()) {
+        const auto heap = allocate(std::move(stack));
+        pool.insert(heap);
+        return heap;
+      } else {
+        return *iter;
+      }
     } else {
       return allocate(std::forward<Args>(args)...);
     }

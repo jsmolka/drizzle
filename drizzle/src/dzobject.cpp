@@ -1,7 +1,5 @@
 #include "dzobject.h"
 
-#include <sh/utility.h>
-
 #include "dzboundmethod.h"
 #include "dzclass.h"
 #include "dzfunction.h"

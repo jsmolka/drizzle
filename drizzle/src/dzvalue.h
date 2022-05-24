@@ -112,16 +112,15 @@ public:
   auto kind() const -> std::string_view;
   auto repr() const -> std::string;
 
-  auto is(Type type) const -> bool;
-  auto is(DzObject::Type type) const -> bool;
-  auto isUndefined() const -> bool;
-
   template<typename T>
     requires std::is_base_of_v<DzObject, T>
   auto as() const -> T* {
-    assert(is(Type::Object));
+    assert(is(Type::Object) && o);
     return static_cast<T*>(o);
   }
+  auto is(Type type) const -> bool;
+  auto is(DzObject::Type type) const -> bool;
+  auto isUndefined() const -> bool;
 
   Type type;
   union {
