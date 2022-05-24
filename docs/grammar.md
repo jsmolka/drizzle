@@ -45,7 +45,7 @@ block             → ":" NEWLINE INDENT declaration+ DEDENT
 Expressions produce values. The precedence goes from high (bottom) to low (top).
 ```
 expression        → assignment
-assignment        → ( call "." )? IDENTIFIER "=" assignment | or
+assignment        → ( ( call "." )? IDENTIFIER | "[" expression "]" ) "=" assignment | or
 or                → and ( "||" and )*
 and               → bitOr ( "&&" bitOr )*
 bitOr             → bitXor ( "|" bitXor )*
@@ -57,8 +57,8 @@ bitShift          → term ( ( "<<" | ">>" | ">>>" ) term )*
 term              → factor ( ( "-" | "+" ) factor )*
 factor            → unary ( ( "/" | "//" | "*" | "**" | "%" ) unary )*
 unary             → ( "!" | "-" | "~" ) unary | call
-call              → primary ( "(" arguments? ")" | "." IDENTIFIER )*
-primary           → "true" | "false" | "null" | NUMBER | STRING | IDENTIFIER | "(" expression ")"
+call              → primary ( "(" arguments? ")" | "." IDENTIFIER | "[" expression "]" )*
+primary           → "true" | "false" | "null" | NUMBER | STRING | IDENTIFIER | "(" expression ")" | "[" arguments? "]"
 ```
 
 ### Utilities
