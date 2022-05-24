@@ -75,7 +75,7 @@
     <ClCompile Include="src\dzboundmethod.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\native.cpp">
+    <ClCompile Include="src\natives.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\dzlist.cpp">

@@ -28,7 +28,7 @@ private:
     DzFunction* function;
   };
 
-  void defineFunctions();
+  void defineNatives();
   void defineListMembers();
   void defineStringMembers();
 

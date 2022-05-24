@@ -6,8 +6,8 @@
 #include "dznull.h"
 #include "gc.h"
 
-void Vm::defineFunctions() {
-  const auto functions = {
+void Vm::defineNatives() {
+  const auto natives = {
     gc.construct<DzFunction>(
       gc.construct<DzString>("assert"), Arity::equal(1), [](Vm& vm, std::size_t) {
         if (!vm.stack.pop_value()) {
@@ -37,11 +37,11 @@ void Vm::defineFunctions() {
   };
 
   const auto main = frames[0].function;
-  for (const auto& function : functions) {
-    const auto iter = main->identifiers.find(function->identifier);
+  for (const auto& native : natives) {
+    const auto iter = main->identifiers.find(native->identifier);
     if (iter != main->identifiers.end()) {
       const auto& [identifier, index] = *iter;
-      globals[index] = function;
+      globals[index] = native;
     }
   }
 }
