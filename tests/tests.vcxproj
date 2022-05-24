@@ -28,6 +28,7 @@
     <ClCompile Include="..\drizzle\src\dznull.cpp" />
     <ClCompile Include="..\drizzle\src\dzobject.cpp" />
     <ClCompile Include="..\drizzle\src\dzstring.cpp" />
+    <ClCompile Include="..\drizzle\src\dzstringmembers.cpp" />
     <ClCompile Include="..\drizzle\src\dzvalue.cpp" />
     <ClCompile Include="..\drizzle\src\expression.cpp" />
     <ClCompile Include="..\drizzle\src\gc.cpp" />
@@ -101,6 +102,7 @@
     <ClInclude Include="src\tests\vm\list.h" />
     <ClInclude Include="src\tests\vm\loop.h" />
     <ClInclude Include="src\tests\vm\scope.h" />
+    <ClInclude Include="src\tests\vm\string.h" />
     <ClInclude Include="src\tests\vm\type.h" />
     <ClInclude Include="src\tests\vm\unary.h" />
     <ClInclude Include="src\utils.h" />

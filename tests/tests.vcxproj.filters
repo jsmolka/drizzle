@@ -87,6 +87,9 @@
     <ClCompile Include="..\drizzle\src\dzlistmembers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\drizzle\src\dzstringmembers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\scanner.inl">
@@ -281,6 +284,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\tests\parser\expr\subscript.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tests\vm\string.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

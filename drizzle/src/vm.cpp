@@ -21,6 +21,7 @@ void Vm::interpret(DzFunction* main) {
 
   defineFunctions();
   defineListMembers();
+  defineStringMembers();
 
   gc.vm = this;
 

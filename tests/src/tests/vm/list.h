@@ -107,21 +107,21 @@ assert(x.remove(-1) == 1)
     }
     {
       constexpr const char* kSources[] = {
-R"([].insert())",
-R"([].insert(1))",
-R"([].insert("test", 0))",
-R"([].insert(1, 0))",
-R"([].remove())",
-R"([].remove("test"))",
-R"([].remove(1))",
-R"([].index())",
-R"([].resize())",
-R"([].resize(1))",
-R"([].resize(-1, 1))",
-R"([].resize("test", 1))",
-R"([][-1])",
-R"([][0])",
-R"([][1])",
+        R"([].insert())",
+        R"([].insert(1))",
+        R"([].insert("test", 0))",
+        R"([].insert(1, 0))",
+        R"([].remove())",
+        R"([].remove("test"))",
+        R"([].remove(1))",
+        R"([].index())",
+        R"([].resize())",
+        R"([].resize(1))",
+        R"([].resize(-1, 1))",
+        R"([].resize("test", 1))",
+        R"([][-1])",
+        R"([][0])",
+        R"([][1])",
       };
 
       for (const auto& source : kSources) {

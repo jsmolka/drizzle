@@ -30,6 +30,7 @@ private:
 
   void defineFunctions();
   void defineListMembers();
+  void defineStringMembers();
 
   template<std::integral Integral>
   auto read() -> Integral;
