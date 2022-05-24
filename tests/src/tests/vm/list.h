@@ -99,6 +99,17 @@ assert(x.remove(-2) == 2)
 assert(x.remove(-1) == 3)
 assert(x.remove(-1) == 1)
 )",
+R"(
+var x = [] + []
+assert(x.size() == 0)
+)",
+R"(
+var x = [1] + [2, 3]
+assert(x.size() == 3)
+assert(x[0] == 1)
+assert(x[1] == 2)
+assert(x[2] == 3)
+)",
       };
 
       for (const auto& source : kSources) {
