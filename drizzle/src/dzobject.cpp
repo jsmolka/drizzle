@@ -29,10 +29,12 @@ DzObject::operator bool() const {
 auto DzObject::operator==(const DzObject& other) const -> bool {
   if (type != other.type) {
     return false;
-  } else if (type == Type::List) {
-    return as<DzList>() == other.as<DzList>();
-  } else {
-    return this == &other;
+  }
+  switch (type) {
+    case Type::BoundMethod: return as<DzBoundMethod>() == other.as<DzBoundMethod>();
+    case Type::List:        return as<DzList>() == other.as<DzList>();
+    default:
+      return this == &other;
   }
 }
 

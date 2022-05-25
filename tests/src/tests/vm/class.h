@@ -131,6 +131,15 @@ t["prop2"] = 2
 assert(t.prop2 == 2)
 assert(t["prop2"] == 2)
 )",
+R"(
+class Test:
+  def test():
+    noop
+var t1 = Test()
+var t2 = Test()
+assert(t1.test == t1.test)
+assert(t1.test != t2.test)
+)",
       };
 
       for (const auto& source : kSources) {

@@ -7,6 +7,10 @@ DzBoundMethod::operator bool() const {
   return true;
 }
 
+auto DzBoundMethod::operator==(const DzBoundMethod& other) const -> bool {
+  return self == other.self && function == other.function;
+}
+
 auto DzBoundMethod::repr() const -> std::string {
   return function->repr();
 }
