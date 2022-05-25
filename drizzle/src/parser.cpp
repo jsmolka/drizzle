@@ -193,11 +193,23 @@ void Parser::binary(bool) {
 }
 
 void Parser::list(bool) {
+  const auto multiline = match(Token::Type::NewLine);
+
   Exprs values;
   if (current->type != Token::Type::BracketRight) {
-    do {
-      values.push_back(expression());
-    } while (match(Token::Type::Comma));
+    if (multiline) {
+      expectIndent();
+      do {
+        match(Token::Type::NewLine);
+        values.push_back(expression());
+        match(Token::Type::NewLine);
+      } while (match(Token::Type::Comma));
+      expectDedent();
+    } else {
+      do {
+        values.push_back(expression());
+      } while (match(Token::Type::Comma));
+    }
   }
   expectBracketRight();
   expressions.push(newExpr(Expression::List{
