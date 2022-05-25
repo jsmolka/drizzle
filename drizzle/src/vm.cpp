@@ -573,9 +573,9 @@ void Vm::set() {
   const auto prop = stack.pop_value().as<DzString>();
   const auto self = stack.pop_value();
   if (self.is(DzObject::Type::Instance)) {
-    static_cast<DzInstance*>(self.o)->set(prop, stack.top());
+    self.as<DzInstance>()->set(prop, stack.top());
   } else {
-    raise("cannot set property '{}' of type '{}'", prop->repr(), self.kind());
+    raise("'{}' object does not have properties", self.kind());
   }
 }
 
@@ -631,6 +631,7 @@ void Vm::subscriptGet() {
       break;
     }
     case DzObject::Type::String: {
+      expect(expr, DzValue::Type::Int);
       const auto string = self.as<DzString>();
       auto index = expr.i;
       if (index < 0) {
@@ -639,11 +640,10 @@ void Vm::subscriptGet() {
       if (index < 0 || index >= string->data.size()) {
         raise("string index out of range");
       }
-      std::string_view data(
+      stack.push(gc.construct<DzString>(std::string_view(
         string->data.begin() + index,
         string->data.begin() + index + 1
-      );
-      stack.push(gc.construct<DzString>(data));
+      )));
       break;
     }
     default: {
