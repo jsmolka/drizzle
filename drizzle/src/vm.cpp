@@ -240,42 +240,48 @@ void Vm::call() {
 }
 
 void Vm::call(DzValue& callee, std::size_t argc) {
-  if (callee.is(DzValue::Type::Object)) {
-    switch (callee.o->type) {
-      case DzObject::Type::Class: {
-        const auto class_ = callee.as<DzClass>();
-        callee = gc.construct<DzInstance>(class_);
-        if (class_->init) {
-          call(class_->init, argc);
-        } else if (argc > 0) {
-          raise("expected 0 argument(s) but got {}", argc);
-        }
-        return;
-      }
+  auto error = [this](const DzValue& callee) {
+    raise("'{}' object is not callable", callee.kind());
+  };
 
-      case DzObject::Type::Function: {
-        call(callee.as<DzFunction>(), argc);
-        return;
-      }
+  if (!callee.is(DzValue::Type::Object)) {
+    error(callee);
+  }
 
-      case DzObject::Type::BoundMethod: {
-        const auto method = callee.as<DzBoundMethod>();
-        callee = method->self;
-        call(method->function, argc);
-        return;
+  switch (callee.o->type) {
+    case DzObject::Type::Class: {
+      const auto class_ = callee.as<DzClass>();
+      callee = gc.construct<DzInstance>(class_);
+      if (class_->init) {
+        call(class_->init, argc);
+      } else if (argc > 0) {
+        raise(Arity::equal(0).message(argc));
       }
+      break;
+    }
+    case DzObject::Type::Function: {
+      call(callee.as<DzFunction>(), argc);
+      break;
+    }
+    case DzObject::Type::BoundMethod: {
+      const auto method = callee.as<DzBoundMethod>();
+      callee = method->self;
+      call(method->function, argc);
+      break;
+    }
+    default: {
+      error(callee);
+      break;
     }
   }
-  raise("'{}' is not callable", callee);
 }
 
 void Vm::call(DzFunction* function, std::size_t argc) {
-  const auto& arity = function->arity;
-  if (!arity.matches(argc)) {
-    raise(arity.message(argc));
-  }
   if (frames.size() == kMaximumRecursionDepth) {
     raise("maximum recursion depth exceeded");
+  }
+  if (!function->arity.matches(argc)) {
+    raise(function->arity.message(argc));
   }
   if (function->isChunk()) {
     frames.emplace(function->chunk().code.data(), stack.size() - argc - 1, function);
@@ -328,35 +334,35 @@ void Vm::false_() {
 }
 
 void Vm::get() {
-  auto error = [this](const DzValue& prop, const DzValue& self) {
-    raise("cannot get property '{}' of type '{}'", prop.repr(), self.kind());
+  auto error = [this](const DzValue& self, const DzValue& prop) {
+    raise("'{}' object has no property '{}'", self.kind(), prop.repr());
   };
 
   const auto prop = stack.pop_value().as<DzString>();
   const auto self = stack.pop_value();
 
-  if (self.is(DzValue::Type::Object)) {
-    if (self.o->is(DzObject::Type::Instance)) {
-      const auto instance = static_cast<DzInstance*>(self.o);
-      if (const auto value = instance->get(prop)) {
-        stack.push(*value);
-      } else if (const auto function = instance->class_->get(prop)) {
-        stack.push(gc.construct<DzBoundMethod>(instance, function));
-      } else {
-        stack.push(&null);
-      }
+  if (!self.is(DzValue::Type::Object)) {
+    error(self, prop);
+  }
+
+  if (self.o->is(DzObject::Type::Instance)) {
+    const auto instance = self.as<DzInstance>();
+    if (const auto value = instance->get(prop)) {
+      stack.push(*value);
+    } else if (const auto function = instance->class_->get(prop)) {
+      stack.push(gc.construct<DzBoundMethod>(instance, function));
     } else {
-      const auto type = int(self.o->type);
-      const auto iter = members[type].find(prop);
-      if (iter != members[type].end()) {
-        const auto& [identifier, function] = *iter;
-        stack.push(gc.construct<DzBoundMethod>(self.o, function));
-      } else {
-        error(prop, self);
-      }
+      stack.push(&null);
     }
   } else {
-    error(prop, self);
+    const auto type = int(self.o->type);
+    const auto iter = members[type].find(prop);
+    if (iter != members[type].end()) {
+      const auto& [identifier, function] = *iter;
+      stack.push(gc.construct<DzBoundMethod>(self.o, function));
+    } else {
+      error(self, prop);
+    }
   }
 }
 
@@ -379,36 +385,36 @@ void Vm::greaterEqual() {
 }
 
 void Vm::invoke() {
-  auto error = [this](const DzValue& prop, const DzValue& self) {
-    raise("cannot get property '{}' of type '{}'", prop.repr(), self.kind());
+  auto error = [this](const DzValue& self, const DzValue& prop) {
+    raise("'{}' object has no property '{}'", self.kind(), prop.repr());
   };
 
   const auto argc = read<u8>();
   const auto prop = stack.pop_value().as<DzString>();
 
   auto& self = stack.peek(argc);
-  if (self.is(DzValue::Type::Object)) {
-    if (self.o->is(DzObject::Type::Instance)) {
-      const auto instance = static_cast<DzInstance*>(self.o);
-      if (const auto value = instance->get(prop)) {
-        self = *value;
-      } else if (const auto function = instance->class_->get(prop)) {
-        return call(function, argc);
-      } else {
-        self = &null;
-      }
+  if (!self.is(DzValue::Type::Object)) {
+    error(self, prop);
+  }
+
+  if (self.o->is(DzObject::Type::Instance)) {
+    const auto instance = self.as<DzInstance>();
+    if (const auto value = instance->get(prop)) {
+      self = *value;
+    } else if (const auto function = instance->class_->get(prop)) {
+      return call(function, argc);
     } else {
-      const auto type = int(self.o->type);
-      const auto iter = members[type].find(prop);
-      if (iter != members[type].end()) {
-        const auto& [identifier, function] = *iter;
-        return call(function, argc);
-      } else {
-        error(prop, self);
-      }
+      self = &null;
     }
   } else {
-    error(prop, self);
+    const auto type = int(self.o->type);
+    const auto iter = members[type].find(prop);
+    if (iter != members[type].end()) {
+      const auto& [identifier, function] = *iter;
+      return call(function, argc);
+    } else {
+      error(self, prop);
+    }
   }
   call(self, argc);
 }
