@@ -494,13 +494,13 @@ void Vm::iterConstruct() {
 template<std::integral Integral>
 void Vm::iterIncrement() {
   const auto index = read<Integral>();
-  stack[frames.top().sp + index].as<DzIterator>()->increment();
+  stack[frames.top().sp + index].template as<DzIterator>()->increment();
 }
 
 template<std::integral Integral>
 void Vm::iterDereference() {
   const auto index = read<Integral>();
-  stack.push(stack[frames.top().sp + index].as<DzIterator>()->dereference());
+  stack.push(stack[frames.top().sp + index].template as<DzIterator>()->dereference());
 }
 
 void Vm::jump() {
