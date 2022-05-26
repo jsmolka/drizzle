@@ -6,6 +6,19 @@
 #include "dznull.h"
 #include "gc.h"
 
+struct DzValuePrint : DzValue {};
+
+template<>
+struct fmt::formatter<DzValuePrint> : fmt::formatter<std::string> {
+  template<typename FormatContext>
+  auto format(const DzValuePrint& value, FormatContext& ctx) const {
+    return fmt::formatter<std::string>::format(
+      value.is(DzObject::Type::String)
+        ? value.as<DzString>()->data
+        : value.repr(), ctx);
+  }
+};
+
 void Vm::defineNatives() {
   const auto natives = {
     gc.construct<DzFunction>(
@@ -18,7 +31,9 @@ void Vm::defineNatives() {
     ),
     gc.construct<DzFunction>(
       gc.construct<DzString>("print"), Arity::greaterEqual(1), [](Vm& vm, std::size_t argc) {
-        fmt::print("{}\n", fmt::join(vm.stack.end() - argc, vm.stack.end(), " "));
+        fmt::print("{}\n", fmt::join(
+          static_cast<DzValuePrint*>(vm.stack.end()) - argc,
+          static_cast<DzValuePrint*>(vm.stack.end()), " "));
         vm.stack.pop(argc);
         return &null;
       }

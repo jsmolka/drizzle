@@ -1,5 +1,7 @@
 #include "dzstring.h"
 
+#include <sh/fmt.h>
+
 DzString::DzString(const char* data)
   : DzString(std::string_view(data)) {}
 
@@ -14,5 +16,5 @@ DzString::operator bool() const {
 }
 
 auto DzString::repr() const -> std::string {
-  return data;
+  return fmt::format(R"("{}")", data);
 }
