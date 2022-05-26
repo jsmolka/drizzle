@@ -8,6 +8,7 @@
 #include "dzlist.h"
 #include "dzlistiterator.h"
 #include "dznull.h"
+#include "dzstringiterator.h"
 #include "gc.h"
 #include "opcode.h"
 
@@ -484,6 +485,10 @@ void Vm::iterConstruct() {
       stack.top() = gc.construct<DzListIterator>(iteree.o);
       break;
     }
+    case DzObject::Type::String: {
+      stack.top() = gc.construct<DzStringIterator>(iteree.o);
+      break;
+    }
     default: {
       error(iteree);
       break;
@@ -500,7 +505,7 @@ void Vm::iterIncrement() {
 template<std::integral Integral>
 void Vm::iterDereference() {
   const auto index = read<Integral>();
-  stack.push(stack[frames.top().sp + index].template as<DzIterator>()->dereference());
+  stack.push(stack[frames.top().sp + index].template as<DzIterator>()->dereference(gc));
 }
 
 void Vm::jump() {

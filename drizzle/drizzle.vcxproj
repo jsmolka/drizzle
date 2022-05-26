@@ -33,6 +33,7 @@
     <ClCompile Include="src\dzstring.cpp" />
     <ClCompile Include="src\astformatter.cpp" />
     <ClCompile Include="src\dzobject.cpp" />
+    <ClCompile Include="src\dzstringiterator.cpp" />
     <ClCompile Include="src\dzstringmembers.cpp" />
     <ClCompile Include="src\dzvalue.cpp" />
     <ClCompile Include="src\gc.cpp" />
@@ -60,6 +61,7 @@
     <ClInclude Include="src\dznull.h" />
     <ClInclude Include="src\dzobject.h" />
     <ClInclude Include="src\dzstring.h" />
+    <ClInclude Include="src\dzstringiterator.h" />
     <ClInclude Include="src\dzvalue.h" />
     <ClInclude Include="src\gc.h" />
     <ClInclude Include="src\identifier.h" />

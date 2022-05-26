@@ -3,6 +3,8 @@
 #include "dzobject.h"
 #include "dzvalue.h"
 
+class Gc;
+
 class DzIterator : public DzObject {
 public:
   DzIterator(DzObject* iteree);
@@ -11,7 +13,7 @@ public:
   auto repr() const -> std::string;
 
   virtual void increment() = 0;
-  virtual auto dereference() const -> DzValue = 0;
+  virtual auto dereference(Gc&) const -> DzValue = 0;
 
   DzObject* iteree;
 };

@@ -10,6 +10,6 @@ void DzListIterator::increment() {
   ++index;
 }
 
-auto DzListIterator::dereference() const -> DzValue {
+auto DzListIterator::dereference(Gc&) const -> DzValue {
   return static_cast<const DzList*>(iteree)->values[index];
 }
