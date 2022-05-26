@@ -23,6 +23,7 @@ public:
     Call,
     Get,
     Group,
+    In,
     Invoke,
     List,
     Literal,
@@ -81,6 +82,11 @@ public:
   };
 
   struct Group {
+    Expr expression;
+  };
+
+  struct In {
+    Expr self;
     Expr expression;
   };
 
@@ -154,6 +160,7 @@ public:
   Expression(Call call, const Location& location);
   Expression(Get get, const Location& location);
   Expression(Group group, const Location& location);
+  Expression(In in, const Location& location);
   Expression(Invoke invoke, const Location& location);
   Expression(List list, const Location& location);
   Expression(Literal literal, const Location& location);
@@ -171,6 +178,7 @@ public:
     Call call;
     Get get;
     Group group;
+    In in;
     Invoke invoke;
     List list;
     Literal literal;
@@ -186,13 +194,14 @@ public:
 template<>
 struct fmt::formatter<Expression::Type> : fmt::formatter<std::string_view> {
   static auto repr(const Expression::Type& value) -> std::string_view {
-    static_assert(int(Expression::Type::LastEnumValue) == 13);
+    static_assert(int(Expression::Type::LastEnumValue) == 14);
     switch (value) {
       case Expression::Type::Assign:       return "assign";
       case Expression::Type::Binary:       return "binary";
       case Expression::Type::Call:         return "call";
       case Expression::Type::Get:          return "get";
       case Expression::Type::Group:        return "group";
+      case Expression::Type::In:           return "in";
       case Expression::Type::Invoke:       return "invoke";
       case Expression::Type::List:         return "list";
       case Expression::Type::Literal:      return "literal";

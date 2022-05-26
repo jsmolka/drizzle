@@ -3,12 +3,13 @@
 #include "tests/compiler/error.h"
 #include "tests/parser/error.h"
 
-static_assert(int(Expression::Type::LastEnumValue) == 13);
+static_assert(int(Expression::Type::LastEnumValue) == 14);
 #include "tests/parser/expr/assign.h"
 #include "tests/parser/expr/binary.h"
 #include "tests/parser/expr/call.h"
 #include "tests/parser/expr/get.h"
 #include "tests/parser/expr/group.h"
+#include "tests/parser/expr/in.h"
 #include "tests/parser/expr/invoke.h"
 #include "tests/parser/expr/list.h"
 #include "tests/parser/expr/literal.h"

@@ -31,6 +31,7 @@ auto Parser::rule(Token::Type type) -> const Rule& {
       case Token::Type::Greater3:     return {nullptr,           &Parser::binary,    Precedence::BitShift  };
       case Token::Type::GreaterEqual: return {nullptr,           &Parser::binary,    Precedence::Comparison};
       case Token::Type::Identifier:   return {&Parser::variable, nullptr,            Precedence::None      };
+      case Token::Type::In:           return {nullptr,           &Parser::in,        Precedence::In        };
       case Token::Type::Integer:      return {&Parser::constant, nullptr,            Precedence::None      };
       case Token::Type::Less:         return {nullptr,           &Parser::binary,    Precedence::Comparison};
       case Token::Type::Less2:        return {nullptr,           &Parser::binary,    Precedence::BitShift  };
@@ -264,6 +265,13 @@ void Parser::dot(bool assign) {
 void Parser::group(bool) {
   expressions.push(expression());
   expectParenRight();
+}
+
+void Parser::in(bool) {
+  expressions.push(newExpr(Expression::In{
+    .self = expression(),
+    .expression = expressions.pop_value()
+  }));
 }
 
 void Parser::literal(bool) {

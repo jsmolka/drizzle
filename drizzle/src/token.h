@@ -38,6 +38,7 @@ struct Token {
     GreaterEqual,
     Identifier,
     If,
+    In,
     Indent,
     Integer,
     Less,
@@ -75,7 +76,7 @@ struct Token {
 template<>
 struct fmt::formatter<Token::Type> : fmt::formatter<std::string_view> {
   static auto repr(const Token::Type& value) -> std::string_view {
-    static_assert(int(Token::Type::LastEnumValue) == 57);
+    static_assert(int(Token::Type::LastEnumValue) == 58);
     switch (value) {
       case Token::Type::And:          return "And";
       case Token::Type::And2:         return "And2";
@@ -108,6 +109,7 @@ struct fmt::formatter<Token::Type> : fmt::formatter<std::string_view> {
       case Token::Type::GreaterEqual: return "GreaterEqual";
       case Token::Type::Identifier:   return "Identifier";
       case Token::Type::If:           return "If";
+      case Token::Type::In:           return "In";
       case Token::Type::Indent:       return "Indent";
       case Token::Type::Integer:      return "Integer";
       case Token::Type::Less:         return "Less";

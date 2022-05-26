@@ -17,6 +17,7 @@ private:
     Assignment,
     Or,
     And,
+    In,
     BitOr,
     BitXor,
     BitAnd,
@@ -67,6 +68,7 @@ private:
   void constant(bool);
   void dot(bool assign);
   void group(bool);
+  void in(bool);
   void literal(bool);
   void or_(bool);
   void subscript(bool assign);

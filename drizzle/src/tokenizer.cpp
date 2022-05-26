@@ -292,6 +292,7 @@ void Tokenizer::scanIdentifier() {
     {"else",     Token::Type::Else    },
     {"false",    Token::Type::False   },
     {"if",       Token::Type::If      },
+    {"in",       Token::Type::In      },
     {"noop",     Token::Type::Noop    },
     {"null",     Token::Type::Null    },
     {"return",   Token::Type::Return  },
