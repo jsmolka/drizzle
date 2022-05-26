@@ -291,6 +291,7 @@ void Tokenizer::scanIdentifier() {
     {"elif",     Token::Type::Elif    },
     {"else",     Token::Type::Else    },
     {"false",    Token::Type::False   },
+    {"for",      Token::Type::For     },
     {"if",       Token::Type::If      },
     {"in",       Token::Type::In      },
     {"noop",     Token::Type::Noop    },

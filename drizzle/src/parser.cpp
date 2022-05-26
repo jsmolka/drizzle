@@ -79,6 +79,7 @@ void Parser::expectBracketRight() { expect(Token::Type::BracketRight, "expected 
 void Parser::expectColon()        { expect(Token::Type::Colon,        "expected colon");               }
 void Parser::expectDedent()       { expect(Token::Type::Dedent,       "expected dedent");              }
 void Parser::expectDef()          { expect(Token::Type::Def,          "expected function definition"); }
+void Parser::expectIn()           { expect(Token::Type::In,           "expected 'in'");                }
 void Parser::expectIndent()       { expect(Token::Type::Indent,       "expected indent");              }
 void Parser::expectNewLine()      { expect(Token::Type::NewLine,      "expected new line");            }
 void Parser::expectParenLeft()    { expect(Token::Type::ParenLeft,    "expected '('");                 }
@@ -467,6 +468,8 @@ auto Parser::statement() -> Stmt {
     return statementContinue();
   } else if (match(Token::Type::If)) {
     return statementIf();
+  } else if (match(Token::Type::For)) {
+    return statementFor();
   } else if (match(Token::Type::Noop)) {
     return statementNoop();
   } else if (match(Token::Type::Return)) {
@@ -513,6 +516,27 @@ auto Parser::statementContinue() -> Stmt {
   pushLocation();
   expectNewLine();
   return newStmt(Statement::Continue{});
+}
+
+auto Parser::statementFor() -> Stmt {
+  pushLocation();
+  const auto iterator = expectIdentifier();
+  expectIn();
+  auto iteree = expression();
+  expectColon();
+  expectNewLine();
+  expectIndent();
+
+  Stmts statements;
+  while (current->type != Token::Type::Dedent) {
+    statements.push_back(declaration());
+  }
+  expectDedent();
+  return newStmt(Statement::For{
+    .iterator = iterator,
+    .iteree = std::move(iteree),
+    .statements = std::move(statements)
+  });
 }
 
 auto Parser::statementIf() -> Stmt {

@@ -18,6 +18,9 @@ Statement::Statement(Def def, const Location& location)
 Statement::Statement(ExpressionStatement expression, const Location& location)
   : type(Type::ExpressionStatement), expression_statement(std::move(expression)), location(location) {}
 
+Statement::Statement(For for_, const Location& location)
+  : type(Type::For), for_(std::move(for_)), location(location) {}
+
 Statement::Statement(If if_, const Location& location)
   : type(Type::If), if_(std::move(if_)), location(location) {}
 
@@ -37,7 +40,7 @@ Statement::Statement(While while_, const Location& location)
   : type(Type::While), while_(std::move(while_)), location(location) {}
 
 Statement::~Statement() {
-  static_assert(int(Type::LastEnumValue) == 12);
+  static_assert(int(Type::LastEnumValue) == 13);
 
   switch (type) {
     case Type::Block:               std::destroy_at(&block); break;
@@ -46,6 +49,7 @@ Statement::~Statement() {
     case Type::Continue:            std::destroy_at(&continue_); break;
     case Type::Def:                 std::destroy_at(&def); break;
     case Type::ExpressionStatement: std::destroy_at(&expression_statement); break;
+    case Type::For:                 std::destroy_at(&for_); break;
     case Type::If:                  std::destroy_at(&if_); break;
     case Type::Noop:                std::destroy_at(&noop); break;
     case Type::Program:             std::destroy_at(&program); break;

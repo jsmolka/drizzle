@@ -19,6 +19,7 @@ public:
     Continue,
     Def,
     ExpressionStatement,
+    For,
     If,
     Noop,
     Program,
@@ -52,6 +53,12 @@ public:
 
   struct ExpressionStatement {
     Expr expression;
+  };
+
+  struct For {
+    Identifier iterator;
+    Expr iteree;
+    Stmts statements;
   };
 
   struct If {
@@ -90,6 +97,7 @@ public:
   Statement(Continue continue_, const Location& location);
   Statement(Def define, const Location& location);
   Statement(ExpressionStatement expression, const Location& location);
+  Statement(For for_, const Location& location);
   Statement(If if_, const Location& location);
   Statement(Noop noop, const Location& location);
   Statement(Program program, const Location& location);
@@ -106,6 +114,7 @@ public:
     Continue continue_;
     Def def;
     ExpressionStatement expression_statement;
+    For for_;
     If if_;
     Noop noop;
     Program program;
@@ -119,7 +128,7 @@ public:
 template<>
 struct fmt::formatter<Statement::Type> : fmt::formatter<std::string_view> {
   static auto repr(const Statement::Type& value) -> std::string_view {
-    static_assert(int(Statement::Type::LastEnumValue) == 12);
+    static_assert(int(Statement::Type::LastEnumValue) == 13);
     switch (value) {
       case Statement::Type::Block:               return "block";
       case Statement::Type::Break:               return "break";
@@ -127,6 +136,7 @@ struct fmt::formatter<Statement::Type> : fmt::formatter<std::string_view> {
       case Statement::Type::Continue:            return "continue";
       case Statement::Type::Def:                 return "def";
       case Statement::Type::ExpressionStatement: return "expression_statement";
+      case Statement::Type::For:                 return "for";
       case Statement::Type::If:                  return "if";
       case Statement::Type::Noop:                return "noop";
       case Statement::Type::Program:             return "program";

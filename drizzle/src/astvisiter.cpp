@@ -97,7 +97,7 @@ void AstVisiter::visit(Expression::Variable& variable) {
 }
 
 void AstVisiter::visit(Stmt& stmt) {
-  static_assert(int(Statement::Type::LastEnumValue) == 12);
+  static_assert(int(Statement::Type::LastEnumValue) == 13);
 
   switch (stmt->type) {
     case Statement::Type::Block:               visit(stmt->block); break;
@@ -106,6 +106,7 @@ void AstVisiter::visit(Stmt& stmt) {
     case Statement::Type::Continue:            visit(stmt->continue_); break;
     case Statement::Type::Def:                 visit(stmt->def); break;
     case Statement::Type::ExpressionStatement: visit(stmt->expression_statement); break;
+    case Statement::Type::For:                 visit(stmt->for_); break;
     case Statement::Type::If:                  visit(stmt->if_); break;
     case Statement::Type::Noop:                visit(stmt->noop); break;
     case Statement::Type::Program:             visit(stmt->program); break;
@@ -146,6 +147,11 @@ void AstVisiter::visit(Statement::Def& def) {
 
 void AstVisiter::visit(Statement::ExpressionStatement& expression_statement) {
   visit(expression_statement.expression);
+}
+
+void AstVisiter::visit(Statement::For& for_) {
+  visit(for_.iteree);
+  visit(for_.statements);
 }
 
 void AstVisiter::visit(Statement::If& if_) {

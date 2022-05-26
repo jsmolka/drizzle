@@ -30,6 +30,7 @@ protected:
   virtual void visit(Statement::Continue& continue_);
   virtual void visit(Statement::Def& def);
   virtual void visit(Statement::ExpressionStatement& expression_statement);
+  virtual void visit(Statement::For& for_);
   virtual void visit(Statement::If& if_);
   virtual void visit(Statement::Noop& noop);
   virtual void visit(Statement::Program& program);

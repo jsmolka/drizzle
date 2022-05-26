@@ -48,6 +48,7 @@ private:
   void expectColon();
   void expectDedent();
   void expectDef();
+  void expectIn();
   void expectIndent();
   void expectNewLine();
   void expectParenLeft();
@@ -88,6 +89,7 @@ private:
   auto statementBlock() -> Stmt;
   auto statementBreak() -> Stmt;
   auto statementContinue() -> Stmt;
+  auto statementFor() -> Stmt;
   auto statementIf() -> Stmt;
   auto statementNoop() -> Stmt;
   auto statementReturn() -> Stmt;
