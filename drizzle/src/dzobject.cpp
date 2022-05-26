@@ -4,6 +4,7 @@
 #include "dzclass.h"
 #include "dzfunction.h"
 #include "dzinstance.h"
+#include "dziterator.h"
 #include "dzlist.h"
 #include "dznull.h"
 #include "dzstring.h"
@@ -17,6 +18,7 @@ DzObject::operator bool() const {
     case Type::Class:       return as<DzClass>();
     case Type::Function:    return as<DzFunction>();
     case Type::Instance:    return as<DzInstance>();
+    case Type::Iterator:    return as<DzIterator>();
     case Type::List:        return as<DzList>();
     case Type::Null:        return as<DzNull>();
     case Type::String:      return as<DzString>();
@@ -48,6 +50,7 @@ auto DzObject::repr() const -> std::string {
     case Type::Class:       return as<DzClass>().repr();
     case Type::Function:    return as<DzFunction>().repr();
     case Type::Instance:    return as<DzInstance>().repr();
+    case Type::Iterator:    return as<DzIterator>().repr();
     case Type::List:        return as<DzList>().repr();
     case Type::Null:        return as<DzNull>().repr();
     case Type::String:      return as<DzString>().repr();

@@ -5,6 +5,7 @@
 #include "dzboundmethod.h"
 #include "dzfunction.h"
 #include "dzinstance.h"
+#include "dziterator.h"
 #include "dzlist.h"
 #include "vm.h"
 
@@ -56,7 +57,7 @@ void Gc::mark(const DzValue& value) {
 }
 
 void Gc::mark(DzObject* object) {
-  static_assert(int(DzObject::Type::LastEnumValue) == 7);
+  static_assert(int(DzObject::Type::LastEnumValue) == 8);
   if (!object || object->marked) {
     return;
   }
@@ -69,7 +70,6 @@ void Gc::mark(DzObject* object) {
       mark(method->function);
       break;
     }
-
     case DzObject::Type::Class: {
       const auto class_ = static_cast<DzClass*>(object);
       mark(class_->identifier);
@@ -79,7 +79,6 @@ void Gc::mark(DzObject* object) {
       }
       break;
     };
-
     case DzObject::Type::Function: {
       const auto function = static_cast<DzFunction*>(object);
       mark(function->identifier);
@@ -93,7 +92,6 @@ void Gc::mark(DzObject* object) {
       }
       break;
     }
-
     case DzObject::Type::Instance: {
       const auto instance = static_cast<DzInstance*>(object);
       mark(instance->class_);
@@ -103,7 +101,11 @@ void Gc::mark(DzObject* object) {
       }
       break;
     }
-
+    case DzObject::Type::Iterator: {
+      const auto iterator = static_cast<DzIterator*>(object);
+      mark(iterator->iteree);
+      break;
+    }
     case DzObject::Type::List: {
       const auto list = static_cast<DzList*>(object);
       for (const auto& value : list->values) {
