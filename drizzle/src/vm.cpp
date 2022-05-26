@@ -334,36 +334,41 @@ void Vm::false_() {
 }
 
 void Vm::get() {
-  auto error = [this](const DzValue& self, const DzValue& prop) {
-    raise("'{}' object has no property '{}'", self.kind(), prop.repr());
-  };
+  const auto value = [this]() -> DzValue {
+    auto error = [this](const DzValue& self, const DzValue& prop) {
+      raise("'{}' object has no property '{}'", self.kind(), prop.repr());
+    };
 
-  const auto prop = stack.pop_value().as<DzString>();
-  const auto self = stack.pop_value();
+    const auto& prop = stack.peek(0).as<DzString>();
+    const auto& self = stack.peek(1);
 
-  if (!self.is(DzValue::Type::Object)) {
-    error(self, prop);
-  }
-
-  if (self.o->is(DzObject::Type::Instance)) {
-    const auto instance = self.as<DzInstance>();
-    if (const auto value = instance->get(prop)) {
-      stack.push(*value);
-    } else if (const auto function = instance->class_->get(prop)) {
-      stack.push(gc.construct<DzBoundMethod>(instance, function));
-    } else {
-      stack.push(&null);
-    }
-  } else {
-    const auto type = int(self.o->type);
-    const auto iter = members[type].find(prop);
-    if (iter != members[type].end()) {
-      const auto& [identifier, function] = *iter;
-      stack.push(gc.construct<DzBoundMethod>(self.o, function));
-    } else {
+    if (!self.is(DzValue::Type::Object)) {
       error(self, prop);
     }
-  }
+
+    if (self.o->is(DzObject::Type::Instance)) {
+      const auto instance = self.as<DzInstance>();
+      if (const auto value = instance->get(prop)) {
+        return *value;
+      } else if (const auto function = instance->class_->get(prop)) {
+        return gc.construct<DzBoundMethod>(instance, function);
+      } else {
+        return &null;
+      }
+    } else {
+      const auto type = int(self.o->type);
+      const auto iter = members[type].find(prop);
+      if (iter != members[type].end()) {
+        const auto& [identifier, function] = *iter;
+        return gc.construct<DzBoundMethod>(self.o, function);
+      } else {
+        error(self, prop);
+        return &null;
+      }
+    }
+  }();
+  stack.pop();
+  stack.top() = value;
 }
 
 void Vm::greater() {
@@ -593,64 +598,65 @@ void Vm::storeGlobal() {
 
 
 void Vm::subscriptGet() {
-  auto error = [this](const DzValue& self) {
-    raise("'{}' object is not subscriptable", self.kind());
-  };
+  const auto value = [this]() -> DzValue {
+    auto error = [this](const DzValue& self) {
+      raise("'{}' object is not subscriptable", self.kind());
+    };
 
-  const auto expr = stack.pop_value();
-  const auto self = stack.pop_value();
-  if (!self.is(DzValue::Type::Object)) {
-    error(self);
-  }
-
-  switch (self.o->type) {
-    case DzObject::Type::Instance: {
-      expect(expr, DzObject::Type::String);
-      const auto inst = self.as<DzInstance>();
-      const auto prop = expr.as<DzString>();
-      if (const auto value = inst->get(prop)) {
-        stack.push(*value);
-      } else if (const auto function = inst->class_->get(prop)) {
-        stack.push(gc.construct<DzBoundMethod>(inst, function));
-      } else {
-        stack.push(&null);
-      }
-      break;
-    }
-    case DzObject::Type::List: {
-      expect(expr, DzValue::Type::Int);
-      const auto list = self.as<DzList>();
-      auto index = expr.i;
-      if (index < 0) {
-        index += list->values.size();
-      }
-      if (index < 0 || index >= list->values.size()) {
-        raise("list index out of range");
-      }
-      stack.push(list->values[index]);
-      break;
-    }
-    case DzObject::Type::String: {
-      expect(expr, DzValue::Type::Int);
-      const auto string = self.as<DzString>();
-      auto index = expr.i;
-      if (index < 0) {
-        index += string->data.size();
-      }
-      if (index < 0 || index >= string->data.size()) {
-        raise("string index out of range");
-      }
-      stack.push(gc.construct<DzString>(std::string_view(
-        string->data.begin() + index,
-        string->data.begin() + index + 1
-      )));
-      break;
-    }
-    default: {
+    const auto& expr = stack.peek(0);
+    const auto& self = stack.peek(1);
+    if (!self.is(DzValue::Type::Object)) {
       error(self);
-      break;
     }
-  }
+
+    switch (self.o->type) {
+      case DzObject::Type::Instance: {
+        expect(expr, DzObject::Type::String);
+        const auto inst = self.as<DzInstance>();
+        const auto prop = expr.as<DzString>();
+        if (const auto value = inst->get(prop)) {
+          return *value;
+        } else if (const auto function = inst->class_->get(prop)) {
+          return gc.construct<DzBoundMethod>(inst, function);
+        } else {
+          return &null;
+        }
+      }
+      case DzObject::Type::List: {
+        expect(expr, DzValue::Type::Int);
+        const auto list = self.as<DzList>();
+        auto index = expr.i;
+        if (index < 0) {
+          index += list->values.size();
+        }
+        if (index < 0 || index >= list->values.size()) {
+          raise("list index out of range");
+        }
+        return list->values[index];
+      }
+      case DzObject::Type::String: {
+        expect(expr, DzValue::Type::Int);
+        const auto string = self.as<DzString>();
+        auto index = expr.i;
+        if (index < 0) {
+          index += string->data.size();
+        }
+        if (index < 0 || index >= string->data.size()) {
+          raise("string index out of range");
+        }
+        return gc.construct<DzString>(std::string_view(
+          string->data.begin() + index,
+          string->data.begin() + index + 1
+        ));
+      }
+      default: {
+        error(self);
+        return &null;
+      }
+    }
+  }();
+  stack.pop();
+  stack.top() = value;
 }
 
 void Vm::subscriptSet() {
