@@ -270,6 +270,12 @@ void Compiler::visit(Expression::Get& get) {
   emit(Opcode::Get);
 }
 
+void Compiler::visit(Expression::In& in) {
+  visit(in.self);
+  visit(in.expression);
+  emit(Opcode::In);
+}
+
 void Compiler::visit(Expression::Invoke& invoke) {
   const auto arguments = invoke.arguments.size();
   if (arguments > std::numeric_limits<u8>::max()) {

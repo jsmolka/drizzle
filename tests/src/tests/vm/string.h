@@ -21,6 +21,10 @@ assert("abc"[-1] == "c")
 assert("abc"[-2] == "b")
 assert("abc"[-3] == "a")
 )",
+R"(
+assert("test" in "_test_")
+assert(!("test" in "_est_"))
+)",
       };
 
       for (const auto& source : kSources) {
@@ -30,6 +34,7 @@ assert("abc"[-3] == "a")
     {
       constexpr const char* kSources[] = {
         R"("".size(1))",
+        R"(1 in "")",
       };
 
       for (const auto& source : kSources) {

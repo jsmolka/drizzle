@@ -146,6 +146,14 @@ assert(f(1) == 1)
 assert(f(1) == 2)
 assert(f(1) == 3)
 )",
+R"(
+class Test:
+  def test():
+    noop
+var t = Test()
+assert("test" in t)
+assert(!("test2" in t))
+)",
       };
 
       for (const auto& source : kSources) {
@@ -165,6 +173,12 @@ class Point:
     this.x = x
     this.y = y
 Point(0)
+)",
+R"(
+class Test:
+  def test():
+    noop
+assert(1 in Test())
 )",
       };
 

@@ -14,7 +14,7 @@ Vm::Vm(Gc& gc)
   : gc(gc) {}
 
 void Vm::interpret(DzFunction* main) {
-  static_assert(int(Opcode::LastEnumValue) == 52);
+  static_assert(int(Opcode::LastEnumValue) == 53);
 
   globals.resize(main->identifiers.size());
   frames.emplace(main->chunk().code.data(), 0, main);
@@ -47,6 +47,7 @@ void Vm::interpret(DzFunction* main) {
       case Opcode::Get: get(); break;
       case Opcode::Greater: greater(); break;
       case Opcode::GreaterEqual: greaterEqual(); break;
+      case Opcode::In: in(); break;
       case Opcode::Invoke: invoke(); break;
       case Opcode::Jump: jump(); break;
       case Opcode::JumpFalse: jumpFalse(); break;
@@ -387,6 +388,44 @@ void Vm::greaterEqual() {
     }
     return std::nullopt;
   });
+}
+
+void Vm::in() {
+  auto error = [this](const DzValue& self) {
+    raise("'{}' object does not support 'in'", self.kind());
+  };
+
+  const auto expr = stack.pop_value();
+  const auto self = stack.pop_value();
+  if (!self.is(DzValue::Type::Object)) {
+    error(self);
+  }
+
+  switch (self.o->type) {
+    case DzObject::Type::Instance: {
+      expect(expr, DzObject::Type::String);
+      const auto inst = self.as<DzInstance>();
+      const auto prop = expr.as<DzString>();
+      stack.push(inst->get(prop) || inst->class_->get(prop));
+      break;
+    }
+    case DzObject::Type::List: {
+      const auto list = self.as<DzList>();
+      stack.push(std::find(list->values.begin(), list->values.end(), expr) != list->values.end());
+      break;
+    }
+    case DzObject::Type::String: {
+      expect(expr, DzObject::Type::String);
+      const auto string = self.as<DzString>();
+      const auto substring = expr.as<DzString>();
+      stack.push(string->data.find(substring->data) != std::string::npos);
+      break;
+    }
+    default: {
+      error(self);
+      break;
+    }
+  }
 }
 
 void Vm::invoke() {

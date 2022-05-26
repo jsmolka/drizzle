@@ -26,6 +26,7 @@ enum class Opcode {
   Get,
   Greater,
   GreaterEqual,
+  In,
   Invoke,
   Jump,
   JumpFalse,
@@ -67,7 +68,7 @@ static_assert(int(Opcode::LastEnumValue) <= std::numeric_limits<u8>::max());
 template<>
 struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
   static auto repr(const Opcode& opcode) -> std::string_view {
-    static_assert(int(Opcode::LastEnumValue) == 52);
+    static_assert(int(Opcode::LastEnumValue) == 53);
     switch (opcode) {
       case Opcode::Add:               return "Add";
       case Opcode::BitwiseAnd:        return "BitwiseAnd";
@@ -88,6 +89,7 @@ struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
       case Opcode::Get:               return "Get";
       case Opcode::Greater:           return "Greater";
       case Opcode::GreaterEqual:      return "GreaterEqual";
+      case Opcode::In:                return "In";
       case Opcode::Invoke:            return "Invoke";
       case Opcode::Jump:              return "Jump";
       case Opcode::JumpFalse:         return "JumpFalse";

@@ -69,6 +69,7 @@ private:
   void get();
   void greater();
   void greaterEqual();
+  void in();
   void invoke();
   void jump();
   void jumpFalse();

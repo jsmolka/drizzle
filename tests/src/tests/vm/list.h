@@ -115,6 +115,10 @@ assert([1, 2, 3] == [1, 2, 3])
 assert([1, 2, 2] != [1, 2, 3])
 assert([true, false] == [1, 0])
 )",
+R"(
+assert(1 in [1])
+assert(!(1 in [2]))
+)",
       };
 
       for (const auto& source : kSources) {
