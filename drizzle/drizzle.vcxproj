@@ -27,6 +27,7 @@
     <ClCompile Include="src\dzinstance.cpp" />
     <ClCompile Include="src\dziterator.cpp" />
     <ClCompile Include="src\dzlist.cpp" />
+    <ClCompile Include="src\dzlistiterator.cpp" />
     <ClCompile Include="src\dzlistmembers.cpp" />
     <ClCompile Include="src\dznull.cpp" />
     <ClCompile Include="src\dzstring.cpp" />
@@ -55,6 +56,7 @@
     <ClInclude Include="src\dzinstance.h" />
     <ClInclude Include="src\dziterator.h" />
     <ClInclude Include="src\dzlist.h" />
+    <ClInclude Include="src\dzlistiterator.h" />
     <ClInclude Include="src\dznull.h" />
     <ClInclude Include="src\dzobject.h" />
     <ClInclude Include="src\dzstring.h" />

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "dzobject.h"
+#include "dzvalue.h"
 
 class DzIterator : public DzObject {
 public:
@@ -10,6 +11,7 @@ public:
   auto repr() const -> std::string;
 
   virtual void next() = 0;
+  virtual auto value() const -> DzValue = 0;
 
   DzObject* iteree;
 };
