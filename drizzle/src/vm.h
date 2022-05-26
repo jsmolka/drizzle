@@ -71,6 +71,9 @@ private:
   void greaterEqual();
   void in();
   void invoke();
+  void iterGet();
+  void iterNext();
+  void iterValue();
   void jump();
   void jumpFalse();
   void jumpFalsePop();

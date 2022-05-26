@@ -128,6 +128,35 @@ void Compiler::visit(Statement::ExpressionStatement& expression_statement) {
   emit(Opcode::Pop);
 }
 
+void Compiler::visit(Statement::For& for_) {
+  static constexpr auto kIter = "$iter";
+  increaseScope(Level::Type::Block);
+
+  visit(for_.iteree);
+  emit(Opcode::IterGet);
+  define(kIter);
+
+  const auto condition = function->chunk().size();
+  emit(Opcode::Load, *resolve(kIter));
+  const auto exit = jump(Opcode::JumpFalsePop);
+
+  increaseScope(Level::Type::Loop);
+  emit(Opcode::Load, *resolve(kIter));
+  emit(Opcode::IterValue);
+  define(for_.iterator);
+  visit(for_.statements);
+  const auto level = decreaseScope();
+  emit(Opcode::Load, *resolve(kIter));
+  emit(Opcode::IterNext);
+  emit(Opcode::Pop);
+  jump(Opcode::Jump, condition);
+
+  patch(exit);
+  patch(level.breaks);
+
+  decreaseScope();
+}
+
 void Compiler::visit(Statement::If& if_) {
   std::vector<std::size_t> exits;
   for (auto& branch : if_.branches) {

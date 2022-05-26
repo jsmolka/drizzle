@@ -24,6 +24,7 @@ protected:
   void visit(Statement::Continue& continue_) final;
   void visit(Statement::Def& def) final;
   void visit(Statement::ExpressionStatement& expression_statement) final;
+  void visit(Statement::For& for_) final;
   void visit(Statement::If& if_) final;
   void visit(Statement::Program& program) final;
   void visit(Statement::Return& return_) final;

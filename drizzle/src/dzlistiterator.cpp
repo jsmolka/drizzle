@@ -6,7 +6,7 @@ DzListIterator::operator bool() const {
   return index < static_cast<const DzList*>(iteree)->values.size();
 }
 
-void DzListIterator::next() {
+void DzListIterator::advance() {
   ++index;
 }
 

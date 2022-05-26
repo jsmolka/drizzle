@@ -6,6 +6,7 @@
 #include "dzclass.h"
 #include "dzinstance.h"
 #include "dzlist.h"
+#include "dzlistiterator.h"
 #include "dznull.h"
 #include "gc.h"
 #include "opcode.h"
@@ -14,7 +15,7 @@ Vm::Vm(Gc& gc)
   : gc(gc) {}
 
 void Vm::interpret(DzFunction* main) {
-  static_assert(int(Opcode::LastEnumValue) == 53);
+  static_assert(int(Opcode::LastEnumValue) == 56);
 
   globals.resize(main->identifiers.size());
   frames.emplace(main->chunk().code.data(), 0, main);
@@ -49,6 +50,9 @@ void Vm::interpret(DzFunction* main) {
       case Opcode::GreaterEqual: greaterEqual(); break;
       case Opcode::In: in(); break;
       case Opcode::Invoke: invoke(); break;
+      case Opcode::IterGet: iterGet(); break;
+      case Opcode::IterNext: iterNext(); break;
+      case Opcode::IterValue: iterValue(); break;
       case Opcode::Jump: jump(); break;
       case Opcode::JumpFalse: jumpFalse(); break;
       case Opcode::JumpFalsePop: jumpFalsePop(); break;
@@ -461,6 +465,36 @@ void Vm::invoke() {
     }
   }
   call(self, argc);
+}
+
+void Vm::iterGet() {
+  auto error = [this](const DzValue& iteree) {
+    raise("'{}' object is not iterable", iteree.kind());
+  };
+
+  const auto& iteree = stack.top();
+  if (!iteree.is(DzValue::Type::Object)) {
+    error(iteree);
+  }
+
+  switch (iteree.o->type) {
+    case DzObject::Type::List: {
+      stack.top() = gc.construct<DzListIterator>(iteree.o);
+      break;
+    }
+    default: {
+      error(iteree);
+      break;
+    }
+  }
+}
+
+void Vm::iterNext() {
+  stack.top().as<DzIterator>()->advance();
+}
+
+void Vm::iterValue() {
+  stack.top() = stack.top().as<DzIterator>()->value();
 }
 
 void Vm::jump() {
