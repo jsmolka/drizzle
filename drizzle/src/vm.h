@@ -72,7 +72,9 @@ private:
   void in();
   void invoke();
   void iterConstruct();
+  template<std::integral Integral>
   void iterIncrement();
+  template<std::integral Integral>
   void iterDereference();
   void jump();
   void jumpFalse();

@@ -15,7 +15,7 @@ Vm::Vm(Gc& gc)
   : gc(gc) {}
 
 void Vm::interpret(DzFunction* main) {
-  static_assert(int(Opcode::LastEnumValue) == 56);
+  static_assert(int(Opcode::LastEnumValue) == 58);
 
   globals.resize(main->identifiers.size());
   frames.emplace(main->chunk().code.data(), 0, main);
@@ -51,8 +51,10 @@ void Vm::interpret(DzFunction* main) {
       case Opcode::In: in(); break;
       case Opcode::Invoke: invoke(); break;
       case Opcode::IterConstruct: iterConstruct(); break;
-      case Opcode::IterIncrement: iterIncrement(); break;
-      case Opcode::IterDereference: iterDereference(); break;
+      case Opcode::IterIncrement: iterIncrement<u8>(); break;
+      case Opcode::IterIncrementExt: iterIncrement<u16>(); break;
+      case Opcode::IterDereference: iterDereference<u8>(); break;
+      case Opcode::IterDereferenceExt: iterDereference<u16>(); break;
       case Opcode::Jump: jump(); break;
       case Opcode::JumpFalse: jumpFalse(); break;
       case Opcode::JumpFalsePop: jumpFalsePop(); break;
@@ -489,12 +491,16 @@ void Vm::iterConstruct() {
   }
 }
 
+template<std::integral Integral>
 void Vm::iterIncrement() {
-  stack.top().as<DzIterator>()->increment();
+  const auto index = read<Integral>();
+  stack[frames.top().sp + index].as<DzIterator>()->increment();
 }
 
+template<std::integral Integral>
 void Vm::iterDereference() {
-  stack.top() = stack.top().as<DzIterator>()->dereference();
+  const auto index = read<Integral>();
+  stack.push(stack[frames.top().sp + index].as<DzIterator>()->dereference());
 }
 
 void Vm::jump() {

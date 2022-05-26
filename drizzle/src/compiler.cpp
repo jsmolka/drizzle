@@ -129,26 +129,23 @@ void Compiler::visit(Statement::ExpressionStatement& expression_statement) {
 }
 
 void Compiler::visit(Statement::For& for_) {
-  static constexpr auto kIter = "$iter";
   increaseScope(Level::Type::Block);
 
   visit(for_.iteree);
   emit(Opcode::IterConstruct);
-  define(kIter);
+  define(std::string_view());
+  const auto iter = variables.size() - 1;
 
   const auto condition = function->chunk().size();
-  emit(Opcode::Load, *resolve(kIter));
+  emit(Opcode::Load, iter);
   const auto exit = jump(Opcode::JumpFalsePop);
 
   increaseScope(Level::Type::Loop);
-  emit(Opcode::Load, *resolve(kIter));
-  emit(Opcode::IterDereference);
+  emitExt(Opcode::IterDereference, iter);
   define(for_.iterator);
   visit(for_.statements);
   const auto level = decreaseScope();
-  emit(Opcode::Load, *resolve(kIter));
-  emit(Opcode::IterIncrement);
-  emit(Opcode::Pop);
+  emitExt(Opcode::IterIncrement, iter);
   jump(Opcode::Jump, condition);
 
   patch(exit);
