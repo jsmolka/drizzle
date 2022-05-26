@@ -8,8 +8,8 @@ public:
 
   virtual operator bool() const final;
 
-  virtual void advance() final;
-  virtual auto value() const -> DzValue final;
+  virtual void increment() final;
+  virtual auto dereference() const -> DzValue final;
 
   std::size_t index = 0;
 };

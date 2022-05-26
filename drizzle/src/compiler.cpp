@@ -133,7 +133,7 @@ void Compiler::visit(Statement::For& for_) {
   increaseScope(Level::Type::Block);
 
   visit(for_.iteree);
-  emit(Opcode::IterGet);
+  emit(Opcode::IterConstruct);
   define(kIter);
 
   const auto condition = function->chunk().size();
@@ -142,12 +142,12 @@ void Compiler::visit(Statement::For& for_) {
 
   increaseScope(Level::Type::Loop);
   emit(Opcode::Load, *resolve(kIter));
-  emit(Opcode::IterValue);
+  emit(Opcode::IterDereference);
   define(for_.iterator);
   visit(for_.statements);
   const auto level = decreaseScope();
   emit(Opcode::Load, *resolve(kIter));
-  emit(Opcode::IterNext);
+  emit(Opcode::IterIncrement);
   emit(Opcode::Pop);
   jump(Opcode::Jump, condition);
 

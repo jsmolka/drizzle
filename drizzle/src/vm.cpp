@@ -50,9 +50,9 @@ void Vm::interpret(DzFunction* main) {
       case Opcode::GreaterEqual: greaterEqual(); break;
       case Opcode::In: in(); break;
       case Opcode::Invoke: invoke(); break;
-      case Opcode::IterGet: iterGet(); break;
-      case Opcode::IterNext: iterNext(); break;
-      case Opcode::IterValue: iterValue(); break;
+      case Opcode::IterConstruct: iterConstruct(); break;
+      case Opcode::IterIncrement: iterIncrement(); break;
+      case Opcode::IterDereference: iterDereference(); break;
       case Opcode::Jump: jump(); break;
       case Opcode::JumpFalse: jumpFalse(); break;
       case Opcode::JumpFalsePop: jumpFalsePop(); break;
@@ -467,7 +467,7 @@ void Vm::invoke() {
   call(self, argc);
 }
 
-void Vm::iterGet() {
+void Vm::iterConstruct() {
   auto error = [this](const DzValue& iteree) {
     raise("'{}' object is not iterable", iteree.kind());
   };
@@ -489,12 +489,12 @@ void Vm::iterGet() {
   }
 }
 
-void Vm::iterNext() {
-  stack.top().as<DzIterator>()->advance();
+void Vm::iterIncrement() {
+  stack.top().as<DzIterator>()->increment();
 }
 
-void Vm::iterValue() {
-  stack.top() = stack.top().as<DzIterator>()->value();
+void Vm::iterDereference() {
+  stack.top() = stack.top().as<DzIterator>()->dereference();
 }
 
 void Vm::jump() {
