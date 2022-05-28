@@ -198,8 +198,8 @@ void Vm::add() {
       if (a->type == b->type) {
         switch (a->type) {
           case DzObject::Type::List: {
-            const auto list_a = a->as<DzList>();;
-            const auto list_b = b->as<DzList>();
+            const auto list_a = a->template as<DzList>();
+            const auto list_b = b->template as<DzList>();
             const auto list = gc.construct<DzList>();
             list->values.reserve(list_a->size() + list_b->size());
             for (const auto& values : {list_a->values, list_b->values}) {
@@ -210,8 +210,8 @@ void Vm::add() {
             return list;
           }
           case DzObject::Type::String: {
-            const auto string_a = a->as<DzString>();
-            const auto string_b = b->as<DzString>();
+            const auto string_a = a->template as<DzString>();
+            const auto string_b = b->template as<DzString>();
             return gc.construct<DzString>(string_a->data + string_b->data);
           }
         }
