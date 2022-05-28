@@ -30,6 +30,7 @@ statement         → exprStmt
                   | blockStmt
 exprStmt          → expression NEWLINE
 whileStmt         → "while" expression block
+forStmt           → "for" IDENTIFIER "in" expression block
 returnStmt        → "return" expression? NEWLINE
 noopStmt          → "noop" NEWLINE
 ifStmt            → "if" expression block
@@ -112,7 +113,9 @@ The following identifiers are reserved as words:
 - `elif`
 - `else`
 - `false`
+- `for`
 - `if`
+- `in`
 - `noop`
 - `null`
 - `return`
