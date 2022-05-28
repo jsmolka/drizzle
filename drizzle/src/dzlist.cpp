@@ -18,19 +18,14 @@ auto DzList::repr() const -> std::string {
 }
 
 DzListIterator::DzListIterator(DzObject* iteree)
-  : DzIterator(static_cast<DzList*>(iteree)->values.size() ? iteree : nullptr) {}
+  : DzIterator("list", static_cast<DzList*>(iteree)->values.size() ? iteree : nullptr) {}
 
 void DzListIterator::advance() {
-  if (++index >= list()->values.size()) {
+  if (++index >= as<DzList>().values.size()) {
     iteree = nullptr;
   }
 }
 
 auto DzListIterator::dereference(Gc&) const -> DzValue {
-  return list()->values[index];
-}
-
-auto DzListIterator::list() const -> const DzList* {
-  assert(iteree);
-  return static_cast<const DzList*>(iteree);
+  return as<DzList>().values[index];
 }

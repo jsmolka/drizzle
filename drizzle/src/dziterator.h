@@ -7,7 +7,7 @@ class Gc;
 
 class DzIterator : public DzObject {
 public:
-  DzIterator(DzObject* iteree);
+  DzIterator(std::string_view name, DzObject* iteree);
 
   operator bool() const;
   auto repr() const -> std::string;
@@ -16,4 +16,15 @@ public:
   virtual auto dereference(Gc&) const -> DzValue = 0;
 
   DzObject* iteree;
+
+protected:
+  template<typename T>
+    requires std::is_base_of_v<DzObject, T>
+  auto as() const -> const T& {
+    assert(iteree);
+    return *static_cast<const T*>(iteree);
+  }
+
+private:
+  std::string_view name;
 };

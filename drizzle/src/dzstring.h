@@ -36,7 +36,5 @@ public:
   virtual auto dereference(Gc& gc) const -> DzValue final;
 
 private:
-  auto string() const -> const DzString*;
-
   std::size_t index = 0;
 };

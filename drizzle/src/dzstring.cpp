@@ -22,22 +22,17 @@ auto DzString::repr() const -> std::string {
 }
 
 DzStringIterator::DzStringIterator(DzObject* iteree)
-  : DzIterator(static_cast<DzString*>(iteree)->data.size() ? iteree : nullptr) {}
+  : DzIterator("string", static_cast<DzString*>(iteree)->data.size() ? iteree : nullptr) {}
 
 void DzStringIterator::advance() {
-  if (++index >= string()->data.size()) {
+  if (++index >= as<DzString>().data.size()) {
     iteree = nullptr;
   }
 }
 
 auto DzStringIterator::dereference(Gc& gc) const -> DzValue {
   return gc.construct<DzString>(std::string_view(
-    string()->data.begin() + index,
-    string()->data.begin() + index + 1
-    ));
-}
-
-auto DzStringIterator::string() const -> const DzString* {
-  assert(iteree);
-  return static_cast<const DzString*>(iteree);
+    as<DzString>().data.begin() + index,
+    as<DzString>().data.begin() + index + 1
+  ));
 }

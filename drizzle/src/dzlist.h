@@ -25,7 +25,5 @@ public:
   virtual auto dereference(Gc&) const -> DzValue final;
 
 private:
-  auto list() const -> const DzList*;
-
   std::size_t index = 0;
 };
