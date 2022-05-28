@@ -6,9 +6,7 @@
 #include "dzclass.h"
 #include "dzinstance.h"
 #include "dzlist.h"
-#include "dzlistiterator.h"
 #include "dznull.h"
-#include "dzstringiterator.h"
 #include "gc.h"
 #include "opcode.h"
 

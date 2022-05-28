@@ -93,12 +93,6 @@
     <ClCompile Include="src\dziterator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\dzlistiterator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\dzstringiterator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="drizzle.rc">
@@ -191,12 +185,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\dziterator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\dzlistiterator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\dzstringiterator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
