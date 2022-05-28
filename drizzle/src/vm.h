@@ -49,6 +49,11 @@ private:
   template<template<typename, typename> typename Promote = promote_t, typename Callback>
   void binary(std::string_view operation, Callback callback);
 
+  auto nativeAssert() -> DzValue;
+  auto nativePrint(std::size_t argc) -> DzValue;
+  auto nativeTime() -> DzValue;
+  auto nativeType() -> DzValue;
+
   void add();
   void bitwiseAnd();
   void bitwiseAsr();
