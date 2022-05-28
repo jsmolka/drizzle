@@ -140,6 +140,32 @@ void Vm::expect(const DzValue& value, DzObject::Type type) {
   }
 }
 
+auto Vm::forward(const DzValue& iteree) -> DzValue {
+  auto error = [this](const DzValue& iteree) {
+    raise("'{}' object is not iterable", iteree.kind());
+  };
+
+  if (!iteree.is(DzValue::Type::Object)) {
+    error(iteree);
+  }
+
+  switch (iteree.o->type) {
+    case DzObject::Type::Iterator: {
+      return iteree;
+    }
+    case DzObject::Type::List: {
+      return gc.construct<DzListIterator>(iteree.o);
+    }
+    case DzObject::Type::String: {
+      return gc.construct<DzStringIterator>(iteree.o);
+    }
+    default: {
+      error(iteree);
+      return &null;
+    }
+  }
+}
+
 void Vm::add() {
   binary("+", [this]<typename A, typename B>(const A& a, const B& b) -> std::optional<DzValue> {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
@@ -469,29 +495,7 @@ void Vm::invoke() {
 }
 
 void Vm::iterForward() {
-  auto error = [this](const DzValue& iteree) {
-    raise("'{}' object is not iterable", iteree.kind());
-  };
-
-  const auto& iteree = stack.top();
-  if (!iteree.is(DzValue::Type::Object)) {
-    error(iteree);
-  }
-
-  switch (iteree.o->type) {
-    case DzObject::Type::List: {
-      stack.top() = gc.construct<DzListIterator>(iteree.o);
-      break;
-    }
-    case DzObject::Type::String: {
-      stack.top() = gc.construct<DzStringIterator>(iteree.o);
-      break;
-    }
-    default: {
-      error(iteree);
-      break;
-    }
-  }
+  stack.top() = forward(stack.top());
 }
 
 template<std::integral Integral>

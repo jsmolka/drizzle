@@ -143,9 +143,9 @@ void Compiler::visit(Statement::For& for_) {
   increaseScope(Level::Type::Loop);
   emitExt(Opcode::IterDereference, iter);
   define(for_.iterator);
+  emitExt(Opcode::IterAdvance, iter);
   visit(for_.statements);
   const auto level = decreaseScope();
-  emitExt(Opcode::IterAdvance, iter);
   jump(Opcode::Jump, condition);
 
   patch(exit);
