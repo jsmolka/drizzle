@@ -28,6 +28,7 @@
     <ClCompile Include="..\drizzle\src\dzlistmembers.cpp" />
     <ClCompile Include="..\drizzle\src\dznull.cpp" />
     <ClCompile Include="..\drizzle\src\dzobject.cpp" />
+    <ClCompile Include="..\drizzle\src\dzreverseiterator.cpp" />
     <ClCompile Include="..\drizzle\src\dzstring.cpp" />
     <ClCompile Include="..\drizzle\src\dzstringmembers.cpp" />
     <ClCompile Include="..\drizzle\src\dzvalue.cpp" />

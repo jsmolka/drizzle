@@ -36,3 +36,20 @@ auto DzStringIterator::dereference(Gc& gc) const -> DzValue {
     as<DzString>().data.begin() + index + 1
   ));
 }
+
+DzStringReverseIterator::DzStringReverseIterator(DzObject* iteree)
+  : DzReverseIterator("string", static_cast<DzString*>(iteree)->data.size() ? iteree : nullptr)
+  , index(static_cast<DzString*>(iteree)->data.size() - 1) {}
+
+void DzStringReverseIterator::advance() {
+  if (index-- == 0) {
+    iteree = nullptr;
+  }
+}
+
+auto DzStringReverseIterator::dereference(Gc& gc) const -> DzValue {
+  return gc.construct<DzString>(std::string_view(
+    as<DzString>().data.begin() + index,
+    as<DzString>().data.begin() + index + 1
+  ));
+}

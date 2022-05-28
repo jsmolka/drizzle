@@ -2,6 +2,7 @@
 
 #include "dziterator.h"
 #include "dzobject.h"
+#include "dzreverseiterator.h"
 
 class DzString : public DzObject {
 public:
@@ -37,4 +38,15 @@ public:
 
 private:
   std::size_t index = 0;
+};
+
+class DzStringReverseIterator : public DzReverseIterator {
+public:
+  DzStringReverseIterator(DzObject* iteree);
+
+  virtual void advance() final;
+  virtual auto dereference(Gc& gc) const -> DzValue final;
+
+private:
+  std::size_t index;
 };

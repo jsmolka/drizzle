@@ -29,3 +29,17 @@ void DzListIterator::advance() {
 auto DzListIterator::dereference(Gc&) const -> DzValue {
   return as<DzList>().values[index];
 }
+
+DzListReverseIterator::DzListReverseIterator(DzObject* iteree)
+  : DzReverseIterator("list", static_cast<DzList*>(iteree)->values.size() ? iteree : nullptr)
+  , index(static_cast<DzList*>(iteree)->values.size() - 1) {}
+
+void DzListReverseIterator::advance() {
+  if (index-- == 0) {
+    iteree = nullptr;
+  }
+}
+
+auto DzListReverseIterator::dereference(Gc&) const -> DzValue {
+  return as<DzList>().values[index];
+}

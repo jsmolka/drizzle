@@ -50,6 +50,7 @@ private:
   void binary(std::string_view operation, Callback callback);
 
   auto forward(const DzValue& iteree) -> DzValue;
+  auto reverse(const DzValue& iteree) -> DzValue;
 
   void add();
   void bitwiseAnd();

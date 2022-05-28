@@ -31,7 +31,9 @@ void Vm::defineNatives() {
     ),
     gc.construct<DzFunction>(
       gc.construct<DzString>("forward"), Arity::equal(1), [](Vm& vm, std::size_t) {
-        return vm.forward(vm.stack.pop_value());
+        const auto iterator = vm.forward(vm.stack.top());
+        vm.stack.pop();
+        return iterator;
       }
     ),
     gc.construct<DzFunction>(
@@ -44,6 +46,13 @@ void Vm::defineNatives() {
       }
     ),
     gc.construct<DzFunction>(
+      gc.construct<DzString>("reverse"), Arity::equal(1), [](Vm& vm, std::size_t) {
+        const auto iterator = vm.reverse(vm.stack.top());
+        vm.stack.pop();
+        return iterator;
+      }
+    ),
+    gc.construct<DzFunction>(
       gc.construct<DzString>("time"), Arity::equal(0), [](Vm& vm, std::size_t argc) {
         using namespace std::chrono;
         return duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count();
@@ -51,7 +60,10 @@ void Vm::defineNatives() {
     ),
     gc.construct<DzFunction>(
       gc.construct<DzString>("type"), Arity::equal(1), [](Vm& vm, std::size_t argc) {
-        return vm.gc.construct<DzString>(vm.stack.pop_value().kind());
+        const auto type = vm.stack.top().kind();
+        const auto string = vm.gc.construct<DzString>(type);
+        vm.stack.pop();
+        return string;
       }
     ),
   };
