@@ -7,8 +7,10 @@ auto Chunk::size() const -> std::size_t {
 }
 
 auto Chunk::line(u8* pointer) const -> std::size_t {
-  if (pointer >= code.data() && pointer < code.data() + code.size()) {
-    return line(pointer - code.data());
+  const auto data = code.data();
+  const auto size = code.size();
+  if (pointer >= data && pointer < data + size) {
+    return line(pointer - data);
   }
   return 0;
 }

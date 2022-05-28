@@ -65,13 +65,13 @@ void Gc::mark(DzObject* object) {
   object->marked = true;
   switch (object->type) {
     case DzObject::Type::BoundMethod: {
-      const auto method = static_cast<DzBoundMethod*>(object);
+      const auto method = object->as<DzBoundMethod>();
       mark(method->self);
       mark(method->function);
       break;
     }
     case DzObject::Type::Class: {
-      const auto class_ = static_cast<DzClass*>(object);
+      const auto class_ = object->as<DzClass>();
       mark(class_->identifier);
       for (const auto& [key, value] : class_->functions) {
         mark(key);
@@ -80,7 +80,7 @@ void Gc::mark(DzObject* object) {
       break;
     };
     case DzObject::Type::Function: {
-      const auto function = static_cast<DzFunction*>(object);
+      const auto function = object->as<DzFunction>();
       mark(function->identifier);
       for (const auto& [key, value] : function->identifiers) {
         mark(key);
@@ -93,7 +93,7 @@ void Gc::mark(DzObject* object) {
       break;
     }
     case DzObject::Type::Instance: {
-      const auto instance = static_cast<DzInstance*>(object);
+      const auto instance = object->as<DzInstance>();
       mark(instance->class_);
       for (const auto& [key, value] : instance->fields) {
         mark(key);
@@ -102,19 +102,19 @@ void Gc::mark(DzObject* object) {
       break;
     }
     case DzObject::Type::Iterator: {
-      const auto iterator = static_cast<DzIterator*>(object);
+      const auto iterator = object->as<DzIterator>();
       mark(iterator->iteree);
       break;
     }
     case DzObject::Type::List: {
-      const auto list = static_cast<DzList*>(object);
+      const auto list = object->as<DzList>();
       for (const auto& value : list->values) {
         mark(value);
       }
       break;
     }
     case DzObject::Type::ReverseIterator: {
-      const auto iterator = static_cast<DzReverseIterator*>(object);
+      const auto iterator = object->as<DzReverseIterator>();
       mark(iterator->iteree);
       break;
     }

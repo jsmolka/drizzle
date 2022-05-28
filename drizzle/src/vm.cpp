@@ -150,14 +150,12 @@ auto Vm::forward(const DzValue& iteree) -> DzValue {
   }
 
   switch (iteree.o->type) {
-    case DzObject::Type::Iterator: {
+    case DzObject::Type::Iterator:
+    case DzObject::Type::ReverseIterator: {
       return iteree;
     }
     case DzObject::Type::List: {
       return gc.construct<DzListIterator>(iteree.o);
-    }
-    case DzObject::Type::ReverseIterator: {
-      return iteree;
     }
     case DzObject::Type::String: {
       return gc.construct<DzStringIterator>(iteree.o);
@@ -179,9 +177,6 @@ auto Vm::reverse(const DzValue& iteree) -> DzValue {
   }
 
   switch (iteree.o->type) {
-    case DzObject::Type::ReverseIterator: {
-      return iteree;
-    }
     case DzObject::Type::List: {
       return gc.construct<DzListReverseIterator>(iteree.o);
     }
@@ -203,10 +198,10 @@ void Vm::add() {
       if (a->type == b->type) {
         switch (a->type) {
           case DzObject::Type::List: {
-            const auto list_a = static_cast<DzList*>(a);
-            const auto list_b = static_cast<DzList*>(b);
+            const auto list_a = a->as<DzList>();;
+            const auto list_b = b->as<DzList>();
             const auto list = gc.construct<DzList>();
-            list->values.reserve(list_a->values.size() + list_b->values.size());
+            list->values.reserve(list_a->size() + list_b->size());
             for (const auto& values : {list_a->values, list_b->values}) {
               for (const auto& value : values) {
                 list->values.push_back(value);
@@ -215,8 +210,8 @@ void Vm::add() {
             return list;
           }
           case DzObject::Type::String: {
-            const auto string_a = static_cast<DzString*>(a);
-            const auto string_b = static_cast<DzString*>(b);
+            const auto string_a = a->as<DzString>();
+            const auto string_b = b->as<DzString>();
             return gc.construct<DzString>(string_a->data + string_b->data);
           }
         }
@@ -742,27 +737,24 @@ void Vm::subscriptGet() {
         const auto list = self.o->as<DzList>();
         auto index = expr.i;
         if (index < 0) {
-          index += list->values.size();
+          index += list->size();
         }
-        if (index < 0 || index >= list->values.size()) {
+        if (index < 0 || index >= list->size()) {
           raise("list index out of range");
         }
-        return list->values[index];
+        return (*list)[index];
       }
       case DzObject::Type::String: {
         expect(expr, DzValue::Type::Int);
         const auto string = self.o->as<DzString>();
         auto index = expr.i;
         if (index < 0) {
-          index += string->data.size();
+          index += string->size();
         }
-        if (index < 0 || index >= string->data.size()) {
+        if (index < 0 || index >= string->size()) {
           raise("string index out of range");
         }
-        return gc.construct<DzString>(std::string_view(
-          string->data.begin() + index,
-          string->data.begin() + index + 1
-        ));
+        return gc.construct<DzString>((*string)[index]);
       }
       default: {
         error(self);
@@ -798,12 +790,12 @@ void Vm::subscriptSet() {
       const auto list = self.o->as<DzList>();
       auto index = expr.i;
       if (index < 0) {
-        index += list->values.size();
+        index += list->size();
       }
-      if (index < 0 || index >= list->values.size()) {
+      if (index < 0 || index >= list->size()) {
         raise("list index out of range");
       }
-      list->values[index] = stack.top();
+      (*list)[index] = stack.top();
       break;
     }
     default: {

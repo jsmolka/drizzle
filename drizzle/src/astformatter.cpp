@@ -77,7 +77,7 @@ void AstFormatter::visit(Statement::Class& class_) {
 
 void AstFormatter::visit(Statement::If& if_) {
   for (const auto [index, branch] : sh::enumerate(if_.branches)) {
-    if (index) {
+    if (index > 0) {
       indent--;
       writeIndent("elif\n");
       indent++;

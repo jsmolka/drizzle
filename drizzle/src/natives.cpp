@@ -60,10 +60,7 @@ void Vm::defineNatives() {
     ),
     gc.construct<DzFunction>(
       gc.construct<DzString>("type"), Arity::equal(1), [](Vm& vm, std::size_t argc) {
-        const auto type = vm.stack.top().kind();
-        const auto string = vm.gc.construct<DzString>(type);
-        vm.stack.pop();
-        return string;
+        return vm.gc.construct<DzString>(vm.stack.pop_value().kind());
       }
     ),
   };

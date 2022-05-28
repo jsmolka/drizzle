@@ -2,7 +2,6 @@
 
 #include <sh/stack.h>
 
-#include "dzclass.h"
 #include "dzfunction.h"
 #include "dzstring.h"
 #include "error.h"
