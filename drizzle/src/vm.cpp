@@ -311,7 +311,7 @@ void Vm::call(DzValue& callee, std::size_t argc) {
 
   switch (callee.o->type) {
     case DzObject::Type::Class: {
-      const auto class_ = callee.as<DzClass>();
+      const auto class_ = callee.o->as<DzClass>();
       callee = gc.construct<DzInstance>(class_);
       if (class_->init) {
         call(class_->init, argc);
@@ -321,11 +321,11 @@ void Vm::call(DzValue& callee, std::size_t argc) {
       break;
     }
     case DzObject::Type::Function: {
-      call(callee.as<DzFunction>(), argc);
+      call(callee.o->as<DzFunction>(), argc);
       break;
     }
     case DzObject::Type::BoundMethod: {
-      const auto method = callee.as<DzBoundMethod>();
+      const auto method = callee.o->as<DzBoundMethod>();
       callee = method->self;
       call(method->function, argc);
       break;
@@ -400,7 +400,7 @@ void Vm::get() {
       raise("'{}' object has no property '{}'", self.kind(), prop.repr());
     };
 
-    const auto& prop = stack.peek(0).as<DzString>();
+    const auto& prop = stack.peek(0).o->as<DzString>();
     const auto& self = stack.peek(1);
 
     if (!self.is(DzValue::Type::Object)) {
@@ -408,7 +408,7 @@ void Vm::get() {
     }
 
     if (self.o->is(DzObject::Type::Instance)) {
-      const auto instance = self.as<DzInstance>();
+      const auto instance = self.o->as<DzInstance>();
       if (const auto value = instance->get(prop)) {
         return *value;
       } else if (const auto function = instance->class_->get(prop)) {
@@ -464,20 +464,20 @@ void Vm::in() {
   switch (self.o->type) {
     case DzObject::Type::Instance: {
       expect(expr, DzObject::Type::String);
-      const auto inst = self.as<DzInstance>();
-      const auto prop = expr.as<DzString>();
+      const auto inst = self.o->as<DzInstance>();
+      const auto prop = expr.o->as<DzString>();
       stack.push(inst->get(prop) || inst->class_->get(prop));
       break;
     }
     case DzObject::Type::List: {
-      const auto list = self.as<DzList>();
+      const auto list = self.o->as<DzList>();
       stack.push(std::find(list->values.begin(), list->values.end(), expr) != list->values.end());
       break;
     }
     case DzObject::Type::String: {
       expect(expr, DzObject::Type::String);
-      const auto string = self.as<DzString>();
-      const auto substring = expr.as<DzString>();
+      const auto string = self.o->as<DzString>();
+      const auto substring = expr.o->as<DzString>();
       stack.push(string->data.find(substring->data) != std::string::npos);
       break;
     }
@@ -494,7 +494,7 @@ void Vm::invoke() {
   };
 
   const auto argc = read<u8>();
-  const auto prop = stack.pop_value().as<DzString>();
+  const auto prop = stack.pop_value().o->as<DzString>();
 
   auto& self = stack.peek(argc);
   if (!self.is(DzValue::Type::Object)) {
@@ -502,7 +502,7 @@ void Vm::invoke() {
   }
 
   if (self.o->is(DzObject::Type::Instance)) {
-    const auto instance = self.as<DzInstance>();
+    const auto instance = self.o->as<DzInstance>();
     if (const auto value = instance->get(prop)) {
       self = *value;
     } else if (const auto function = instance->class_->get(prop)) {
@@ -530,13 +530,13 @@ void Vm::iterForward() {
 template<std::integral Integral>
 void Vm::iterAdvance() {
   const auto index = read<Integral>();
-  stack[frames.top().sp + index].template as<DzIterator>()->advance();
+  stack[frames.top().sp + index].o->template as<DzIterator>()->advance();
 }
 
 template<std::integral Integral>
 void Vm::iterDereference() {
   const auto index = read<Integral>();
-  stack.push(stack[frames.top().sp + index].template as<DzIterator>()->dereference(gc));
+  stack.push(stack[frames.top().sp + index].o->template as<DzIterator>()->dereference(gc));
 }
 
 void Vm::jump() {
@@ -690,10 +690,10 @@ void Vm::return_() {
 }
 
 void Vm::set() {
-  const auto prop = stack.pop_value().as<DzString>();
+  const auto prop = stack.pop_value().o->as<DzString>();
   const auto self = stack.pop_value();
   if (self.is(DzObject::Type::Instance)) {
-    self.as<DzInstance>()->set(prop, stack.top());
+    self.o->as<DzInstance>()->set(prop, stack.top());
   } else {
     raise("'{}' object does not have properties", self.kind());
   }
@@ -727,8 +727,8 @@ void Vm::subscriptGet() {
     switch (self.o->type) {
       case DzObject::Type::Instance: {
         expect(expr, DzObject::Type::String);
-        const auto inst = self.as<DzInstance>();
-        const auto prop = expr.as<DzString>();
+        const auto inst = self.o->as<DzInstance>();
+        const auto prop = expr.o->as<DzString>();
         if (const auto value = inst->get(prop)) {
           return *value;
         } else if (const auto function = inst->class_->get(prop)) {
@@ -739,7 +739,7 @@ void Vm::subscriptGet() {
       }
       case DzObject::Type::List: {
         expect(expr, DzValue::Type::Int);
-        const auto list = self.as<DzList>();
+        const auto list = self.o->as<DzList>();
         auto index = expr.i;
         if (index < 0) {
           index += list->values.size();
@@ -751,7 +751,7 @@ void Vm::subscriptGet() {
       }
       case DzObject::Type::String: {
         expect(expr, DzValue::Type::Int);
-        const auto string = self.as<DzString>();
+        const auto string = self.o->as<DzString>();
         auto index = expr.i;
         if (index < 0) {
           index += string->data.size();
@@ -788,14 +788,14 @@ void Vm::subscriptSet() {
   switch (self.o->type) {
     case DzObject::Type::Instance: {
       expect(expr, DzObject::Type::String);
-      const auto inst = self.as<DzInstance>();
-      const auto prop = expr.as<DzString>();
+      const auto inst = self.o->as<DzInstance>();
+      const auto prop = expr.o->as<DzString>();
       inst->set(prop, stack.top());
       break;
     }
     case DzObject::Type::List: {
       expect(expr, DzValue::Type::Int);
-      const auto list = self.as<DzList>();
+      const auto list = self.o->as<DzList>();
       auto index = expr.i;
       if (index < 0) {
         index += list->values.size();

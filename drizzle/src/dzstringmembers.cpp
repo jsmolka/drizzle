@@ -9,8 +9,7 @@ void Vm::defineStringMembers() {
   const auto members = {
     gc.construct<DzFunction>(
       gc.construct<DzString>("size"), Arity::equal(0), [](Vm& vm, std::size_t) -> dzint {
-        const auto string = vm.stack.top().as<DzString>();
-        return string->data.size();
+        return vm.stack.top().o->as<DzString>()->size();
       }
     ),
   };

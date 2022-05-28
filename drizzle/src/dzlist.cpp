@@ -39,19 +39,19 @@ void DzListIterator::advance() {
 }
 
 auto DzListIterator::dereference(Gc&) const -> DzValue {
-  return iteree->as<DzList>()[index];
+  return (*iteree->as<DzList>())[index];
 }
 
 void DzListIterator::set(std::size_t value) {
   index = value;
-  if (index >= iteree->as<DzList>().size()) {
+  if (index >= iteree->as<DzList>()->size()) {
     iteree = nullptr;
   }
 }
 
 DzListReverseIterator::DzListReverseIterator(DzObject* iteree)
   : DzReverseIterator(iteree, "list") {
-  set(iteree->as<DzList>().size() - 1);
+  set(iteree->as<DzList>()->size() - 1);
 }
 
 void DzListReverseIterator::advance() {
@@ -59,12 +59,12 @@ void DzListReverseIterator::advance() {
 }
 
 auto DzListReverseIterator::dereference(Gc&) const -> DzValue {
-  return iteree->as<DzList>()[index];
+  return (*iteree->as<DzList>())[index];
 }
 
 void DzListReverseIterator::set(std::size_t value) {
   index = value;
-  if (index == -1 || index >= iteree->as<DzList>().size()) {
+  if (index == -1 || index >= iteree->as<DzList>()->size()) {
     iteree = nullptr;
   }
 }

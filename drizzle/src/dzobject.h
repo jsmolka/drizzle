@@ -31,15 +31,15 @@ public:
 
   template<typename T>
     requires std::is_base_of_v<DzObject, T>
-  auto as() -> T& {
+  auto as() -> T* {
     assert(this);
-    return *static_cast<T*>(this);
+    return static_cast<T*>(this);
   }
   template<typename T>
     requires std::is_base_of_v<DzObject, T>
-  auto as() const -> const T& {
+  auto as() const -> const T* {
     assert(this);
-    return *static_cast<const T*>(this);
+    return static_cast<const T*>(this);
   }
   auto is(Type type) const -> bool;
 

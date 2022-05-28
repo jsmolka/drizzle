@@ -14,7 +14,7 @@ struct fmt::formatter<DzValuePrint> : fmt::formatter<std::string> {
   auto format(const DzValuePrint& value, FormatContext& ctx) const {
     return fmt::formatter<std::string>::format(
       value.is(DzObject::Type::String)
-        ? value.as<DzString>()->data
+        ? value.o->as<DzString>()->data
         : value.repr(), ctx);
   }
 };
