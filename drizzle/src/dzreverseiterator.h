@@ -7,7 +7,7 @@ class Gc;
 
 class DzReverseIterator : public DzObject {
 public:
-  DzReverseIterator(std::string_view name, DzObject* iteree);
+  DzReverseIterator(DzObject* iteree, std::string_view type);
 
   operator bool() const;
   auto repr() const -> std::string;
@@ -17,14 +17,6 @@ public:
 
   DzObject* iteree;
 
-protected:
-  template<typename T>
-    requires std::is_base_of_v<DzObject, T>
-  auto as() const -> const T& {
-    assert(iteree);
-    return *static_cast<const T*>(iteree);
-  }
-
 private:
-  std::string_view name;
+  std::string_view type;
 };

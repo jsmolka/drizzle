@@ -29,15 +29,23 @@ public:
   auto operator!=(const DzObject& other) const -> bool;
   auto repr() const -> std::string;
 
+  template<typename T>
+    requires std::is_base_of_v<DzObject, T>
+  auto as() -> T& {
+    assert(this);
+    return *static_cast<T*>(this);
+  }
+  template<typename T>
+    requires std::is_base_of_v<DzObject, T>
+  auto as() const -> const T& {
+    assert(this);
+    return *static_cast<const T*>(this);
+  }
   auto is(Type type) const -> bool;
 
   Type type;
   bool marked = false;
   DzObject* next = nullptr;
-
-private:
-  template<typename T>
-  auto as() const -> const T&;
 };
 
 template<typename... Ts>

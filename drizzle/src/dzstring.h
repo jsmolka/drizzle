@@ -1,7 +1,6 @@
 #pragma once
 
 #include "dziterator.h"
-#include "dzobject.h"
 #include "dzreverseiterator.h"
 
 class DzString : public DzObject {
@@ -23,7 +22,9 @@ public:
   DzString(const std::string& data);
 
   operator bool() const;
+  auto operator[](std::size_t index) const -> std::string_view;
   auto repr() const -> std::string;
+  auto size() const -> std::size_t;
 
   std::string data;
   std::size_t hash;
@@ -37,7 +38,9 @@ public:
   virtual auto dereference(Gc& gc) const -> DzValue final;
 
 private:
-  std::size_t index = 0;
+  void set(std::size_t value);
+
+  std::size_t index;
 };
 
 class DzStringReverseIterator : public DzReverseIterator {
@@ -48,5 +51,7 @@ public:
   virtual auto dereference(Gc& gc) const -> DzValue final;
 
 private:
+  void set(std::size_t value);
+
   std::size_t index;
 };

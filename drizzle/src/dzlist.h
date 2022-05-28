@@ -3,7 +3,6 @@
 #include <sh/vector.h>
 
 #include "dziterator.h"
-#include "dzobject.h"
 #include "dzreverseiterator.h"
 #include "dzvalue.h"
 
@@ -13,7 +12,10 @@ public:
 
   operator bool() const;
   auto operator==(const DzList& other) const -> bool;
+  auto operator[](std::size_t index) -> DzValue&;
+  auto operator[](std::size_t index) const -> const DzValue&;
   auto repr() const -> std::string;
+  auto size() const -> std::size_t;
 
   sh::vector<DzValue> values;
 };
@@ -26,7 +28,9 @@ public:
   virtual auto dereference(Gc&) const -> DzValue final;
 
 private:
-  std::size_t index = 0;
+  void set(std::size_t value);
+
+  std::size_t index;
 };
 
 class DzListReverseIterator : public DzReverseIterator {
@@ -37,5 +41,7 @@ public:
   virtual auto dereference(Gc&) const -> DzValue final;
 
 private:
-  dzint index;
+  void set(std::size_t value);
+
+  std::size_t index;
 };

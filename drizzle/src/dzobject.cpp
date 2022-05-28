@@ -66,8 +66,3 @@ auto DzObject::repr() const -> std::string {
 auto DzObject::is(Type type) const -> bool {
     return this->type == type;
 }
-
-template<typename T>
-auto DzObject::as() const -> const T& {
-  return *static_cast<const T*>(this);
-}
