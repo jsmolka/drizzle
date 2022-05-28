@@ -132,7 +132,7 @@ void Compiler::visit(Statement::For& for_) {
   increaseScope(Level::Type::Block);
 
   visit(for_.iteree);
-  emit(Opcode::IterConstruct);
+  emit(Opcode::IterForward);
   define(std::string_view());
   const auto iter = variables.size() - 1;
 
@@ -145,7 +145,7 @@ void Compiler::visit(Statement::For& for_) {
   define(for_.iterator);
   visit(for_.statements);
   const auto level = decreaseScope();
-  emitExt(Opcode::IterIncrement, iter);
+  emitExt(Opcode::IterAdvance, iter);
   jump(Opcode::Jump, condition);
 
   patch(exit);

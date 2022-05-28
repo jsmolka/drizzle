@@ -28,9 +28,9 @@ enum class Opcode {
   GreaterEqual,
   In,
   Invoke,
-  IterConstruct,
-  IterIncrement,
-  IterIncrementExt,
+  IterForward,
+  IterAdvance,
+  IterAdvanceExt,
   IterDereference,
   IterDereferenceExt,
   Jump,
@@ -96,9 +96,9 @@ struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
       case Opcode::GreaterEqual:       return "GreaterEqual";
       case Opcode::In:                 return "In";
       case Opcode::Invoke:             return "Invoke";
-      case Opcode::IterConstruct:      return "IterConstruct";
-      case Opcode::IterIncrement:      return "IterIncrement";
-      case Opcode::IterIncrementExt:   return "IterIncrementExt";
+      case Opcode::IterForward:        return "IterForward";
+      case Opcode::IterAdvance:        return "IterAdvance";
+      case Opcode::IterAdvanceExt:     return "IterAdvanceExt";
       case Opcode::IterDereference:    return "IterDereference";
       case Opcode::IterDereferenceExt: return "IterDereferenceExt";
       case Opcode::Jump:               return "Jump";

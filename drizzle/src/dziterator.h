@@ -12,7 +12,7 @@ public:
   operator bool() const;
   auto repr() const -> std::string;
 
-  virtual void increment() = 0;
+  virtual void advance() = 0;
   virtual auto dereference(Gc&) const -> DzValue = 0;
 
   DzObject* iteree;

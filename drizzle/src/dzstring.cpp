@@ -24,7 +24,7 @@ auto DzString::repr() const -> std::string {
 DzStringIterator::DzStringIterator(DzObject* iteree)
   : DzIterator(static_cast<DzString*>(iteree)->data.size() ? iteree : nullptr) {}
 
-void DzStringIterator::increment() {
+void DzStringIterator::advance() {
   if (++index >= string()->data.size()) {
     iteree = nullptr;
   }

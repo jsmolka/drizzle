@@ -20,7 +20,7 @@ auto DzList::repr() const -> std::string {
 DzListIterator::DzListIterator(DzObject* iteree)
   : DzIterator(static_cast<DzList*>(iteree)->values.size() ? iteree : nullptr) {}
 
-void DzListIterator::increment() {
+void DzListIterator::advance() {
   if (++index >= list()->values.size()) {
     iteree = nullptr;
   }

@@ -21,7 +21,7 @@ class DzListIterator : public DzIterator {
 public:
   DzListIterator(DzObject* iteree);
 
-  virtual void increment() final;
+  virtual void advance() final;
   virtual auto dereference(Gc&) const -> DzValue final;
 
 private:

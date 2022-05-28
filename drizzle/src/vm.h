@@ -76,9 +76,9 @@ private:
   void greaterEqual();
   void in();
   void invoke();
-  void iterConstruct();
+  void iterForward();
   template<std::integral Integral>
-  void iterIncrement();
+  void iterAdvance();
   template<std::integral Integral>
   void iterDereference();
   void jump();

@@ -49,9 +49,9 @@ void Vm::interpret(DzFunction* main) {
       case Opcode::GreaterEqual: greaterEqual(); break;
       case Opcode::In: in(); break;
       case Opcode::Invoke: invoke(); break;
-      case Opcode::IterConstruct: iterConstruct(); break;
-      case Opcode::IterIncrement: iterIncrement<u8>(); break;
-      case Opcode::IterIncrementExt: iterIncrement<u16>(); break;
+      case Opcode::IterForward: iterForward(); break;
+      case Opcode::IterAdvance: iterAdvance<u8>(); break;
+      case Opcode::IterAdvanceExt: iterAdvance<u16>(); break;
       case Opcode::IterDereference: iterDereference<u8>(); break;
       case Opcode::IterDereferenceExt: iterDereference<u16>(); break;
       case Opcode::Jump: jump(); break;
@@ -468,7 +468,7 @@ void Vm::invoke() {
   call(self, argc);
 }
 
-void Vm::iterConstruct() {
+void Vm::iterForward() {
   auto error = [this](const DzValue& iteree) {
     raise("'{}' object is not iterable", iteree.kind());
   };
@@ -495,9 +495,9 @@ void Vm::iterConstruct() {
 }
 
 template<std::integral Integral>
-void Vm::iterIncrement() {
+void Vm::iterAdvance() {
   const auto index = read<Integral>();
-  stack[frames.top().sp + index].template as<DzIterator>()->increment();
+  stack[frames.top().sp + index].template as<DzIterator>()->advance();
 }
 
 template<std::integral Integral>
