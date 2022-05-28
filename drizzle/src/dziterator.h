@@ -9,7 +9,7 @@ class DzIterator : public DzObject {
 public:
   DzIterator(DzObject* iteree);
 
-  virtual operator bool() const = 0;
+  operator bool() const;
   auto repr() const -> std::string;
 
   virtual void increment() = 0;

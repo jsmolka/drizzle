@@ -1,15 +1,19 @@
 #include "dzlistiterator.h"
 
-#include "dzlist.h"
-
-DzListIterator::operator bool() const {
-  return index < static_cast<const DzList*>(iteree)->values.size();
-}
+DzListIterator::DzListIterator(DzObject* iteree)
+  : DzIterator(static_cast<DzList*>(iteree)->values.size() ? iteree : nullptr) {}
 
 void DzListIterator::increment() {
-  ++index;
+  if (++index >= list()->values.size()) {
+    iteree = nullptr;
+  }
 }
 
 auto DzListIterator::dereference(Gc&) const -> DzValue {
-  return static_cast<const DzList*>(iteree)->values[index];
+  return list()->values[index];
+}
+
+auto DzListIterator::list() const -> const DzList* {
+  assert(iteree);
+  return static_cast<const DzList*>(iteree);
 }
