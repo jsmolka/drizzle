@@ -58,6 +58,9 @@ Expression::Expression(Literal literal, const Location& location)
 Expression::Expression(Range range, const Location& location)
   : type(Type::Range), range(std::move(range)), location(location) {}
 
+Expression::Expression(Map map, const Location& location)
+  : type(Type::Map), map(std::move(map)), location(location) {}
+
 Expression::Expression(Set set, const Location& location)
   : type(Type::Set), set(std::move(set)), location(location) {}
 
@@ -74,7 +77,7 @@ Expression::Expression(Variable variable, const Location& location)
   : type(Type::Variable), variable(std::move(variable)), location(location) {}
 
 Expression::~Expression() {
-  static_assert(int(Expression::Type::LastEnumValue) == 15);
+  static_assert(int(Expression::Type::LastEnumValue) == 16);
   switch (type) {
     case Type::Assign:       std::destroy_at(&assign); break;
     case Type::Binary:       std::destroy_at(&binary); break;
@@ -85,6 +88,7 @@ Expression::~Expression() {
     case Type::Invoke:       std::destroy_at(&invoke); break;
     case Type::List:         std::destroy_at(&list); break;
     case Type::Literal:      std::destroy_at(&literal); break;
+    case Type::Map:          std::destroy_at(&map); break;
     case Type::Range:        std::destroy_at(&range); break;
     case Type::Set:          std::destroy_at(&set); break;
     case Type::SubscriptGet: std::destroy_at(&subscript_get); break;

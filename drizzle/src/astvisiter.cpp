@@ -3,7 +3,7 @@
 #include <sh/utility.h>
 
 void AstVisiter::visit(Expr& expr) {
-  static_assert(int(Expression::Type::LastEnumValue) == 15);
+  static_assert(int(Expression::Type::LastEnumValue) == 16);
   switch (expr->type) {
     case Expression::Type::Assign:       visit(expr->assign); break;
     case Expression::Type::Binary:       visit(expr->binary); break;
@@ -14,6 +14,7 @@ void AstVisiter::visit(Expr& expr) {
     case Expression::Type::Invoke:       visit(expr->invoke); break;
     case Expression::Type::List:         visit(expr->list); break;
     case Expression::Type::Literal:      visit(expr->literal); break;
+    case Expression::Type::Map:          visit(expr->map); break;
     case Expression::Type::Range:        visit(expr->range); break;
     case Expression::Type::Set:          visit(expr->set); break;
     case Expression::Type::SubscriptGet: visit(expr->subscript_get); break;
@@ -70,6 +71,13 @@ void AstVisiter::visit(Expression::List& list) {
 
 void AstVisiter::visit(Expression::Literal& literal) {
   sh::unused(literal);
+}
+
+void AstVisiter::visit(Expression::Map& map) {
+  for (auto& [key, value] : map.pairs) {
+    visit(key);
+    visit(value);
+  }
 }
 
 void AstVisiter::visit(Expression::Range& range) {

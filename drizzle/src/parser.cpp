@@ -21,6 +21,7 @@ auto Parser::rule(Token::Type type) -> const Rule& {
       case Token::Type::Bang:         return {&Parser::unary,    nullptr,            Precedence::Term      };
       case Token::Type::BangEqual:    return {nullptr,           &Parser::binary,    Precedence::Equality  };
       case Token::Type::BracketLeft:  return {&Parser::list,     &Parser::subscript, Precedence::Call      };
+      case Token::Type::BraceLeft:    return {&Parser::map,      nullptr,            Precedence::None      };
       case Token::Type::Caret:        return {nullptr,           &Parser::binary,    Precedence::BitXor    };
       case Token::Type::Dot:          return {nullptr,           &Parser::dot,       Precedence::Call      };
       case Token::Type::Dot2:         return {nullptr,           &Parser::range,     Precedence::Range     };
@@ -76,6 +77,7 @@ void Parser::expect(Token::Type type, std::string_view error) {
   }
 }
 
+void Parser::expectBraceRight()   { expect(Token::Type::BraceRight,   "expected '}'");                 }
 void Parser::expectBracketRight() { expect(Token::Type::BracketRight, "expected ']'");                 }
 void Parser::expectColon()        { expect(Token::Type::Colon,        "expected colon");               }
 void Parser::expectDedent()       { expect(Token::Type::Dedent,       "expected dedent");              }
@@ -195,31 +197,6 @@ void Parser::binary(bool) {
   }));
 }
 
-void Parser::list(bool) {
-  const auto multiline = match(Token::Type::NewLine);
-
-  Exprs values;
-  if (current->type != Token::Type::BracketRight) {
-    if (multiline) {
-      expectIndent();
-      do {
-        match(Token::Type::NewLine);
-        values.push_back(expression());
-        match(Token::Type::NewLine);
-      } while (match(Token::Type::Comma));
-      expectDedent();
-    } else {
-      do {
-        values.push_back(expression());
-      } while (match(Token::Type::Comma));
-    }
-  }
-  expectBracketRight();
-  expressions.push(newExpr(Expression::List{
-    .values = std::move(values)
-  }));
-}
-
 void Parser::call(bool) {
   auto arguments = this->arguments();
   expressions.push(newExpr(Expression::Call{
@@ -276,6 +253,31 @@ void Parser::in(bool) {
   }));
 }
 
+void Parser::list(bool) {
+  const auto multiline = match(Token::Type::NewLine);
+
+  Exprs values;
+  if (current->type != Token::Type::BracketRight) {
+    if (multiline) {
+      expectIndent();
+      do {
+        match(Token::Type::NewLine);
+        values.push_back(expression());
+        match(Token::Type::NewLine);
+      } while (match(Token::Type::Comma));
+      expectDedent();
+    } else {
+      do {
+        values.push_back(expression());
+      } while (match(Token::Type::Comma));
+    }
+  }
+  expectBracketRight();
+  expressions.push(newExpr(Expression::List{
+    .values = std::move(values)
+  }));
+}
+
 void Parser::literal(bool) {
   switch (previous->type) {
     case Token::Type::True:  expressions.push(newExpr(Expression::Literal{true})); break;
@@ -285,6 +287,25 @@ void Parser::literal(bool) {
       SH_UNREACHABLE;
       break;
   }
+}
+
+void Parser::map(bool) {
+  std::vector<Expression::Map::Pair> pairs;
+  if (current->type != Token::Type::BraceRight) {
+    do {
+      auto key = expression();
+      expectColon();
+      auto value = expression();
+      pairs.push_back(Expression::Map::Pair{
+        .key = std::move(key),
+        .value = std::move(value)
+      });
+    } while (match(Token::Type::Comma));
+  }
+  expectBraceRight();
+  expressions.push(newExpr(Expression::Map{
+    .pairs = std::move(pairs)
+  }));
 }
 
 void Parser::or_(bool) {
