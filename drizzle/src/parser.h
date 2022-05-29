@@ -15,6 +15,7 @@ private:
   enum class Precedence {
     None,
     Assignment,
+    Range,
     Or,
     And,
     In,
@@ -72,6 +73,7 @@ private:
   void in(bool);
   void literal(bool);
   void or_(bool);
+  void range(bool);
   void subscript(bool assign);
   void this_(bool);
   void unary(bool);

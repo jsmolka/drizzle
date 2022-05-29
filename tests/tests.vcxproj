@@ -84,6 +84,7 @@
     <ClInclude Include="src\tests\compiler\error.h" />
     <ClInclude Include="src\tests\parser\error.h" />
     <ClInclude Include="src\tests\parser\expr\in.h" />
+    <ClInclude Include="src\tests\parser\expr\range.h" />
     <ClInclude Include="src\tests\parser\expr\subscript.h" />
     <ClInclude Include="src\tests\parser\expr\call.h" />
     <ClInclude Include="src\tests\parser\expr\get.h" />

@@ -307,5 +307,8 @@
     <ClInclude Include="src\tests\vm\for.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\tests\parser\expr\range.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

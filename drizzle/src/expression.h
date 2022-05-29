@@ -27,6 +27,7 @@ public:
     Invoke,
     List,
     Literal,
+    Range,
     Set,
     SubscriptGet,
     SubscriptSet,
@@ -122,6 +123,11 @@ public:
     std::variant<dzbool, dzint, dzfloat, std::string> value;
   };
 
+  struct Range {
+    Expr start;
+    Expr stop;
+  };
+
   struct Set {
     Identifier identifier;
     Expr self;
@@ -164,6 +170,7 @@ public:
   Expression(Invoke invoke, const Location& location);
   Expression(List list, const Location& location);
   Expression(Literal literal, const Location& location);
+  Expression(Range range, const Location& location);
   Expression(Set set, const Location& location);
   Expression(SubscriptGet subscript_get, const Location& location);
   Expression(SubscriptSet subscript_set, const Location& location);
@@ -182,6 +189,7 @@ public:
     Invoke invoke;
     List list;
     Literal literal;
+    Range range;
     Set set;
     SubscriptGet subscript_get;
     SubscriptSet subscript_set;
@@ -194,7 +202,7 @@ public:
 template<>
 struct fmt::formatter<Expression::Type> : fmt::formatter<std::string_view> {
   static auto repr(const Expression::Type& value) -> std::string_view {
-    static_assert(int(Expression::Type::LastEnumValue) == 14);
+    static_assert(int(Expression::Type::LastEnumValue) == 15);
     switch (value) {
       case Expression::Type::Assign:       return "assign";
       case Expression::Type::Binary:       return "binary";
@@ -205,6 +213,7 @@ struct fmt::formatter<Expression::Type> : fmt::formatter<std::string_view> {
       case Expression::Type::Invoke:       return "invoke";
       case Expression::Type::List:         return "list";
       case Expression::Type::Literal:      return "literal";
+      case Expression::Type::Range:        return "range";
       case Expression::Type::Set:          return "set";
       case Expression::Type::SubscriptGet: return "subscript_get";
       case Expression::Type::SubscriptSet: return "subscript_set";

@@ -333,7 +333,6 @@ void Tokenizer::scanToken() {
       case '^': emit(Token::Type::Caret); break;
       case ':': emit(Token::Type::Colon); break;
       case ',': emit(Token::Type::Comma); break;
-      case '.': emit(Token::Type::Dot); break;
       case '-': emit(Token::Type::Minus); break;
       case '(': emit(Token::Type::ParenLeft); break;
       case ')': emit(Token::Type::ParenRight); break;
@@ -344,6 +343,7 @@ void Tokenizer::scanToken() {
       case '&': emit(next('&') ? Token::Type::And2 : Token::Type::And); break;
       case '!': emit(next('=') ? Token::Type::BangEqual : Token::Type::Bang); break;
       case '=': emit(next('=') ? Token::Type::Equal2 : Token::Type::Equal); break;
+      case '.': emit(next('.') ? Token::Type::Dot2: Token::Type::Dot); break;
       case '|': emit(next('|') ? Token::Type::Pipe2 : Token::Type::Pipe); break;
       case '/': emit(next('/') ? Token::Type::Slash2 : Token::Type::Slash); break;
       case '*': emit(next('*') ? Token::Type::Star2 : Token::Type::Star); break;

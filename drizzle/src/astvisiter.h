@@ -16,6 +16,7 @@ protected:
   virtual void visit(Expression::Invoke& invoke);
   virtual void visit(Expression::List& list);
   virtual void visit(Expression::Literal& literal);
+  virtual void visit(Expression::Range& range);
   virtual void visit(Expression::Set& set);
   virtual void visit(Expression::SubscriptGet& subscript_get);
   virtual void visit(Expression::SubscriptSet& subscript_set);

@@ -23,6 +23,7 @@ auto Parser::rule(Token::Type type) -> const Rule& {
       case Token::Type::BracketLeft:  return {&Parser::list,     &Parser::subscript, Precedence::Call      };
       case Token::Type::Caret:        return {nullptr,           &Parser::binary,    Precedence::BitXor    };
       case Token::Type::Dot:          return {nullptr,           &Parser::dot,       Precedence::Call      };
+      case Token::Type::Dot2:         return {nullptr,           &Parser::range,     Precedence::Range     };
       case Token::Type::Equal2:       return {nullptr,           &Parser::binary,    Precedence::Equality  };
       case Token::Type::False:        return {&Parser::literal,  nullptr,            Precedence::None      };
       case Token::Type::Float:        return {&Parser::constant, nullptr,            Precedence::None      };
@@ -295,6 +296,13 @@ void Parser::or_(bool) {
     .type = Expression::Binary::Type::Or,
     .left = std::move(lhs),
     .right = std::move(rhs)
+  }));
+}
+
+void Parser::range(bool) {
+  expressions.push(newExpr(Expression::Range{
+    .start = expressions.pop_value(),
+    .stop = expression()
   }));
 }
 

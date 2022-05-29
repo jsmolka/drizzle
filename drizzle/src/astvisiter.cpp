@@ -3,8 +3,7 @@
 #include <sh/utility.h>
 
 void AstVisiter::visit(Expr& expr) {
-  static_assert(int(Expression::Type::LastEnumValue) == 14);
-
+  static_assert(int(Expression::Type::LastEnumValue) == 15);
   switch (expr->type) {
     case Expression::Type::Assign:       visit(expr->assign); break;
     case Expression::Type::Binary:       visit(expr->binary); break;
@@ -15,6 +14,7 @@ void AstVisiter::visit(Expr& expr) {
     case Expression::Type::Invoke:       visit(expr->invoke); break;
     case Expression::Type::List:         visit(expr->list); break;
     case Expression::Type::Literal:      visit(expr->literal); break;
+    case Expression::Type::Range:        visit(expr->range); break;
     case Expression::Type::Set:          visit(expr->set); break;
     case Expression::Type::SubscriptGet: visit(expr->subscript_get); break;
     case Expression::Type::SubscriptSet: visit(expr->subscript_set); break;
@@ -72,6 +72,11 @@ void AstVisiter::visit(Expression::Literal& literal) {
   sh::unused(literal);
 }
 
+void AstVisiter::visit(Expression::Range& range) {
+  visit(range.start);
+  visit(range.stop);
+}
+
 void AstVisiter::visit(Expression::Set& set) {
   visit(set.self);
   visit(set.value);
@@ -98,7 +103,6 @@ void AstVisiter::visit(Expression::Variable& variable) {
 
 void AstVisiter::visit(Stmt& stmt) {
   static_assert(int(Statement::Type::LastEnumValue) == 13);
-
   switch (stmt->type) {
     case Statement::Type::Block:               visit(stmt->block); break;
     case Statement::Type::Break:               visit(stmt->break_); break;

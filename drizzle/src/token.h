@@ -25,6 +25,7 @@ struct Token {
     Dedent,
     Def,
     Dot,
+    Dot2,
     Elif,
     Else,
     Eof,
@@ -77,7 +78,7 @@ struct Token {
 template<>
 struct fmt::formatter<Token::Type> : fmt::formatter<std::string_view> {
   static auto repr(const Token::Type& value) -> std::string_view {
-    static_assert(int(Token::Type::LastEnumValue) == 59);
+    static_assert(int(Token::Type::LastEnumValue) == 60);
     switch (value) {
       case Token::Type::And:          return "And";
       case Token::Type::And2:         return "And2";
@@ -97,6 +98,7 @@ struct fmt::formatter<Token::Type> : fmt::formatter<std::string_view> {
       case Token::Type::Dedent:       return "Dedent";
       case Token::Type::Def:          return "Def";
       case Token::Type::Dot:          return "Dot";
+      case Token::Type::Dot2:         return "Dot2";
       case Token::Type::Elif:         return "Elif";
       case Token::Type::Else:         return "Else";
       case Token::Type::Eof:          return "Eof";
