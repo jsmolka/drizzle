@@ -2,6 +2,22 @@
 
 #include <sh/fmt.h>
 
+using Pair = std::pair<DzString*, DzValue>;
+
+template<>
+struct fmt::formatter<Pair> {
+  template<typename ParseContext>
+  constexpr auto parse(ParseContext &ctx) {
+    return ctx.begin();
+  };
+
+  template<typename FormatContext>
+  auto format(const Pair& pair, FormatContext& ctx) const {
+    const auto& [key, value] = pair;
+    return fmt::format_to(ctx.out(), "{}: {}", key->repr(), value);
+  }
+};
+
 DzMap::DzMap()
   : DzObject(Type::Map) {}
 
@@ -14,7 +30,7 @@ auto DzMap::operator==(const DzMap& other) const -> bool {
 }
 
 auto DzMap::repr() const -> std::string {
-  return "maplmao";
+  return fmt::format("{{{}}}", fmt::join(values, ", "));
 }
 
 auto DzMap::get(DzString* identifier) -> std::optional<DzValue> {
