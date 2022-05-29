@@ -6,6 +6,7 @@
 #include "dzclass.h"
 #include "dzinstance.h"
 #include "dzlist.h"
+#include "dzmap.h"
 #include "dznull.h"
 #include "dzrange.h"
 #include "gc.h"
@@ -15,7 +16,7 @@ Vm::Vm(Gc& gc)
   : gc(gc) {}
 
 void Vm::interpret(DzFunction* main) {
-  static_assert(int(Opcode::LastEnumValue) == 59);
+  static_assert(int(Opcode::LastEnumValue) == 61);
 
   globals.resize(main->identifiers.size());
   frames.emplace(main->chunk().code.data(), 0, main);
@@ -67,6 +68,8 @@ void Vm::interpret(DzFunction* main) {
       case Opcode::LoadExt: load<u16>(); break;
       case Opcode::LoadGlobal: loadGlobal<u8>(); break;
       case Opcode::LoadGlobalExt: loadGlobal<u16>(); break;
+      case Opcode::Map: map<u8>(); break;
+      case Opcode::MapExt: map<u16>(); break;
       case Opcode::Modulo: modulo(); break;
       case Opcode::Multiply: multiply(); break;
       case Opcode::Negate: negate(); break;
@@ -627,6 +630,19 @@ void Vm::loadGlobal() {
     raise("unknown undefined variable");
   }
   stack.push(value);
+}
+
+template<std::integral Integral>
+void Vm::map() {
+  const auto size = read<Integral>();
+  const auto map = gc.construct<DzMap>();
+  for (auto i = 0; i < size; ++i) {
+    expect(stack.peek(1), DzObject::Type::String);
+    const auto value = stack.pop_value();
+    const auto key = stack.pop_value().o->as<DzString>();
+    map->set(key, value);
+  }
+  stack.push(map);
 }
 
 void Vm::modulo() {

@@ -333,6 +333,14 @@ void Compiler::visit(Expression::List& list) {
   emitExt(Opcode::List, list.values.size());
 }
 
+void Compiler::visit(Expression::Map& map) {
+  for (auto& [key, value] : sh::reversed(map.pairs)) {
+    visit(key);
+    visit(value);
+  }
+  emitExt(Opcode::Map, map.pairs.size());
+}
+
 void Compiler::visit(Expression::Range& range) {
   visit(range.start);
   visit(range.stop);

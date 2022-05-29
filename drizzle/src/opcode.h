@@ -45,6 +45,8 @@ enum class Opcode {
   LoadExt,
   LoadGlobal,
   LoadGlobalExt,
+  Map,
+  MapExt,
   Modulo,
   Multiply,
   Negate,
@@ -74,7 +76,7 @@ static_assert(int(Opcode::LastEnumValue) <= std::numeric_limits<u8>::max());
 template<>
 struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
   static auto repr(const Opcode& opcode) -> std::string_view {
-    static_assert(int(Opcode::LastEnumValue) == 59);
+    static_assert(int(Opcode::LastEnumValue) == 61);
     switch (opcode) {
       case Opcode::Add:                return "Add";
       case Opcode::BitwiseAnd:         return "BitwiseAnd";
@@ -114,6 +116,8 @@ struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
       case Opcode::LoadExt:            return "LoadExt";
       case Opcode::LoadGlobal:         return "LoadGlobal";
       case Opcode::LoadGlobalExt:      return "LoadGlobalExt";
+      case Opcode::Map:                return "Map";
+      case Opcode::MapExt:             return "MapExt";
       case Opcode::Modulo:             return "Modulo";
       case Opcode::Multiply:           return "Multiply";
       case Opcode::Negate:             return "Negate";

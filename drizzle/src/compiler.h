@@ -40,6 +40,7 @@ protected:
   void visit(Expression::Invoke& invoke) final;
   void visit(Expression::Literal& literal) final;
   void visit(Expression::List& list) final;
+  void visit(Expression::Map& map) final;
   void visit(Expression::Range& range) final;
   void visit(Expression::Set& set) final;
   void visit(Expression::SubscriptGet& subscript_get) final;

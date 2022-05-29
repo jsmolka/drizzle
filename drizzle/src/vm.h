@@ -90,6 +90,8 @@ private:
   void load();
   template<std::integral Integral>
   void loadGlobal();
+  template<std::integral Integral>
+  void map();
   void modulo();
   void multiply();
   void negate();

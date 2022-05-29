@@ -7,6 +7,7 @@
 #include "dzinstance.h"
 #include "dziterator.h"
 #include "dzlist.h"
+#include "dzmap.h"
 #include "vm.h"
 
 Gc::~Gc() {
@@ -57,7 +58,7 @@ void Gc::mark(const DzValue& value) {
 }
 
 void Gc::mark(DzObject* object) {
-  static_assert(int(DzObject::Type::LastEnumValue) == 10);
+  static_assert(int(DzObject::Type::LastEnumValue) == 11);
   if (!object || object->marked) {
     return;
   }
@@ -109,6 +110,14 @@ void Gc::mark(DzObject* object) {
     case DzObject::Type::List: {
       const auto list = object->as<DzList>();
       for (const auto& value : list->values) {
+        mark(value);
+      }
+      break;
+    }
+    case DzObject::Type::Map: {
+      const auto map = object->as<DzMap>();
+      for (const auto& [key, value] : map->values) {
+        mark(key);
         mark(value);
       }
       break;
