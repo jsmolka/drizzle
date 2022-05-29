@@ -60,13 +60,14 @@ term              → factor ( ( "-" | "+" ) factor )*
 factor            → unary ( ( "/" | "//" | "*" | "**" | "%" ) unary )*
 unary             → ( "!" | "-" | "~" ) unary | call
 call              → primary ( "(" arguments? ")" | "." IDENTIFIER | "[" expression "]" )*
-primary           → "true" | "false" | "null" | NUMBER | STRING | IDENTIFIER | "(" expression ")" | "[" arguments? "]"
+primary           → "true" | "false" | "null" | NUMBER | STRING | IDENTIFIER | "(" expression ")" | "[" arguments? "]" | "{" pairs? "}"
 ```
 
 ### Utilities
 ```
 parameters        → IDENTIFIER ( "," IDENTIFIER )*
 arguments         → expression ( "," expression )*
+pairs             → expression ":" expression ( "," expression ":" expression )*
 ```
 
 ## Lexical Grammar
@@ -105,7 +106,7 @@ ALPHA             → "a" ... "z" | "A" ... "Z" | "_"
 DIGIT             → "0" ... "9"
 ```
 
-The following identifiers are reserved as words:
+The following identifiers are reserved as keywords:
 - `block`
 - `break`
 - `class`
