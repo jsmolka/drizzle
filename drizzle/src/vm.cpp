@@ -7,6 +7,7 @@
 #include "dzinstance.h"
 #include "dzlist.h"
 #include "dznull.h"
+#include "dzrange.h"
 #include "gc.h"
 #include "opcode.h"
 
@@ -156,6 +157,9 @@ auto Vm::forward(const DzValue& iteree) -> DzValue {
     }
     case DzObject::Type::List: {
       return gc.construct<DzListIterator>(iteree.o);
+    }
+    case DzObject::Type::Range: {
+      return gc.construct<DzRangeIterator>(iteree.o);
     }
     case DzObject::Type::String: {
       return gc.construct<DzStringIterator>(iteree.o);

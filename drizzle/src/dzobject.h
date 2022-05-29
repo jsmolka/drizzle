@@ -16,6 +16,7 @@ public:
     Iterator,
     List,
     Null,
+    Range,
     ReverseIterator,
     String,
     LastEnumValue
@@ -56,7 +57,7 @@ concept dz_object =
 template<>
 struct fmt::formatter<DzObject::Type> : fmt::formatter<std::string_view> {
   static auto repr(const DzObject::Type& type) -> std::string_view {
-    static_assert(int(DzObject::Type::LastEnumValue) == 9);
+    static_assert(int(DzObject::Type::LastEnumValue) == 10);
     switch (type) {
       case DzObject::Type::BoundMethod:     return "function";
       case DzObject::Type::Class:           return "class";
@@ -65,6 +66,7 @@ struct fmt::formatter<DzObject::Type> : fmt::formatter<std::string_view> {
       case DzObject::Type::Iterator:        return "iterator";
       case DzObject::Type::List:            return "list";
       case DzObject::Type::Null:            return "null";
+      case DzObject::Type::Range:           return "range";
       case DzObject::Type::ReverseIterator: return "reverse iterator";
       case DzObject::Type::String:          return "string";
       default:

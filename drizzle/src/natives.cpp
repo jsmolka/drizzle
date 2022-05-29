@@ -4,6 +4,7 @@
 
 #include "dzfunction.h"
 #include "dznull.h"
+#include "dzrange.h"
 #include "gc.h"
 
 struct DzValuePrint : DzValue {};
@@ -43,6 +44,20 @@ void Vm::defineNatives() {
           static_cast<DzValuePrint*>(vm.stack.end()), " "));
         vm.stack.pop(argc);
         return &null;
+      }
+    ),
+    gc.construct<DzFunction>(
+      gc.construct<DzString>("range"), Arity::equal(3), [](Vm& vm, std::size_t) {
+        vm.expect(vm.stack.peek(0), DzValue::Type::Int);
+        vm.expect(vm.stack.peek(1), DzValue::Type::Int);
+        vm.expect(vm.stack.peek(2), DzValue::Type::Int);
+        const auto step  = vm.stack.pop_value().i;
+        const auto stop  = vm.stack.pop_value().i;
+        const auto start = vm.stack.pop_value().i;
+        if (step == 0) {
+          vm.raise("range() step cannot be zero");
+        }
+        return vm.gc.construct<DzRange>(start, stop, step);
       }
     ),
     gc.construct<DzFunction>(

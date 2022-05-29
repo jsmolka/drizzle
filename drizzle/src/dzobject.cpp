@@ -7,6 +7,7 @@
 #include "dziterator.h"
 #include "dzlist.h"
 #include "dznull.h"
+#include "dzrange.h"
 #include "dzreverseiterator.h"
 #include "dzstring.h"
 
@@ -22,6 +23,7 @@ DzObject::operator bool() const {
     case Type::Iterator:        return *as<DzIterator>();
     case Type::List:            return *as<DzList>();
     case Type::Null:            return *as<DzNull>();
+    case Type::Range:           return *as<DzRange>();
     case Type::ReverseIterator: return *as<DzReverseIterator>();
     case Type::String:          return *as<DzString>();
     default:
@@ -37,6 +39,7 @@ auto DzObject::operator==(const DzObject& other) const -> bool {
   switch (type) {
     case Type::BoundMethod: return *as<DzBoundMethod>() == *other.as<DzBoundMethod>();
     case Type::List:        return *as<DzList>() == *other.as<DzList>();
+    case Type::Range:       return *as<DzRange>() == *other.as<DzRange>();
     default:
       return this == &other;
   }
@@ -55,6 +58,7 @@ auto DzObject::repr() const -> std::string {
     case Type::Iterator:        return as<DzIterator>()->repr();
     case Type::List:            return as<DzList>()->repr();
     case Type::Null:            return as<DzNull>()->repr();
+    case Type::Range:           return as<DzRange>()->repr();
     case Type::ReverseIterator: return as<DzReverseIterator>()->repr();
     case Type::String:          return as<DzString>()->repr();
     default:
