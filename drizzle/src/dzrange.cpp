@@ -43,3 +43,32 @@ void DzRangeIterator::set(dzint value) {
     }
   }
 }
+
+DzRangeReverseIterator::DzRangeReverseIterator(DzObject* iteree)
+  : DzIterator(iteree, "range") {
+  const auto range = iteree->as<DzRange>();
+  step = -range->step;
+  stop = range->start + step;
+  set(range->stop + step);
+}
+
+void DzRangeReverseIterator::advance() {
+  set(value + step);
+}
+
+auto DzRangeReverseIterator::dereference(Gc&) const -> DzValue {
+  return value;
+}
+
+void DzRangeReverseIterator::set(dzint value) {
+  this->value = value;
+  if (step > 0) {
+    if (value >= stop) {
+      iteree = nullptr;
+    }
+  } else if (step < 0) {
+    if (value <= stop) {
+      iteree = nullptr;
+    }
+  }
+}

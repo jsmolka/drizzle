@@ -3,6 +3,7 @@
 #include "dziterator.h"
 #include "dzobject.h"
 #include "dzprimitives.h"
+#include "dzreverseiterator.h"
 
 class DzRange : public DzObject {
 public:
@@ -29,3 +30,19 @@ private:
 
   dzint value;
 };
+
+class DzRangeReverseIterator : public DzIterator {
+public:
+  DzRangeReverseIterator(DzObject* iteree);
+
+  virtual void advance() final;
+  virtual auto dereference(Gc&) const -> DzValue final;
+
+private:
+  void set(dzint value);
+
+  dzint stop;
+  dzint step;
+  dzint value;
+};
+

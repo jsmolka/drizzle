@@ -184,6 +184,9 @@ auto Vm::reverse(const DzValue& iteree) -> DzValue {
     case DzObject::Type::List: {
       return gc.construct<DzListReverseIterator>(iteree.o);
     }
+    case DzObject::Type::Range: {
+      return gc.construct<DzRangeReverseIterator>(iteree.o);
+    }
     case DzObject::Type::String: {
       return gc.construct<DzStringReverseIterator>(iteree.o);
     }
