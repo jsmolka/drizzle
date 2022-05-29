@@ -490,6 +490,13 @@ void Vm::in() {
       );
       break;
     }
+    case DzObject::Type::Map: {
+      expect(expr, DzObject::Type::String);
+      const auto map = self.o->as<DzMap>();
+      const auto key = expr.o->as<DzString>();
+      stack.push(map->get(key).has_value());
+      break;
+    }
     case DzObject::Type::String: {
       expect(expr, DzObject::Type::String);
       const auto string = self.o->as<DzString>();
@@ -786,6 +793,12 @@ void Vm::subscriptGet() {
         }
         return (*list)[index];
       }
+      case DzObject::Type::Map: {
+        expect(expr, DzObject::Type::String);
+        const auto map = self.o->as<DzMap>();
+        const auto key = expr.o->as<DzString>();
+        return map->get(key).value_or(&null);
+      }
       case DzObject::Type::String: {
         expect(expr, DzValue::Type::Int);
         const auto string = self.o->as<DzString>();
@@ -838,6 +851,13 @@ void Vm::subscriptSet() {
         raise("list index out of range");
       }
       (*list)[index] = stack.top();
+      break;
+    }
+    case DzObject::Type::Map: {
+      expect(expr, DzObject::Type::String);
+      const auto map = self.o->as<DzMap>();
+      const auto key = expr.o->as<DzString>();
+      map->set(key, stack.top());
       break;
     }
     default: {
