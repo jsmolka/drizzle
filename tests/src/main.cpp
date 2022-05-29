@@ -56,6 +56,7 @@ static_assert(int(Statement::Type::LastEnumValue) == 13);
 #include "tests/vm/invoke.h"
 #include "tests/vm/list.h"
 #include "tests/vm/loop.h"
+#include "tests/vm/range.h"
 #include "tests/vm/scope.h"
 #include "tests/vm/string.h"
 #include "tests/vm/type.h"

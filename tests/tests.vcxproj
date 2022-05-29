@@ -108,6 +108,7 @@
     <ClInclude Include="src\tests\vm\invoke.h" />
     <ClInclude Include="src\tests\vm\list.h" />
     <ClInclude Include="src\tests\vm\loop.h" />
+    <ClInclude Include="src\tests\vm\range.h" />
     <ClInclude Include="src\tests\vm\scope.h" />
     <ClInclude Include="src\tests\vm\string.h" />
     <ClInclude Include="src\tests\vm\type.h" />
