@@ -46,7 +46,8 @@ block             → ":" NEWLINE INDENT declaration+ DEDENT
 Expressions produce values. The precedence goes from high (bottom) to low (top).
 ```
 expression        → assignment
-assignment        → ( ( call "." )? IDENTIFIER | "[" expression "]" ) "=" assignment | or
+assignment        → ( ( call "." )? IDENTIFIER | "[" expression "]" ) "=" assignment | range
+range             → or ( ".." or )*
 or                → and ( "||" and )*
 and               → bitOr ( "&&" bitOr )*
 bitOr             → bitXor ( "|" bitXor )*
