@@ -100,6 +100,7 @@ private:
   template<std::integral Integral>
   void popMultiple();
   void power();
+  void range();
   void return_();
   void set();
   template<std::integral Integral>

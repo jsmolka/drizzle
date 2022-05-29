@@ -333,6 +333,12 @@ void Compiler::visit(Expression::List& list) {
   emitExt(Opcode::List, list.values.size());
 }
 
+void Compiler::visit(Expression::Range& range) {
+  visit(range.start);
+  visit(range.stop);
+  emit(Opcode::Range);
+}
+
 void Compiler::visit(Expression::Set& set) {
   visit(set.value);
   visit(set.self);

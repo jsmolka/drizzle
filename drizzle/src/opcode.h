@@ -55,6 +55,7 @@ enum class Opcode {
   PopMultiple,
   PopMultipleExt,
   Power,
+  Range,
   Return,
   Set,
   Store,
@@ -73,7 +74,7 @@ static_assert(int(Opcode::LastEnumValue) <= std::numeric_limits<u8>::max());
 template<>
 struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
   static auto repr(const Opcode& opcode) -> std::string_view {
-    static_assert(int(Opcode::LastEnumValue) == 58);
+    static_assert(int(Opcode::LastEnumValue) == 59);
     switch (opcode) {
       case Opcode::Add:                return "Add";
       case Opcode::BitwiseAnd:         return "BitwiseAnd";
@@ -123,6 +124,7 @@ struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
       case Opcode::PopMultiple:        return "PopMultiple";
       case Opcode::PopMultipleExt:     return "PopMultipleExt";
       case Opcode::Power:              return "Power";
+      case Opcode::Range:              return "Range";
       case Opcode::Return:             return "Return";
       case Opcode::Set:                return "Set";
       case Opcode::Store:              return "Store";

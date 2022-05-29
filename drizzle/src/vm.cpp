@@ -15,7 +15,7 @@ Vm::Vm(Gc& gc)
   : gc(gc) {}
 
 void Vm::interpret(DzFunction* main) {
-  static_assert(int(Opcode::LastEnumValue) == 58);
+  static_assert(int(Opcode::LastEnumValue) == 59);
 
   globals.resize(main->identifiers.size());
   frames.emplace(main->chunk().code.data(), 0, main);
@@ -77,6 +77,7 @@ void Vm::interpret(DzFunction* main) {
       case Opcode::PopMultiple: popMultiple<u8>(); break;
       case Opcode::PopMultipleExt: popMultiple<u16>(); break;
       case Opcode::Power: power(); break;
+      case Opcode::Range: range(); break;
       case Opcode::Return: return_(); break;
       case Opcode::Set: set(); break;
       case Opcode::Store: store<u8>(); break;
@@ -682,6 +683,14 @@ void Vm::power() {
     }
     return std::nullopt;
   });
+}
+
+void Vm::range() {
+  expect(stack.peek(0), DzValue::Type::Int);
+  expect(stack.peek(1), DzValue::Type::Int);
+  const auto stop  = stack.pop_value().i;
+  const auto start = stack.top().i;
+  stack.top() = gc.construct<DzRange>(start, stop, 1);
 }
 
 void Vm::return_() {
