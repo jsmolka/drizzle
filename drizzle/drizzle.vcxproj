@@ -29,6 +29,7 @@
     <ClCompile Include="src\dzlist.cpp" />
     <ClCompile Include="src\dzlistmembers.cpp" />
     <ClCompile Include="src\dzmap.cpp" />
+    <ClCompile Include="src\dzmapmembers.cpp" />
     <ClCompile Include="src\dznull.cpp" />
     <ClCompile Include="src\dzrange.cpp" />
     <ClCompile Include="src\dzreverseiterator.cpp" />

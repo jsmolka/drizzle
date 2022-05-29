@@ -23,6 +23,7 @@ void Vm::interpret(DzFunction* main) {
 
   defineNatives();
   defineListMembers();
+  defineMapMembers();
   defineStringMembers();
 
   gc.vm = this;
@@ -402,8 +403,8 @@ void Vm::false_() {
 
 void Vm::get() {
   const auto value = [this]() -> DzValue {
-    auto error = [this](const DzValue& self, const DzValue& prop) {
-      raise("'{}' object has no property '{}'", self.kind(), prop.repr());
+    auto error = [this](const DzValue& self, const DzString* prop) {
+      raise("'{}' object has no property '{}'", self.kind(), prop->data);
     };
 
     const auto& prop = stack.peek(0).o->as<DzString>();
@@ -512,8 +513,8 @@ void Vm::in() {
 }
 
 void Vm::invoke() {
-  auto error = [this](const DzValue& self, const DzValue& prop) {
-    raise("'{}' object has no property '{}'", self.kind(), prop.repr());
+  auto error = [this](const DzValue& self, const DzString* prop) {
+    raise("'{}' object has no property '{}'", self.kind(), prop->data);
   };
 
   const auto argc = read<u8>();

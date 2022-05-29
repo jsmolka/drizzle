@@ -29,6 +29,7 @@ private:
 
   void defineNatives();
   void defineListMembers();
+  void defineMapMembers();
   void defineStringMembers();
 
   template<std::integral Integral>
