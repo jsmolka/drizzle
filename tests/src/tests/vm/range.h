@@ -50,6 +50,18 @@ for x in reverse(range(10, 0, -2)):
   l.push(x)
 assert(l == [2, 4, 6, 8, 10])
 )",
+R"(
+assert(0 in range(0, 10, 2))
+assert(2 in range(0, 10, 2))
+assert(8 in range(0, 10, 2))
+assert(!(9 in range(0, 10, 2)))
+assert(!(10 in range(0, 10, 2)))
+assert(10 in range(10, 0, -2))
+assert(8 in range(10, 0, -2))
+assert(2 in range(10, 0, -2))
+assert(!(1 in range(10, 0, -2)))
+assert(!(0 in range(10, 0, -2)))
+)",
       };
 
       for (const auto& source : kSources) {
@@ -59,6 +71,10 @@ assert(l == [2, 4, 6, 8, 10])
     {
       constexpr const char* kSources[] = {
 R"(range(0, 0, 0))",
+R"(range("test", 1, 1))",
+R"(range(1, "test", 1))",
+R"(range(1, 1, "test"))",
+R"("test" in range(1, 1, 1))",
       };
 
       for (const auto& source : kSources) {

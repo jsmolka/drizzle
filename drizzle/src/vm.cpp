@@ -477,6 +477,16 @@ void Vm::in() {
       stack.push(std::find(list->values.begin(), list->values.end(), expr) != list->values.end());
       break;
     }
+    case DzObject::Type::Range: {
+      expect(expr, DzValue::Type::Int);
+      const auto range = self.o->as<DzRange>();
+      const auto value = expr.i;
+      stack.push(range->step > 0
+        ? value >= range->start && value < range->stop && (value - range->start) % range->step == 0
+        : value <= range->start && value > range->stop && (value - range->start) % range->step == 0
+      );
+      break;
+    }
     case DzObject::Type::String: {
       expect(expr, DzObject::Type::String);
       const auto string = self.o->as<DzString>();

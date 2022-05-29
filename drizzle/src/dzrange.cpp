@@ -3,7 +3,9 @@
 #include <sh/fmt.h>
 
 DzRange::DzRange(dzint start, dzint stop, dzint step)
-  : DzObject(Type::Range), start(start), stop(stop), step(step) {}
+  : DzObject(Type::Range), start(start), stop(stop), step(step) {
+  assert(step != 0);
+}
 
 DzRange::operator bool() const {
   return true;
@@ -37,7 +39,7 @@ void DzRangeIterator::set(dzint value) {
     if (value >= range->stop) {
       iteree = nullptr;
     }
-  } else if (range->step < 0) {
+  } else {
     if (value <= range->stop) {
       iteree = nullptr;
     }
@@ -66,7 +68,7 @@ void DzRangeReverseIterator::set(dzint value) {
     if (value >= stop) {
       iteree = nullptr;
     }
-  } else if (step < 0) {
+  } else {
     if (value <= stop) {
       iteree = nullptr;
     }
