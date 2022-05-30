@@ -44,6 +44,72 @@ inline suite _ = [] {
         literal 1)";
       parse(kSource, kExpect);
     }
+    {
+      constexpr auto kSource = R"(
+{"key": {"key": 1}
+})";
+      constexpr auto kExpect = R"(program
+  expression_statement
+    map
+      literal "key"
+      map
+        literal "key"
+        literal 1)";
+      parse(kSource, kExpect);
+    }
+    {
+      constexpr auto kSource = R"(
+{
+  "key": {"key": 1}
+})";
+      constexpr auto kExpect = R"(program
+  expression_statement
+    map
+      literal "key"
+      map
+        literal "key"
+        literal 1)";
+      parse(kSource, kExpect);
+    }
+    {
+      constexpr auto kSource = R"(
+{
+  "key": {
+    "key": 1
+  }
+})";
+      constexpr auto kExpect = R"(program
+  expression_statement
+    map
+      literal "key"
+      map
+        literal "key"
+        literal 1)";
+      parse(kSource, kExpect);
+    }
+    {
+      constexpr const char* kSources[] = {
+R"(
+{
+  }
+)",
+R"(
+block:
+  var x = {
+}
+)",
+R"(
+block:
+  var x = {
+    }
+)",
+
+      };
+
+      for (const auto& source : kSources) {
+        parseThrows(source);
+      }
+    }
   };
 };
 
