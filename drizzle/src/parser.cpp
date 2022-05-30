@@ -98,6 +98,27 @@ auto Parser::identifier() const -> Identifier {
   return Identifier(previous->lexeme, previous->location);
 }
 
+auto Parser::skipWhitespace() -> int {
+  int indent = 0;
+  while (true) {
+    switch (current->type) {
+      case Token::Type::Indent:
+        advance();
+        indent++;
+        break;
+      case Token::Type::Dedent:
+        advance();
+        indent--;
+        break;
+      case Token::Type::NewLine:
+        advance();
+        break;
+      default:
+        return indent;
+    }
+  }
+}
+
 auto Parser::arguments() -> Exprs {
   Exprs arguments;
   if (current->type != Token::Type::ParenRight) {
@@ -254,24 +275,21 @@ void Parser::in(bool) {
 }
 
 void Parser::list(bool) {
-  const auto multiline = match(Token::Type::NewLine);
+  auto indent = skipWhitespace();
 
   Exprs values;
   if (current->type != Token::Type::BracketRight) {
-    if (multiline) {
-      expectIndent();
-      do {
-        match(Token::Type::NewLine);
-        values.push_back(expression());
-        match(Token::Type::NewLine);
-      } while (match(Token::Type::Comma));
-      expectDedent();
-    } else {
-      do {
-        values.push_back(expression());
-      } while (match(Token::Type::Comma));
-    }
+    do {
+      indent += skipWhitespace();
+      values.push_back(expression());
+      indent += skipWhitespace();
+    } while (match(Token::Type::Comma));
   }
+
+  if (indent != 0) {
+    throw SyntaxError(current->location, "bad list format");
+  }
+
   expectBracketRight();
   expressions.push(newExpr(Expression::List{
     .values = std::move(values)
@@ -290,9 +308,12 @@ void Parser::literal(bool) {
 }
 
 void Parser::map(bool) {
+  auto indent = skipWhitespace();
+
   std::vector<Expression::Map::Pair> pairs;
   if (current->type != Token::Type::BraceRight) {
     do {
+      indent += skipWhitespace();
       auto key = expression();
       expectColon();
       auto value = expression();
@@ -300,8 +321,14 @@ void Parser::map(bool) {
         .key = std::move(key),
         .value = std::move(value)
       });
+      indent += skipWhitespace();
     } while (match(Token::Type::Comma));
   }
+
+  if (indent != 0) {
+    throw SyntaxError(current->location, "bad map format");
+  }
+
   expectBraceRight();
   expressions.push(newExpr(Expression::Map{
     .pairs = std::move(pairs)

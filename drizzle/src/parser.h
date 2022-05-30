@@ -57,6 +57,7 @@ private:
   void expectParenRight();
   auto expectIdentifier() -> Identifier;
   auto identifier() const -> Identifier;
+  auto skipWhitespace() -> int;
 
   auto arguments() -> Exprs;
 
