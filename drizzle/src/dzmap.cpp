@@ -22,7 +22,7 @@ DzMap::DzMap()
   : DzObject(Type::Map) {}
 
 DzMap::operator bool() const {
-  return true;
+  return values.size() > 0;
 }
 
 auto DzMap::operator==(const DzMap& other) const -> bool {
