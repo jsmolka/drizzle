@@ -3,6 +3,34 @@ name: Test
 on: push
 
 jobs:
+  test-windows:
+    runs-on: windows-2022
+
+    defaults:
+      run:
+        shell: cmd
+
+    steps:
+      - uses: actions/checkout@master
+        with:
+          submodules: recursive
+
+      - name: Build Debug
+        run: |
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          msbuild /target:tests /property:Configuration=Debug drizzle.sln
+
+      - name: Test Debug
+        run: bin\Debug\tests.exe
+
+      - name: Build Release
+        run: |
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          msbuild /target:tests /property:Configuration=Release drizzle.sln
+
+      - name: Test Release
+        run: bin\Release\tests.exe
+
   test-linux:
     runs-on: ubuntu-latest
 
@@ -15,11 +43,50 @@ jobs:
         run: |
           mkdir tests/build
 
-      - name: Build
+      - name: Build Debug
         run: |
           cd tests/build
           cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=g++-10 ..
           make -j 4
 
-      - name: Run
+      - name: Test Debug
+        run: ./tests/build/tests
+
+      - name: Build Release
+        run: |
+          cd tests/build
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++-10 ..
+          make -j 4
+
+      - name: Test Release
+        run: ./tests/build/tests
+
+  test-macos:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@master
+        with:
+          submodules: recursive
+
+      - name: Setup
+        run: |
+          mkdir tests/build
+
+      - name: Build Debug
+        run: |
+          cd tests/build
+          cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=g++-11 ..
+          make -j 4
+
+      - name: Test Debug
+        run: ./tests/build/tests
+
+      - name: Build Release
+        run: |
+          cd tests/build
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++-11 ..
+          make -j 4
+
+      - name: Test Release
         run: ./tests/build/tests

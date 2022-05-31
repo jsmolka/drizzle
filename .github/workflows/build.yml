@@ -3,8 +3,65 @@ name: Build
 on: push
 
 jobs:
+  build-windows:
+    runs-on: windows-2022
+
+    defaults:
+      run:
+        shell: cmd
+
+    steps:
+      - uses: actions/checkout@master
+        with:
+          submodules: recursive
+
+      - name: Build
+        run: |
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          msbuild /target:drizzle /property:Configuration=Release drizzle.sln
+
+      - name: Collect
+        run: |
+          mkdir upload
+          move bin\Release\drizzle.exe upload
+
+      - name: Upload
+        uses: actions/upload-artifact@master
+        with:
+          name: eggvance-windows
+          path: upload
+
   build-linux:
     runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@master
+        with:
+          submodules: recursive
+
+      - name: Setup
+        run: |
+          mkdir drizzle/build
+
+      - name: Build
+        run: |
+          cd drizzle/build
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++-10 ..
+          make -j 4
+
+      - name: Collect
+        run: |
+          mkdir upload
+          mv drizzle/build/drizzle upload
+
+      - name: Upload
+        uses: actions/upload-artifact@master
+        with:
+          name: drizzle-linux
+          path: upload
+
+  build-macos:
+    runs-on: macos-latest
 
     steps:
       - uses: actions/checkout@master
