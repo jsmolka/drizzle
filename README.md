@@ -7,6 +7,12 @@ drizzle might seem very familiar. I wanted to find out how parsing a whitespace-
 - Can we mix spaces and tabs? If so, how many spaces are one tab?
 - How do we define anonymous functions with multiple lines?
 
+## Binaries
+Binaries for Windows, Linux and macOS are available as [nightly](https://github.com/jsmolka/drizzle/actions/workflows/build.yml) and [release](https://github.com/jsmolka/drizzle/releases) builds.
+
+## Build
+Detailed build instructions can be found [here](BUILD.md).
+
 ## Tour
 ```python
 # Primitives
