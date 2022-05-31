@@ -20,27 +20,27 @@ void Vm::defineMapMembers() {
     ),
     gc.construct<DzFunction>(
       gc.construct<DzString>("get"), Arity::equal(1), [](Vm& vm, std::size_t) {
-        vm.expectHashable(vm.stack.peek(0));
         const auto key = vm.stack.pop_value();
         const auto map = vm.stack.top().o->as<DzMap>();
+        vm.expectHashable(key);
         return map->get(key).value_or(&null);
       }
     ),
     gc.construct<DzFunction>(
       gc.construct<DzString>("set"), Arity::equal(2), [](Vm& vm, std::size_t) {
-        vm.expectHashable(vm.stack.peek(1));
         const auto value = vm.stack.pop_value();
         const auto key = vm.stack.pop_value();
         const auto map = vm.stack.top().o->as<DzMap>();
+        vm.expectHashable(key);
         map->set(key, value);
         return &null;
       }
     ),
     gc.construct<DzFunction>(
       gc.construct<DzString>("has"), Arity::equal(1), [](Vm& vm, std::size_t) {
-        vm.expectHashable(vm.stack.peek(0));
         const auto key = vm.stack.pop_value();
         const auto map = vm.stack.top().o->as<DzMap>();
+        vm.expectHashable(key);
         return map->get(key).has_value();
       }
     ),
