@@ -43,6 +43,7 @@ private:
 
   void expect(const DzValue& value, DzValue::Type type);
   void expect(const DzValue& value, DzObject::Type type);
+  void expectHashable(const DzValue& value);
 
   template<template<typename> typename Promote = promote_t, typename Callback>
   void unary(std::string_view operation, Callback callback);

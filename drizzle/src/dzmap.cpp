@@ -2,7 +2,7 @@
 
 #include <sh/fmt.h>
 
-using Pair = std::pair<DzString*, DzValue>;
+using Pair = std::pair<DzValue, DzValue>;
 
 template<>
 struct fmt::formatter<Pair> {
@@ -14,7 +14,7 @@ struct fmt::formatter<Pair> {
   template<typename FormatContext>
   auto format(const Pair& pair, FormatContext& ctx) const {
     const auto& [key, value] = pair;
-    return fmt::format_to(ctx.out(), "{}: {}", key->repr(), value);
+    return fmt::format_to(ctx.out(), "{}: {}", key, value);
   }
 };
 
@@ -33,13 +33,13 @@ auto DzMap::repr() const -> std::string {
   return fmt::format("{{{}}}", fmt::join(values, ", "));
 }
 
-auto DzMap::get(DzString* identifier) -> std::optional<DzValue> {
-  const auto iter = values.find(identifier);
+auto DzMap::get(const DzValue& key) -> std::optional<DzValue> {
+  const auto iter = values.find(key);
   return iter != values.end()
     ? iter->second
     : std::optional<DzValue>();
 }
 
-void DzMap::set(DzString* identifier, const DzValue& value) {
-  values.insert_or_assign(identifier, value);
+void DzMap::set(const DzValue& key, const DzValue& value) {
+  values.insert_or_assign(key, value);
 }

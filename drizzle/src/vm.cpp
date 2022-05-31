@@ -146,6 +146,12 @@ void Vm::expect(const DzValue& value, DzObject::Type type) {
   }
 }
 
+void Vm::expectHashable(const DzValue& value) {
+  if (!value.isHashable()) {
+    raise("'{}' object is not hashable", value.kind());
+  }
+}
+
 auto Vm::forward(const DzValue& iteree) -> DzValue {
   auto error = [this](const DzValue& iteree) {
     raise("'{}' object is not iterable", iteree.kind());
@@ -492,10 +498,9 @@ void Vm::in() {
       break;
     }
     case DzObject::Type::Map: {
-      expect(expr, DzObject::Type::String);
+      expectHashable(expr);
       const auto map = self.o->as<DzMap>();
-      const auto key = expr.o->as<DzString>();
-      stack.push(map->get(key).has_value());
+      stack.push(map->get(expr).has_value());
       break;
     }
     case DzObject::Type::String: {
@@ -645,9 +650,9 @@ void Vm::map() {
   const auto size = read<Integral>();
   const auto map = gc.construct<DzMap>();
   for (auto i = 0; i < size; ++i) {
-    expect(stack.peek(1), DzObject::Type::String);
     const auto value = stack.pop_value();
-    const auto key = stack.pop_value().o->as<DzString>();
+    const auto key = stack.pop_value();
+    expectHashable(key);
     map->set(key, value);
   }
   stack.push(map);
@@ -795,10 +800,9 @@ void Vm::subscriptGet() {
         return (*list)[index];
       }
       case DzObject::Type::Map: {
-        expect(expr, DzObject::Type::String);
+        expectHashable(expr);
         const auto map = self.o->as<DzMap>();
-        const auto key = expr.o->as<DzString>();
-        return map->get(key).value_or(&null);
+        return map->get(expr).value_or(&null);
       }
       case DzObject::Type::String: {
         expect(expr, DzValue::Type::Int);
@@ -855,10 +859,9 @@ void Vm::subscriptSet() {
       break;
     }
     case DzObject::Type::Map: {
-      expect(expr, DzObject::Type::String);
+      expectHashable(expr);
       const auto map = self.o->as<DzMap>();
-      const auto key = expr.o->as<DzString>();
-      map->set(key, stack.top());
+      map->set(expr, stack.top());
       break;
     }
     default: {

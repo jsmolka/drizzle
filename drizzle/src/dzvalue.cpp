@@ -2,6 +2,12 @@
 
 #include <sh/utility.h>
 
+#include "dzstring.h"
+
+inline auto whole(dzfloat value) -> bool {
+  return std::fmod(value, 1.0) == 0.0;
+}
+
 DzValue::DzValue()
   : type(Type::Object), o(nullptr) {}
 
@@ -40,10 +46,6 @@ auto DzValue::kind() const -> std::string_view {
 }
 
 auto DzValue::repr() const -> std::string {
-  auto whole = [](double value) {
-    return std::fmod(value, 1.0) == 0.0;
-  };
-
   switch (type) {
     case DzValue::Type::Bool:   return fmt::to_string(b);
     case DzValue::Type::Int:    return fmt::to_string(i);
@@ -52,6 +54,25 @@ auto DzValue::repr() const -> std::string {
     default:
       SH_UNREACHABLE;
       return "unreachable";
+  }
+}
+
+auto DzValue::hash() const -> std::size_t {
+  switch (type) {
+    case DzValue::Type::Bool:
+      return static_cast<std::size_t>(b);
+    case DzValue::Type::Int:
+      return static_cast<std::size_t>(i);
+    case DzValue::Type::Float:
+      return whole(f) ? static_cast<std::size_t>(f) : std::hash<dzfloat>{}(f);
+    case DzValue::Type::Object:
+      if (o->is(DzObject::Type::String)) {
+        return o->as<DzString>()->hash;
+      }
+      [[fallthrough]];
+    default:
+      SH_UNREACHABLE;
+      return 0;
   }
 }
 
@@ -65,4 +86,8 @@ auto DzValue::is(DzObject::Type type) const -> bool {
 
 auto DzValue::isUndefined() const -> bool {
   return is(Type::Object) && o == nullptr;
+}
+
+auto DzValue::isHashable() const -> bool {
+  return !is(Type::Object) || o->is(DzObject::Type::String);
 }

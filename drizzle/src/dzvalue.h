@@ -111,10 +111,12 @@ public:
   auto operator!=(const DzValue& other) const -> bool;
   auto kind() const -> std::string_view;
   auto repr() const -> std::string;
+  auto hash() const -> std::size_t;
 
   auto is(Type type) const -> bool;
   auto is(DzObject::Type type) const -> bool;
   auto isUndefined() const -> bool;
+  auto isHashable() const -> bool;
 
   Type type;
   union {
@@ -153,3 +155,14 @@ struct fmt::formatter<DzValue::Type> : fmt::formatter<std::string_view> {
     return fmt::formatter<std::string_view>::format(repr(type), ctx);
   }
 };
+
+namespace std {
+
+template<>
+struct hash<DzValue> {
+  auto operator()(const DzValue& value) const -> std::size_t {
+    return value.hash();
+  }
+};
+
+}  // namespace std

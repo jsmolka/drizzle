@@ -44,6 +44,13 @@ assert(m.size() == 2)
 m.clear()
 assert(m.size() == 0)
 )",
+R"(
+var m = {1: 1}
+assert(m[1] == 1)
+assert(m[1.0] == 1)
+assert(m[true] == 1)
+assert(1 in m)
+)",
       };
 
       for (const auto& source : kSources) {
@@ -53,31 +60,10 @@ assert(m.size() == 0)
     {
       constexpr const char* kSources[] = {
 R"(
-var m = {1: 1}
+var m = {[]: 1}
 )",
 R"(
-var m = {"test": 1}
-m.get(1)
-)",
-R"(
-var m = {"test": 1}
-m.has(1)
-)",
-R"(
-var m = {"test": 1}
-m.set(1, 1)
-)",
-R"(
-var m = {"test": 1}
-m[1]
-)",
-R"(
-var m = {"test": 1}
-m[1] = 1
-)",
-R"(
-var m = {"test": 1}
-1 in m
+var m = {null: 1}
 )",
       };
 
