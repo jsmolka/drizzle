@@ -4,22 +4,33 @@ A dynamic interpreted programming language.
 <sup>(it's not Python, I swear)</sup>
 
 ## Examples
-That's how selection sort would be implemented:
+See [`/examples/*.dz`](/examples/) for all examples.
 
 ```python
-def selection_sort(array):
-  for i in 0 .. array.size():
-    var minimum = i
-    for j in i + 1 .. array.size():
-      if array[j] < array[minimum]:
-        minimum = j
-    var temp = array[i]
-    array[i] = array[minimum]
-    array[minimum] = temp
-  return array
+class Point:
+  def init(x, y):
+    this.x = x
+    this.y = y
+  def cross(other):
+    return this.x * other.y - this.y * other.x
+
+# Stokes' theorem
+def area(polygon):
+  var s = 0
+  for i in 0 .. polygon.size():
+    s = s + polygon[i - 1].cross(polygon[i])
+  return s / 2
+
+var triangle = [
+  Point(0, 0),
+  Point(4, 4),
+  Point(0, 4)
+]
+
+assert(area(triangle) == 8.0)
 ```
 
-For more see [`/examples/*.dz`](/examples/).
+
 
 ## Binaries
 Binaries for Windows, Linux and macOS are available as [nightly](https://nightly.link/jsmolka/drizzle/workflows/build/master) and [release](https://github.com/jsmolka/drizzle/releases) builds.
