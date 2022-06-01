@@ -30,8 +30,6 @@ var triangle = [
 assert(area(triangle) == 8.0)
 ```
 
-
-
 ## Binaries
 Binaries for Windows, Linux and macOS are available as [nightly](https://nightly.link/jsmolka/drizzle/workflows/build/master) and [release](https://github.com/jsmolka/drizzle/releases) builds.
 
