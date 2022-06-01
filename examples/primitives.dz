@@ -1,0 +1,16 @@
+# Booleans
+var bool = true
+assert(type(bool) == "bool")
+
+# Integers are 64-bit signed
+var int = 1
+assert(type(int) == "int")
+
+# Floats are 64-bit
+var float = 1.0
+assert(type(float) == "float")
+
+# Primitive types are promoted during binary operations
+assert(bool == int)
+assert(int == float)
+assert(float == bool)

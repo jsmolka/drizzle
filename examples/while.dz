@@ -1,0 +1,11 @@
+var x = 0
+while x < 100:
+  x = x + 1
+assert(x == 100)
+
+# Blocks can be used to exist nested while loops
+block label:
+  while true:
+    while true:
+      break label
+  assert(false)

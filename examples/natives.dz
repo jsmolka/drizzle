@@ -1,0 +1,20 @@
+# Check if the condition is true
+assert(true)
+
+# Get the forward iterator
+var a = forward([1, 2, 3])
+
+# Print the value
+print("value")
+
+# Create a range with start, stop and step
+var b = range(0, 10, 1)
+
+# Get the reverse iterator
+var c = reverse([1, 2, 3])
+
+# Get current time in milliseconds
+var d = time()
+
+# Get the value type
+var e = type(null)

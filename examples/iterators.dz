@@ -1,0 +1,27 @@
+var f = forward([1, 2, 3])
+for x in f:
+  assert(x == 1)
+  break
+for x in f:
+  assert(x == 2)
+  break
+for x in f:
+  assert(x == 3)
+  break
+for x in f:
+  assert(false)
+
+var r = reverse([1, 2, 3])
+for x in r:
+  assert(x == 3)
+  break
+for x in r:
+  assert(x == 2)
+  break
+for x in r:
+  assert(x == 1)
+  break
+for x in r:
+  assert(false)
+
+assert(range(0, 10, 1) == (0 .. 10))

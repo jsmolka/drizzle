@@ -1,0 +1,25 @@
+class Vector:
+  # Constructor
+  def init(x, y):
+    this.x = x
+    this.y = x
+  def length():
+    return (this.x ** 2 + this.y ** 2) ** 0.5
+
+var v1 = Vector(1, 1)
+assert(v1.x == 1)
+assert(v1.y == 1)
+assert(v1.z == null)
+assert(v1["x"] == 1)
+assert(v1["y"] == 1)
+assert(v1["z"] == null)
+assert("x" in v1)
+assert("y" in v1)
+assert("length" in v1)
+
+var v2 = Vector(2, 2)
+assert(v1 != v2)
+
+# Bound methods keep a reference to the instance
+var length = v1.length
+print(length())

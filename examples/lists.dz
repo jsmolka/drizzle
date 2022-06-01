@@ -1,0 +1,28 @@
+# Member functions
+var list = []
+list.size()
+list.clear()
+list.resize(10, 0)
+list.push(1)
+list.push(2, 3, 4)
+list.insert(0, 5)
+list.pop()
+list.remove(0)
+list.index(0)
+
+# Lists support positive and negative subscripts
+list = [0, 1, 2]
+assert(list[0] == 0)
+assert(list[-1] == 2)
+
+# Lists can be iterated
+var copy = []
+for x in list:
+  copy.push(x)
+assert(list == copy)
+
+# Lists support the `in` operator
+assert(0 in list)
+
+# Empty lists are falsy
+assert(![])

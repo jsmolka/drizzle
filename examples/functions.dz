@@ -1,0 +1,19 @@
+# Recursive functions
+def fibonacci(n):
+  if n < 2:
+    return n
+  return fibonacci(n - 2) + fibonacci(n - 1)
+
+assert(fibonacci(10) == 55)
+
+# Inner functions
+def outer():
+  def inner():
+    return 1
+  return inner
+
+assert(outer()() == 1)
+
+# First class functions
+var func = outer
+assert(func()() == 1)

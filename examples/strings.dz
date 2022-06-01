@@ -1,0 +1,20 @@
+# Strings are interned for performance reasons
+var string = "string"
+assert(type(string) == "string")
+assert(string.size() == 6)
+
+# Strings support positive and negative subscripts
+assert(string[0] == "s")
+assert(string[-1] == "g")
+
+# Strings can be iterated (very inefficient)
+var chars = []
+for c in string:
+  chars.push(c)
+assert(chars == ["s", "t", "r", "i", "n", "g"])
+
+# Strings support the `in` operator
+assert("str" in string)
+
+# Empty strings are falsy
+assert(!"")

@@ -1,0 +1,45 @@
+def selection_sort(array):
+  for i in 0 .. array.size():
+    var minimum = i
+    for j in i + 1 .. array.size():
+      if array[j] < array[minimum]:
+        minimum = j
+    var temp = array[i]
+    array[i] = array[minimum]
+    array[minimum] = temp
+  return array
+
+def insertion_sort(array):
+  for i in 1 .. array.size():
+    var item = array[i]
+    var j = i - 1
+    while j >= 0 && array[j] > item:
+      array[j + 1] = array[j]
+      j = j - 1
+    array[j + 1] = item
+  return array
+
+def partition(array, begin, end):
+  var pivot = begin
+  for i in begin + 1 .. end + 1:
+    if array[i] <= array[begin]:
+      pivot = pivot + 1
+      var temp = array[pivot]
+      array[pivot] = array[i]
+      array[i] = temp
+  var temp = array[pivot]
+  array[pivot] = array[begin]
+  array[begin] = temp
+  return pivot
+
+def quicksort(array):
+  def qsort(array, begin, end):
+    if begin < end:
+      pivot = partition(array, begin, end)
+      qsort(array, begin, pivot - 1)
+      qsort(array, pivot + 1, end)
+    return array
+  return qsort(array, 0, array.size() - 1)
+
+for sort in [selection_sort, insertion_sort, quicksort]:
+  assert(sort([3, 2, 1]) == [1, 2, 3])

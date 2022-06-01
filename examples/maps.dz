@@ -1,0 +1,21 @@
+# Member functions
+var map = {}
+map.size()
+map.clear()
+map.get("key")
+map.set("key", "value")
+map.has("key")
+
+# Maps support hashable types (bool, int, float, string)
+map.set(1, 1)
+map.set("1", 2)
+assert(map.get(1) == 1)
+assert(map.get(true) == 1)
+assert(map.get(1.0) == 1)
+assert(map.get("1") == 2)
+
+# Maps support the `in` operator
+assert(1 in map)
+
+# Empty maps are falsy
+assert(!{})

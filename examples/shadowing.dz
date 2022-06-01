@@ -1,0 +1,7 @@
+var x = 0
+block:
+  var x = x
+  assert(x == 0)
+  x = 1
+  assert(x == 1)
+assert(x == 0)

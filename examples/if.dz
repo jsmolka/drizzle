@@ -1,0 +1,9 @@
+var x = 0
+if x == 2:
+  assert(false)
+elif x == 1:
+  assert(false)
+elif x == 0:
+  assert(true)
+else:
+  assert(false)
