@@ -83,6 +83,7 @@ private:
   void patch(std::size_t jump);
   void patch(const std::vector<std::size_t>& jumps);
 
+  auto defineLocal(const Identifier& identifier) -> std::size_t;
   void define(const Identifier& identifier);
   auto resolve(const Identifier& identifier) const -> std::optional<std::size_t>;
   auto resolveGlobal(const Identifier& identifier) -> Global&;

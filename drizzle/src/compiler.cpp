@@ -131,19 +131,43 @@ void Compiler::visit(Statement::ExpressionStatement& expression_statement) {
 void Compiler::visit(Statement::For& for_) {
   increaseScope(Level::Type::Block);
 
-  visit(for_.iteree);
-  emit(Opcode::IterForward);
-  define(std::string_view());
-  const auto iter = variables.size() - 1;
+  std::size_t condition;
+  std::size_t exit;
+  if (for_.iteree->type == Expression::Type::Range) {
+    visit(for_.iteree->range.start);
+    const auto iter = defineLocal("$iter");
+    visit(for_.iteree->range.stop);
+    const auto stop = defineLocal("$stop");
 
-  const auto condition = function->chunk().size();
-  emit(Opcode::Load, iter);
-  const auto exit = jump(Opcode::JumpFalsePop);
+    condition = function->chunk().size();
+    emitExt(Opcode::Load, iter);
+    emitExt(Opcode::Load, stop);
+    emit(Opcode::Less);
+    exit = jump(Opcode::JumpFalsePop);
 
-  increaseScope(Level::Type::Loop);
-  emitExt(Opcode::IterDereference, iter);
-  define(for_.iterator);
-  emitExt(Opcode::IterAdvance, iter);
+    increaseScope(Level::Type::Loop);
+    emitExt(Opcode::Load, iter);
+    define(for_.iterator);
+    emitExt(Opcode::Load, iter);
+    emitConstant(static_cast<dzint>(1));
+    emit(Opcode::Add);
+    emitExt(Opcode::Store, iter);
+    emit(Opcode::Pop);
+  } else {
+    visit(for_.iteree);
+    emit(Opcode::IterForward);
+    const auto iter = defineLocal("$iter");
+
+    condition = function->chunk().size();
+    emitExt(Opcode::Load, iter);
+    exit = jump(Opcode::JumpFalsePop);
+
+    increaseScope(Level::Type::Loop);
+    emitExt(Opcode::IterDereference, iter);
+    define(for_.iterator);
+    emitExt(Opcode::IterAdvance, iter);
+  }
+
   visit(for_.statements);
   const auto level = decreaseScope();
   jump(Opcode::Jump, condition);
@@ -253,7 +277,8 @@ void Compiler::visit(Expression::Binary& binary) {
     return;
   }
 
-  AstVisiter::visit(binary);
+  visit(binary.left);
+  visit(binary.right);
   switch (binary.type) {
     case Expression::Binary::Type::Addition:        emit(Opcode::Add); break;
     case Expression::Binary::Type::BitwiseAnd:      emit(Opcode::BitwiseAnd); break;
@@ -442,24 +467,29 @@ void Compiler::patch(const std::vector<std::size_t>& jumps) {
   }
 }
 
+auto Compiler::defineLocal(const Identifier& identifier) -> std::size_t {
+  for (const auto& variable : sh::reversed(variables)) {
+    if (variable.depth != scope.size()) {
+      break;
+    } else if (variable.identifier == identifier) {
+      throw SyntaxError(identifier.location, "redefined variable '{}'", identifier);
+    }
+  }
+  variables.emplace(identifier, scope.size());
+  return variables.size() - 1;
+}
+
 void Compiler::define(const Identifier& identifier) {
   auto redefined = [](const Identifier& identifier) {
     throw SyntaxError(identifier.location, "redefined variable '{}'", identifier);
   };
 
   if (parent || !scope.empty()) {
-    for (const auto& variable : sh::reversed(variables)) {
-      if (variable.depth != scope.size()) {
-        break;
-      } else if (variable.identifier == identifier) {
-        redefined(identifier);
-      }
-    }
-    variables.emplace(identifier, scope.size());
+    defineLocal(identifier);
   } else {
     auto& global = resolveGlobal(identifier);
     if (global.defined) {
-      redefined(identifier);
+      throw SyntaxError(identifier.location, "redefined variable '{}'", identifier);
     }
     global.defined = true;
     emitExt(Opcode::StoreGlobal, global.index);
