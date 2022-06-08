@@ -155,7 +155,7 @@ void Compiler::visit(Statement::For& for_) {
     emit(Opcode::Pop);
   } else {
     visit(for_.iteree);
-    emit(Opcode::IterForward);
+    emit(Opcode::IterInit);
     const auto iter = defineLocal("$iter");
 
     condition = function->chunk().size();
@@ -163,7 +163,7 @@ void Compiler::visit(Statement::For& for_) {
     exit = jump(Opcode::JumpFalsePop);
 
     increaseScope(Level::Type::Loop);
-    emitExt(Opcode::IterDereference, iter);
+    emitExt(Opcode::IterCurrent, iter);
     define(for_.iterator);
     emitExt(Opcode::IterAdvance, iter);
   }

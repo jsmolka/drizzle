@@ -38,7 +38,7 @@ void DzListIterator::advance() {
   set(index + 1);
 }
 
-auto DzListIterator::dereference(Gc&) const -> DzValue {
+auto DzListIterator::current(Gc&) const -> DzValue {
   return (*iteree->as<DzList>())[index];
 }
 
@@ -58,7 +58,7 @@ void DzListReverseIterator::advance() {
   set(index - 1);
 }
 
-auto DzListReverseIterator::dereference(Gc&) const -> DzValue {
+auto DzListReverseIterator::current(Gc&) const -> DzValue {
   return (*iteree->as<DzList>())[index];
 }
 

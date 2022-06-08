@@ -28,7 +28,7 @@ void DzRangeIterator::advance() {
   set(value + iteree->as<DzRange>()->step);
 }
 
-auto DzRangeIterator::dereference(Gc&) const -> DzValue {
+auto DzRangeIterator::current(Gc&) const -> DzValue {
   return value;
 }
 
@@ -58,7 +58,7 @@ void DzRangeReverseIterator::advance() {
   set(value + step);
 }
 
-auto DzRangeReverseIterator::dereference(Gc&) const -> DzValue {
+auto DzRangeReverseIterator::current(Gc&) const -> DzValue {
   return value;
 }
 

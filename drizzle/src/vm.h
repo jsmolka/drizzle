@@ -75,11 +75,11 @@ private:
   void greaterEqual();
   void in();
   void invoke();
-  void iterForward();
+  void iterInit();
   template<std::integral Integral>
   void iterAdvance();
   template<std::integral Integral>
-  void iterDereference();
+  void iterCurrent();
   void jump();
   void jumpFalse();
   void jumpFalsePop();

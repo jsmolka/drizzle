@@ -24,7 +24,7 @@ public:
   DzListIterator(DzObject* iteree);
 
   virtual void advance() final;
-  virtual auto dereference(Gc&) const -> DzValue final;
+  virtual auto current(Gc&) const -> DzValue final;
 
 private:
   void set(std::size_t value);
@@ -37,7 +37,7 @@ public:
   DzListReverseIterator(DzObject* iteree);
 
   virtual void advance() final;
-  virtual auto dereference(Gc&) const -> DzValue final;
+  virtual auto current(Gc&) const -> DzValue final;
 
 private:
   void set(std::size_t value);

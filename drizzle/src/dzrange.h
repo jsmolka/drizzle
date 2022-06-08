@@ -22,7 +22,7 @@ public:
   DzRangeIterator(DzObject* iteree);
 
   virtual void advance() final;
-  virtual auto dereference(Gc&) const -> DzValue final;
+  virtual auto current(Gc&) const -> DzValue final;
 
 private:
   void set(dzint value);
@@ -35,7 +35,7 @@ public:
   DzRangeReverseIterator(DzObject* iteree);
 
   virtual void advance() final;
-  virtual auto dereference(Gc&) const -> DzValue final;
+  virtual auto current(Gc&) const -> DzValue final;
 
 private:
   void set(dzint value);

@@ -52,11 +52,11 @@ void Vm::interpret(DzFunction* main) {
       case Opcode::GreaterEqual: greaterEqual(); break;
       case Opcode::In: in(); break;
       case Opcode::Invoke: invoke(); break;
-      case Opcode::IterForward: iterForward(); break;
+      case Opcode::IterInit: iterInit(); break;
       case Opcode::IterAdvance: iterAdvance<u8>(); break;
       case Opcode::IterAdvanceExt: iterAdvance<u16>(); break;
-      case Opcode::IterDereference: iterDereference<u8>(); break;
-      case Opcode::IterDereferenceExt: iterDereference<u16>(); break;
+      case Opcode::IterCurrent: iterCurrent<u8>(); break;
+      case Opcode::IterCurrentExt: iterCurrent<u16>(); break;
       case Opcode::Jump: jump(); break;
       case Opcode::JumpFalse: jumpFalse(); break;
       case Opcode::JumpFalsePop: jumpFalsePop(); break;
@@ -533,7 +533,7 @@ void Vm::invoke() {
   call(self, argc);
 }
 
-void Vm::iterForward() {
+void Vm::iterInit() {
   stack.top() = forward(stack.top());
 }
 
@@ -544,9 +544,9 @@ void Vm::iterAdvance() {
 }
 
 template<std::integral Integral>
-void Vm::iterDereference() {
+void Vm::iterCurrent() {
   const auto index = read<Integral>();
-  stack.push(stack[frames.top().sp + index].o->template as<DzIterator>()->dereference(gc));
+  stack.push(stack[frames.top().sp + index].o->template as<DzIterator>()->current(gc));
 }
 
 void Vm::jump() {

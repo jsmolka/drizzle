@@ -41,7 +41,7 @@ void DzStringIterator::advance() {
   set(index + 1);
 }
 
-auto DzStringIterator::dereference(Gc& gc) const -> DzValue {
+auto DzStringIterator::current(Gc& gc) const -> DzValue {
   return gc.construct<DzString>((*iteree->as<DzString>())[index]);
 }
 
@@ -61,7 +61,7 @@ void DzStringReverseIterator::advance() {
   set(index - 1);
 }
 
-auto DzStringReverseIterator::dereference(Gc& gc) const -> DzValue {
+auto DzStringReverseIterator::current(Gc& gc) const -> DzValue {
   return gc.construct<DzString>((*iteree->as<DzString>())[index]);
 }
 
