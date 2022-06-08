@@ -150,7 +150,7 @@ void Vm::expectHashable(const DzValue& value) {
   }
 }
 
-auto Vm::forward(const DzValue& iteree) -> DzValue {
+auto Vm::forward(const DzValue& iteree) -> DzIterator* {
   auto error = [this](const DzValue& iteree) {
     raise("'{}' object is not iterable", iteree.kind());
   };
@@ -160,17 +160,17 @@ auto Vm::forward(const DzValue& iteree) -> DzValue {
   }
 
   switch (iteree.o->type) {
-    case DzObject::Type::Iterator: return iteree;
+    case DzObject::Type::Iterator: return iteree.o->as<DzIterator>();
     case DzObject::Type::List:     return gc.construct<DzListIterator>(iteree.o);
     case DzObject::Type::Range:    return gc.construct<DzRangeIterator>(iteree.o);
     case DzObject::Type::String:   return gc.construct<DzStringIterator>(iteree.o);
     default:
       error(iteree);
-      return &null;
+      return nullptr;
   }
 }
 
-auto Vm::reverse(const DzValue& iteree) -> DzValue {
+auto Vm::reverse(const DzValue& iteree) -> DzIterator* {
   auto error = [this](const DzValue& iteree) {
     raise("'{}' object is not reverse iterable", iteree.kind());
   };
@@ -185,7 +185,7 @@ auto Vm::reverse(const DzValue& iteree) -> DzValue {
     case DzObject::Type::String: return gc.construct<DzStringReverseIterator>(iteree.o);
     default:
       error(iteree);
-      return &null;
+      return nullptr;
   }
 }
 

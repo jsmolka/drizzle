@@ -50,8 +50,8 @@ private:
   template<template<typename, typename> typename Promote = promote_t, typename Callback>
   void binary(std::string_view operation, Callback callback);
 
-  auto forward(const DzValue& iteree) -> DzValue;
-  auto reverse(const DzValue& iteree) -> DzValue;
+  auto forward(const DzValue& iteree) -> DzIterator*;
+  auto reverse(const DzValue& iteree) -> DzIterator*;
 
   void add();
   void bitwiseAnd();
