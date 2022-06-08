@@ -134,15 +134,13 @@ void Vm::binary(std::string_view operation, Callback callback) {
 
 void Vm::expect(const DzValue& value, DzValue::Type type) {
   if (!value.is(type)) {
-    raise("expected type '{}' but got '{}'", type, value.type);
+    raise("expected type '{}' but got '{}'", type, value.kind());
   }
 }
 
 void Vm::expect(const DzValue& value, DzObject::Type type) {
-  if (!value.is(DzValue::Type::Object)) {
-    raise("expected type '{}' but got '{}'", type, value.type);
-  } else if (!value.is(type)) {
-    raise("expected type '{}' but got '{}'", type, value.o->type);
+  if (!value.is(type)) {
+    raise("expected type '{}' but got '{}'", type, value.kind());
   }
 }
 
