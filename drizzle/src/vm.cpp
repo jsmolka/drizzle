@@ -128,7 +128,7 @@ void Vm::binary(std::string_view operation, Callback callback) {
     stack.pop();
     stack.top() = *value;
   } else {
-    raise("unsupported operand types for '{}': '{}' and '{}'", operation, b.kind(), a.kind());
+    raise("unsupported operand types for '{}': '{}' and '{}'", operation, a.kind(), b.kind());
   }
 }
 
