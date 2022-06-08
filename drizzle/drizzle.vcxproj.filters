@@ -93,9 +93,6 @@
     <ClCompile Include="src\dziterator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\dzreverseiterator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\dzrange.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -197,9 +194,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\dziterator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\dzreverseiterator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\dzrange.h">

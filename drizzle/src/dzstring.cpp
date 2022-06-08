@@ -53,7 +53,7 @@ void DzStringIterator::set(std::size_t value) {
 }
 
 DzStringReverseIterator::DzStringReverseIterator(DzObject* iteree)
-  : DzReverseIterator(iteree, "string") {
+  : DzIterator(iteree, "string reverse") {
   set(iteree->as<DzString>()->size() - 1);
 }
 

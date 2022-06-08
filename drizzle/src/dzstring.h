@@ -1,7 +1,6 @@
 #pragma once
 
 #include "dziterator.h"
-#include "dzreverseiterator.h"
 
 class DzString : public DzObject {
 public:
@@ -43,7 +42,7 @@ private:
   std::size_t index;
 };
 
-class DzStringReverseIterator : public DzReverseIterator {
+class DzStringReverseIterator : public DzIterator {
 public:
   DzStringReverseIterator(DzObject* iteree);
 

@@ -3,7 +3,6 @@
 #include "dziterator.h"
 #include "dzobject.h"
 #include "dzprimitives.h"
-#include "dzreverseiterator.h"
 
 class DzRange : public DzObject {
 public:

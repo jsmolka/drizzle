@@ -32,7 +32,6 @@
     <ClCompile Include="src\dzmapmembers.cpp" />
     <ClCompile Include="src\dznull.cpp" />
     <ClCompile Include="src\dzrange.cpp" />
-    <ClCompile Include="src\dzreverseiterator.cpp" />
     <ClCompile Include="src\dzstring.cpp" />
     <ClCompile Include="src\astformatter.cpp" />
     <ClCompile Include="src\dzobject.cpp" />
@@ -63,7 +62,6 @@
     <ClInclude Include="src\dznull.h" />
     <ClInclude Include="src\dzobject.h" />
     <ClInclude Include="src\dzrange.h" />
-    <ClInclude Include="src\dzreverseiterator.h" />
     <ClInclude Include="src\dzstring.h" />
     <ClInclude Include="src\dzvalue.h" />
     <ClInclude Include="src\gc.h" />

@@ -160,23 +160,13 @@ auto Vm::forward(const DzValue& iteree) -> DzValue {
   }
 
   switch (iteree.o->type) {
-    case DzObject::Type::Iterator:
-    case DzObject::Type::ReverseIterator: {
-      return iteree;
-    }
-    case DzObject::Type::List: {
-      return gc.construct<DzListIterator>(iteree.o);
-    }
-    case DzObject::Type::Range: {
-      return gc.construct<DzRangeIterator>(iteree.o);
-    }
-    case DzObject::Type::String: {
-      return gc.construct<DzStringIterator>(iteree.o);
-    }
-    default: {
+    case DzObject::Type::Iterator: return iteree;
+    case DzObject::Type::List:     return gc.construct<DzListIterator>(iteree.o);
+    case DzObject::Type::Range:    return gc.construct<DzRangeIterator>(iteree.o);
+    case DzObject::Type::String:   return gc.construct<DzStringIterator>(iteree.o);
+    default:
       error(iteree);
       return &null;
-    }
   }
 }
 
@@ -190,19 +180,12 @@ auto Vm::reverse(const DzValue& iteree) -> DzValue {
   }
 
   switch (iteree.o->type) {
-    case DzObject::Type::List: {
-      return gc.construct<DzListReverseIterator>(iteree.o);
-    }
-    case DzObject::Type::Range: {
-      return gc.construct<DzRangeReverseIterator>(iteree.o);
-    }
-    case DzObject::Type::String: {
-      return gc.construct<DzStringReverseIterator>(iteree.o);
-    }
-    default: {
+    case DzObject::Type::List:   return gc.construct<DzListReverseIterator>(iteree.o);
+    case DzObject::Type::Range:  return gc.construct<DzRangeReverseIterator>(iteree.o);
+    case DzObject::Type::String: return gc.construct<DzStringReverseIterator>(iteree.o);
+    default:
       error(iteree);
       return &null;
-    }
   }
 }
 

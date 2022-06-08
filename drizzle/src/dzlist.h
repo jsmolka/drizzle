@@ -3,7 +3,6 @@
 #include <sh/vector.h>
 
 #include "dziterator.h"
-#include "dzreverseiterator.h"
 #include "dzvalue.h"
 
 class DzList : public DzObject {
@@ -33,7 +32,7 @@ private:
   std::size_t index;
 };
 
-class DzListReverseIterator : public DzReverseIterator {
+class DzListReverseIterator : public DzIterator {
 public:
   DzListReverseIterator(DzObject* iteree);
 

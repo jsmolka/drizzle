@@ -47,7 +47,7 @@ void DzRangeIterator::set(dzint value) {
 }
 
 DzRangeReverseIterator::DzRangeReverseIterator(DzObject* iteree)
-  : DzIterator(iteree, "range") {
+  : DzIterator(iteree, "range reverse") {
   const auto range = iteree->as<DzRange>();
   step = -range->step;
   stop = range->start + step;

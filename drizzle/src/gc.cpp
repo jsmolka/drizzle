@@ -58,7 +58,7 @@ void Gc::mark(const DzValue& value) {
 }
 
 void Gc::mark(DzObject* object) {
-  static_assert(int(DzObject::Type::LastEnumValue) == 11);
+  static_assert(int(DzObject::Type::LastEnumValue) == 10);
   if (!object || object->marked) {
     return;
   }
@@ -120,11 +120,6 @@ void Gc::mark(DzObject* object) {
         mark(key);
         mark(value);
       }
-      break;
-    }
-    case DzObject::Type::ReverseIterator: {
-      const auto iterator = object->as<DzReverseIterator>();
-      mark(iterator->iteree);
       break;
     }
   }

@@ -93,9 +93,6 @@
     <ClCompile Include="..\drizzle\src\dziterator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\drizzle\src\dzreverseiterator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\drizzle\src\dzrange.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

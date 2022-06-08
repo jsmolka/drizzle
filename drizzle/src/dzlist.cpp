@@ -50,7 +50,7 @@ void DzListIterator::set(std::size_t value) {
 }
 
 DzListReverseIterator::DzListReverseIterator(DzObject* iteree)
-  : DzReverseIterator(iteree, "list") {
+  : DzIterator(iteree, "list reverse") {
   set(iteree->as<DzList>()->size() - 1);
 }
 
