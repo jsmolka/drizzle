@@ -33,12 +33,11 @@ class DzStringIterator : public DzIterator {
 public:
   DzStringIterator(DzObject* iteree);
 
+  virtual auto done() const -> bool final;
   virtual void advance() final;
   virtual auto current(Gc& gc) const -> DzValue final;
 
 private:
-  void set(std::size_t value);
-
   std::size_t index;
 };
 
@@ -46,11 +45,10 @@ class DzStringReverseIterator : public DzIterator {
 public:
   DzStringReverseIterator(DzObject* iteree);
 
+  virtual auto done() const -> bool final;
   virtual void advance() final;
   virtual auto current(Gc& gc) const -> DzValue final;
 
 private:
-  void set(std::size_t value);
-
   std::size_t index;
 };

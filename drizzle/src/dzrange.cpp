@@ -20,57 +20,41 @@ auto DzRange::repr() const -> std::string {
 }
 
 DzRangeIterator::DzRangeIterator(DzObject* iteree)
-  : DzIterator(iteree, "range") {
-  set(iteree->as<DzRange>()->start);
+  : DzIterator(iteree, "range"), iter(iteree->as<DzRange>()->start) {}
+
+auto DzRangeIterator::done() const -> bool {
+  const auto range = iteree->as<DzRange>();
+  return range->step > 0
+    ? iter >= range->stop
+    : iter <= range->stop;
 }
 
 void DzRangeIterator::advance() {
-  set(value + iteree->as<DzRange>()->step);
+  iter += iteree->as<DzRange>()->step;
 }
 
 auto DzRangeIterator::current(Gc&) const -> DzValue {
-  return value;
-}
-
-void DzRangeIterator::set(dzint value) {
-  this->value = value;
-  const auto range = iteree->as<DzRange>();
-  if (range->step > 0) {
-    if (value >= range->stop) {
-      iteree = nullptr;
-    }
-  } else {
-    if (value <= range->stop) {
-      iteree = nullptr;
-    }
-  }
+  return iter;
 }
 
 DzRangeReverseIterator::DzRangeReverseIterator(DzObject* iteree)
   : DzIterator(iteree, "range reverse") {
   const auto range = iteree->as<DzRange>();
   step = -range->step;
-  stop = range->start + step;
-  set(range->stop + step);
+  stop =  range->start + step;
+  iter =  range->stop + step;
+}
+
+auto DzRangeReverseIterator::done() const -> bool {
+  return step > 0
+    ? iter >= stop
+    : iter <= stop;
 }
 
 void DzRangeReverseIterator::advance() {
-  set(value + step);
+  iter += step;
 }
 
 auto DzRangeReverseIterator::current(Gc&) const -> DzValue {
-  return value;
-}
-
-void DzRangeReverseIterator::set(dzint value) {
-  this->value = value;
-  if (step > 0) {
-    if (value >= stop) {
-      iteree = nullptr;
-    }
-  } else {
-    if (value <= stop) {
-      iteree = nullptr;
-    }
-  }
+  return iter;
 }

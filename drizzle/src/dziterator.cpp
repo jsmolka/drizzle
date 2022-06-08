@@ -7,6 +7,9 @@ DzIterator::DzIterator(DzObject* iteree, std::string_view type)
   : DzObject(Type::Iterator), iteree(iteree), type(type) {}
 
 DzIterator::operator bool() const {
+  if (iteree && done()) {
+    iteree = nullptr;
+  }
   return iteree;
 }
 

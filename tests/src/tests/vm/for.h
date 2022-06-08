@@ -94,6 +94,21 @@ for v in forward(forward([1, 2, 3])):
   i = i + 1
 assert(i == 3)
 )",
+R"(
+var l = [0, 1, 2]
+var i = forward(l)
+l.clear()
+for x in i:
+  assert(false)
+assert(true)
+)",
+R"(
+var l = [0, 1, 2]
+for x in l:
+  l.clear()
+  assert(x == 0)
+assert(true)
+)",
       };
 
       for (const auto& source : kSources) {

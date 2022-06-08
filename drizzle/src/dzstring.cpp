@@ -33,41 +33,31 @@ auto DzString::size() const -> std::size_t {
 }
 
 DzStringIterator::DzStringIterator(DzObject* iteree)
-  : DzIterator(iteree, "string") {
-  set(0);
+  : DzIterator(iteree, "string"), index(0) {}
+
+auto DzStringIterator::done() const -> bool {
+  return index >= iteree->as<DzString>()->size();
 }
 
 void DzStringIterator::advance() {
-  set(index + 1);
+  index++;
 }
 
 auto DzStringIterator::current(Gc& gc) const -> DzValue {
   return gc.construct<DzString>((*iteree->as<DzString>())[index]);
 }
 
-void DzStringIterator::set(std::size_t value) {
-  index = value;
-  if (index >= iteree->as<DzString>()->size()) {
-    iteree = nullptr;
-  }
-}
-
 DzStringReverseIterator::DzStringReverseIterator(DzObject* iteree)
-  : DzIterator(iteree, "string reverse") {
-  set(iteree->as<DzString>()->size() - 1);
+  : DzIterator(iteree, "string reverse"), index(iteree->as<DzString>()->size() - 1) {}
+
+auto DzStringReverseIterator::done() const -> bool {
+  return index >= iteree->as<DzString>()->size();
 }
 
 void DzStringReverseIterator::advance() {
-  set(index - 1);
+  index--;
 }
 
 auto DzStringReverseIterator::current(Gc& gc) const -> DzValue {
   return gc.construct<DzString>((*iteree->as<DzString>())[index]);
-}
-
-void DzStringReverseIterator::set(std::size_t value) {
-  index = value;
-  if (index == -1 || index >= iteree->as<DzString>()->size()) {
-    iteree = nullptr;
-  }
 }

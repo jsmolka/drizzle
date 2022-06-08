@@ -21,27 +21,25 @@ class DzRangeIterator : public DzIterator {
 public:
   DzRangeIterator(DzObject* iteree);
 
+  virtual auto done() const -> bool final;
   virtual void advance() final;
   virtual auto current(Gc&) const -> DzValue final;
 
 private:
-  void set(dzint value);
-
-  dzint value;
+  dzint iter;
 };
 
 class DzRangeReverseIterator : public DzIterator {
 public:
   DzRangeReverseIterator(DzObject* iteree);
 
+  virtual auto done() const -> bool final;
   virtual void advance() final;
   virtual auto current(Gc&) const -> DzValue final;
 
 private:
-  void set(dzint value);
-
-  dzint stop;
+  dzint iter;
   dzint step;
-  dzint value;
+  dzint stop;
 };
 

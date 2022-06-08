@@ -12,10 +12,11 @@ public:
   operator bool() const;
   auto repr() const -> std::string;
 
+  virtual auto done() const -> bool = 0;
   virtual void advance() = 0;
   virtual auto current(Gc&) const -> DzValue = 0;
 
-  DzObject* iteree;
+  mutable DzObject* iteree;
 
 private:
   std::string_view type;
