@@ -1,6 +1,7 @@
 #include "dzobject.h"
 
 #include "dzboundmethod.h"
+#include "dzbytes.h"
 #include "dzclass.h"
 #include "dzfunction.h"
 #include "dzinstance.h"
@@ -17,6 +18,7 @@ DzObject::DzObject(Type type)
 DzObject::operator bool() const {
   switch (type) {
     case Type::BoundMethod: return *as<DzBoundMethod>();
+    case Type::Bytes:       return *as<DzBytes>();
     case Type::Class:       return *as<DzClass>();
     case Type::Function:    return *as<DzFunction>();
     case Type::Instance:    return *as<DzInstance>();
@@ -38,6 +40,7 @@ auto DzObject::operator==(const DzObject& other) const -> bool {
   }
   switch (type) {
     case Type::BoundMethod: return *as<DzBoundMethod>() == *other.as<DzBoundMethod>();
+    case Type::Bytes:       return *as<DzBytes>() == *other.as<DzBytes>();
     case Type::List:        return *as<DzList>() == *other.as<DzList>();
     case Type::Map:         return *as<DzMap>() == *other.as<DzMap>();
     case Type::Range:       return *as<DzRange>() == *other.as<DzRange>();
@@ -53,6 +56,7 @@ auto DzObject::operator!=(const DzObject& other) const -> bool {
 auto DzObject::repr() const -> std::string {
   switch (type) {
     case Type::BoundMethod: return as<DzBoundMethod>()->repr();
+    case Type::Bytes:       return as<DzBytes>()->repr();
     case Type::Class:       return as<DzClass>()->repr();
     case Type::Function:    return as<DzFunction>()->repr();
     case Type::Instance:    return as<DzInstance>()->repr();

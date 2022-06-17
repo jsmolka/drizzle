@@ -20,6 +20,8 @@
     <ClCompile Include="..\drizzle\src\chunk.cpp" />
     <ClCompile Include="..\drizzle\src\compiler.cpp" />
     <ClCompile Include="..\drizzle\src\dzboundmethod.cpp" />
+    <ClCompile Include="..\drizzle\src\dzbytes.cpp" />
+    <ClCompile Include="..\drizzle\src\dzbytesmembers.cpp" />
     <ClCompile Include="..\drizzle\src\dzclass.cpp" />
     <ClCompile Include="..\drizzle\src\dzfunction.cpp" />
     <ClCompile Include="..\drizzle\src\dzinstance.cpp" />
@@ -104,6 +106,7 @@
     <ClInclude Include="src\tests\vm\assert.h" />
     <ClInclude Include="src\tests\vm\block.h" />
     <ClInclude Include="src\tests\vm\branch.h" />
+    <ClInclude Include="src\tests\vm\bytes.h" />
     <ClInclude Include="src\tests\vm\call.h" />
     <ClInclude Include="src\tests\vm\class.h" />
     <ClInclude Include="src\tests\vm\for.h" />

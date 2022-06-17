@@ -51,6 +51,7 @@ static_assert(int(Statement::Type::LastEnumValue) == 14);
 #include "tests/vm/binary.h"
 #include "tests/vm/block.h"
 #include "tests/vm/branch.h"
+#include "tests/vm/bytes.h"
 #include "tests/vm/call.h"
 #include "tests/vm/class.h"
 #include "tests/vm/for.h"

@@ -22,6 +22,8 @@
     <ClCompile Include="src\chunk.cpp" />
     <ClCompile Include="src\compiler.cpp" />
     <ClCompile Include="src\dzboundmethod.cpp" />
+    <ClCompile Include="src\dzbytes.cpp" />
+    <ClCompile Include="src\dzbytesmembers.cpp" />
     <ClCompile Include="src\dzclass.cpp" />
     <ClCompile Include="src\dzfunction.cpp" />
     <ClCompile Include="src\dzinstance.cpp" />
@@ -53,6 +55,7 @@
     <ClInclude Include="src\chunk.h" />
     <ClInclude Include="src\compiler.h" />
     <ClInclude Include="src\dzboundmethod.h" />
+    <ClInclude Include="src\dzbytes.h" />
     <ClInclude Include="src\dzclass.h" />
     <ClInclude Include="src\dzfunction.h" />
     <ClInclude Include="src\dzinstance.h" />

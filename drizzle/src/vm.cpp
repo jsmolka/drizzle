@@ -3,6 +3,7 @@
 #include <sh/ranges.h>
 
 #include "dzboundmethod.h"
+#include "dzbytes.h"
 #include "dzclass.h"
 #include "dzinstance.h"
 #include "dzlist.h"
@@ -22,6 +23,7 @@ void Vm::interpret(DzFunction* main) {
   frames.emplace(main->chunk().code.data(), 0, main);
 
   defineNatives();
+  defineBytesMembers();
   defineListMembers();
   defineMapMembers();
   defineStringMembers();
@@ -161,6 +163,7 @@ auto Vm::forward(const DzValue& iteree) -> DzIterator* {
 
   switch (iteree.o->type) {
     case DzObject::Type::Iterator: return iteree.o->as<DzIterator>();
+    case DzObject::Type::Bytes:    return gc.construct<DzBytesIterator>(iteree.o);
     case DzObject::Type::List:     return gc.construct<DzListIterator>(iteree.o);
     case DzObject::Type::Range:    return gc.construct<DzRangeIterator>(iteree.o);
     case DzObject::Type::String:   return gc.construct<DzStringIterator>(iteree.o);
@@ -180,6 +183,7 @@ auto Vm::reverse(const DzValue& iteree) -> DzIterator* {
   }
 
   switch (iteree.o->type) {
+    case DzObject::Type::Bytes:  return gc.construct<DzBytesReverseIterator>(iteree.o);
     case DzObject::Type::List:   return gc.construct<DzListReverseIterator>(iteree.o);
     case DzObject::Type::Range:  return gc.construct<DzRangeReverseIterator>(iteree.o);
     case DzObject::Type::String: return gc.construct<DzStringReverseIterator>(iteree.o);
@@ -196,6 +200,18 @@ void Vm::add() {
     } else if constexpr (dz_object<A, B>) {
       if (a->type == b->type) {
         switch (a->type) {
+          case DzObject::Type::Bytes: {
+            const auto bytes_a = a->template as<DzBytes>();
+            const auto bytes_b = b->template as<DzBytes>();
+            const auto bytes = gc.construct<DzBytes>();
+            bytes->data.reserve(bytes_a->size() + bytes_b->size());
+            for (const auto& data : {bytes_a->data, bytes_b->data}) {
+              for (const auto& value : data) {
+                bytes->data.push_back(value);
+              }
+            }
+            return bytes;
+          }
           case DzObject::Type::List: {
             const auto list_a = a->template as<DzList>();
             const auto list_b = b->template as<DzList>();
@@ -456,6 +472,13 @@ void Vm::in() {
   }
 
   switch (self.o->type) {
+    case DzObject::Type::Bytes: {
+      expect(expr, DzValue::Type::Int);
+      const auto bytes = self.o->as<DzBytes>();
+      const auto value = expr.i;
+      stack.push(std::find(bytes->data.begin(), bytes->data.end(), value) != bytes->data.end());
+      break;
+    }
     case DzObject::Type::Instance: {
       expect(expr, DzObject::Type::String);
       const auto inst = self.o->as<DzInstance>();
@@ -756,6 +779,18 @@ void Vm::subscriptGet() {
     }
 
     switch (self.o->type) {
+      case DzObject::Type::Bytes: {
+        expect(expr, DzValue::Type::Int);
+        const auto bytes = self.o->as<DzBytes>();
+        auto index = expr.i;
+        if (index < 0) {
+          index += bytes->size();
+        }
+        if (index < 0 || index >= bytes->size()) {
+          raise("bytes index out of range");
+        }
+        return static_cast<dzint>((*bytes)[index]);
+      }
       case DzObject::Type::Instance: {
         expect(expr, DzObject::Type::String);
         const auto inst = self.o->as<DzInstance>();
@@ -819,6 +854,20 @@ void Vm::subscriptSet() {
   }
 
   switch (self.o->type) {
+    case DzObject::Type::Bytes: {
+      expect(expr, DzValue::Type::Int);
+      expect(stack.top(), DzValue::Type::Int);
+      const auto bytes = self.o->as<DzBytes>();
+      auto index = expr.i;
+      if (index < 0) {
+        index += bytes->size();
+      }
+      if (index < 0 || index >= bytes->size()) {
+        raise("bytes index out of range");
+      }
+      (*bytes)[index] = stack.top().i;
+      break;
+    }
     case DzObject::Type::Instance: {
       expect(expr, DzObject::Type::String);
       const auto inst = self.o->as<DzInstance>();

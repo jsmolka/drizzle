@@ -28,6 +28,7 @@ private:
   };
 
   void defineNatives();
+  void defineBytesMembers();
   void defineListMembers();
   void defineMapMembers();
   void defineStringMembers();

@@ -10,6 +10,7 @@ class DzObject {
 public:
   enum class Type {
     BoundMethod,
+    Bytes,
     Class,
     Function,
     Instance,
@@ -57,8 +58,9 @@ concept dz_object =
 template<>
 struct fmt::formatter<DzObject::Type> : fmt::formatter<std::string_view> {
   static auto repr(const DzObject::Type& type) -> std::string_view {
-    static_assert(int(DzObject::Type::LastEnumValue) == 10);
+    static_assert(int(DzObject::Type::LastEnumValue) == 11);
     switch (type) {
+      case DzObject::Type::Bytes:       return "bytes";
       case DzObject::Type::BoundMethod: return "function";
       case DzObject::Type::Class:       return "class";
       case DzObject::Type::Function:    return "function";

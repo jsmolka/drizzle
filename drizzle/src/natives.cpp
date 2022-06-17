@@ -1,7 +1,9 @@
 #include "vm.h"
 
 #include <chrono>
+#include <sh/ranges.h>
 
+#include "dzbytes.h"
 #include "dzfunction.h"
 #include "dznull.h"
 #include "dzrange.h"
@@ -23,11 +25,23 @@ struct fmt::formatter<DzValuePrint> : fmt::formatter<std::string> {
 void Vm::defineNatives() {
   const auto natives = {
     gc.construct<DzFunction>(
-      gc.construct<DzString>("assert"), Arity::equal(1), [](Vm& vm, std::size_t argc) {
+      gc.construct<DzString>("assert"), Arity::equal(1), [](Vm& vm, std::size_t) {
         if (!vm.stack.pop_value()) {
           vm.raise("assertion failed");
         }
         return &null;
+      }
+    ),
+    gc.construct<DzFunction>(
+      gc.construct<DzString>("bytes"), Arity::greaterEqual(0), [](Vm& vm, std::size_t argc) {
+        const auto bytes = vm.gc.construct<DzBytes>();
+        bytes->data.reserve(argc);
+        for (const auto& value : sh::range(vm.stack.end() - argc, vm.stack.end())) {
+          vm.expect(value, DzValue::Type::Int);
+          bytes->data.push_back(value.i);
+        }
+        vm.stack.pop(argc);
+        return bytes;
       }
     ),
     gc.construct<DzFunction>(
@@ -68,13 +82,13 @@ void Vm::defineNatives() {
       }
     ),
     gc.construct<DzFunction>(
-      gc.construct<DzString>("time"), Arity::equal(0), [](Vm& vm, std::size_t argc) {
+      gc.construct<DzString>("time"), Arity::equal(0), [](Vm& vm, std::size_t) {
         using namespace std::chrono;
         return duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count();
       }
     ),
     gc.construct<DzFunction>(
-      gc.construct<DzString>("type"), Arity::equal(1), [](Vm& vm, std::size_t argc) {
+      gc.construct<DzString>("type"), Arity::equal(1), [](Vm& vm, std::size_t) {
         return vm.gc.construct<DzString>(vm.stack.pop_value().kind());
       }
     ),
