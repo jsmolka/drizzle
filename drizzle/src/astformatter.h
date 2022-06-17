@@ -13,6 +13,7 @@ protected:
   void visit(Stmt& stmt) final;
   void visit(Statement::Class& class_) final;
   void visit(Statement::If& if_) final;
+  void visit(Statement::Switch& switch_) final;
 
 private:
   template<typename... Args>

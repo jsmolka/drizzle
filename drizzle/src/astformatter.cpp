@@ -30,7 +30,7 @@ void AstFormatter::visit(Expr& expr) {
 }
 
 void AstFormatter::visit(Stmt& stmt) {
-  static_assert(int(Statement::Type::LastEnumValue) == 13);
+  static_assert(int(Statement::Type::LastEnumValue) == 14);
 
   writeIndent("{}", stmt->type);
   switch (stmt->type) {
@@ -91,6 +91,24 @@ void AstFormatter::visit(Statement::If& if_) {
     writeIndent("else\n");
     indent++;
     visit(if_.else_);
+  }
+}
+
+void AstFormatter::visit(Statement::Switch& switch_) {
+  visit(switch_.value);
+  for (auto& case_ : switch_.cases) {
+    writeIndent("case\n");
+    indent++;
+    visit(case_.value);
+    visit(case_.statements);
+    indent--;
+  }
+
+  if (switch_.default_) {
+    writeIndent("default\n");
+    indent++;
+    visit(*switch_.default_);
+    indent--;
   }
 }
 

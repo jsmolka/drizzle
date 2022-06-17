@@ -18,12 +18,14 @@ struct Token {
     BracketRight,
     Break,
     Caret,
+    Case,
     Class,
     Colon,
     Comma,
     Continue,
     Dedent,
     Def,
+    Default,
     Dot,
     Dot2,
     Elif,
@@ -62,6 +64,7 @@ struct Token {
     Star,
     Star2,
     String,
+    Switch,
     This,
     Tilde,
     True,
@@ -78,7 +81,7 @@ struct Token {
 template<>
 struct fmt::formatter<Token::Type> : fmt::formatter<std::string_view> {
   static auto repr(const Token::Type& value) -> std::string_view {
-    static_assert(int(Token::Type::LastEnumValue) == 60);
+    static_assert(int(Token::Type::LastEnumValue) == 63);
     switch (value) {
       case Token::Type::And:          return "And";
       case Token::Type::And2:         return "And2";
@@ -90,6 +93,7 @@ struct fmt::formatter<Token::Type> : fmt::formatter<std::string_view> {
       case Token::Type::BracketLeft:  return "BracketLeft";
       case Token::Type::BracketRight: return "BracketRight";
       case Token::Type::Break:        return "Break";
+      case Token::Type::Case:         return "Case";
       case Token::Type::Caret:        return "Caret";
       case Token::Type::Class:        return "Class";
       case Token::Type::Colon:        return "Colon";
@@ -97,6 +101,7 @@ struct fmt::formatter<Token::Type> : fmt::formatter<std::string_view> {
       case Token::Type::Continue:     return "Continue";
       case Token::Type::Dedent:       return "Dedent";
       case Token::Type::Def:          return "Def";
+      case Token::Type::Default:      return "Default";
       case Token::Type::Dot:          return "Dot";
       case Token::Type::Dot2:         return "Dot2";
       case Token::Type::Elif:         return "Elif";
@@ -135,6 +140,7 @@ struct fmt::formatter<Token::Type> : fmt::formatter<std::string_view> {
       case Token::Type::Star:         return "Star";
       case Token::Type::Star2:        return "Star2";
       case Token::Type::String:       return "String";
+      case Token::Type::Switch:       return "Switch";
       case Token::Type::This:         return "This";
       case Token::Type::Tilde:        return "Tilde";
       case Token::Type::True:         return "True";

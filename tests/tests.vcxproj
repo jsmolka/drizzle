@@ -97,6 +97,7 @@
     <ClInclude Include="src\tests\parser\stmt\def.h" />
     <ClInclude Include="src\tests\parser\stmt\for.h" />
     <ClInclude Include="src\tests\parser\stmt\return.h" />
+    <ClInclude Include="src\tests\parser\stmt\switch.h" />
     <ClInclude Include="src\tests\tokenizer\eof.h" />
     <ClInclude Include="src\tests\tokenizer\string.h" />
     <ClInclude Include="src\tests\vm\binary.h" />

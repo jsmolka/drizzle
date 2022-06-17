@@ -33,6 +33,9 @@ Statement::Statement(Program program, const Location& location)
 Statement::Statement(Return return_, const Location& location)
   : type(Type::Return), return_(std::move(return_)), location(location) {}
 
+Statement::Statement(Switch switch_, const Location& location)
+  : type(Type::Switch), switch_(std::move(switch_)), location(location) {}
+
 Statement::Statement(Var var, const Location& location)
   : type(Type::Var), var(std::move(var)), location(location) {}
 
@@ -40,7 +43,7 @@ Statement::Statement(While while_, const Location& location)
   : type(Type::While), while_(std::move(while_)), location(location) {}
 
 Statement::~Statement() {
-  static_assert(int(Type::LastEnumValue) == 13);
+  static_assert(int(Type::LastEnumValue) == 14);
 
   switch (type) {
     case Type::Block:               std::destroy_at(&block); break;
@@ -54,6 +57,7 @@ Statement::~Statement() {
     case Type::Noop:                std::destroy_at(&noop); break;
     case Type::Program:             std::destroy_at(&program); break;
     case Type::Return:              std::destroy_at(&return_); break;
+    case Type::Switch:              std::destroy_at(&switch_); break;
     case Type::Var:                 std::destroy_at(&var); break;
     case Type::While:               std::destroy_at(&while_); break;
     default:

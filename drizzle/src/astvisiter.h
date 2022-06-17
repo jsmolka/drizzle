@@ -37,6 +37,7 @@ protected:
   virtual void visit(Statement::Noop& noop);
   virtual void visit(Statement::Program& program);
   virtual void visit(Statement::Return& return_);
+  virtual void visit(Statement::Switch& switch_);
   virtual void visit(Statement::Var& var);
   virtual void visit(Statement::While& while_);
 };

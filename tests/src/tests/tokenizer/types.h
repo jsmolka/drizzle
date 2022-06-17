@@ -7,7 +7,7 @@ namespace tests_tokenizer_types {
 inline suite _ = [] {
   "tokenizer_types"_test = [] {
     {
-      static_assert(int(Token::Type::LastEnumValue) == 60);
+      static_assert(int(Token::Type::LastEnumValue) == 63);
 
       constexpr auto kSource = R"(
 &
@@ -21,11 +21,13 @@ block
 ]
 break
 ^
+case
 class
 :
 ,
 continue
 def
+default
 .
 ..
 elif
@@ -61,6 +63,7 @@ return
 *
 **
 ""
+switch
 this
 ~
 true

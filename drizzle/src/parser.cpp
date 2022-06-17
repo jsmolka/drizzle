@@ -79,6 +79,7 @@ void Parser::expect(Token::Type type, std::string_view error) {
 
 void Parser::expectBraceRight()   { expect(Token::Type::BraceRight,   "expected '}'");                 }
 void Parser::expectBracketRight() { expect(Token::Type::BracketRight, "expected ']'");                 }
+void Parser::expectCase()         { expect(Token::Type::Case,         "expected 'case'");              }
 void Parser::expectColon()        { expect(Token::Type::Colon,        "expected colon");               }
 void Parser::expectDedent()       { expect(Token::Type::Dedent,       "expected dedent");              }
 void Parser::expectDef()          { expect(Token::Type::Def,          "expected function definition"); }
@@ -413,6 +414,20 @@ void Parser::variable(bool assign) {
   }
 }
 
+auto Parser::block() -> Stmts {
+  expectColon();
+  expectNewLine();
+  expectIndent();
+
+  Stmts statements;
+  while (current->type != Token::Type::Dedent) {
+    statements.push_back(declaration());
+  }
+
+  expectDedent();
+  return statements;
+}
+
 template<typename T>
 auto Parser::newStmt(T statement) -> Stmt {
   return std::make_unique<Statement>(std::move(statement), locations.pop_value());
@@ -481,16 +496,7 @@ auto Parser::declarationDef() -> Stmt {
   }
   expectParenRight();
 
-  expectColon();
-  expectNewLine();
-  expectIndent();
-
-  Stmts statements;
-  while (current->type != Token::Type::Dedent) {
-    statements.push_back(declaration());
-  }
-
-  expectDedent();
+  auto statements = block();
   return newStmt(Statement::Def{
     .identifier = identifier,
     .parameters = std::move(parameters),
@@ -530,6 +536,8 @@ auto Parser::statement() -> Stmt {
     return statementNoop();
   } else if (match(Token::Type::Return)) {
     return statementReturn();
+  } else if (match(Token::Type::Switch)) {
+    return statementSwitch();
   } else if (match(Token::Type::While)) {
     return statementWhile();
   }
@@ -543,15 +551,7 @@ auto Parser::statementBlock() -> Stmt {
     identifier = this->identifier();
   }
 
-  expectColon();
-  expectNewLine();
-  expectIndent();
-
-  Stmts statements;
-  while (current->type != Token::Type::Dedent) {
-    statements.push_back(declaration());
-  }
-  expectDedent();
+  auto statements = block();
   return newStmt(Statement::Block{
     .identifier = identifier,
     .statements = std::move(statements)
@@ -579,15 +579,7 @@ auto Parser::statementFor() -> Stmt {
   const auto iterator = expectIdentifier();
   expectIn();
   auto iteree = expression();
-  expectColon();
-  expectNewLine();
-  expectIndent();
-
-  Stmts statements;
-  while (current->type != Token::Type::Dedent) {
-    statements.push_back(declaration());
-  }
-  expectDedent();
+  auto statements = block();
   return newStmt(Statement::For{
     .iterator = iterator,
     .iteree = std::move(iteree),
@@ -597,24 +589,11 @@ auto Parser::statementFor() -> Stmt {
 
 auto Parser::statementIf() -> Stmt {
   pushLocation();
-  auto branch = [this] {
-    auto condition = expression();
-    expectColon();
-    expectNewLine();
-    expectIndent();
-
-    Stmts statements;
-    while (current->type != Token::Type::Dedent) {
-      statements.push_back(declaration());
-    }
-    expectDedent();
-    return Statement::If::Branch(std::move(condition), std::move(statements));
-  };
 
   std::vector<Statement::If::Branch> branches;
-  branches.push_back(branch());
+  branches.emplace_back(Statement::If::Branch{expression(), block()});
   while (match(Token::Type::Elif)) {
-    branches.push_back(branch());
+    branches.push_back(Statement::If::Branch{expression(), block()});
   }
 
   Stmts else_;
@@ -648,6 +627,33 @@ auto Parser::statementReturn() -> Stmt {
   }
   expectNewLine();
   return newStmt(Statement::Return{std::move(expr)});
+}
+
+auto Parser::statementSwitch() -> Stmt {
+  pushLocation();
+
+  auto value = expression();
+  expectColon();
+  expectNewLine();
+  expectIndent();
+
+  std::vector<Statement::Switch::Case> cases;
+  expectCase();
+  do {
+    cases.push_back(Statement::Switch::Case{expression(), block()});
+  } while (match(Token::Type::Case));
+
+  std::optional<Stmts> default_;
+  if (match(Token::Type::Default)) {
+    default_ = block();
+  }
+
+  expectDedent();
+  return newStmt(Statement::Switch{
+    .value = std::move(value),
+    .cases = std::move(cases),
+    .default_ = std::move(default_)
+  });
 }
 
 auto Parser::statementWhile() -> Stmt {

@@ -25,6 +25,7 @@ statement         → exprStmt
                   | returnStmt
                   | noopStmt
                   | ifStmt
+                  | switchStmt
                   | continueStmt
                   | breakStmt
                   | blockStmt
@@ -36,6 +37,11 @@ noopStmt          → "noop" NEWLINE
 ifStmt            → "if" expression block
                   ( "elif" expression block )*
                   ( "else" block )?
+switchStmt        → "switch" expression ":" NEWLINE
+                  INDENT
+                  ( "case" block )+
+                  ( "default" block )?
+                  DEDENT
 continueStmt      → "continue" NEWLINE
 breakStmt         → "break" IDENTIFIER? NEWLINE
 blockStmt         → "block" IDENTIFIER? block
@@ -109,9 +115,11 @@ DIGIT             → "0" ... "9"
 The following identifiers are reserved as keywords:
 - `block`
 - `break`
+- `case`
 - `class`
 - `continue`
 - `def`
+- `default`
 - `elif`
 - `else`
 - `false`
@@ -123,5 +131,6 @@ The following identifiers are reserved as keywords:
 - `return`
 - `this`
 - `true`
+- `switch`
 - `var`
 - `while`

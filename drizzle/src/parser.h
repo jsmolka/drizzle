@@ -47,6 +47,7 @@ private:
   void expect(Token::Type type, std::string_view error);
   void expectBraceRight();
   void expectBracketRight();
+  void expectCase();
   void expectColon();
   void expectDedent();
   void expectDef();
@@ -82,6 +83,8 @@ private:
   void unary(bool);
   void variable(bool assign);
 
+  auto block() -> Stmts;
+
   template<typename T>
   auto newStmt(T statement) -> Stmt;
   void pushLocation();
@@ -98,6 +101,7 @@ private:
   auto statementIf() -> Stmt;
   auto statementNoop() -> Stmt;
   auto statementReturn() -> Stmt;
+  auto statementSwitch() -> Stmt;
   auto statementWhile() -> Stmt;
   auto expressionStatement() -> Stmt;
 
