@@ -190,9 +190,11 @@ void Compiler::visit(Statement::If& if_) {
     patch(next);
   }
 
-  increaseScope(Level::Type::Branch);
-  visit(if_.else_);
-  decreaseScope();
+  if (if_.else_) {
+    increaseScope(Level::Type::Branch);
+    visit(*if_.else_);
+    decreaseScope();
+  }
 
   patch(exits);
 }

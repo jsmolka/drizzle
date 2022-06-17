@@ -69,7 +69,7 @@ public:
     };
 
     std::vector<Branch> branches;
-    Stmts else_;
+    std::optional<Stmts> else_;
   };
 
   struct Noop {};

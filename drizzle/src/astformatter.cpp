@@ -86,11 +86,11 @@ void AstFormatter::visit(Statement::If& if_) {
     visit(branch.statements);
   }
 
-  if (!if_.else_.empty()) {
+  if (if_.else_) {
     indent--;
     writeIndent("else\n");
     indent++;
-    visit(if_.else_);
+    visit(*if_.else_);
   }
 }
 

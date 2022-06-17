@@ -596,16 +596,9 @@ auto Parser::statementIf() -> Stmt {
     branches.push_back(Statement::If::Branch{expression(), block()});
   }
 
-  Stmts else_;
+  std::optional<Stmts> else_;
   if (match(Token::Type::Else)) {
-    expectColon();
-    expectNewLine();
-    expectIndent();
-
-    while (current->type != Token::Type::Dedent) {
-      else_.push_back(declaration());
-    }
-    expectDedent();
+    else_ = block();
   }
   return newStmt(Statement::If{
     .branches = std::move(branches),

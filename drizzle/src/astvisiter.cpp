@@ -172,7 +172,10 @@ void AstVisiter::visit(Statement::If& if_) {
     visit(branches.condition);
     visit(branches.statements);
   }
-  visit(if_.else_);
+
+  if (if_.else_) {
+    visit(*if_.else_);
+  }
 }
 
 void AstVisiter::visit(Statement::Noop& noop) {
