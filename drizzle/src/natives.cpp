@@ -1,6 +1,7 @@
 #include "vm.h"
 
 #include <chrono>
+#include <sh/filesystem.h>
 #include <sh/ranges.h>
 
 #include "dzbytes.h"
@@ -8,6 +9,8 @@
 #include "dznull.h"
 #include "dzrange.h"
 #include "gc.h"
+
+namespace fs = sh::filesystem;
 
 struct DzValuePrint : DzValue {};
 
@@ -75,6 +78,28 @@ void Vm::defineNatives() {
       }
     ),
     gc.construct<DzFunction>(
+      gc.construct<DzString>("read_bin"), Arity::equal(1), [](Vm& vm, std::size_t) -> DzValue {
+        vm.expect(vm.stack.peek(0), DzObject::Type::String);
+        const auto path = vm.stack.pop_value().o->as<DzString>();
+        const auto dest = vm.gc.construct<DzBytes>();
+        if (fs::read(path->data, dest->data) != fs::status::ok) {
+          return &null;
+        }
+        return dest;
+      }
+    ),
+    gc.construct<DzFunction>(
+      gc.construct<DzString>("read_str"), Arity::equal(1), [](Vm& vm, std::size_t) -> DzValue {
+        vm.expect(vm.stack.peek(0), DzObject::Type::String);
+        const auto path = vm.stack.pop_value().o->as<DzString>();
+        const auto dest = vm.gc.construct<DzString>();
+        if (fs::read(path->data, dest->data) != fs::status::ok) {
+          return &null;
+        }
+        return dest;
+      }
+    ),
+    gc.construct<DzFunction>(
       gc.construct<DzString>("reverse"), Arity::equal(1), [](Vm& vm, std::size_t) {
         const auto iterator = vm.reverse(vm.stack.top());
         vm.stack.pop();
@@ -90,6 +115,24 @@ void Vm::defineNatives() {
     gc.construct<DzFunction>(
       gc.construct<DzString>("type"), Arity::equal(1), [](Vm& vm, std::size_t) {
         return vm.gc.construct<DzString>(vm.stack.pop_value().kind());
+      }
+    ),
+    gc.construct<DzFunction>(
+      gc.construct<DzString>("write_bin"), Arity::equal(2), [](Vm& vm, std::size_t) {
+        vm.expect(vm.stack.peek(0), DzObject::Type::Bytes);
+        vm.expect(vm.stack.peek(1), DzObject::Type::String);
+        const auto data = vm.stack.pop_value().o->as<DzBytes>();
+        const auto path = vm.stack.pop_value().o->as<DzString>();
+        return fs::write(path->data, data->data) == fs::status::ok;
+      }
+    ),
+    gc.construct<DzFunction>(
+      gc.construct<DzString>("write_str"), Arity::equal(2), [](Vm& vm, std::size_t) {
+        vm.expect(vm.stack.peek(0), DzObject::Type::String);
+        vm.expect(vm.stack.peek(1), DzObject::Type::String);
+        const auto data = vm.stack.pop_value().o->as<DzString>();
+        const auto path = vm.stack.pop_value().o->as<DzString>();
+        return fs::write(path->data, data->data) == fs::status::ok;
       }
     ),
   };

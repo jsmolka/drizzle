@@ -4,6 +4,9 @@
 
 #include "gc.h"
 
+DzString::DzString()
+  : DzString(std::string{}) {}
+
 DzString::DzString(const char* data)
   : DzString(std::string_view(data)) {}
 
