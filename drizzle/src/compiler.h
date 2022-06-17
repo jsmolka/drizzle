@@ -28,6 +28,7 @@ protected:
   void visit(Statement::If& if_) final;
   void visit(Statement::Program& program) final;
   void visit(Statement::Return& return_) final;
+  void visit(Statement::Switch& switch_) final;
   void visit(Statement::Var& var) final;
   void visit(Statement::While& while_) final;
 

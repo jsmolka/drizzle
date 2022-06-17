@@ -62,6 +62,7 @@ static_assert(int(Statement::Type::LastEnumValue) == 14);
 #include "tests/vm/range.h"
 #include "tests/vm/scope.h"
 #include "tests/vm/string.h"
+#include "tests/vm/switch.h"
 #include "tests/vm/type.h"
 #include "tests/vm/unary.h"
 

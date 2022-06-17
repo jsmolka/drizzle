@@ -115,6 +115,7 @@
     <ClInclude Include="src\tests\vm\range.h" />
     <ClInclude Include="src\tests\vm\scope.h" />
     <ClInclude Include="src\tests\vm\string.h" />
+    <ClInclude Include="src\tests\vm\switch.h" />
     <ClInclude Include="src\tests\vm\type.h" />
     <ClInclude Include="src\tests\vm\unary.h" />
     <ClInclude Include="src\utils.h" />

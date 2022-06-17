@@ -325,5 +325,8 @@
     <ClInclude Include="src\tests\parser\stmt\switch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\tests\vm\switch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

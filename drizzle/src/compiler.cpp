@@ -223,6 +223,36 @@ void Compiler::visit(Statement::Return& return_) {
   }
 }
 
+void Compiler::visit(Statement::Switch& switch_) {
+  increaseScope(Level::Type::Block);
+
+  visit(switch_.value);
+  const auto value = defineLocal("$value");
+
+  std::vector<std::size_t> exits;
+  for (auto& case_ : switch_.cases) {
+    emitExt(Opcode::Load, value);
+    visit(case_.value);
+    emit(Opcode::Equal);
+    const auto next = jump(Opcode::JumpFalsePop);
+    increaseScope(Level::Type::Branch);
+    visit(case_.statements);
+    decreaseScope();
+    exits.push_back(jump(Opcode::Jump));
+    patch(next);
+  }
+
+  if (switch_.default_) {
+    increaseScope(Level::Type::Branch);
+    visit(*switch_.default_);
+    decreaseScope();
+  }
+
+  patch(exits);
+
+  decreaseScope();
+}
+
 void Compiler::visit(Statement::Var& var) {
   AstVisiter::visit(var);
   define(var.identifier);
