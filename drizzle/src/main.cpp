@@ -68,7 +68,7 @@ auto main(int argc, char* argv[]) -> int {
     } else {
       Gc gc;
       auto function = Compiler(gc).compile(ast);
-      Vm(gc).interpret(function);
+      Vm(gc, {argc, argv}).interpret(function);
     }
     return 0;
   } catch (const Error& error) {

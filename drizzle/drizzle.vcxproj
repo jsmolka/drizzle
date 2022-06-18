@@ -49,6 +49,7 @@
     <ClCompile Include="src\vm.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\arguments.h" />
     <ClInclude Include="src\arity.h" />
     <ClInclude Include="src\astformatter.h" />
     <ClInclude Include="src\astvisiter.h" />

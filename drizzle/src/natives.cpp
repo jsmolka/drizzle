@@ -6,6 +6,7 @@
 
 #include "dzbytes.h"
 #include "dzfunction.h"
+#include "dzlist.h"
 #include "dznull.h"
 #include "dzrange.h"
 #include "gc.h"
@@ -27,6 +28,16 @@ struct fmt::formatter<DzValuePrint> : fmt::formatter<std::string> {
 
 void Vm::defineNatives() {
   const auto natives = {
+    gc.construct<DzFunction>(
+      gc.construct<DzString>("arguments"), Arity::equal(0), [](Vm& vm, std::size_t) {
+        const auto list = vm.gc.construct<DzList>();
+        list->values.reserve(vm.arguments.size());
+        for (const auto& argument : vm.arguments) {
+          list->values.push_back(vm.gc.construct<DzString>(argument));
+        }
+        return list;
+      }
+    ),
     gc.construct<DzFunction>(
       gc.construct<DzString>("assert"), Arity::equal(1), [](Vm& vm, std::size_t) {
         if (!vm.stack.pop_value()) {

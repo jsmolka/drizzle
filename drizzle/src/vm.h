@@ -2,6 +2,7 @@
 
 #include <sh/stack.h>
 
+#include "arguments.h"
 #include "dzfunction.h"
 #include "dzstring.h"
 #include "error.h"
@@ -14,7 +15,7 @@ public:
   friend class DzFunction;
   friend class Gc;
 
-  Vm(Gc& gc);
+  Vm(Gc& gc, const Arguments& arguments = {});
 
   void interpret(DzFunction* main);
 
@@ -118,6 +119,7 @@ private:
   void true_();
 
   Gc& gc;
+  Arguments arguments;
   u8* opcode_pc = nullptr;
   sh::stack<Frame, 32> frames;
   sh::stack<DzValue, 512> stack;
