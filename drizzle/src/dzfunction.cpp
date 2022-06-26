@@ -14,7 +14,7 @@ DzFunction::operator bool() const {
 }
 
 auto DzFunction::repr() const -> std::string {
-  return fmt::format("<function {}>", identifier->repr());
+  return fmt::format("<function {}>", identifier->data);
 }
 
 auto DzFunction::isChunk() const -> bool {

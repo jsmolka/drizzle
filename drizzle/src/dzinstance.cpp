@@ -11,7 +11,7 @@ DzInstance::operator bool() const {
 }
 
 auto DzInstance::repr() const -> std::string {
-  return fmt::format("<{} instance at 0x{:016X}>", class_->identifier->repr(), sh::cast<sh::u64>(this));
+  return fmt::format("<{} instance at 0x{:016X}>", class_->identifier->data, sh::cast<sh::u64>(this));
 }
 
 auto DzInstance::get(DzString* identifier) -> std::optional<DzValue> {

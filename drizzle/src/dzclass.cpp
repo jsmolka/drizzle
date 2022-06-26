@@ -10,7 +10,7 @@ DzClass::operator bool() const {
 }
 
 auto DzClass::repr() const -> std::string {
-  return fmt::format("<class {}>", identifier->repr());
+  return fmt::format("<class {}>", identifier->data);
 }
 
 auto DzClass::get(DzString* identifier) -> DzFunction* {
