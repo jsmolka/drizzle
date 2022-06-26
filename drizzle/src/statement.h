@@ -84,7 +84,7 @@ public:
 
   struct Switch {
     struct Case {
-      Expr value;
+      Exprs values;
       Stmts statements;
     };
 

@@ -86,6 +86,7 @@ private:
   void jumpFalse();
   void jumpFalsePop();
   void jumpTrue();
+  void jumpTruePop();
   void less();
   void lessEqual();
   template<std::integral Integral>

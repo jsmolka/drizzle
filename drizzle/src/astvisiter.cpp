@@ -195,7 +195,7 @@ void AstVisiter::visit(Statement::Return& return_) {
 void AstVisiter::visit(Statement::Switch& switch_) {
   visit(switch_.value);
   for (auto& case_ : switch_.cases) {
-    visit(case_.value);
+    visit(case_.values);
     visit(case_.statements);
   }
 

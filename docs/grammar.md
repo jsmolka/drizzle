@@ -39,7 +39,7 @@ ifStmt            → "if" expression block
                   ( "else" block )?
 switchStmt        → "switch" expression ":" NEWLINE
                   INDENT
-                  ( "case" block )+
+                  ( ("case" expression ":" NEWLINE)* "case" expression block )+
                   ( "default" block )?
                   DEDENT
 continueStmt      → "continue" NEWLINE

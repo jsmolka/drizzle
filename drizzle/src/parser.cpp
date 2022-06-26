@@ -633,7 +633,25 @@ auto Parser::statementSwitch() -> Stmt {
   std::vector<Statement::Switch::Case> cases;
   expectCase();
   do {
-    cases.push_back(Statement::Switch::Case{expression(), block()});
+    Exprs values;
+    do {
+      values.push_back(expression());
+      expectColon();
+      expectNewLine();
+    } while (match(Token::Type::Case));
+
+    expectIndent();
+
+    Stmts statements;
+    while (current->type != Token::Type::Dedent) {
+      statements.push_back(declaration());
+    }
+
+    expectDedent();
+    cases.push_back(Statement::Switch::Case{
+      .values = std::move(values),
+      .statements = std::move(statements)
+    });
   } while (match(Token::Type::Case));
 
   std::optional<Stmts> default_;

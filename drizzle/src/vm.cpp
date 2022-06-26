@@ -17,7 +17,7 @@ Vm::Vm(Gc& gc, const Arguments& arguments)
   : gc(gc), arguments(arguments) {}
 
 void Vm::interpret(DzFunction* main) {
-  static_assert(int(Opcode::LastEnumValue) == 61);
+  static_assert(int(Opcode::LastEnumValue) == 62);
 
   globals.resize(main->identifiers.size());
   frames.emplace(main->chunk().code.data(), 0, main);
@@ -63,6 +63,7 @@ void Vm::interpret(DzFunction* main) {
       case Opcode::JumpFalse: jumpFalse(); break;
       case Opcode::JumpFalsePop: jumpFalsePop(); break;
       case Opcode::JumpTrue: jumpTrue(); break;
+      case Opcode::JumpTruePop: jumpTruePop(); break;
       case Opcode::Less: less(); break;
       case Opcode::LessEqual: lessEqual(); break;
       case Opcode::List: list<u8>(); break;
@@ -593,6 +594,13 @@ void Vm::jumpFalsePop() {
 void Vm::jumpTrue() {
   const auto offset = read<s16>();
   if (stack.top()) {
+    frames.top().pc += offset;
+  }
+}
+
+void Vm::jumpTruePop() {
+  const auto offset = read<s16>();
+  if (stack.pop_value()) {
     frames.top().pc += offset;
   }
 }

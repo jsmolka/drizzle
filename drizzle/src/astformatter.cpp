@@ -99,7 +99,7 @@ void AstFormatter::visit(Statement::Switch& switch_) {
   for (auto& case_ : switch_.cases) {
     writeIndent("case\n");
     indent++;
-    visit(case_.value);
+    visit(case_.values);
     visit(case_.statements);
     indent--;
   }

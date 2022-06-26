@@ -22,13 +22,21 @@ switch 1:
     assert(true)
 )",
 R"(
-var x
 switch 1:
   case 0:
-    x = 0
+    assert(false)
   case 1:
-    x = 1
-assert(x == 1)
+    assert(true)
+)",
+R"(
+var l = []
+for i in 0 .. 5:
+  switch i:
+    case 0:
+    case 1:
+    case 1 + 1:
+      l.push(i)
+assert(l == [0, 1, 2])
 )",
 R"(
 class Value:

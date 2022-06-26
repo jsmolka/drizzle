@@ -37,6 +37,7 @@ enum class Opcode {
   JumpFalse,
   JumpFalsePop,
   JumpTrue,
+  JumpTruePop,
   Less,
   LessEqual,
   List,
@@ -76,7 +77,7 @@ static_assert(int(Opcode::LastEnumValue) <= std::numeric_limits<u8>::max());
 template<>
 struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
   static auto repr(const Opcode& opcode) -> std::string_view {
-    static_assert(int(Opcode::LastEnumValue) == 61);
+    static_assert(int(Opcode::LastEnumValue) == 62);
     switch (opcode) {
       case Opcode::Add:               return "Add";
       case Opcode::BitwiseAnd:        return "BitwiseAnd";
@@ -108,6 +109,7 @@ struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
       case Opcode::JumpFalse:         return "JumpFalse";
       case Opcode::JumpFalsePop:      return "JumpFalsePop";
       case Opcode::JumpTrue:          return "JumpTrue";
+      case Opcode::JumpTruePop:       return "JumpTruePop";
       case Opcode::Less:              return "Less";
       case Opcode::LessEqual:         return "LessEqual";
       case Opcode::List:              return "List";

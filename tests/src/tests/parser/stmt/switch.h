@@ -22,6 +22,22 @@ switch 1:
     }
     {
       constexpr auto kSource = R"(
+switch 1:
+  case 1:
+  case 2:
+    noop
+)";
+      constexpr auto kExpect = R"(program
+  switch
+    literal 1
+    case
+      literal 1
+      literal 2
+      noop)";
+      parse(kSource, kExpect);
+    }
+    {
+      constexpr auto kSource = R"(
 switch 1 + 1:
   case 1 + 1:
     noop
@@ -35,6 +51,28 @@ switch 1 + 1:
       binary +
         literal 1
         literal 1
+      noop)";
+      parse(kSource, kExpect);
+    }
+    {
+      constexpr auto kSource = R"(
+switch 1 + 1:
+  case 1 + 1:
+  case 2 + 2:
+    noop
+)";
+      constexpr auto kExpect = R"(program
+  switch
+    binary +
+      literal 1
+      literal 1
+    case
+      binary +
+        literal 1
+        literal 1
+      binary +
+        literal 2
+        literal 2
       noop)";
       parse(kSource, kExpect);
     }
