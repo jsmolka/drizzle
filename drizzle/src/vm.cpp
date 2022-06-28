@@ -2,10 +2,6 @@
 
 #include <sh/ranges.h>
 
-#ifdef DZ_SDL
-#  include "sdl2.h"
-#endif
-
 #include "dzboundmethod.h"
 #include "dzbytes.h"
 #include "dzclass.h"
@@ -103,11 +99,6 @@ void Vm::interpret(DzFunction* main) {
         SH_UNREACHABLE;
         break;
     }
-
-    #ifdef DZ_SDL
-    SDL_Event event;
-    while (SDL_PollEvent(&event));
-    #endif
   }
 
 exit:

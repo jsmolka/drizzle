@@ -124,6 +124,17 @@ void Vm::defineNatives() {
     ),
     #ifdef DZ_SDL
     gc.construct<DzFunction>(
+      gc.construct<DzString>("sdl_events"), Arity::equal(0), [](Vm& vm, std::size_t) {
+        SDL_Event event;
+        while (SDL_PollEvent(&event)) {
+          if (event.type == SDL_QUIT) {
+            return false;
+          }
+        }
+        return true;
+      }
+    ),
+    gc.construct<DzFunction>(
       gc.construct<DzString>("sdl_keystate"), Arity::equal(1), [](Vm& vm, std::size_t) -> dzbool {
         vm.expect(vm.stack.peek(0), DzValue::Type::Int);
         const auto key = vm.stack.pop_value().i;
