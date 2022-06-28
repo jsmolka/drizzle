@@ -4,6 +4,10 @@
 #include <sh/filesystem.h>
 #include <sh/ranges.h>
 
+#ifdef DZ_SDL
+#  include "sdl2.h"
+#endif
+
 #include "dzbytes.h"
 #include "dzfunction.h"
 #include "dzlist.h"
@@ -117,6 +121,19 @@ void Vm::defineNatives() {
         return iterator;
       }
     ),
+    #ifdef DZ_SDL
+    gc.construct<DzFunction>(
+      gc.construct<DzString>("sdl_keystate"), Arity::equal(1), [](Vm& vm, std::size_t) -> dzbool {
+        vm.expect(vm.stack.peek(0), DzValue::Type::Int);
+        const auto key = vm.stack.pop_value().i;
+        if (key >= 0 && key < SDL_NUM_SCANCODES) {
+          return SDL_GetKeyboardState(NULL)[key];
+        } else {
+          return false;
+        }
+      }
+    ),
+    #endif
     gc.construct<DzFunction>(
       gc.construct<DzString>("time"), Arity::equal(0), [](Vm& vm, std::size_t) {
         using namespace std::chrono;
