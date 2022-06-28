@@ -1,6 +1,11 @@
 #include <sh/clap.h>
 #include <sh/filesystem.h>
-#include <sh/main.h>
+
+#ifdef DZ_SDL
+#  include "sdl2.h"
+#else
+#  include <sh/main.h>
+#endif
 
 #include "astformatter.h"
 #include "compiler.h"
@@ -66,6 +71,11 @@ auto main(int argc, char* argv[]) -> int {
     if (*print_ast) {
       fmt::print("{}\n", ast);
     } else {
+      #if DZ_SDL
+      SDL_Init(SDL_INIT_EVERYTHING);
+      std::atexit(SDL_Quit);
+      #endif
+
       Gc gc;
       auto function = Compiler(gc).compile(ast);
       Vm(gc, {argc, argv}).interpret(function);

@@ -82,6 +82,7 @@
     <ClInclude Include="src\opcode.h" />
     <ClInclude Include="src\location.h" />
     <ClInclude Include="src\parser.h" />
+    <ClInclude Include="src\sdl2.h" />
     <ClInclude Include="src\statement.h" />
     <ClInclude Include="src\token.h" />
     <ClInclude Include="src\error.h" />
@@ -179,8 +180,7 @@
       <SupportJustMyCode>true</SupportJustMyCode>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
-      <PreprocessorDefinitions>
-      </PreprocessorDefinitions>
+      <PreprocessorDefinitions>DZ_SDL</PreprocessorDefinitions>
       <DisableSpecificWarnings>26812; 26495</DisableSpecificWarnings>
     </ClCompile>
     <Link>
@@ -221,7 +221,7 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/Ob3</AdditionalOptions>
-      <PreprocessorDefinitions>NDEBUG</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;DZ_SDL</PreprocessorDefinitions>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <DisableSpecificWarnings>26812; 26495</DisableSpecificWarnings>

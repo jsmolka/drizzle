@@ -214,5 +214,8 @@
     <ClInclude Include="src\arguments.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\sdl2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
