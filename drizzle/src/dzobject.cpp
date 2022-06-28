@@ -10,6 +10,7 @@
 #include "dzmap.h"
 #include "dznull.h"
 #include "dzrange.h"
+#include "dzsdlwindow.h"
 #include "dzstring.h"
 
 DzObject::DzObject(Type type)
@@ -27,6 +28,7 @@ DzObject::operator bool() const {
     case Type::Map:         return *as<DzMap>();
     case Type::Null:        return *as<DzNull>();
     case Type::Range:       return *as<DzRange>();
+    case Type::SdlWindow:   return *as<DzSdlWindow>();
     case Type::String:      return *as<DzString>();
     default:
       SH_UNREACHABLE;
@@ -65,6 +67,7 @@ auto DzObject::repr() const -> std::string {
     case Type::Map:         return as<DzMap>()->repr();
     case Type::Null:        return as<DzNull>()->repr();
     case Type::Range:       return as<DzRange>()->repr();
+    case Type::SdlWindow:   return as<DzSdlWindow>()->repr();
     case Type::String:      return as<DzString>()->repr();
     default:
       SH_UNREACHABLE;

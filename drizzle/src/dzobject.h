@@ -19,6 +19,7 @@ public:
     Map,
     Null,
     Range,
+    SdlWindow,
     String,
     LastEnumValue
   };
@@ -58,7 +59,7 @@ concept dz_object =
 template<>
 struct fmt::formatter<DzObject::Type> : fmt::formatter<std::string_view> {
   static auto repr(const DzObject::Type& type) -> std::string_view {
-    static_assert(int(DzObject::Type::LastEnumValue) == 11);
+    static_assert(int(DzObject::Type::LastEnumValue) == 12);
     switch (type) {
       case DzObject::Type::Bytes:       return "bytes";
       case DzObject::Type::BoundMethod: return "function";
@@ -70,6 +71,7 @@ struct fmt::formatter<DzObject::Type> : fmt::formatter<std::string_view> {
       case DzObject::Type::Map:         return "map";
       case DzObject::Type::Null:        return "null";
       case DzObject::Type::Range:       return "range";
+      case DzObject::Type::SdlWindow:   return "instance";
       case DzObject::Type::String:      return "string";
       default:
         SH_UNREACHABLE;
