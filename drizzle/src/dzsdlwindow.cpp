@@ -3,8 +3,8 @@
 #include <sh/fmt.h>
 #include <sh/utility.h>
 
-DzSdlWindow::DzSdlWindow(SDL_Window* window)
-  : DzObject(Type::SdlWindow), window(window) {}
+DzSdlWindow::DzSdlWindow()
+  : DzObject(Type::SdlWindow) {}
 
 DzSdlWindow::operator bool() const {
   return window;

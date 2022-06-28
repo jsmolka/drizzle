@@ -13,6 +13,7 @@
 #include "dzlist.h"
 #include "dznull.h"
 #include "dzrange.h"
+#include "dzsdlwindow.h"
 #include "gc.h"
 
 namespace fs = sh::filesystem;
@@ -131,6 +132,30 @@ void Vm::defineNatives() {
         } else {
           return false;
         }
+      }
+    ),
+    gc.construct<DzFunction>(
+      gc.construct<DzString>("sdl_window"), Arity::equal(4), [](Vm& vm, std::size_t) {
+        vm.expect(vm.stack.peek(3), DzObject::Type::String);
+        vm.expect(vm.stack.peek(2), DzValue::Type::Int);
+        vm.expect(vm.stack.peek(1), DzValue::Type::Int);
+        vm.expect(vm.stack.peek(0), DzValue::Type::Int);
+
+        const auto window = vm.gc.construct<DzSdlWindow>();
+        const auto scale  = vm.stack.pop_value().i;
+        const auto h      = vm.stack.pop_value().i;
+        const auto w      = vm.stack.pop_value().i;
+        const auto title  = vm.stack.pop_value().o->as<DzString>();
+
+        window->window = SDL_CreateWindow(
+          title->data.c_str(),
+          SDL_WINDOWPOS_CENTERED,
+          SDL_WINDOWPOS_CENTERED,
+          w * scale,
+          h * scale,
+          SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE
+        );
+        return window;
       }
     ),
     #endif
