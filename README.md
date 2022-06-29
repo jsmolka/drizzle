@@ -3,6 +3,21 @@ A dynamic interpreted programming language.
 
 <sup>(it's not Python, I swear)</sup>
 
+## Usage
+Additional arguments can be passed after `<file>` and later be accessed with the `arguments()` function.
+
+```
+usage:
+  drizzle [-h] [-a] <file>
+
+keyword arguments:
+  -h, --help    print help
+  -a, --ast     print ast
+
+positional arguments:
+  file          script fil
+```
+
 ## Examples
 See [`/examples/*.dz`](/examples/) for all examples.
 
@@ -21,11 +36,7 @@ def area(polygon):
     s = s + polygon[i - 1].cross(polygon[i])
   return s / 2
 
-var triangle = [
-  Point(0, 0),
-  Point(4, 4),
-  Point(0, 4)
-]
+var triangle = [Point(0, 0), Point(4, 4), Point(0, 4)]
 
 assert(area(triangle) == 8.0)
 ```
