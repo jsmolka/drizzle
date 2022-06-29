@@ -128,14 +128,6 @@ public:
 };
 
 template<>
-struct fmt::formatter<DzValue> : fmt::formatter<std::string> {
-  template<typename FormatContext>
-  auto format(const DzValue& value, FormatContext& ctx) const {
-    return fmt::formatter<std::string>::format(value.repr(), ctx);
-  }
-};
-
-template<>
 struct fmt::formatter<DzValue::Type> : fmt::formatter<std::string_view> {
   static auto repr(const DzValue::Type& type) -> std::string_view {
     static_assert(int(DzValue::Type::LastEnumValue) == 4);

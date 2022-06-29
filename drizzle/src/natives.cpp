@@ -19,12 +19,10 @@
 
 namespace fs = sh::filesystem;
 
-struct DzValuePrint : DzValue {};
-
 template<>
-struct fmt::formatter<DzValuePrint> : fmt::formatter<std::string> {
+struct fmt::formatter<DzValue> : fmt::formatter<std::string> {
   template<typename FormatContext>
-  auto format(const DzValuePrint& value, FormatContext& ctx) const {
+  auto format(const DzValue& value, FormatContext& ctx) const {
     return fmt::formatter<std::string>::format(
       value.is(DzObject::Type::String)
         ? value.o->as<DzString>()->data
@@ -74,8 +72,8 @@ void Vm::defineNatives() {
     gc.construct<DzFunction>(
       gc.construct<DzString>("print"), Arity::greaterEqual(1), [](Vm& vm, std::size_t argc) {
         fmt::print("{}\n", fmt::join(
-          static_cast<DzValuePrint*>(vm.stack.end()) - argc,
-          static_cast<DzValuePrint*>(vm.stack.end()), " "));
+          vm.stack.end() - argc,
+          vm.stack.end(), " "));
         vm.stack.pop(argc);
         return &null;
       }
@@ -114,6 +112,13 @@ void Vm::defineNatives() {
           return &null;
         }
         return dest;
+      }
+    ),
+    gc.construct<DzFunction>(
+      gc.construct<DzString>("repr"), Arity::equal(1), [](Vm& vm, std::size_t) {
+        const auto string = vm.gc.construct<DzString>(vm.stack.top().repr());
+        vm.stack.pop();
+        return string;
       }
     ),
     gc.construct<DzFunction>(
