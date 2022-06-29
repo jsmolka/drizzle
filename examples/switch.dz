@@ -1,0 +1,12 @@
+var x = 1
+var y = 2
+
+switch x + y:
+  case 0:
+  case 1:
+  case 2:
+    noop  # No fallthrough
+  case 1 + 2:  # Expressions are possible
+    noop
+  default:
+    noop
