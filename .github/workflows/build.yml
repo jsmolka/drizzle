@@ -31,6 +31,40 @@ jobs:
           name: drizzle-windows
           path: upload
 
+  build-sdl-windows:
+    runs-on: windows-2022
+
+    defaults:
+      run:
+        shell: cmd
+
+    steps:
+      - uses: actions/checkout@master
+        with:
+          submodules: recursive
+
+      - name: Dependencies
+        run: |
+          vcpkg integrate install
+          vcpkg install sdl2:x64-windows
+
+      - name: Build
+        run: |
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          msbuild /target:drizzle /property:Configuration="Release SDL" drizzle.sln
+
+      - name: Collect
+        run: |
+          mkdir upload
+          move "bin\Release SDL\drizzle.exe" upload
+          move "bin\Release SDL\SDL2.dll" upload
+
+      - name: Upload
+        uses: actions/upload-artifact@master
+        with:
+          name: drizzle-sdl-windows
+          path: upload
+
   build-linux:
     runs-on: ubuntu-latest
 
@@ -60,6 +94,37 @@ jobs:
           name: drizzle-linux
           path: upload
 
+  build-sdl-linux:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@master
+        with:
+          submodules: recursive
+
+      - name: Dependencies
+        run: |
+          sudo apt-get update -y -qq
+          sudo apt-get install libsdl2-dev
+
+      - name: Build
+        run: |
+          mkdir drizzle/build
+          cd drizzle/build
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++-10 -DENABLE_SDL2=ON ..
+          make -j 4
+
+      - name: Collect
+        run: |
+          mkdir upload
+          mv drizzle/build/drizzle upload
+
+      - name: Upload
+        uses: actions/upload-artifact@master
+        with:
+          name: drizzle-sdl-linux
+          path: upload
+
   build-macos:
     runs-on: macos-latest
 
@@ -87,4 +152,33 @@ jobs:
         uses: actions/upload-artifact@master
         with:
           name: drizzle-macos
+          path: upload
+
+  build-sdl-macos:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@master
+        with:
+          submodules: recursive
+
+      - name: Dependencies
+        run: brew install sdl2
+
+      - name: Build
+        run: |
+          mkdir drizzle/build
+          cd drizzle/build
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++-10 -DENABLE_SDL2=ON ..
+          make -j 4
+
+      - name: Collect
+        run: |
+          mkdir upload
+          mv drizzle/build/drizzle upload
+
+      - name: Upload
+        uses: actions/upload-artifact@master
+        with:
+          name: drizzle-sdl-macos
           path: upload
