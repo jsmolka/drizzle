@@ -4,7 +4,7 @@ A dynamic interpreted programming language.
 <sup>(it's not Python, I swear)</sup>
 
 ## Usage
-Additional arguments can be passed after `<file>` and later be accessed with the `arguments()` function.
+Additional arguments can be passed after `<file>` and later be accessed through the `arguments()` function.
 
 ```
 usage:
@@ -19,7 +19,7 @@ positional arguments:
 ```
 
 ## Examples
-See [`/examples/*.dz`](/examples/) for all examples.
+See [`/examples/`](/examples/) for all examples.
 
 ```python
 class Point:
