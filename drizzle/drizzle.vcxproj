@@ -43,6 +43,7 @@
     <ClCompile Include="src\dznull.cpp" />
     <ClCompile Include="src\dzrange.cpp" />
     <ClCompile Include="src\dzsdlwindow.cpp" />
+    <ClCompile Include="src\dzsdlwindowmembers.cpp" />
     <ClCompile Include="src\dzstring.cpp" />
     <ClCompile Include="src\astformatter.cpp" />
     <ClCompile Include="src\dzobject.cpp" />

@@ -26,6 +26,7 @@ void Vm::interpret(DzFunction* main) {
   defineBytesMembers();
   defineListMembers();
   defineMapMembers();
+  defineSdlWindowMembers();
   defineStringMembers();
 
   gc.vm = this;

@@ -1,0 +1,19 @@
+var window = sdl_window("SDL", 10, 10, 20)
+
+var x = 0
+var y = 0
+while sdl_events():
+  window.clear(0xFFFFFFFF)
+  
+  if sdl_keystate(44):  # Space
+    x = x + 1
+    if x == window.width():
+      x = 0
+      y = y + 1
+      if y == window.height():
+        y = 0
+    
+  window.set_pixel(x, y, 0xFF0000FF)
+  window.render()
+
+  sleep(16)

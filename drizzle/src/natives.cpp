@@ -1,6 +1,7 @@
 #include "vm.h"
 
 #include <chrono>
+#include <thread>
 #include <sh/filesystem.h>
 #include <sh/ranges.h>
 
@@ -146,30 +147,36 @@ void Vm::defineNatives() {
       }
     ),
     gc.construct<DzFunction>(
-      gc.construct<DzString>("sdl_window"), Arity::equal(4), [](Vm& vm, std::size_t) {
+      gc.construct<DzString>("sdl_window"), Arity::equal(4), [](Vm& vm, std::size_t) -> DzValue {
         vm.expect(vm.stack.peek(3), DzObject::Type::String);
         vm.expect(vm.stack.peek(2), DzValue::Type::Int);
         vm.expect(vm.stack.peek(1), DzValue::Type::Int);
         vm.expect(vm.stack.peek(0), DzValue::Type::Int);
 
-        const auto window = vm.gc.construct<DzSdlWindow>();
-        const auto scale  = vm.stack.pop_value().i;
-        const auto h      = vm.stack.pop_value().i;
-        const auto w      = vm.stack.pop_value().i;
-        const auto title  = vm.stack.pop_value().o->as<DzString>();
-
-        window->window = SDL_CreateWindow(
-          title->data.c_str(),
-          SDL_WINDOWPOS_CENTERED,
-          SDL_WINDOWPOS_CENTERED,
-          w * scale,
-          h * scale,
-          SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE
+        const auto window = vm.gc.construct<DzSdlWindow>(
+          vm.stack.peek(3).o->as<DzString>(),
+          vm.stack.peek(2).i,
+          vm.stack.peek(1).i,
+          vm.stack.peek(0).i
         );
+
+        vm.stack.pop(4);
+        if (!(*window)) {
+          return &null;
+        }
         return window;
       }
     ),
     #endif
+    gc.construct<DzFunction>(
+      gc.construct<DzString>("sleep"), Arity::equal(1), [](Vm& vm, std::size_t) {
+        vm.expect(vm.stack.peek(0), DzValue::Type::Int);
+
+        const auto milliseconds = vm.stack.pop_value().i;
+        std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
+        return &null;
+      }
+    ),
     gc.construct<DzFunction>(
       gc.construct<DzString>("time"), Arity::equal(0), [](Vm& vm, std::size_t) {
         using namespace std::chrono;

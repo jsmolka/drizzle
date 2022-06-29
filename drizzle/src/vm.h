@@ -32,6 +32,7 @@ private:
   void defineBytesMembers();
   void defineListMembers();
   void defineMapMembers();
+  void defineSdlWindowMembers();
   void defineStringMembers();
 
   template<std::integral Integral>

@@ -42,6 +42,7 @@
     <ClCompile Include="..\drizzle\src\dzobject.cpp" />
     <ClCompile Include="..\drizzle\src\dzrange.cpp" />
     <ClCompile Include="..\drizzle\src\dzsdlwindow.cpp" />
+    <ClCompile Include="..\drizzle\src\dzsdlwindowmembers.cpp" />
     <ClCompile Include="..\drizzle\src\dzstring.cpp" />
     <ClCompile Include="..\drizzle\src\dzstringmembers.cpp" />
     <ClCompile Include="..\drizzle\src\dzvalue.cpp" />

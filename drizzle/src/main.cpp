@@ -72,7 +72,6 @@ auto main(int argc, char* argv[]) -> int {
       fmt::print("{}\n", ast);
     } else {
       #if DZ_SDL
-      SDL_Init(SDL_INIT_EVERYTHING);
       std::atexit(SDL_Quit);
       #endif
 
