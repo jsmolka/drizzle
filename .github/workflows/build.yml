@@ -107,9 +107,12 @@ jobs:
           sudo apt-get update -y -qq
           sudo apt-get install libsdl2-dev
 
-      - name: Build
+      - name: Setup
         run: |
           mkdir drizzle/build
+
+      - name: Build
+        run: |
           cd drizzle/build
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++-10 -DENABLE_SDL2=ON ..
           make -j 4
@@ -165,9 +168,12 @@ jobs:
       - name: Dependencies
         run: brew install sdl2
 
-      - name: Build
+      - name: Setup
         run: |
           mkdir drizzle/build
+
+      - name: Build
+        run: |
           cd drizzle/build
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++-10 -DENABLE_SDL2=ON ..
           make -j 4
