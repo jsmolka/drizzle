@@ -15,7 +15,7 @@ keyword arguments:
   -a, --ast     print ast
 
 positional arguments:
-  file          script fil
+  file          script file
 ```
 
 ## Examples
