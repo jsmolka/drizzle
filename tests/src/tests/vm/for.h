@@ -109,6 +109,28 @@ for x in l:
   assert(x == 0)
 assert(true)
 )",
+R"(
+for i in 0 .. 3:
+  if false:
+    break
+assert(true)
+)",
+R"(
+var i = 0
+for j in 0 .. 5:
+  assert(i == j)
+  i = i + 1
+assert(true)
+)",
+R"(
+var i = 0
+for j in 0 .. 5:
+  if false:
+    break
+  assert(i == j)
+  i = i + 1
+assert(true)
+)",
       };
 
       for (const auto& source : kSources) {

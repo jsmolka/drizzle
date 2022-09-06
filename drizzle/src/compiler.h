@@ -88,7 +88,7 @@ private:
   void define(const Identifier& identifier);
   auto resolve(const Identifier& identifier) const -> std::optional<std::size_t>;
   auto resolveGlobal(const Identifier& identifier) -> Global&;
-  void pop(std::size_t depth);
+  void pop(std::size_t depth, bool undefine);
 
   template<typename... Args>
   void increaseScope(Args&&... args);

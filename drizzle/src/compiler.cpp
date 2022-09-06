@@ -59,7 +59,7 @@ void Compiler::visit(Statement::Break& break_) {
   };
 
   auto& level = resolve(break_.identifier);
-  pop(std::distance(scope.data(), &level));
+  pop(std::distance(scope.data(), &level), false);
   level.breaks.push_back(jump(Opcode::Jump));
 }
 
@@ -558,13 +558,19 @@ auto Compiler::resolveGlobal(const Identifier& identifier) -> Global& {
   return iter.value();
 }
 
-void Compiler::pop(std::size_t depth) {
-  const auto size = variables.size();
-  while (!variables.empty() && variables.top().depth > depth) {
-    variables.pop();
+void Compiler::pop(std::size_t depth, bool undefine) {
+  std::size_t count = 0;
+  if (undefine) {
+    while (!variables.empty() && variables.top().depth > depth) {
+      count++;
+      variables.pop();
+    }
+  } else {
+    while (!variables.empty() && variables.peek(count).depth > depth) {
+      count++;
+    }
   }
 
-  const auto count = size - variables.size();
   if (count == 1) {
     emit(Opcode::Pop);
   } else if (count > 1) {
@@ -580,6 +586,6 @@ void Compiler::increaseScope(Args&&... args) {
 auto Compiler::decreaseScope() -> Level {
   auto level = scope.pop_value();
   patch(level.continues);
-  pop(scope.size());
+  pop(scope.size(), true);
   return level;
 }
