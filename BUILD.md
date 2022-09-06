@@ -30,7 +30,7 @@ Install [SDL2](https://libsdl.org/download-2.0.php) and [OpenGL](https://www.ope
 ```
 
 ### Linux
-Install [SDL2](https://libsdl.org/download-2.0.php) and [GTK](https://www.gtk.org/).
+Install [SDL2](https://libsdl.org/download-2.0.php).
 
 ```
 $ [sudo] apt-get install libsdl2-dev
