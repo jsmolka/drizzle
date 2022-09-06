@@ -23,7 +23,7 @@ Install and setup [vcpkg](https://github.com/microsoft/vcpkg).
 > vcpkg integrate install
 ```
 
-Install [SDL2](https://libsdl.org/download-2.0.php) and [OpenGL](https://www.opengl.org/).
+Install [SDL2](https://libsdl.org/download-2.0.php).
 
 ```
 > vcpkg install sdl2:x64-windows
