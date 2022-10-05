@@ -101,6 +101,7 @@ void Compiler::visit(Statement::Continue& continue_) {
   };
 
   auto& level = resolve();
+  pop(std::distance(scope.data(), &level), false);
   level.continues.push_back(jump(Opcode::Jump));
 }
 
@@ -585,7 +586,7 @@ void Compiler::increaseScope(Args&&... args) {
 
 auto Compiler::decreaseScope() -> Level {
   auto level = scope.pop_value();
-  patch(level.continues);
   pop(scope.size(), true);
+  patch(level.continues);
   return level;
 }
