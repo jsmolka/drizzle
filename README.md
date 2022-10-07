@@ -4,8 +4,6 @@ A dynamic interpreted programming language.
 <sup>(it's not Python, I swear)</sup>
 
 ## Usage
-Additional arguments can be passed after `<file>` and later be accessed through the `arguments()` function.
-
 ```
 usage:
   drizzle [-h] [-a] <file>
@@ -18,9 +16,9 @@ positional arguments:
   file          script file
 ```
 
-## Examples
-See [`/examples/`](/examples/) for all examples.
+Additional arguments can be passed after `<file>` and later be accessed through the `arguments` function.
 
+## Examples
 ```python
 class Point:
   def init(x, y):
@@ -40,6 +38,8 @@ var triangle = [Point(0, 0), Point(4, 4), Point(0, 4)]
 
 assert(area(triangle) == 8.0)
 ```
+
+See [examples](/examples) for more.
 
 ## Binaries
 Binaries for Windows, Linux and macOS are available as [nightly](https://nightly.link/jsmolka/drizzle/workflows/build/master) and [release](https://github.com/jsmolka/drizzle/releases) builds.
