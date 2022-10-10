@@ -550,7 +550,7 @@ auto Compiler::resolveGlobal(const Identifier& identifier) -> Global& {
   while (compiler->parent) {
     compiler = compiler->parent;
     if (const auto index = compiler->resolve(identifier)) {
-      if (compiler->parent) {
+      if (compiler->parent || compiler->variables[*index].depth > 0) {
         throw SyntaxError(identifier.location, "cannot capture local variable");
       }
     }

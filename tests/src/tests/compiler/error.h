@@ -50,6 +50,12 @@ block:
   var x
   var x
 )",
+R"(
+block:
+  var x
+  def y():
+    var z = x
+)",
       };
 
       for (const auto& source : kSources) {
