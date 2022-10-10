@@ -78,3 +78,7 @@ auto DzObject::repr() const -> std::string {
 auto DzObject::is(Type type) const -> bool {
   return this->type == type;
 }
+
+auto DzObject::subscriptGet(Vm& vm, const DzValue& expr) -> std::optional<DzValue> {
+  return std::nullopt;
+}

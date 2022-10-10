@@ -19,7 +19,7 @@ public:
 
   void interpret(DzFunction* main);
 
-private:
+public:  // Todo: ugly
   static constexpr auto kMaximumRecursionDepth = 1000;
 
   struct Frame {

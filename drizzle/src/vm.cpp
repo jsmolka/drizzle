@@ -788,29 +788,9 @@ void Vm::subscriptGet() {
     }
 
     switch (self.o->type) {
-      case DzObject::Type::Bytes: {
-        expect(expr, DzValue::Type::Int);
-        const auto bytes = self.o->as<DzBytes>();
-        auto index = expr.i;
-        if (index < 0) {
-          index += bytes->size();
-        }
-        if (index < 0 || index >= bytes->size()) {
-          raise("bytes index out of range");
-        }
-        return static_cast<dzint>((*bytes)[index]);
-      }
-      case DzObject::Type::Instance: {
-        expect(expr, DzObject::Type::String);
-        const auto inst = self.o->as<DzInstance>();
-        const auto prop = expr.o->as<DzString>();
-        if (const auto value = inst->get(prop)) {
-          return *value;
-        } else if (const auto function = inst->class_->get(prop)) {
-          return gc.construct<DzBoundMethod>(inst, function);
-        } else {
-          return &null;
-        }
+      case DzObject::Type::Bytes: 
+      case DzObject::Type::Instance:  {
+        return *self.o->subscriptGet(*this, expr);
       }
       case DzObject::Type::List: {
         expect(expr, DzValue::Type::Int);

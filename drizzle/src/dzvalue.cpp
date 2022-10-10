@@ -9,7 +9,19 @@ inline auto whole(dzfloat value) -> bool {
 }
 
 DzValue::DzValue()
-  : type(Type::Object), o(nullptr) {}
+  : DzValue(nullptr) {}
+
+DzValue::DzValue(dzbool value)
+  : type(Type::Bool), b(value) {}
+
+DzValue::DzValue(dzint value)
+  : type(Type::Int), i(value) {}
+
+DzValue::DzValue(dzfloat value)
+  : type(Type::Float), f(value) {}
+
+DzValue::DzValue(DzObject* value)
+  : type(Type::Object), o(value) {}
 
 DzValue::operator bool() const {
   switch (type) {
@@ -86,4 +98,18 @@ auto DzValue::isUndefined() const -> bool {
 
 auto DzValue::isHashable() const -> bool {
   return !is(Type::Object) || o->is(DzObject::Type::String);
+}
+
+auto DzValue::subscriptGet(Vm& vm, const DzValue& expr) -> std::optional<DzValue> {
+  switch (type) {
+    case Type::Bool:
+    case Type::Int:
+    case Type::Float:
+      return std::nullopt;
+    case Type::Object:
+      return o->subscriptGet(vm, expr);
+    default:
+      SH_UNREACHABLE;
+      return std::nullopt;
+  }
 }

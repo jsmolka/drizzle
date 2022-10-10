@@ -15,6 +15,8 @@ public:
   auto get(DzString* identifier) -> std::optional<DzValue>;
   void set(DzString* identifier, const DzValue& value);
 
+  virtual auto subscriptGet(Vm& vm, const DzValue& expr) -> std::optional<DzValue> final;
+
   DzClass* class_;
   Map<DzValue> fields;
 };

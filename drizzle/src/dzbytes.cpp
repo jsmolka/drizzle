@@ -2,6 +2,8 @@
 
 #include <sh/fmt.h>
 
+#include "vm.h"
+
 DzBytes::DzBytes()
   : DzObject(Type::Bytes) {}
 
@@ -27,6 +29,18 @@ auto DzBytes::repr() const -> std::string {
 
 auto DzBytes::size() const -> std::size_t {
   return data.size();
+}
+
+auto DzBytes::subscriptGet(Vm& vm, const DzValue& expr) -> std::optional<DzValue> {
+  vm.expect(expr, DzValue::Type::Int);
+  auto index = expr.i;
+  if (index < 0) {
+    index += size();
+  }
+  if (index < 0 || index >= size()) {
+    vm.raise("bytes index out of range");
+  }
+  return static_cast<dzint>(data[index]);
 }
 
 DzBytesIterator::DzBytesIterator(DzObject* iteree)

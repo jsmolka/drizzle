@@ -6,6 +6,8 @@
 #include <string>
 #include <string_view>
 
+#include "dzvalue.h"
+
 class DzObject {
 public:
   enum class Type {
@@ -45,6 +47,8 @@ public:
     return static_cast<const T*>(this);
   }
   auto is(Type type) const -> bool;
+
+  virtual auto subscriptGet(Vm& vm, const DzValue& expr) -> std::optional<DzValue>;
 
   Type type;
   bool marked = false;
