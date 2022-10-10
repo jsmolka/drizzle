@@ -24,7 +24,7 @@ struct fmt::formatter<DzValue> : fmt::formatter<std::string> {
   template<typename FormatContext>
   auto format(const DzValue& value, FormatContext& ctx) const {
     return fmt::formatter<std::string>::format(
-      value.is(DzObject::Type::String)
+      value.is(DzValue::Type::Object) && value.o->is(DzObject::Type::String)
         ? value.o->as<DzString>()->data
         : value.repr(), ctx);
   }

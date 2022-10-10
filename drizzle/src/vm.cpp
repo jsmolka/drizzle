@@ -143,7 +143,7 @@ void Vm::expect(const DzValue& value, DzValue::Type type) {
 }
 
 void Vm::expect(const DzValue& value, DzObject::Type type) {
-  if (!value.is(type)) {
+  if (!(value.is(DzValue::Type::Object) && value.o->is(type))) {
     raise("expected type '{}' but got '{}'", type, value.kind());
   }
 }
@@ -755,7 +755,7 @@ void Vm::return_() {
 void Vm::set() {
   const auto prop = stack.pop_value().o->as<DzString>();
   const auto self = stack.pop_value();
-  if (self.is(DzObject::Type::Instance)) {
+  if (self.is(DzValue::Type::Object) && self.o->is(DzObject::Type::Instance)) {
     self.o->as<DzInstance>()->set(prop, stack.top());
   } else {
     raise("'{}' object does not have properties", self.kind());

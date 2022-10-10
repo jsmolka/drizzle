@@ -114,7 +114,6 @@ public:
   auto hash() const -> std::size_t;
 
   auto is(Type type) const -> bool;
-  auto is(DzObject::Type type) const -> bool;
   auto isUndefined() const -> bool;
   auto isHashable() const -> bool;
 
