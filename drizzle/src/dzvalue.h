@@ -1,5 +1,7 @@
 #pragma once
 
+#include <optional>
+
 #include <sh/fmt.h>
 #include <sh/utility.h>
 
@@ -123,7 +125,7 @@ public:
   auto isUndefined() const -> bool;
   auto isHashable() const -> bool;
 
-  auto subscriptGet(Vm& vm, const DzValue& expr) -> std::optional<DzValue>;
+  auto subscriptGet(Vm& vm, const DzValue& expr) const -> std::optional<DzValue>;
 
   Type type;
   union {

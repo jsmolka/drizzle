@@ -776,59 +776,14 @@ void Vm::storeGlobal() {
 
 
 void Vm::subscriptGet() {
-  const auto value = [this]() -> DzValue {
-    auto error = [this](const DzValue& self) {
-      raise("'{}' object is not subscriptable", self.kind());
-    };
-
-    const auto& expr = stack.peek(0);
-    const auto& self = stack.peek(1);
-    if (!self.is(DzValue::Type::Object)) {
-      error(self);
-    }
-
-    switch (self.o->type) {
-      case DzObject::Type::Bytes: 
-      case DzObject::Type::Instance:  {
-        return *self.o->subscriptGet(*this, expr);
-      }
-      case DzObject::Type::List: {
-        expect(expr, DzValue::Type::Int);
-        const auto list = self.o->as<DzList>();
-        auto index = expr.i;
-        if (index < 0) {
-          index += list->size();
-        }
-        if (index < 0 || index >= list->size()) {
-          raise("list index out of range");
-        }
-        return (*list)[index];
-      }
-      case DzObject::Type::Map: {
-        expectHashable(expr);
-        const auto map = self.o->as<DzMap>();
-        return map->get(expr).value_or(&null);
-      }
-      case DzObject::Type::String: {
-        expect(expr, DzValue::Type::Int);
-        const auto string = self.o->as<DzString>();
-        auto index = expr.i;
-        if (index < 0) {
-          index += string->size();
-        }
-        if (index < 0 || index >= string->size()) {
-          raise("string index out of range");
-        }
-        return gc.construct<DzString>((*string)[index]);
-      }
-      default: {
-        error(self);
-        return &null;
-      }
-    }
-  }();
-  stack.pop();
-  stack.top() = value;
+  const auto& expr = stack.peek(0);
+  const auto& self = stack.peek(1);
+  if (const auto value = self.subscriptGet(*this, expr)) {
+    stack.pop();
+    stack.top() = *value;
+  } else {
+    raise("'{}' object is not subscriptable", self.kind());
+  }
 }
 
 void Vm::subscriptSet() {

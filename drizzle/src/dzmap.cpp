@@ -2,6 +2,9 @@
 
 #include <sh/fmt.h>
 
+#include "dznull.h"
+#include "vm.h"
+
 using Pair = std::pair<DzValue, DzValue>;
 
 template<>
@@ -33,7 +36,7 @@ auto DzMap::repr() const -> std::string {
   return fmt::format("{{{}}}", fmt::join(values, ", "));
 }
 
-auto DzMap::get(const DzValue& key) -> std::optional<DzValue> {
+auto DzMap::get(const DzValue& key) const -> std::optional<DzValue> {
   const auto iter = values.find(key);
   return iter != values.end()
     ? iter->second
@@ -42,4 +45,9 @@ auto DzMap::get(const DzValue& key) -> std::optional<DzValue> {
 
 void DzMap::set(const DzValue& key, const DzValue& value) {
   values.insert_or_assign(key, value);
+}
+
+auto DzMap::subscriptGet(Vm& vm, const DzValue& expr) const -> std::optional<DzValue> {
+  vm.expectHashable(expr);
+  return get(expr).value_or(&null);
 }

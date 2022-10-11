@@ -100,7 +100,7 @@ auto DzValue::isHashable() const -> bool {
   return !is(Type::Object) || o->is(DzObject::Type::String);
 }
 
-auto DzValue::subscriptGet(Vm& vm, const DzValue& expr) -> std::optional<DzValue> {
+auto DzValue::subscriptGet(Vm& vm, const DzValue& expr) const -> std::optional<DzValue> {
   switch (type) {
     case Type::Bool:
     case Type::Int:

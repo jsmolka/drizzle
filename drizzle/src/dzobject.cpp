@@ -79,6 +79,6 @@ auto DzObject::is(Type type) const -> bool {
   return this->type == type;
 }
 
-auto DzObject::subscriptGet(Vm& vm, const DzValue& expr) -> std::optional<DzValue> {
+auto DzObject::subscriptGet(Vm& vm, const DzValue& expr) const -> std::optional<DzValue> {
   return std::nullopt;
 }

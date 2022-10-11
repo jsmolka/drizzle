@@ -31,7 +31,7 @@ auto DzBytes::size() const -> std::size_t {
   return data.size();
 }
 
-auto DzBytes::subscriptGet(Vm& vm, const DzValue& expr) -> std::optional<DzValue> {
+auto DzBytes::subscriptGet(Vm& vm, const DzValue& expr) const -> std::optional<DzValue> {
   vm.expect(expr, DzValue::Type::Int);
   auto index = expr.i;
   if (index < 0) {

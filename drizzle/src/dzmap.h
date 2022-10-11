@@ -15,8 +15,10 @@ public:
   auto operator==(const DzMap& other) const -> bool;
   auto repr() const -> std::string;
 
-  auto get(const DzValue& key) -> std::optional<DzValue>;
+  auto get(const DzValue& key) const -> std::optional<DzValue>;
   void set(const DzValue& key, const DzValue& value);
+
+  virtual auto subscriptGet(Vm& vm, const DzValue& expr) const -> std::optional<DzValue> final;
 
   tsl::robin_map<DzValue, DzValue> values;
 };

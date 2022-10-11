@@ -3,6 +3,7 @@
 #include <sh/fmt.h>
 
 #include "gc.h"
+#include "vm.h"
 
 DzString::DzString()
   : DzString(std::string{}) {}
@@ -33,6 +34,18 @@ auto DzString::repr() const -> std::string {
 
 auto DzString::size() const -> std::size_t {
   return data.size();
+}
+
+auto DzString::subscriptGet(Vm& vm, const DzValue& expr) const -> std::optional<DzValue> {
+  vm.expect(expr, DzValue::Type::Int);
+  auto index = expr.i;
+  if (index < 0) {
+    index += size();
+  }
+  if (index < 0 || index >= size()) {
+    vm.raise("string index out of range");
+  }
+  return vm.gc.construct<DzString>((*this)[index]);
 }
 
 DzStringIterator::DzStringIterator(DzObject* iteree)

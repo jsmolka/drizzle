@@ -2,6 +2,8 @@
 
 #include <sh/fmt.h>
 
+#include "vm.h"
+
 DzList::DzList()
   : DzObject(Type::List) {}
 
@@ -27,6 +29,18 @@ auto DzList::repr() const -> std::string {
 
 auto DzList::size() const -> std::size_t {
   return values.size();
+}
+
+auto DzList::subscriptGet(Vm& vm, const DzValue& expr) const -> std::optional<DzValue> {
+  vm.expect(expr, DzValue::Type::Int);
+  auto index = expr.i;
+  if (index < 0) {
+    index += size();
+  }
+  if (index < 0 || index >= size()) {
+    vm.raise("list index out of range");
+  }
+  return values[index];
 }
 
 DzListIterator::DzListIterator(DzObject* iteree)

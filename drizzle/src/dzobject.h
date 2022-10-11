@@ -3,6 +3,7 @@
 #include <sh/fmt.h>
 #include <sh/utility.h>
 
+#include <optional>
 #include <string>
 #include <string_view>
 
@@ -48,7 +49,7 @@ public:
   }
   auto is(Type type) const -> bool;
 
-  virtual auto subscriptGet(Vm& vm, const DzValue& expr) -> std::optional<DzValue>;
+  virtual auto subscriptGet(Vm& vm, const DzValue& expr) const -> std::optional<DzValue>;
 
   Type type;
   bool marked = false;

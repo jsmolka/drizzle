@@ -26,6 +26,8 @@ public:
   auto repr() const -> std::string;
   auto size() const -> std::size_t;
 
+  virtual auto subscriptGet(Vm& vm, const DzValue& expr) const -> std::optional<DzValue> final;
+
   std::string data;
   std::size_t hash;
 };
