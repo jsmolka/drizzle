@@ -19,7 +19,7 @@ auto DzInstance::repr() const -> std::string {
   return fmt::format("<{} instance at 0x{:016X}>", class_->identifier->data, sh::cast<sh::u64>(this));
 }
 
-auto DzInstance::get(DzString* identifier) -> std::optional<DzValue> {
+auto DzInstance::get(DzString* identifier) const -> std::optional<DzValue> {
   const auto iter = fields.find(identifier);
   return iter != fields.end()
     ? iter->second
@@ -30,13 +30,14 @@ void DzInstance::set(DzString* name, const DzValue& value) {
   fields.insert_or_assign(name, value);
 }
 
-auto DzInstance::subscriptGet(Vm& vm, const DzValue& expr) -> std::optional<DzValue> {
+auto DzInstance::subscriptGet(Vm& vm, const DzValue& expr) const -> std::optional<DzValue> {
   vm.expect(expr, DzObject::Type::String);
   const auto prop = expr.o->as<DzString>();
   if (const auto value = get(prop)) {
     return *value;
   } else if (const auto function = class_->get(prop)) {
-    return vm.gc.construct<DzBoundMethod>(this, function);
+    // Todo: ugly
+    return vm.gc.construct<DzBoundMethod>(const_cast<DzInstance*>(this), function);
   } else {
     return &null;
   }
