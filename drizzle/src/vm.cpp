@@ -776,12 +776,12 @@ void Vm::storeGlobal() {
 
 
 void Vm::subscriptGet() {
-  const auto& expr = stack.peek(0);
-  const auto& self = stack.peek(1);
-  if (const auto value = self.subscriptGet(*this, expr)) {
+  auto& expr = stack.peek(0);
+  auto& self = stack.peek(1);
+  try {
+    self = self.subscriptGet(*this, expr);
     stack.pop();
-    stack.top() = *value;
-  } else {
+  } catch (const NotSupportedException&) {
     raise("'{}' object is not subscriptable", self.kind());
   }
 }

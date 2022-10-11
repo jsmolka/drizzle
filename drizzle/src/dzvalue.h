@@ -125,7 +125,7 @@ public:
   auto isUndefined() const -> bool;
   auto isHashable() const -> bool;
 
-  auto subscriptGet(Vm& vm, const DzValue& expr) const -> std::optional<DzValue>;
+  auto subscriptGet(Vm& vm, const DzValue& expr) -> DzValue;
 
   Type type;
   union {

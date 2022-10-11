@@ -47,7 +47,7 @@ void DzMap::set(const DzValue& key, const DzValue& value) {
   values.insert_or_assign(key, value);
 }
 
-auto DzMap::subscriptGet(Vm& vm, const DzValue& expr) const -> std::optional<DzValue> {
+auto DzMap::subscriptGet(Vm& vm, const DzValue& expr) -> DzValue {
   vm.expectHashable(expr);
   return get(expr).value_or(&null);
 }

@@ -3,6 +3,7 @@
 #include <sh/utility.h>
 
 #include "dzstring.h"
+#include "vm.h"
 
 inline auto whole(dzfloat value) -> bool {
   return std::fmod(value, 1.0) == 0.0;
@@ -100,16 +101,16 @@ auto DzValue::isHashable() const -> bool {
   return !is(Type::Object) || o->is(DzObject::Type::String);
 }
 
-auto DzValue::subscriptGet(Vm& vm, const DzValue& expr) const -> std::optional<DzValue> {
+auto DzValue::subscriptGet(Vm& vm, const DzValue& expr) -> DzValue {
   switch (type) {
+    default:
+      SH_UNREACHABLE;
+      [[fallthrough]];
     case Type::Bool:
     case Type::Int:
     case Type::Float:
-      return std::nullopt;
+      throw NotSupportedException();
     case Type::Object:
       return o->subscriptGet(vm, expr);
-    default:
-      SH_UNREACHABLE;
-      return std::nullopt;
   }
 }

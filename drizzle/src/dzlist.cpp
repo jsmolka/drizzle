@@ -31,7 +31,7 @@ auto DzList::size() const -> std::size_t {
   return values.size();
 }
 
-auto DzList::subscriptGet(Vm& vm, const DzValue& expr) const -> std::optional<DzValue> {
+auto DzList::subscriptGet(Vm& vm, const DzValue& expr) -> DzValue {
   vm.expect(expr, DzValue::Type::Int);
   auto index = expr.i;
   if (index < 0) {

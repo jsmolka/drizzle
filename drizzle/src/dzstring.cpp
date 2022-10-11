@@ -36,7 +36,7 @@ auto DzString::size() const -> std::size_t {
   return data.size();
 }
 
-auto DzString::subscriptGet(Vm& vm, const DzValue& expr) const -> std::optional<DzValue> {
+auto DzString::subscriptGet(Vm& vm, const DzValue& expr) -> DzValue {
   vm.expect(expr, DzValue::Type::Int);
   auto index = expr.i;
   if (index < 0) {

@@ -18,7 +18,7 @@ public:
   auto get(const DzValue& key) const -> std::optional<DzValue>;
   void set(const DzValue& key, const DzValue& value);
 
-  virtual auto subscriptGet(Vm& vm, const DzValue& expr) const -> std::optional<DzValue> override;
+  virtual auto subscriptGet(Vm& vm, const DzValue& expr) -> DzValue override;
 
   tsl::robin_map<DzValue, DzValue> values;
 };

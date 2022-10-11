@@ -10,6 +10,8 @@
 
 class Gc;
 
+class NotSupportedException {};
+
 class Vm {
 public:
   friend class DzFunction;

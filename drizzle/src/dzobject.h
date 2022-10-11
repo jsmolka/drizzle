@@ -49,7 +49,7 @@ public:
   }
   auto is(Type type) const -> bool;
 
-  virtual auto subscriptGet(Vm& vm, const DzValue& expr) const -> std::optional<DzValue>;
+  virtual auto subscriptGet(Vm& vm, const DzValue& expr) -> DzValue;
 
   Type type;
   bool marked = false;

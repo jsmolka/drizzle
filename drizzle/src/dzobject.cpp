@@ -12,6 +12,7 @@
 #include "dzrange.h"
 #include "dzsdlwindow.h"
 #include "dzstring.h"
+#include "vm.h"
 
 DzObject::DzObject(Type type)
   : type(type) {}
@@ -79,6 +80,6 @@ auto DzObject::is(Type type) const -> bool {
   return this->type == type;
 }
 
-auto DzObject::subscriptGet(Vm& vm, const DzValue& expr) const -> std::optional<DzValue> {
-  return std::nullopt;
+auto DzObject::subscriptGet(Vm& vm, const DzValue& expr) -> DzValue {
+  throw NotSupportedException();
 }

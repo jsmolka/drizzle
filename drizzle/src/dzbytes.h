@@ -15,7 +15,7 @@ public:
   auto repr() const -> std::string;
   auto size() const -> std::size_t;
 
-  virtual auto subscriptGet(Vm& vm, const DzValue& expr) const -> std::optional<DzValue> override;
+  virtual auto subscriptGet(Vm& vm, const DzValue& expr) -> DzValue override;
 
   sh::vector<u8> data;
 };
