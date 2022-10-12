@@ -14,8 +14,8 @@ auto Parser::parse(const std::vector<Token>& tokens) -> Stmt {
 
 auto Parser::rule(Token::Type type) -> const Rule& {
   static constexpr auto kRulesSize = std::size_t(Token::Type::LastEnumValue);
-  static constexpr auto kRules = sh::make_array<Rule, kRulesSize>([](std::size_t type) -> Rule {
-    switch (Token::Type(type)) {
+  static constexpr auto kRules = sh::make_array<Rule, kRulesSize>([]<std::size_t kType>() -> Rule {
+    switch (Token::Type(kType)) {
       case Token::Type::And:          return {nullptr,           &Parser::binary,    Precedence::BitAnd    };
       case Token::Type::And2:         return {nullptr,           &Parser::and_,      Precedence::And       };
       case Token::Type::Bang:         return {&Parser::unary,    nullptr,            Precedence::Term      };
