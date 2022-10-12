@@ -54,7 +54,7 @@ public:
   static auto binary(const DzValue& a, const DzValue& b, Callback callback) {
     static_assert(int(Type::LastEnumValue) == 4);
 
-    #define DZ_HASH(a, b) int(Type::LastEnumValue) * int(a) + int(b)
+    #define DZ_HASH(a, b) (((int(a) << 3) | int(b)) & 0x3F)
     #define DZ_EVAL(a, b)                  \
     {                                      \
       using A  = decltype(a);              \
