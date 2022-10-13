@@ -50,11 +50,51 @@ public:
     #undef DZ_EVAL
   }
 
+  template<typename Functor, template<typename, typename> typename Promote = promote_t>
+  static auto binary2(const DzValue& a, const DzValue& b) {
+    static_assert(int(Type::LastEnumValue) == 4);
+
+    #define DZ_EVAL(a, b)            \
+    {                                \
+      using A = decltype(a);         \
+      using B = decltype(b);         \
+      return Functor{}.operator()(   \
+        binary_t<A, B, Promote>(a),  \
+        binary_t<B, A, Promote>(b)   \
+      );                             \
+    }
+
+    using Return = decltype(Functor{}.operator()(dzint{}, dzint{}));
+    using Binary = Return(*)(const DzValue&, const DzValue&);
+
+    static constexpr Binary kBinaries[16] = {
+      [](const DzValue& a, const DzValue& b) -> Return { DZ_EVAL(a.b, b.b); },
+      [](const DzValue& a, const DzValue& b) -> Return { DZ_EVAL(a.b, b.i); },
+      [](const DzValue& a, const DzValue& b) -> Return { DZ_EVAL(a.b, b.f); },
+      [](const DzValue& a, const DzValue& b) -> Return { DZ_EVAL(a.b, b.o); },
+      [](const DzValue& a, const DzValue& b) -> Return { DZ_EVAL(a.i, b.b); },
+      [](const DzValue& a, const DzValue& b) -> Return { DZ_EVAL(a.i, b.i); },
+      [](const DzValue& a, const DzValue& b) -> Return { DZ_EVAL(a.i, b.f); },
+      [](const DzValue& a, const DzValue& b) -> Return { DZ_EVAL(a.i, b.o); },
+      [](const DzValue& a, const DzValue& b) -> Return { DZ_EVAL(a.f, b.b); },
+      [](const DzValue& a, const DzValue& b) -> Return { DZ_EVAL(a.f, b.i); },
+      [](const DzValue& a, const DzValue& b) -> Return { DZ_EVAL(a.f, b.f); },
+      [](const DzValue& a, const DzValue& b) -> Return { DZ_EVAL(a.f, b.o); },
+      [](const DzValue& a, const DzValue& b) -> Return { DZ_EVAL(a.o, b.b); },
+      [](const DzValue& a, const DzValue& b) -> Return { DZ_EVAL(a.o, b.i); },
+      [](const DzValue& a, const DzValue& b) -> Return { DZ_EVAL(a.o, b.f); },
+      [](const DzValue& a, const DzValue& b) -> Return { DZ_EVAL(a.o, b.o); },
+    };
+    return kBinaries[int(a.type) << 2 | int(b.type)](a, b);
+
+    #undef DZ_EVAL
+  }
+
   template<template<typename, typename> typename Promote = promote_t, typename Callback>
   static auto binary(const DzValue& a, const DzValue& b, Callback callback) {
     static_assert(int(Type::LastEnumValue) == 4);
 
-    #define DZ_HASH(a, b) (((int(a) << 3) | int(b)) & 0x3F)
+    #define DZ_HASH(a, b) ((int(a) << 2 | int(b)) & 0xF)
     #define DZ_EVAL(a, b)                  \
     {                                      \
       using A  = decltype(a);              \

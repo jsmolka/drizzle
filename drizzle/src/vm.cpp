@@ -845,13 +845,26 @@ void Vm::subscriptSet() {
   }
 }
 
-void Vm::subtract() {
-  binary("-", []<typename A, typename B>(const A& a, const B& b) -> std::optional<DzValue> {
+struct DzSubtract {
+  template<typename A, typename B>
+  auto operator()(const A& a, const B& b) -> DzValue {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       return a - b;
+    } else {
+      throw NotSupportedException();
     }
-    return std::nullopt;
-  });
+  }
+};
+
+void Vm::subtract() {
+  auto& a = stack.peek(1);
+  auto& b = stack.peek(0);
+  try {
+    a = a.binary2<DzSubtract>(a, b);
+    stack.pop();
+  } catch (const NotSupportedException&) {
+    raise("unsupported operand types for '{}': '{}' and '{}'", "-", a.kind(), b.kind());
+  }
 }
 
 void Vm::true_() {
