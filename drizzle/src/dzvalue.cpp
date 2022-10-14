@@ -36,16 +36,20 @@ DzValue::operator bool() const {
   }
 }
 
-auto DzValue::operator==(const DzValue& other) const -> bool {
-  return binary(*this, other, []<typename A, typename B>(const A& a, const B& b) {
+struct DzEqual {
+  template<typename A, typename B>
+  auto operator()(const A& a, const B& b) const -> DzValue {
     if constexpr (dz_primitive<A, B>) {
       return a == b;
     } else if constexpr (dz_object<A, B>) {
       return *a == *b;
-    } else {
-      return false;
     }
-  });
+    return false;
+  }
+};
+
+auto DzValue::operator==(const DzValue& other) const -> bool {
+  return binary<DzEqual>(*this, other);
 }
 
 auto DzValue::operator!=(const DzValue& other) const -> bool {

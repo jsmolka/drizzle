@@ -50,8 +50,8 @@ public:
     #undef DZ_EVAL
   }
 
-  template<typename Functor, template<typename, typename> typename Promote = promote_t>
-  static auto binary2(const DzValue& a, const DzValue& b) {
+  template<typename Functor, template<typename, typename> typename Promote = promote_t, typename... Args>
+  static auto binary(const DzValue& a, const DzValue& b, Args&&... args) {
     static_assert(int(Type::LastEnumValue) == 4);
 
     #define DZ_EVAL(a, b)            \
@@ -60,74 +60,35 @@ public:
       using B = decltype(b);         \
       return Functor{}.operator()(   \
         binary_t<A, B, Promote>(a),  \
-        binary_t<B, A, Promote>(b)   \
+        binary_t<B, A, Promote>(b),  \
+        std::forward<Args>(args)...  \
       );                             \
     }
 
-    using Return = decltype(Functor{}.operator()(dzint{}, dzint{}));
-    using Binary = Return(*)(const DzValue&, const DzValue&);
+    using Return = decltype(Functor{}.operator()(dzint{}, dzint{}, std::forward<Args>(args)...));
+    using Binary = Return(*)(const DzValue&, const DzValue&, Args&&...);
 
     static constexpr Binary kBinaries[16] = {
-      [](const DzValue& a, const DzValue& b) -> Return { DZ_EVAL(a.b, b.b); },
-      [](const DzValue& a, const DzValue& b) -> Return { DZ_EVAL(a.b, b.i); },
-      [](const DzValue& a, const DzValue& b) -> Return { DZ_EVAL(a.b, b.f); },
-      [](const DzValue& a, const DzValue& b) -> Return { DZ_EVAL(a.b, b.o); },
-      [](const DzValue& a, const DzValue& b) -> Return { DZ_EVAL(a.i, b.b); },
-      [](const DzValue& a, const DzValue& b) -> Return { DZ_EVAL(a.i, b.i); },
-      [](const DzValue& a, const DzValue& b) -> Return { DZ_EVAL(a.i, b.f); },
-      [](const DzValue& a, const DzValue& b) -> Return { DZ_EVAL(a.i, b.o); },
-      [](const DzValue& a, const DzValue& b) -> Return { DZ_EVAL(a.f, b.b); },
-      [](const DzValue& a, const DzValue& b) -> Return { DZ_EVAL(a.f, b.i); },
-      [](const DzValue& a, const DzValue& b) -> Return { DZ_EVAL(a.f, b.f); },
-      [](const DzValue& a, const DzValue& b) -> Return { DZ_EVAL(a.f, b.o); },
-      [](const DzValue& a, const DzValue& b) -> Return { DZ_EVAL(a.o, b.b); },
-      [](const DzValue& a, const DzValue& b) -> Return { DZ_EVAL(a.o, b.i); },
-      [](const DzValue& a, const DzValue& b) -> Return { DZ_EVAL(a.o, b.f); },
-      [](const DzValue& a, const DzValue& b) -> Return { DZ_EVAL(a.o, b.o); },
+      [](const DzValue& a, const DzValue& b, Args&&... args) -> Return { DZ_EVAL(a.b, b.b); },
+      [](const DzValue& a, const DzValue& b, Args&&... args) -> Return { DZ_EVAL(a.b, b.i); },
+      [](const DzValue& a, const DzValue& b, Args&&... args) -> Return { DZ_EVAL(a.b, b.f); },
+      [](const DzValue& a, const DzValue& b, Args&&... args) -> Return { DZ_EVAL(a.b, b.o); },
+      [](const DzValue& a, const DzValue& b, Args&&... args) -> Return { DZ_EVAL(a.i, b.b); },
+      [](const DzValue& a, const DzValue& b, Args&&... args) -> Return { DZ_EVAL(a.i, b.i); },
+      [](const DzValue& a, const DzValue& b, Args&&... args) -> Return { DZ_EVAL(a.i, b.f); },
+      [](const DzValue& a, const DzValue& b, Args&&... args) -> Return { DZ_EVAL(a.i, b.o); },
+      [](const DzValue& a, const DzValue& b, Args&&... args) -> Return { DZ_EVAL(a.f, b.b); },
+      [](const DzValue& a, const DzValue& b, Args&&... args) -> Return { DZ_EVAL(a.f, b.i); },
+      [](const DzValue& a, const DzValue& b, Args&&... args) -> Return { DZ_EVAL(a.f, b.f); },
+      [](const DzValue& a, const DzValue& b, Args&&... args) -> Return { DZ_EVAL(a.f, b.o); },
+      [](const DzValue& a, const DzValue& b, Args&&... args) -> Return { DZ_EVAL(a.o, b.b); },
+      [](const DzValue& a, const DzValue& b, Args&&... args) -> Return { DZ_EVAL(a.o, b.i); },
+      [](const DzValue& a, const DzValue& b, Args&&... args) -> Return { DZ_EVAL(a.o, b.f); },
+      [](const DzValue& a, const DzValue& b, Args&&... args) -> Return { DZ_EVAL(a.o, b.o); },
     };
-    return kBinaries[int(a.type) << 2 | int(b.type)](a, b);
+    return kBinaries[int(a.type) << 2 | int(b.type)](a, b, std::forward<Args>(args)...);
 
     #undef DZ_EVAL
-  }
-
-  template<template<typename, typename> typename Promote = promote_t, typename Callback>
-  static auto binary(const DzValue& a, const DzValue& b, Callback callback) {
-    static_assert(int(Type::LastEnumValue) == 4);
-
-    #define DZ_HASH(a, b) ((int(a) << 2 | int(b)) & 0xF)
-    #define DZ_EVAL(a, b)                  \
-    {                                      \
-      using A  = decltype(a);              \
-      using B  = decltype(b);              \
-      using AP = binary_t<A, B, Promote>;  \
-      using BP = binary_t<B, A, Promote>;  \
-      return callback(AP(a), BP(b));       \
-    }
-
-    switch (DZ_HASH(a.type, b.type)) {
-      case DZ_HASH(DzValue::Type::Bool,   DzValue::Type::Bool  ): DZ_EVAL(a.b, b.b);
-      case DZ_HASH(DzValue::Type::Bool,   DzValue::Type::Int   ): DZ_EVAL(a.b, b.i);
-      case DZ_HASH(DzValue::Type::Bool,   DzValue::Type::Float ): DZ_EVAL(a.b, b.f);
-      case DZ_HASH(DzValue::Type::Bool,   DzValue::Type::Object): DZ_EVAL(a.b, b.o);
-      case DZ_HASH(DzValue::Type::Int,    DzValue::Type::Bool  ): DZ_EVAL(a.i, b.b);
-      case DZ_HASH(DzValue::Type::Int,    DzValue::Type::Int   ): DZ_EVAL(a.i, b.i);
-      case DZ_HASH(DzValue::Type::Int,    DzValue::Type::Float ): DZ_EVAL(a.i, b.f);
-      case DZ_HASH(DzValue::Type::Int,    DzValue::Type::Object): DZ_EVAL(a.i, b.o);
-      case DZ_HASH(DzValue::Type::Float,  DzValue::Type::Bool  ): DZ_EVAL(a.f, b.b);
-      case DZ_HASH(DzValue::Type::Float,  DzValue::Type::Int   ): DZ_EVAL(a.f, b.i);
-      case DZ_HASH(DzValue::Type::Float,  DzValue::Type::Float ): DZ_EVAL(a.f, b.f);
-      case DZ_HASH(DzValue::Type::Float,  DzValue::Type::Object): DZ_EVAL(a.f, b.o);
-      case DZ_HASH(DzValue::Type::Object, DzValue::Type::Bool  ): DZ_EVAL(a.o, b.b);
-      case DZ_HASH(DzValue::Type::Object, DzValue::Type::Int   ): DZ_EVAL(a.o, b.i);
-      case DZ_HASH(DzValue::Type::Object, DzValue::Type::Float ): DZ_EVAL(a.o, b.f);
-      case DZ_HASH(DzValue::Type::Object, DzValue::Type::Object): DZ_EVAL(a.o, b.o);
-      default:
-        SH_UNREACHABLE;
-        return callback(0, 0);
-    }
-
-    #undef DZ_EVAL
-    #undef DZ_HASH
   }
 
   auto operator=(std::same_as<dzbool> auto value) -> DzValue& {

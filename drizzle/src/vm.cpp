@@ -124,14 +124,14 @@ void Vm::unary(std::string_view operation, Callback callback) {
   }
 }
 
-template<template<typename, typename> typename Promote, typename Callback>
-void Vm::binary(std::string_view operation, Callback callback) {
-  const auto& a = stack.peek(1);
-  const auto& b = stack.peek(0);
-  if (const auto value = DzValue::binary<Promote>(a, b, callback)) {
+template<typename Functor, template<typename, typename> typename Promote, typename... Args>
+void Vm::binary(std::string_view operation, Args&&... args) {
+  auto& a = stack.peek(1);
+  auto& b = stack.peek(0);
+  try {
+    a = a.binary<Functor>(a, b, std::forward<Args>(args)...);
     stack.pop();
-    stack.top() = *value;
-  } else {
+  } catch (const NotSupportedException&) {
     raise("unsupported operand types for '{}': '{}' and '{}'", operation, a.kind(), b.kind());
   }
 }
@@ -195,8 +195,9 @@ auto Vm::reverse(const DzValue& iteree) -> DzIterator* {
   }
 }
 
-void Vm::add() {
-  binary("+", [this]<typename A, typename B>(const A& a, const B& b) -> std::optional<DzValue> {
+struct DzAdd {
+  template<typename A, typename B>
+  auto operator()(const A& a, const B& b, Vm& vm) const -> DzValue {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       return a + b;
     } else if constexpr (dz_object<A, B>) {
@@ -205,7 +206,7 @@ void Vm::add() {
           case DzObject::Type::Bytes: {
             const auto bytes_a = a->template as<DzBytes>();
             const auto bytes_b = b->template as<DzBytes>();
-            const auto bytes = gc.construct<DzBytes>();
+            const auto bytes = vm.gc.construct<DzBytes>();
             bytes->data.reserve(bytes_a->size() + bytes_b->size());
             for (const auto& data : {bytes_a->data, bytes_b->data}) {
               for (const auto& value : data) {
@@ -217,7 +218,7 @@ void Vm::add() {
           case DzObject::Type::List: {
             const auto list_a = a->template as<DzList>();
             const auto list_b = b->template as<DzList>();
-            const auto list = gc.construct<DzList>();
+            const auto list = vm.gc.construct<DzList>();
             list->values.reserve(list_a->size() + list_b->size());
             for (const auto& values : {list_a->values, list_b->values}) {
               for (const auto& value : values) {
@@ -229,33 +230,47 @@ void Vm::add() {
           case DzObject::Type::String: {
             const auto string_a = a->template as<DzString>();
             const auto string_b = b->template as<DzString>();
-            return gc.construct<DzString>(string_a->data + string_b->data);
+            return vm.gc.construct<DzString>(string_a->data + string_b->data);
           }
         }
       }
     }
-    return std::nullopt;
-  });
+    throw NotSupportedException();
+  }
+};
+
+void Vm::add() {
+  binary<DzAdd>("+", *this);
 }
 
-void Vm::bitwiseAnd() {
-  binary<promote_lax_t>("&", []<typename A, typename B>(const A& a, const B& b) -> std::optional<DzValue> {
+struct DzBitwiseAnd {
+  template<typename A, typename B>
+  auto operator()(const A& a, const B& b) const -> DzValue {
     if constexpr (dz_bool<A, B>) {
       return static_cast<dzbool>(a & b);
     } else if constexpr (dz_int<A, B>) {
       return a & b;
     }
-    return std::nullopt;
-  });
+    throw NotSupportedException();
+  }
+};
+
+void Vm::bitwiseAnd() {
+  binary<DzBitwiseAnd, promote_lax_t>("&");
 }
 
-void Vm::bitwiseAsr() {
-  binary(">>", []<typename A, typename B>(const A& a, const B& b) -> std::optional<DzValue> {
+struct DzBitwiseAsr {
+  template<typename A, typename B>
+  auto operator()(const A& a, const B& b) const -> DzValue {
     if constexpr (dz_int<A, B>) {
       return a >> b;
     }
-    return std::nullopt;
-  });
+    throw NotSupportedException();
+  }
+};
+
+void Vm::bitwiseAsr() {
+  binary<DzBitwiseAsr>(">>");
 }
 
 void Vm::bitwiseComplement() {
@@ -267,44 +282,64 @@ void Vm::bitwiseComplement() {
   });
 }
 
-void Vm::bitwiseLsl() {
-  binary("<<", []<typename A, typename B>(const A& a, const B& b) -> std::optional<DzValue> {
+struct DzBitwiseLsl {
+  template<typename A, typename B>
+  auto operator()(const A& a, const B& b) const -> DzValue {
     if constexpr (dz_int<A, B>) {
       return a << b;
     }
-    return std::nullopt;
-  });
+    throw NotSupportedException();
+  }
+};
+
+void Vm::bitwiseLsl() {
+  binary<DzBitwiseLsl>("<<");
 }
 
-void Vm::bitwiseLsr() {
-  binary(">>>", []<typename A, typename B>(const A& a, const B& b) -> std::optional<DzValue> {
+struct DzBitwiseLsr {
+  template<typename A, typename B>
+  auto operator()(const A& a, const B& b) const -> DzValue {
     if constexpr (dz_int<A, B>) {
       return static_cast<dzint>(static_cast<std::make_unsigned_t<dzint>>(a) >> b);
     }
-    return std::nullopt;
-  });
+    throw NotSupportedException();
+  }
+};
+
+void Vm::bitwiseLsr() {
+  binary<DzBitwiseLsr>(">>>");
 }
 
-void Vm::bitwiseOr() {
-  binary<promote_lax_t>("|", []<typename A, typename B>(const A& a, const B& b) -> std::optional<DzValue> {
+struct DzBitwiseOr {
+  template<typename A, typename B>
+  auto operator()(const A& a, const B& b) const -> DzValue {
     if constexpr (dz_bool<A, B>) {
       return static_cast<dzbool>(a | b);
     } else if constexpr (dz_int<A, B>) {
       return a | b;
     }
-    return std::nullopt;
-  });
+    throw NotSupportedException();
+  }
+};
+
+void Vm::bitwiseOr() {
+  binary<DzBitwiseOr, promote_lax_t>("|");
 }
 
-void Vm::bitwiseXor() {
-  binary<promote_lax_t>("^", []<typename A, typename B>(const A& a, const B& b) -> std::optional<DzValue> {
+struct DzBitwiseXor {
+  template<typename A, typename B>
+  auto operator()(const A& a, const B& b) const -> DzValue {
     if constexpr (dz_bool<A, B>) {
       return static_cast<dzbool>(a ^ b);
     } else if constexpr (dz_int<A, B>) {
       return a ^ b;
     }
-    return std::nullopt;
-  });
+    throw NotSupportedException();
+  }
+};
+
+void Vm::bitwiseXor() {
+  binary<DzBitwiseXor, promote_lax_t>("^");
 }
 
 void Vm::call() {
@@ -369,23 +404,29 @@ void Vm::constant() {
   stack.push(frames.top().function->chunk().constants[index]);
 }
 
-void Vm::divide() {
-  binary("/", [this]<typename A, typename B>(const A& a, const B& b) -> std::optional<DzValue> {
+struct DzDivide {
+  template<typename A, typename B>
+  auto operator()(const A& a, const B& b, Vm& vm) const -> DzValue {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       if (b == static_cast<B>(0)) {
-        raise("division by zero");
+        vm.raise("division by zero");
       }
       return static_cast<dzfloat>(a) / static_cast<dzfloat>(b);
     }
-    return std::nullopt;
-  });
+    throw NotSupportedException();
+  }
+};
+
+void Vm::divide() {
+  binary<DzDivide>("/", *this);
 }
 
-void Vm::divideInt() {
-  binary("//", [this]<typename A, typename B>(const A& a, const B& b) -> std::optional<DzValue> {
+struct DzDivideInt {
+  template<typename A, typename B>
+  auto operator()(const A& a, const B& b, Vm& vm) const -> DzValue {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       if (b == static_cast<B>(0)) {
-        raise("integer division by zero");
+        vm.raise("integer division by zero");
       }
       if constexpr (dz_int<A, B>) {
         return a / b;
@@ -393,8 +434,12 @@ void Vm::divideInt() {
         return std::floor(a / b);
       }
     }
-    return std::nullopt;
-  });
+    throw NotSupportedException();
+  }
+};
+
+void Vm::divideInt() {
+  binary<DzDivideInt>("//", *this);
 }
 
 void Vm::equal() {
@@ -444,22 +489,32 @@ void Vm::get() {
   stack.top() = value;
 }
 
-void Vm::greater() {
-  binary(">", []<typename A, typename B>(const A& a, const B& b) -> std::optional<DzValue> {
+struct DzGreater {
+  template<typename A, typename B>
+  auto operator()(const A& a, const B& b) const -> DzValue {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       return a > b;
     }
-    return std::nullopt;
-  });
+    throw NotSupportedException();
+  }
+};
+
+void Vm::greater() {
+  binary<DzGreater>(">");
 }
 
-void Vm::greaterEqual() {
-  binary(">=", []<typename A, typename B>(const A& a, const B& b) -> std::optional<DzValue> {
+struct DzGreaterEqual {
+  template<typename A, typename B>
+  auto operator()(const A& a, const B& b) const -> DzValue {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       return a >= b;
     }
-    return std::nullopt;
-  });
+    throw NotSupportedException();
+  }
+};
+
+void Vm::greaterEqual() {
+  binary<DzGreaterEqual>(">=");
 }
 
 void Vm::in() {
@@ -606,22 +661,32 @@ void Vm::jumpTruePop() {
   }
 }
 
-void Vm::less() {
-  binary("<", []<typename A, typename B>(const A& a, const B& b) -> std::optional<DzValue> {
+struct DzLess {
+  template<typename A, typename B>
+  auto operator()(const A& a, const B& b) const -> DzValue {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       return a < b;
     }
-    return std::nullopt;
-  });
+    throw NotSupportedException();
+  }
+};
+
+void Vm::less() {
+  binary<DzLess>("<");
 }
 
-void Vm::lessEqual() {
-  binary("<=", []<typename A, typename B>(const A& a, const B& b) -> std::optional<DzValue> {
+struct DzLessEqual {
+  template<typename A, typename B>
+  auto operator()(const A& a, const B& b) const -> DzValue {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       return a <= b;
     }
-    return std::nullopt;
-  });
+    throw NotSupportedException();
+  }
+};
+
+void Vm::lessEqual() {
+  binary<DzLessEqual>("<=");
 }
 
 template<std::integral Integral>
@@ -671,11 +736,12 @@ void Vm::map() {
   stack.push(map);
 }
 
-void Vm::modulo() {
-  binary("%", [this]<typename A, typename B>(const A& a, const B& b) -> std::optional<DzValue> {
+struct DzModulo {
+  template<typename A, typename B>
+  auto operator()(const A& a, const B& b, Vm& vm) const -> DzValue {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       if (b == static_cast<B>(0)) {
-        raise("modulo by zero");
+        vm.raise("modulo by zero");
       }
       if constexpr (dz_int<A, B>) {
         return a % b;
@@ -683,17 +749,26 @@ void Vm::modulo() {
         return std::fmod(a, b);
       }
     }
-    return std::nullopt;
-  });
+    throw NotSupportedException();
+  }
+};
+
+void Vm::modulo() {
+  binary<DzModulo>("%", *this);
 }
 
-void Vm::multiply() {
-  binary("*", []<typename A, typename B>(const A& a, const B& b) -> std::optional<DzValue> {
+struct DzMultiply {
+  template<typename A, typename B>
+  auto operator()(const A& a, const B& b) const -> DzValue {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       return a * b;
     }
-    return std::nullopt;
-  });
+    throw NotSupportedException();
+  }
+};
+
+void Vm::multiply() {
+  binary<DzMultiply>("*");
 }
 
 void Vm::negate() {
@@ -728,13 +803,18 @@ void Vm::popMultiple() {
   stack.pop(count);
 }
 
-void Vm::power() {
-  binary("**", []<typename  A, typename B>(const A& a, const B& b) -> std::optional<DzValue> {
+struct DzPower {
+  template<typename A, typename B>
+  auto operator()(const A& a, const B& b) const -> DzValue {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       return std::pow(a, b);
     }
-    return std::nullopt;
-  });
+    throw NotSupportedException();
+  }
+};
+
+void Vm::power() {
+  binary<DzPower>("**");
 }
 
 void Vm::range() {
@@ -847,24 +927,16 @@ void Vm::subscriptSet() {
 
 struct DzSubtract {
   template<typename A, typename B>
-  auto operator()(const A& a, const B& b) -> DzValue {
+  auto operator()(const A& a, const B& b) const -> DzValue {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       return a - b;
-    } else {
-      throw NotSupportedException();
     }
+    throw NotSupportedException();
   }
 };
 
 void Vm::subtract() {
-  auto& a = stack.peek(1);
-  auto& b = stack.peek(0);
-  try {
-    a = a.binary2<DzSubtract>(a, b);
-    stack.pop();
-  } catch (const NotSupportedException&) {
-    raise("unsupported operand types for '{}': '{}' and '{}'", "-", a.kind(), b.kind());
-  }
+  binary<DzSubtract>("-");
 }
 
 void Vm::true_() {
