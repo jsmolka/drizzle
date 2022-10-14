@@ -103,6 +103,9 @@ public:
   auto isUndefined() const -> bool;
   auto isHashable() const -> bool;
 
+  auto subscriptGet(Vm& vm, const DzValue& expr) -> DzValue;
+  void subscriptSet(Vm& vm, const DzValue& expr, const DzValue& value);
+
   Type type;
   union {
     dzbool b;

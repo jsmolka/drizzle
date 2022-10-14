@@ -15,8 +15,8 @@ public:
   auto get(DzString* identifier) const -> std::optional<DzValue>;
   void set(DzString* identifier, const DzValue& value);
 
-  virtual auto subscriptGet(Vm& vm, const DzValue& expr) -> DzValue override;
-  virtual void subscriptSet(Vm& vm, const DzValue& expr, const DzValue& value) override;
+  auto subscriptGet(Vm& vm, const DzValue& expr) -> DzValue;
+  void subscriptSet(Vm& vm, const DzValue& expr, const DzValue& value);
 
   DzClass* class_;
   Map<DzValue> fields;

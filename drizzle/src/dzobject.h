@@ -49,8 +49,8 @@ public:
   }
   auto is(Type type) const -> bool;
 
-  virtual auto subscriptGet(Vm& vm, const DzValue& expr) -> DzValue;
-  virtual void subscriptSet(Vm& vm, const DzValue& expr, const DzValue& value);
+  auto subscriptGet(Vm& vm, const DzValue& expr) -> DzValue;
+  void subscriptSet(Vm& vm, const DzValue& expr, const DzValue& value);
 
   Type type;
   bool marked = false;

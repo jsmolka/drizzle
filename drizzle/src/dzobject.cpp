@@ -81,9 +81,24 @@ auto DzObject::is(Type type) const -> bool {
 }
 
 auto DzObject::subscriptGet(Vm& vm, const DzValue& expr) -> DzValue {
-  throw NotSupportedException();
+  switch (type) {
+    case Type::Bytes:    return as<DzBytes>()->subscriptGet(vm, expr);
+    case Type::Instance: return as<DzInstance>()->subscriptGet(vm, expr);
+    case Type::List:     return as<DzList>()->subscriptGet(vm, expr);
+    case Type::Map:      return as<DzMap>()->subscriptGet(vm, expr);
+    case Type::String:   return as<DzString>()->subscriptGet(vm, expr);
+    default:
+      throw NotSupportedException();
+  }
 }
 
 void DzObject::subscriptSet(Vm& vm, const DzValue& expr, const DzValue& value) {
-  throw NotSupportedException();
+  switch (type) {
+    case Type::Bytes:    as<DzBytes>()->subscriptSet(vm, expr, value); break;
+    case Type::Instance: as<DzInstance>()->subscriptSet(vm, expr, value); break;
+    case Type::List:     as<DzList>()->subscriptSet(vm, expr, value); break;
+    case Type::Map:      as<DzMap>()->subscriptSet(vm, expr, value); break;
+    default:
+      throw NotSupportedException();
+  }
 }
