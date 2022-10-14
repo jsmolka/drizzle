@@ -65,28 +65,27 @@ public:
       );                             \
     }
 
-    using Return = decltype(Functor{}.operator()(dzint{}, dzint{}, std::forward<Args>(args)...));
-    using Binary = Return(*)(const DzValue&, const DzValue&, Args&&...);
-
-    static constexpr Binary kBinaries[16] = {
-      [](const DzValue& a, const DzValue& b, Args&&... args) -> Return { DZ_EVAL(a.b, b.b); },
-      [](const DzValue& a, const DzValue& b, Args&&... args) -> Return { DZ_EVAL(a.b, b.i); },
-      [](const DzValue& a, const DzValue& b, Args&&... args) -> Return { DZ_EVAL(a.b, b.f); },
-      [](const DzValue& a, const DzValue& b, Args&&... args) -> Return { DZ_EVAL(a.b, b.o); },
-      [](const DzValue& a, const DzValue& b, Args&&... args) -> Return { DZ_EVAL(a.i, b.b); },
-      [](const DzValue& a, const DzValue& b, Args&&... args) -> Return { DZ_EVAL(a.i, b.i); },
-      [](const DzValue& a, const DzValue& b, Args&&... args) -> Return { DZ_EVAL(a.i, b.f); },
-      [](const DzValue& a, const DzValue& b, Args&&... args) -> Return { DZ_EVAL(a.i, b.o); },
-      [](const DzValue& a, const DzValue& b, Args&&... args) -> Return { DZ_EVAL(a.f, b.b); },
-      [](const DzValue& a, const DzValue& b, Args&&... args) -> Return { DZ_EVAL(a.f, b.i); },
-      [](const DzValue& a, const DzValue& b, Args&&... args) -> Return { DZ_EVAL(a.f, b.f); },
-      [](const DzValue& a, const DzValue& b, Args&&... args) -> Return { DZ_EVAL(a.f, b.o); },
-      [](const DzValue& a, const DzValue& b, Args&&... args) -> Return { DZ_EVAL(a.o, b.b); },
-      [](const DzValue& a, const DzValue& b, Args&&... args) -> Return { DZ_EVAL(a.o, b.i); },
-      [](const DzValue& a, const DzValue& b, Args&&... args) -> Return { DZ_EVAL(a.o, b.f); },
-      [](const DzValue& a, const DzValue& b, Args&&... args) -> Return { DZ_EVAL(a.o, b.o); },
+    switch (int(a.type) << 2 | int(b.type)) {
+      case  0: DZ_EVAL(a.b, b.b);
+      case  1: DZ_EVAL(a.b, b.i);
+      case  2: DZ_EVAL(a.b, b.f);
+      case  3: DZ_EVAL(a.b, b.o);
+      case  4: DZ_EVAL(a.i, b.b);
+      case  5: DZ_EVAL(a.i, b.i);
+      case  6: DZ_EVAL(a.i, b.f);
+      case  7: DZ_EVAL(a.i, b.o);
+      case  8: DZ_EVAL(a.f, b.b);
+      case  9: DZ_EVAL(a.f, b.i);
+      case 10: DZ_EVAL(a.f, b.f);
+      case 11: DZ_EVAL(a.f, b.o);
+      case 12: DZ_EVAL(a.o, b.b);
+      case 13: DZ_EVAL(a.o, b.i);
+      case 14: DZ_EVAL(a.o, b.f);
+      case 15: DZ_EVAL(a.o, b.o);
+      default:
+        SH_UNREACHABLE;
+        DZ_EVAL(dzint{}, dzint{});
     };
-    return kBinaries[int(a.type) << 2 | int(b.type)](a, b, std::forward<Args>(args)...);
 
     #undef DZ_EVAL
   }
