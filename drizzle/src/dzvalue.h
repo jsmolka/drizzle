@@ -8,6 +8,7 @@
 #include "dzprimitives.h"
 
 class DzObject;
+// Todo: needed?
 class Vm;
 
 template<typename A, template<typename> typename Promote>
@@ -25,6 +26,11 @@ public:
   DzValue(dzint value);
   DzValue(dzfloat value);
   DzValue(DzObject* value);
+
+  auto operator=(dzbool value) -> DzValue&;
+  auto operator=(dzint value) -> DzValue&;
+  auto operator=(dzfloat value) -> DzValue&;
+  auto operator=(DzObject* value) -> DzValue&;
 
   template<template<typename> typename Promote = promote_t, typename Callback>
   static auto unary(const DzValue& a, Callback callback) {
@@ -83,30 +89,6 @@ public:
         SH_UNREACHABLE;
         return eval(nullptr, nullptr);
     };
-  }
-
-  auto operator=(std::same_as<dzbool> auto value) -> DzValue& {
-    b = value;
-    type = Type::Bool;
-    return *this;
-  }
-
-  auto operator=(std::same_as<dzint> auto value) -> DzValue& {
-    i = value;
-    type = Type::Int;
-    return *this;
-  }
-
-  auto operator=(std::same_as<dzfloat> auto value) -> DzValue& {
-    f = value;
-    type = Type::Float;
-    return *this;
-  }
-
-  auto operator=(std::same_as<DzObject*> auto value) -> DzValue& {
-    o = value;
-    type = Type::Object;
-    return *this;
   }
 
   operator bool() const;

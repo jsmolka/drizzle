@@ -24,6 +24,30 @@ DzValue::DzValue(dzfloat value)
 DzValue::DzValue(DzObject* value)
   : type(Type::Object), o(value) {}
 
+auto DzValue::operator=(dzbool value) -> DzValue& {
+  b = value;
+  type = Type::Bool;
+  return *this;
+}
+
+auto DzValue::operator=(dzint value) -> DzValue& {
+  i = value;
+  type = Type::Int;
+  return *this;
+}
+
+auto DzValue::operator=(dzfloat value) -> DzValue& {
+  f = value;
+  type = Type::Float;
+  return *this;
+}
+
+auto DzValue::operator=(DzObject* value) -> DzValue& {
+  o = value;
+  type = Type::Object;
+  return *this;
+}
+
 DzValue::operator bool() const {
   switch (type) {
     case Type::Bool:   return b;
