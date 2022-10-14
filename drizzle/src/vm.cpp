@@ -13,6 +13,16 @@
 #include "gc.h"
 #include "opcode.h"
 
+struct DzSubtract {
+  template<typename A, typename B>
+  auto operator()(const A& a, const B& b) const -> DzValue {
+    if constexpr (dz_int<A, B> || dz_float<A, B>) {
+      return a - b;
+    }
+    throw NotSupportedException();
+  }
+};
+
 Vm::Vm(Gc& gc, const Arguments& arguments)
   : gc(gc), arguments(arguments) {}
 
@@ -88,17 +98,68 @@ void Vm::interpret(DzFunction* main) {
       case Opcode::Range: range(); break;
       case Opcode::Return: return_(); break;
       case Opcode::Set: set(); break;
-      case Opcode::Store: store<u8>(); break;
-      case Opcode::StoreExt: store<u16>(); break;
-      case Opcode::StoreGlobal: storeGlobal<u8>(); break;
-      case Opcode::StoreGlobalExt: storeGlobal<u16>(); break;
-      case Opcode::SubscriptGet: subscriptGet(); break;
-      case Opcode::SubscriptSet: subscriptSet(); break;
-      case Opcode::Subtract: subtract(); break;
-      case Opcode::True: true_(); break;
-      default:
+
+      case Opcode::Store: {
+        const auto index = read<u8>();
+        stack[frames.top().sp + index] = stack.top();
+        break;
+      }
+
+      case Opcode::StoreExt: {
+        const auto index = read<u16>();
+        stack[frames.top().sp + index] = stack.top();
+        break;
+      }
+
+      case Opcode::StoreGlobal: {
+        const auto index = read<u8>();
+        globals[index] = stack.top();
+        break;
+      }
+
+      case Opcode::StoreGlobalExt: {
+        const auto index = read<u16>();
+        globals[index] = stack.top();
+        break;
+      }
+
+      case Opcode::SubscriptGet: {
+        auto& expr = stack.peek(0);
+        auto& self = stack.peek(1);
+        try {
+          self = self.subscriptGet(*this, expr);
+          stack.pop();
+        } catch (const NotSupportedException&) {
+          raise("'{}' object is not subscriptable", self.kind());
+        }
+        break;
+      }
+
+      case Opcode::SubscriptSet: {
+        auto expr = stack.pop_value();
+        auto self = stack.pop_value();
+        try {
+          self.subscriptSet(*this, expr, stack.top());
+        } catch (const NotSupportedException&) {
+          raise("'{}' object is not subscriptable", self.kind());
+        }
+        break;
+      }
+
+      case Opcode::Subtract: {
+        binary<DzSubtract>("-");
+        break;
+      }
+
+      case Opcode::True: {
+        stack.push(true);
+        break;
+      }
+
+      default: {
         SH_UNREACHABLE;
         break;
+      }
     }
   }
 
@@ -840,56 +901,4 @@ void Vm::set() {
   } else {
     raise("'{}' object does not have properties", self.kind());
   }
-}
-
-template<std::integral Integral>
-void Vm::store() {
-  const auto index = read<Integral>();
-  stack[frames.top().sp + index] = stack.top();
-}
-
-template<std::integral Integral>
-void Vm::storeGlobal() {
-  const auto index = read<Integral>();
-  globals[index] = stack.top();
-}
-
-
-void Vm::subscriptGet() {
-  auto& expr = stack.peek(0);
-  auto& self = stack.peek(1);
-  try {
-    self = self.subscriptGet(*this, expr);
-    stack.pop();
-  } catch (const NotSupportedException&) {
-    raise("'{}' object is not subscriptable", self.kind());
-  }
-}
-
-void Vm::subscriptSet() {
-  auto expr = stack.pop_value();
-  auto self = stack.pop_value();
-  try {
-    self.subscriptSet(*this, expr, stack.top());
-  } catch (const NotSupportedException&) {
-    raise("'{}' object is not subscriptable", self.kind());
-  }
-}
-
-struct DzSubtract {
-  template<typename A, typename B>
-  auto operator()(const A& a, const B& b) const -> DzValue {
-    if constexpr (dz_int<A, B> || dz_float<A, B>) {
-      return a - b;
-    }
-    throw NotSupportedException();
-  }
-};
-
-void Vm::subtract() {
-  binary<DzSubtract>("-");
-}
-
-void Vm::true_() {
-  stack.push(true);
 }

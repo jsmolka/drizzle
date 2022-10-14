@@ -113,14 +113,6 @@ public:  // Todo: ugly
   void range();
   void return_();
   void set();
-  template<std::integral Integral>
-  void store();
-  template<std::integral Integral>
-  void storeGlobal();
-  void subscriptGet();
-  void subscriptSet();
-  void subtract();
-  void true_();
 
   Gc& gc;
   Arguments arguments;
