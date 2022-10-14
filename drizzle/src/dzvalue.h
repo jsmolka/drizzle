@@ -50,44 +50,39 @@ public:
     #undef DZ_EVAL
   }
 
-  template<typename Functor, template<typename, typename> typename Promote = promote_t, typename... Args>
+  template<typename Operation, template<typename, typename> typename Promote = promote_t, typename... Args>
   static auto binary(const DzValue& a, const DzValue& b, Args&&... args) {
     static_assert(int(Type::LastEnumValue) == 4);
 
-    #define DZ_EVAL(a, b)            \
-    {                                \
-      using A = decltype(a);         \
-      using B = decltype(b);         \
-      return Functor{}.operator()(   \
-        binary_t<A, B, Promote>(a),  \
-        binary_t<B, A, Promote>(b),  \
-        std::forward<Args>(args)...  \
-      );                             \
-    }
-
-    switch (int(a.type) << 2 | int(b.type)) {
-      case  0: DZ_EVAL(a.b, b.b);
-      case  1: DZ_EVAL(a.b, b.i);
-      case  2: DZ_EVAL(a.b, b.f);
-      case  3: DZ_EVAL(a.b, b.o);
-      case  4: DZ_EVAL(a.i, b.b);
-      case  5: DZ_EVAL(a.i, b.i);
-      case  6: DZ_EVAL(a.i, b.f);
-      case  7: DZ_EVAL(a.i, b.o);
-      case  8: DZ_EVAL(a.f, b.b);
-      case  9: DZ_EVAL(a.f, b.i);
-      case 10: DZ_EVAL(a.f, b.f);
-      case 11: DZ_EVAL(a.f, b.o);
-      case 12: DZ_EVAL(a.o, b.b);
-      case 13: DZ_EVAL(a.o, b.i);
-      case 14: DZ_EVAL(a.o, b.f);
-      case 15: DZ_EVAL(a.o, b.o);
-      default:
-        SH_UNREACHABLE;
-        DZ_EVAL(dzint{}, dzint{});
+    auto eval = [&args...]<typename A, typename B>(const A& a, const B& b) {
+      return Operation{}.operator()(
+        binary_t<A, B, Promote>(a),
+        binary_t<B, A, Promote>(b),
+        std::forward<Args>(args)...
+      );  
     };
 
-    #undef DZ_EVAL
+    switch (int(a.type) << 2 | int(b.type)) {
+      case 0x0: return eval(a.b, b.b);
+      case 0x1: return eval(a.b, b.i);
+      case 0x2: return eval(a.b, b.f);
+      case 0x3: return eval(a.b, b.o);
+      case 0x4: return eval(a.i, b.b);
+      case 0x5: return eval(a.i, b.i);
+      case 0x6: return eval(a.i, b.f);
+      case 0x7: return eval(a.i, b.o);
+      case 0x8: return eval(a.f, b.b);
+      case 0x9: return eval(a.f, b.i);
+      case 0xA: return eval(a.f, b.f);
+      case 0xB: return eval(a.f, b.o);
+      case 0xC: return eval(a.o, b.b);
+      case 0xD: return eval(a.o, b.i);
+      case 0xE: return eval(a.o, b.f);
+      case 0xF: return eval(a.o, b.o);
+      default:
+        SH_UNREACHABLE;
+        return eval(nullptr, nullptr);
+    };
   }
 
   auto operator=(std::same_as<dzbool> auto value) -> DzValue& {

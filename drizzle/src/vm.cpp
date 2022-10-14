@@ -124,12 +124,12 @@ void Vm::unary(std::string_view operation, Callback callback) {
   }
 }
 
-template<typename Functor, template<typename, typename> typename Promote, typename... Args>
+template<typename Operation, template<typename, typename> typename Promote, typename... Args>
 void Vm::binary(std::string_view operation, Args&&... args) {
   auto& a = stack.peek(1);
   auto& b = stack.peek(0);
   try {
-    a = a.binary<Functor>(a, b, std::forward<Args>(args)...);
+    a = a.binary<Operation>(a, b, std::forward<Args>(args)...);
     stack.pop();
   } catch (const NotSupportedException&) {
     raise("unsupported operand types for '{}': '{}' and '{}'", operation, a.kind(), b.kind());
