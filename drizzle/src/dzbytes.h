@@ -16,6 +16,7 @@ public:
   auto size() const -> std::size_t;
 
   virtual auto subscriptGet(Vm& vm, const DzValue& expr) -> DzValue override;
+  virtual void subscriptSet(Vm& vm, const DzValue& expr, const DzValue& value) override;
 
   sh::vector<u8> data;
 };

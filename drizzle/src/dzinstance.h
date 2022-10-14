@@ -16,6 +16,7 @@ public:
   void set(DzString* identifier, const DzValue& value);
 
   virtual auto subscriptGet(Vm& vm, const DzValue& expr) -> DzValue override;
+  virtual void subscriptSet(Vm& vm, const DzValue& expr, const DzValue& value) override;
 
   DzClass* class_;
   Map<DzValue> fields;

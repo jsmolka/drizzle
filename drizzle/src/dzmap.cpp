@@ -51,3 +51,8 @@ auto DzMap::subscriptGet(Vm& vm, const DzValue& expr) -> DzValue {
   vm.expectHashable(expr);
   return get(expr).value_or(&null);
 }
+
+void DzMap::subscriptSet(Vm& vm, const DzValue& expr, const DzValue& value) {
+  vm.expectHashable(expr);
+  set(expr, value);
+}

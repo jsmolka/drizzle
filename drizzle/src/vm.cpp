@@ -859,7 +859,10 @@ void Vm::subscriptGet() {
   auto& expr = stack.peek(0);
   auto& self = stack.peek(1);
   try {
-    self = self.subscriptGet(*this, expr);
+    if (!self.isObject()) {
+      throw NotSupportedException();
+    }
+    self = self.o->subscriptGet(*this, expr);
     stack.pop();
   } catch (const NotSupportedException&) {
     raise("'{}' object is not subscriptable", self.kind());
@@ -867,61 +870,15 @@ void Vm::subscriptGet() {
 }
 
 void Vm::subscriptSet() {
-  auto error = [this](const DzValue& self) {
+  auto expr = stack.pop_value();
+  auto self = stack.pop_value();
+  try {
+    if (!self.isObject()) {
+      throw NotSupportedException();
+    }
+    self.o->subscriptSet(*this, expr, stack.top());
+  } catch (const NotSupportedException&) {
     raise("'{}' object is not subscriptable", self.kind());
-  };
-
-  const auto expr = stack.pop_value();
-  const auto self = stack.pop_value();
-  if (!self.is(DzValue::Type::Object)) {
-    error(self);
-  }
-
-  switch (self.o->type) {
-    case DzObject::Type::Bytes: {
-      expect(expr, DzValue::Type::Int);
-      expect(stack.top(), DzValue::Type::Int);
-      const auto bytes = self.o->as<DzBytes>();
-      auto index = expr.i;
-      if (index < 0) {
-        index += bytes->size();
-      }
-      if (index < 0 || index >= bytes->size()) {
-        raise("bytes index out of range");
-      }
-      (*bytes)[index] = stack.top().i;
-      break;
-    }
-    case DzObject::Type::Instance: {
-      expect(expr, DzObject::Type::String);
-      const auto inst = self.o->as<DzInstance>();
-      const auto prop = expr.o->as<DzString>();
-      inst->set(prop, stack.top());
-      break;
-    }
-    case DzObject::Type::List: {
-      expect(expr, DzValue::Type::Int);
-      const auto list = self.o->as<DzList>();
-      auto index = expr.i;
-      if (index < 0) {
-        index += list->size();
-      }
-      if (index < 0 || index >= list->size()) {
-        raise("list index out of range");
-      }
-      (*list)[index] = stack.top();
-      break;
-    }
-    case DzObject::Type::Map: {
-      expectHashable(expr);
-      const auto map = self.o->as<DzMap>();
-      map->set(expr, stack.top());
-      break;
-    }
-    default: {
-      error(self);
-      break;
-    }
   }
 }
 

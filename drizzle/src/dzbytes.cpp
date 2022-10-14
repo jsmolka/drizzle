@@ -43,6 +43,20 @@ auto DzBytes::subscriptGet(Vm& vm, const DzValue& expr) -> DzValue {
   return static_cast<dzint>(data[index]);
 }
 
+void DzBytes::subscriptSet(Vm& vm, const DzValue& expr, const DzValue& value) {
+  vm.expect(expr, DzValue::Type::Int);
+  vm.expect(value, DzValue::Type::Int);
+
+  auto index = expr.i;
+  if (index < 0) {
+    index += size();
+  }
+  if (index < 0 || index >= size()) {
+    vm.raise("bytes index out of range");
+  }
+  data[index] = value.i;
+}
+
 DzBytesIterator::DzBytesIterator(DzObject* iteree)
   : DzIterator(iteree, "bytes"), index(0) {}
 

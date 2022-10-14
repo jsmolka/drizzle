@@ -42,3 +42,8 @@ auto DzInstance::subscriptGet(Vm& vm, const DzValue& expr) -> DzValue {
     return &null;
   }
 }
+
+void DzInstance::subscriptSet(Vm& vm, const DzValue& expr, const DzValue& value) {
+  vm.expect(expr, DzObject::Type::String);
+  set(expr.o->as<DzString>(), value);
+}

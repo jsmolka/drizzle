@@ -121,24 +121,14 @@ auto DzValue::is(Type type) const -> bool {
   return this->type == type;
 }
 
+auto DzValue::isObject() const -> bool {
+  return type == Type::Object;
+}
+
 auto DzValue::isUndefined() const -> bool {
   return is(Type::Object) && o == nullptr;
 }
 
 auto DzValue::isHashable() const -> bool {
   return !is(Type::Object) || o->is(DzObject::Type::String);
-}
-
-auto DzValue::subscriptGet(Vm& vm, const DzValue& expr) -> DzValue {
-  switch (type) {
-    default:
-      SH_UNREACHABLE;
-      [[fallthrough]];
-    case Type::Bool:
-    case Type::Int:
-    case Type::Float:
-      throw NotSupportedException();
-    case Type::Object:
-      return o->subscriptGet(vm, expr);
-  }
 }

@@ -43,6 +43,18 @@ auto DzList::subscriptGet(Vm& vm, const DzValue& expr) -> DzValue {
   return values[index];
 }
 
+void DzList::subscriptSet(Vm& vm, const DzValue& expr, const DzValue& value) {
+  vm.expect(expr, DzValue::Type::Int);
+  auto index = expr.i;
+  if (index < 0) {
+    index += size();
+  }
+  if (index < 0 || index >= size()) {
+    vm.raise("list index out of range");
+  }
+  values[index] = value;
+}
+
 DzListIterator::DzListIterator(DzObject* iteree)
   : DzIterator(iteree, "list"), index(0) {}
 

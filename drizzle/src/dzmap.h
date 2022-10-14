@@ -19,6 +19,7 @@ public:
   void set(const DzValue& key, const DzValue& value);
 
   virtual auto subscriptGet(Vm& vm, const DzValue& expr) -> DzValue override;
+  virtual void subscriptSet(Vm& vm, const DzValue& expr, const DzValue& value) override;
 
   tsl::robin_map<DzValue, DzValue> values;
 };

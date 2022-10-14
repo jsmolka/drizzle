@@ -99,10 +99,9 @@ public:
   auto hash() const -> std::size_t;
 
   auto is(Type type) const -> bool;
+  auto isObject() const -> bool;
   auto isUndefined() const -> bool;
   auto isHashable() const -> bool;
-
-  auto subscriptGet(Vm& vm, const DzValue& expr) -> DzValue;
 
   Type type;
   union {
