@@ -60,6 +60,16 @@ DzValue::operator bool() const {
   }
 }
 
+auto DzValue::operator->() -> DzObject* {
+  assert(o && isObject());
+  return o;
+}
+
+auto DzValue::operator->() const -> const DzObject* {
+  assert(o && isObject());
+  return o;
+}
+
 struct DzEqual {
   template<typename A, typename B>
   auto operator()(const A& a, const B& b) const -> DzValue {
@@ -131,20 +141,4 @@ auto DzValue::isUndefined() const -> bool {
 
 auto DzValue::isHashable() const -> bool {
   return !is(Type::Object) || o->is(DzObject::Type::String);
-}
-
-auto DzValue::subscriptGet(Vm& vm, const DzValue& expr) -> DzValue {
-  if (isObject()) {
-    return o->subscriptGet(vm, expr);
-  } else {
-    throw NotSupportedException();
-  }
-}
-
-void DzValue::subscriptSet(Vm& vm, const DzValue& expr, const DzValue& value) {
-  if (isObject()) {
-    o->subscriptSet(vm, expr, value);
-  } else {
-    throw NotSupportedException();
-  }
 }

@@ -92,6 +92,8 @@ public:
   }
 
   operator bool() const;
+  auto operator->() -> DzObject*;
+  auto operator->() const -> const DzObject*;
   auto operator==(const DzValue& other) const -> bool;
   auto operator!=(const DzValue& other) const -> bool;
   auto kind() const -> std::string_view;
@@ -102,9 +104,6 @@ public:
   auto isObject() const -> bool;
   auto isUndefined() const -> bool;
   auto isHashable() const -> bool;
-
-  auto subscriptGet(Vm& vm, const DzValue& expr) -> DzValue;
-  void subscriptSet(Vm& vm, const DzValue& expr, const DzValue& value);
 
   Type type;
   union {

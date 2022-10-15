@@ -859,7 +859,10 @@ void Vm::subscriptGet() {
   auto& expr = stack.peek(0);
   auto& self = stack.peek(1);
   try {
-    self = self.subscriptGet(*this, expr);
+    if (!self.isObject()) {
+      throw NotSupportedException();
+    }
+    self = self->subscriptGet(*this, expr);
     stack.pop();
   } catch (const NotSupportedException&) {
     raise("'{}' object is not subscriptable", self.kind());
@@ -870,7 +873,10 @@ void Vm::subscriptSet() {
   auto expr = stack.pop_value();
   auto self = stack.pop_value();
   try {
-    self.subscriptSet(*this, expr, stack.top());
+    if (!self.isObject()) {
+      throw NotSupportedException();
+    }
+    self->subscriptSet(*this, expr, stack.top());
   } catch (const NotSupportedException&) {
     raise("'{}' object is not subscriptable", self.kind());
   }
