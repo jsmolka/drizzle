@@ -9,6 +9,8 @@
 
 #include "dzvalue.h"
 
+class Vm;
+
 class DzObject {
 public:
   enum class Type {

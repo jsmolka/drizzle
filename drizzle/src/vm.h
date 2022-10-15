@@ -52,8 +52,8 @@ public:  // Todo: ugly
 
   template<template<typename> typename Promote = promote_t, typename Callback>
   void unary(std::string_view operation, Callback callback);
-  template<typename Operation, template<typename, typename> typename Promote = promote_t, typename... Args>
-  void binary(std::string_view operation, Args&&... args);
+  template<template<typename> typename Promote = promote_t, typename Callback>
+  void binary(std::string_view operation, Callback callback);
 
   auto forward(const DzValue& iteree) -> DzIterator*;
   auto reverse(const DzValue& iteree) -> DzIterator*;

@@ -8,8 +8,6 @@
 #include "dzprimitives.h"
 
 class DzObject;
-// Todo: needed?
-class Vm;
 
 template<typename A, template<typename> typename Promote>
 using unary_t = std::conditional_t<dz_primitive<A>, Promote<A>, A>;
@@ -36,35 +34,29 @@ public:
   static auto unary(const DzValue& a, Callback callback) {
     static_assert(int(Type::LastEnumValue) == 4);
 
-    #define DZ_EVAL(a)                 \
-    {                                  \
-      using A  = decltype(a);          \
-      using AP = unary_t<A, Promote>;  \
-      return callback(AP(a));          \
-    }
+    auto eval = [callback]<typename A>(const A& a) {
+      return callback(unary_t<A, Promote>(a));
+    };
 
-    switch (a.type) {
-      case DzValue::Type::Bool:   DZ_EVAL(a.b);
-      case DzValue::Type::Int:    DZ_EVAL(a.i);
-      case DzValue::Type::Float:  DZ_EVAL(a.f);
-      case DzValue::Type::Object: DZ_EVAL(a.o);
+    switch (int(a.type)) {
+      case 0x0: return eval(a.b);
+      case 0x1: return eval(a.i);
+      case 0x2: return eval(a.f);
+      case 0x3: return eval(a.o);
       default:
         SH_UNREACHABLE;
-        return callback(0);
+        return eval(nullptr);
     }
-
-    #undef DZ_EVAL
   }
 
-  template<typename Operation, template<typename, typename> typename Promote = promote_t, typename... Args>
-  static auto binary(const DzValue& a, const DzValue& b, Args&&... args) {
+  template<template<typename, typename> typename Promote = promote_t, typename Callback>
+  static auto binary(const DzValue& a, const DzValue& b, Callback callback) {
     static_assert(int(Type::LastEnumValue) == 4);
 
-    auto eval = [&args...]<typename A, typename B>(const A& a, const B& b) {
-      return Operation{}.operator()(
+    auto eval = [callback]<typename A, typename B>(const A& a, const B& b) {
+      return callback(
         binary_t<A, B, Promote>(a),
-        binary_t<B, A, Promote>(b),
-        std::forward<Args>(args)...
+        binary_t<B, A, Promote>(b)
       );  
     };
 
