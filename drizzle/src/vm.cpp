@@ -833,10 +833,10 @@ void Vm::return_() {
 }
 
 void Vm::set() {
-  const auto prop = stack.pop_value().o->as<DzString>();
-  const auto self = stack.pop_value();
-  if (self.is(DzValue::Type::Object) && self.o->is(DzObject::Type::Instance)) {
-    self.o->as<DzInstance>()->set(prop, stack.top());
+  auto prop = stack.pop_value()->as<DzString>();
+  auto self = stack.pop_value();
+  if (self.isObject() && self->is(DzObject::Type::Instance)) {
+    self->as<DzInstance>()->set(prop, stack.top());
   } else {
     raise("'{}' object does not have properties", self.kind());
   }
