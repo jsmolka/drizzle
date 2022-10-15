@@ -2,5 +2,6 @@
 * text=auto
 
 # Linguist language
-*.h    text diff=cpp linguist-language=cpp
-*.cpp  text diff=cpp linguist-language=cpp
+*.h   text diff=cpp    linguist-language=cpp
+*.cpp text diff=cpp    linguist-language=cpp
+*.dz  text diff=python linguist-language=python
