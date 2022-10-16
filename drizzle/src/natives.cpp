@@ -214,12 +214,12 @@ void Vm::defineNatives() {
     ),
   };
 
-  const auto main = frames[0].function;
   for (const auto& native : natives) {
-    const auto iter = main->identifiers.find(native->identifier);
-    if (iter != main->identifiers.end()) {
-      const auto& [identifier, index] = *iter;
-      globals[index] = native;
+    for (const auto [index, global] : sh::enumerate(program.globals)) {
+      if (native->identifier->data == global) {
+        globals[index] = native;
+        break;
+      }
     }
   }
 }

@@ -6,7 +6,6 @@
 #include "arity.h"
 #include "chunk.h"
 #include "dzstring.h"
-#include "map.h"
 
 class Vm;
 
@@ -28,7 +27,6 @@ public:
 
   Arity arity;
   DzString* identifier;
-  Map<std::size_t> identifiers;
 
 private:
   std::variant<Chunk, Native> body;

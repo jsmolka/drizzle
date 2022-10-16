@@ -84,6 +84,7 @@
     <ClInclude Include="src\opcode.h" />
     <ClInclude Include="src\location.h" />
     <ClInclude Include="src\parser.h" />
+    <ClInclude Include="src\program.h" />
     <ClInclude Include="src\sdl2.h" />
     <ClInclude Include="src\statement.h" />
     <ClInclude Include="src\token.h" />

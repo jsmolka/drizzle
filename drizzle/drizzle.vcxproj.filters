@@ -223,5 +223,8 @@
     <ClInclude Include="src\dzsdlwindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\program.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

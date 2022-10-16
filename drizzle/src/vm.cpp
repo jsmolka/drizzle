@@ -16,11 +16,13 @@
 Vm::Vm(Gc& gc)
   : gc(gc) {}
 
-void Vm::interpret(DzFunction* main) {
+void Vm::interpret(const Program& program) {
   static_assert(int(Opcode::LastEnumValue) == 62);
 
-  globals.resize(main->identifiers.size());
-  frames.emplace(main->chunk().code.data(), 0, main);
+  this->program = program;
+
+  globals.resize(program.globals.size());
+  frames.emplace(program.main->chunk().code.data(), 0, program.main);
 
   defineNatives();
   defineBytesMembers();
@@ -640,13 +642,11 @@ void Vm::loadGlobal() {
   const auto index = read<Integral>();
   const auto& value = globals[index];
   if (value.isUndefined()) {
-    const auto main = frames[0].function;
-    for (const auto& identifier : main->identifiers) {
-      if (identifier.second == index) {
-        raise("undefined variable '{}'", identifier.first->data);
-      }
+    if (index < program.globals.size()) {
+      raise("undefined variable '{}'", program.globals[index]);
+    } else {
+      raise("unknown undefined variable");
     }
-    raise("unknown undefined variable");
   }
   stack.push(value);
 }

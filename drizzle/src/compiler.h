@@ -1,10 +1,12 @@
 #pragma once
 
 #include <sh/stack.h>
+#include <tsl/robin_map.h>
 
 #include "astvisiter.h"
 #include "dzfunction.h"
 #include "opcode.h"
+#include "program.h"
 
 class Gc;
 
@@ -12,7 +14,7 @@ class Compiler final : public AstVisiter {
 public:
   Compiler(Gc& gc);
 
-  auto compile(const Stmt& ast) -> DzFunction*;
+  auto compile(const Stmt& ast) -> Program;
 
 protected:
   using AstVisiter::visit;
@@ -101,5 +103,6 @@ private:
   sh::stack<Level> scope;
   sh::stack<Variable> variables;
   sh::stack<Location> locations;
+  // Todo: why not just std::string_view here?
   tsl::robin_map<Identifier, Global> globals;
 };

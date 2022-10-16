@@ -5,6 +5,8 @@
 #include "dzfunction.h"
 #include "dzstring.h"
 #include "error.h"
+#include "map.h"
+#include "program.h"
 #include "token.h"
 
 class Gc;
@@ -18,7 +20,7 @@ public:
 
   Vm(Gc& gc);
 
-  void interpret(DzFunction* main);
+  void interpret(const Program& program);
 
 public:  // Todo: ugly
   static constexpr auto kMaximumRecursionDepth = 1000;
@@ -121,6 +123,7 @@ public:  // Todo: ugly
   void true_();
 
   Gc& gc;
+  Program program;
   u8* opcode_pc = nullptr;
   sh::stack<Frame, 32> frames;
   sh::stack<DzValue, 512> stack;

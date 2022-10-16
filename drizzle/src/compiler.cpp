@@ -13,9 +13,17 @@ Compiler::Compiler(Gc& gc)
 Compiler::Compiler(Gc& gc, Type type, DzFunction* function, Compiler* parent)
   : gc(gc), type(type), function(function), parent(parent) {}
 
-auto Compiler::compile(const Stmt& ast) -> DzFunction* {
+auto Compiler::compile(const Stmt& ast) -> Program {
   visit(const_cast<Stmt&>(ast));
-  return function;
+
+  Program program;
+  program.main = function;
+  program.globals.resize(globals.size());
+  for (const auto& [identifier, global] : globals) {
+    program.globals[global.index] = identifier;
+  }
+
+  return program;
 }
 
 void Compiler::visit(Stmt& stmt) {
@@ -203,11 +211,6 @@ void Compiler::visit(Statement::If& if_) {
 void Compiler::visit(Statement::Program& program) {
   AstVisiter::visit(program);
   emit(Opcode::Exit);
-
-  function->identifiers.reserve(globals.size());
-  for (const auto& [identifier, global] : globals) {
-    function->identifiers.insert({ gc.construct<DzString>(identifier), global.index });
-  }
 }
 
 void Compiler::visit(Statement::Return& return_) {
