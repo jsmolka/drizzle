@@ -4,7 +4,6 @@
 #include <string>
 #include <variant>
 #include <vector>
-
 #include <sh/utility.h>
 
 #include "dzprimitives.h"

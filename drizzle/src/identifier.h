@@ -2,7 +2,6 @@
 
 #include <string>
 #include <string_view>
-
 #include <sh/fmt.h>
 
 #include "location.h"

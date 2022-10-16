@@ -1,7 +1,6 @@
 #pragma once
 
 #include <limits>
-
 #include <sh/fmt.h>
 
 #include "int.h"

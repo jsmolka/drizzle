@@ -1,7 +1,6 @@
 #pragma once
 
 #include <optional>
-
 #include <sh/fmt.h>
 #include <sh/utility.h>
 
