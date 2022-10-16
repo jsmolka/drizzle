@@ -5,7 +5,7 @@ DzBoundMethod::DzBoundMethod(DzObject* self, DzFunction* function)
 
 auto DzBoundMethod::operator==(const DzObject& other) const -> bool {
   return other.type == Type::BoundMethod &&
-    other.as<DzBoundMethod>()->self &&
+    other.as<DzBoundMethod>()->self == self &&
     other.as<DzBoundMethod>()->function == function;
 }
 
