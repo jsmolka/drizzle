@@ -106,16 +106,17 @@ auto DzValue::repr() const -> std::string {
 auto DzValue::hash() const -> std::size_t {
   switch (type) {
     case DzValue::Type::Bool:
-      return static_cast<std::size_t>(b);
+      return std::hash<dzint>{}(b);
     case DzValue::Type::Int:
-      return static_cast<std::size_t>(i);
+      return std::hash<dzint>{}(i);
     case DzValue::Type::Float:
-      return whole(f) ? static_cast<std::size_t>(f) : std::hash<dzfloat>{}(f);
+      return whole(f) ? std::hash<dzint>{}(f) : std::hash<dzfloat>{}(f);
     case DzValue::Type::Object:
       if (o->is(DzObject::Type::String)) {
         return o->as<DzString>()->hash;
+      } else {
+        return std::hash<void*>{}(o);
       }
-      [[fallthrough]];
     default:
       SH_UNREACHABLE;
       return 0;

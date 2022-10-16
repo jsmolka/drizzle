@@ -148,12 +148,6 @@ void Vm::expect(const DzValue& value, DzObject::Type type) {
   }
 }
 
-void Vm::expectHashable(const DzValue& value) {
-  if (!value.isHashable()) {
-    raise("'{}' object is not hashable", value.kind());
-  }
-}
-
 auto Vm::forward(const DzValue& iteree) -> DzIterator* {
   auto error = [this](const DzValue& iteree) {
     raise("'{}' object is not iterable", iteree.kind());
@@ -504,7 +498,6 @@ void Vm::in() {
       break;
     }
     case DzObject::Type::Map: {
-      expectHashable(expr);
       const auto map = self.o->as<DzMap>();
       stack.push(map->get(expr).has_value());
       break;
@@ -665,7 +658,6 @@ void Vm::map() {
   for (auto i = 0; i < size; ++i) {
     const auto value = stack.pop_value();
     const auto key = stack.pop_value();
-    expectHashable(key);
     map->set(key, value);
   }
   stack.push(map);

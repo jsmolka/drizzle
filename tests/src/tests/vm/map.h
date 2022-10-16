@@ -6,8 +6,7 @@ namespace tests_vm_map {
 
 inline suite _ = [] {
   "vm_map"_test = [] {
-    {
-      constexpr const char* kSources[] = {
+    constexpr const char* kSources[] = {
 R"(
 var m = {"test": 1}
 assert(m["test"] == 1)
@@ -51,25 +50,25 @@ assert(m[1.0] == 1)
 assert(m[true] == 1)
 assert(1 in m)
 )",
-      };
-
-      for (const auto& source : kSources) {
-        run(source);
-      }
-    }
-    {
-      constexpr const char* kSources[] = {
 R"(
 var m = {[]: 1}
+assert(m.size() == 1)
 )",
 R"(
 var m = {null: 1}
+assert(null in m)
 )",
-      };
+R"(
+var l1 = [1, 2, 3]
+var l2 = [1, 2, 3]
+var m = {l1: 1}
+assert(l1 in m)
+assert(!(l2 in m))
+)",
+    };
 
-      for (const auto& source : kSources) {
-        runThrows(source);
-      }
+    for (const auto& source : kSources) {
+      run(source);
     }
   };
 };

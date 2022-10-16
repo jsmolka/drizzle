@@ -4,11 +4,20 @@
 #include <tsl/robin_map.h>
 
 #include "dzobject.h"
-#include "dzstring.h"
-#include "dzvalue.h"
 
 class DzMap : public DzObject {
 public:
+  struct Equal {
+    auto operator()(const DzValue& a, const DzValue& b) const -> bool {
+      return DzValue::binary(a, b, []<typename A, typename B>(const A& a, const B& b) {
+        if constexpr (dz_primitive<A, B> || dz_object<A, B>) {
+          return a == b;
+        }
+        return false;
+      });
+    }
+  };
+
   DzMap();
 
   operator bool() const;
@@ -21,5 +30,5 @@ public:
   auto subscriptGet(Vm& vm, const DzValue& expr) -> DzValue;
   void subscriptSet(Vm& vm, const DzValue& expr, const DzValue& value);
 
-  tsl::robin_map<DzValue, DzValue> values;
+  tsl::robin_map<DzValue, DzValue, std::hash<DzValue>, Equal> values;
 };
