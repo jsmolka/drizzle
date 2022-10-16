@@ -13,8 +13,8 @@
 #include "gc.h"
 #include "opcode.h"
 
-Vm::Vm(Gc& gc, const Arguments& arguments)
-  : gc(gc), arguments(arguments) {}
+Vm::Vm(Gc& gc)
+  : gc(gc) {}
 
 void Vm::interpret(DzFunction* main) {
   static_assert(int(Opcode::LastEnumValue) == 62);

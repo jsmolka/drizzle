@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <thread>
+#include <sh/args.h>
 #include <sh/filesystem.h>
 #include <sh/ranges.h>
 
@@ -35,8 +36,8 @@ void Vm::defineNatives() {
     gc.construct<DzFunction>(
       gc.construct<DzString>("arguments"), Arity::equal(0), [](Vm& vm, std::size_t) {
         const auto list = vm.gc.construct<DzList>();
-        list->values.reserve(vm.arguments.size());
-        for (const auto& argument : vm.arguments) {
+        list->values.reserve(sh::args.size());
+        for (const auto& argument : sh::args) {
           list->values.push_back(vm.gc.construct<DzString>(argument));
         }
         return list;

@@ -1,3 +1,4 @@
+#include <sh/args.h>
 #include <sh/clap.h>
 #include <sh/filesystem.h>
 
@@ -48,6 +49,8 @@ void report(const Error& error, const std::string& source) {
 }
 
 auto main(int argc, char* argv[]) -> int {
+  sh::remember(argc, argv);
+
   std::filesystem::path file;
   std::optional<bool> print_ast = false;
 
@@ -77,7 +80,7 @@ auto main(int argc, char* argv[]) -> int {
 
       Gc gc;
       auto function = Compiler(gc).compile(ast);
-      Vm(gc, {argc, argv}).interpret(function);
+      Vm(gc).interpret(function);
     }
     return 0;
   } catch (const Error& error) {
