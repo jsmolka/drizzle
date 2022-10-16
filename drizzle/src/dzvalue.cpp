@@ -85,11 +85,19 @@ auto DzValue::operator!=(const DzValue& other) const -> bool {
   return !(*this == other);
 }
 
-auto DzValue::kind() const -> std::string_view {
-  if (isObject()) {
-    return o->kind();
-  } else {
-    return fmt::formatter<Type>::repr(type);
+auto DzValue::hash() const -> std::size_t {
+  switch (type) {
+    case DzValue::Type::Bool:
+      return std::hash<dzint>{}(b);
+    case DzValue::Type::Int:
+      return std::hash<dzint>{}(i);
+    case DzValue::Type::Float:
+      return whole(f) ? std::hash<dzint>{}(f) : std::hash<dzfloat>{}(f);
+    case DzValue::Type::Object:
+      return std::hash<DzObject>{}(*o);
+    default:
+      SH_UNREACHABLE;
+      return 0;
   }
 }
 
@@ -105,19 +113,11 @@ auto DzValue::repr() const -> std::string {
   }
 }
 
-auto DzValue::hash() const -> std::size_t {
-  switch (type) {
-    case DzValue::Type::Bool:
-      return std::hash<dzint>{}(b);
-    case DzValue::Type::Int:
-      return std::hash<dzint>{}(i);
-    case DzValue::Type::Float:
-      return whole(f) ? std::hash<dzint>{}(f) : std::hash<dzfloat>{}(f);
-    case DzValue::Type::Object:
-      return std::hash<DzObject>{}(*o);
-    default:
-      SH_UNREACHABLE;
-      return 0;
+auto DzValue::kind() const -> std::string_view {
+  if (isObject()) {
+    return o->kind();
+  } else {
+    return fmt::formatter<Type>::repr(type);
   }
 }
 

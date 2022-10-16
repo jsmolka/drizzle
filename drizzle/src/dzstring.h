@@ -23,8 +23,8 @@ public:
 
   virtual operator bool() const override;
   auto operator[](std::size_t index) const -> std::string_view;
-  virtual auto repr() const -> std::string override;
   virtual auto hash() const -> std::size_t override;
+  virtual auto repr() const -> std::string override;
   auto size() const -> std::size_t;
 
   virtual auto subscriptGet(Vm& vm, const DzValue& expr) -> DzValue override;

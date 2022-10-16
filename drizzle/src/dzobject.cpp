@@ -25,12 +25,12 @@ auto DzObject::operator==(const DzObject& other) const -> bool {
   return this == &other;
 }
 
-auto DzObject::kind() const -> std::string_view {
-  return fmt::formatter<Type>::repr(type);
-}
-
 auto DzObject::hash() const -> std::size_t {
   return std::hash<const void*>{}(this);
+}
+
+auto DzObject::kind() const -> std::string_view {
+  return fmt::formatter<Type>::repr(type);
 }
 
 auto DzObject::is(Type type) const -> bool {

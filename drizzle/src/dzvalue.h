@@ -87,9 +87,9 @@ public:
   auto operator->() const -> const DzObject*;
   auto operator==(const DzValue& other) const -> bool;
   auto operator!=(const DzValue& other) const -> bool;
-  auto kind() const -> std::string_view;
-  auto repr() const -> std::string;
   auto hash() const -> std::size_t;
+  auto repr() const -> std::string;
+  auto kind() const -> std::string_view;
 
   auto is(Type type) const -> bool;
   auto isObject() const -> bool;

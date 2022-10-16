@@ -28,12 +28,12 @@ auto DzString::operator[](std::size_t index) const -> std::string_view {
   );
 }
 
-auto DzString::repr() const -> std::string {
-  return fmt::format(R"("{}")", data);
-}
-
 auto DzString::hash() const -> std::size_t {
   return data_hash;
+}
+
+auto DzString::repr() const -> std::string {
+  return fmt::format(R"("{}")", data);
 }
 
 auto DzString::size() const -> std::size_t {
