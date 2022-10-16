@@ -86,9 +86,11 @@ auto DzValue::operator!=(const DzValue& other) const -> bool {
 }
 
 auto DzValue::kind() const -> std::string_view {
-  return type == Type::Object
-    ? fmt::formatter<DzObject::Type>::repr(o->type)
-    : fmt::formatter<Type>::repr(type);
+  if (isObject()) {
+    return o->kind();
+  } else {
+    return fmt::formatter<Type>::repr(type);
+  }
 }
 
 auto DzValue::repr() const -> std::string {
@@ -112,11 +114,7 @@ auto DzValue::hash() const -> std::size_t {
     case DzValue::Type::Float:
       return whole(f) ? std::hash<dzint>{}(f) : std::hash<dzfloat>{}(f);
     case DzValue::Type::Object:
-      if (o->is(DzObject::Type::String)) {
-        return o->as<DzString>()->hash;
-      } else {
-        return std::hash<void*>{}(o);
-      }
+      return std::hash<DzObject>{}(*o);
     default:
       SH_UNREACHABLE;
       return 0;
@@ -132,9 +130,5 @@ auto DzValue::isObject() const -> bool {
 }
 
 auto DzValue::isUndefined() const -> bool {
-  return is(Type::Object) && o == nullptr;
-}
-
-auto DzValue::isHashable() const -> bool {
-  return !is(Type::Object) || o->is(DzObject::Type::String);
+  return isObject() && o == nullptr;
 }

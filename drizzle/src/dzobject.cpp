@@ -56,6 +56,10 @@ auto DzObject::operator!=(const DzObject& other) const -> bool {
   return !(*this == other);
 }
 
+auto DzObject::kind() const -> std::string_view {
+  return fmt::formatter<Type>::repr(type);
+}
+
 auto DzObject::repr() const -> std::string {
   switch (type) {
     case Type::BoundMethod: return as<DzBoundMethod>()->repr();
@@ -73,6 +77,14 @@ auto DzObject::repr() const -> std::string {
     default:
       SH_UNREACHABLE;
       return "unreachable";
+  }
+}
+
+auto DzObject::hash() const -> std::size_t {
+  if (is(DzObject::Type::String)) {
+    return as<DzString>()->hash;
+  } else {
+    return std::hash<const void*>{}(this);
   }
 }
 

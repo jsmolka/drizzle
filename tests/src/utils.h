@@ -31,13 +31,13 @@ inline auto parseThrowsNot(const std::string& source,
 }
 
 inline auto compileThrowsNot(const std::string& source, Gc& gc,
-    const reflection::source_location& location) -> DzFunction* {
-  DzFunction* function = nullptr;
+    const reflection::source_location& location) -> Program {
+  Program program;
   const auto ast = parseThrowsNot(source, location);
   expect((!throws([&] {
-    function = Compiler(gc).compile(ast);
+    program = Compiler(gc).compile(ast);
   }) >> fatal), location) << "compile" << source;
-  return function;
+  return program;
 }
 
 }  // namespace
@@ -89,17 +89,17 @@ inline void compileThrows(const std::string& source,
 inline void run(const std::string& source,
     const reflection::source_location& location = reflection::source_location::current()) {
   Gc gc;
-  const auto function = compileThrowsNot(source, gc, location);
+  const auto program = compileThrowsNot(source, gc, location);
   expect(!throws([&] {
-    Vm(gc).interpret(function);
+    Vm(gc).interpret(program);
   }), location) << "run" << source;
 }
 
 inline void runThrows(const std::string& source,
     const reflection::source_location& location = reflection::source_location::current()) {
   Gc gc;
-  const auto function = compileThrowsNot(source, gc, location);
+  const auto program = compileThrowsNot(source, gc, location);
   expect(throws<RuntimeError>([&] {
-    Vm(gc).interpret(function);
+    Vm(gc).interpret(program);
   }), location) << "run" << source;
 }

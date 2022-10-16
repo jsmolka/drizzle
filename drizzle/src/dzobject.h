@@ -35,7 +35,9 @@ public:
   operator bool() const;
   auto operator==(const DzObject& other) const -> bool;
   auto operator!=(const DzObject& other) const -> bool;
+  auto kind() const -> std::string_view;
   auto repr() const -> std::string;
+  auto hash() const -> std::size_t;
 
   template<typename T>
     requires std::is_base_of_v<DzObject, T>
@@ -92,3 +94,15 @@ struct fmt::formatter<DzObject::Type> : fmt::formatter<std::string_view> {
     return fmt::formatter<std::string_view>::format(repr(type), ctx);
   }
 };
+
+namespace std {
+
+template<>
+struct hash<DzObject> {
+  auto operator()(const DzObject& object) const -> std::size_t {
+    return object.hash();
+  }
+};
+
+}  // namespace std
+

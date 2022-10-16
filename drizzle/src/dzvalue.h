@@ -7,13 +7,13 @@
 
 #include "dzprimitives.h"
 
-class DzObject;
-
 template<typename A, template<typename> typename Promote>
 using unary_t = std::conditional_t<dz_primitive<A>, Promote<A>, A>;
 
 template<typename A, typename B, template<typename, typename> typename Promote>
 using binary_t = std::conditional_t<dz_primitive<A, B>, Promote<A, B>, A>;
+
+class DzObject;
 
 class DzValue {
 public:
@@ -95,7 +95,6 @@ public:
   auto is(Type type) const -> bool;
   auto isObject() const -> bool;
   auto isUndefined() const -> bool;
-  auto isHashable() const -> bool;
 
   Type type;
   union {
