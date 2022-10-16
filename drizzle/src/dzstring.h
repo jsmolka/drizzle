@@ -6,7 +6,7 @@ class DzString : public DzObject {
 public:
   struct Hash {
     auto operator()(const DzString* string) const -> std::size_t {
-      return string->hash;
+      return string->data_hash;
     }
   };
 
@@ -21,15 +21,16 @@ public:
   DzString(std::string_view data);
   DzString(const std::string& data);
 
-  operator bool() const;
+  virtual operator bool() const override;
   auto operator[](std::size_t index) const -> std::string_view;
-  auto repr() const -> std::string;
+  virtual auto repr() const -> std::string override;
+  virtual auto hash() const -> std::size_t override;
   auto size() const -> std::size_t;
 
-  auto subscriptGet(Vm& vm, const DzValue& expr) -> DzValue;
+  virtual auto subscriptGet(Vm& vm, const DzValue& expr) -> DzValue override;
 
   std::string data;
-  std::size_t hash;
+  std::size_t data_hash;
 };
 
 class DzStringIterator : public DzIterator {

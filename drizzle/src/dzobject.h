@@ -31,12 +31,11 @@ public:
   DzObject(Type type);
   virtual ~DzObject() = default;
 
-  operator bool() const;
-  auto operator==(const DzObject& other) const -> bool;
-  auto operator!=(const DzObject& other) const -> bool;
+  virtual operator bool() const;
+  virtual auto operator==(const DzObject& other) const -> bool;
   auto kind() const -> std::string_view;
-  auto repr() const -> std::string;
-  auto hash() const -> std::size_t;
+  virtual auto repr() const -> std::string = 0;
+  virtual auto hash() const -> std::size_t;
 
   template<typename T>
     requires std::is_base_of_v<DzObject, T>
@@ -52,12 +51,12 @@ public:
   }
   auto is(Type type) const -> bool;
 
-  auto subscriptGet(Vm& vm, const DzValue& expr) -> DzValue;
-  void subscriptSet(Vm& vm, const DzValue& expr, const DzValue& value);
+  virtual auto subscriptGet(Vm& vm, const DzValue& expr) -> DzValue;
+  virtual void subscriptSet(Vm& vm, const DzValue& expr, const DzValue& value);
 
   Type type;
-  bool marked = false;
-  DzObject* next = nullptr;
+  bool marked;
+  DzObject* next;
 };
 
 template<typename... Ts>

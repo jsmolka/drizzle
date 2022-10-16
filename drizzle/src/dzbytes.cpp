@@ -11,8 +11,8 @@ DzBytes::operator bool() const {
   return size() > 0;
 }
 
-auto DzBytes::operator==(const DzBytes& other) const -> bool {
-  return data == other.data;
+auto DzBytes::operator==(const DzObject& other) const -> bool {
+  return other.type == Type::Bytes && other.as<DzBytes>()->data == data;
 }
 
 auto DzBytes::operator[](std::size_t index) -> u8& {

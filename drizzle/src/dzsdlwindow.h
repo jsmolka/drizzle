@@ -28,8 +28,8 @@ public:
   DzSdlWindow(DzString* title, dzint w, dzint h, dzint scale);
   ~DzSdlWindow();
 
-  operator bool() const;
-  auto repr() const -> std::string;
+  virtual operator bool() const override;
+  virtual auto repr() const -> std::string override;
 
   void dispose();
 

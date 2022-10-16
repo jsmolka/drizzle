@@ -28,8 +28,8 @@ DzMap::operator bool() const {
   return values.size() > 0;
 }
 
-auto DzMap::operator==(const DzMap& other) const -> bool {
-  return values == other.values;
+auto DzMap::operator==(const DzObject& other) const -> bool {
+  return other.type == Type::Map && other.as<DzMap>()->values == values;
 }
 
 auto DzMap::repr() const -> std::string {

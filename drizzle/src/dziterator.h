@@ -9,8 +9,8 @@ class DzIterator : public DzObject {
 public:
   DzIterator(DzObject* iteree, std::string_view type);
 
-  operator bool() const;
-  auto repr() const -> std::string;
+  virtual operator bool() const override;
+  virtual auto repr() const -> std::string override;
 
   virtual auto done() const -> bool = 0;
   virtual void advance() = 0;

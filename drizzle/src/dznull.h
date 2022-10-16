@@ -6,8 +6,8 @@ class DzNull : public DzObject {
 public:
   DzNull();
 
-  operator bool() const;
-  auto repr() const -> std::string;
+  virtual operator bool() const override;
+  virtual auto repr() const -> std::string override;
 };
 
 inline DzNull null;

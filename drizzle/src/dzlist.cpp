@@ -11,8 +11,8 @@ DzList::operator bool() const {
   return size() > 0;
 }
 
-auto DzList::operator==(const DzList& other) const -> bool {
-  return values == other.values;
+auto DzList::operator==(const DzObject& other) const -> bool {
+  return other.type == Type::List && other.as<DzList>()->values == values;
 }
 
 auto DzList::operator[](std::size_t index) -> DzValue& {

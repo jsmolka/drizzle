@@ -7,12 +7,11 @@ DzRange::DzRange(dzint start, dzint stop, dzint step)
   assert(step != 0);
 }
 
-DzRange::operator bool() const {
-  return true;
-}
-
-auto DzRange::operator==(const DzRange& other) const -> bool {
-  return start == other.start && stop == other.stop && step == other.step;
+auto DzRange::operator==(const DzObject& other) const -> bool {
+  return other.type == Type::Range &&
+    other.as<DzRange>()->start == start &&
+    other.as<DzRange>()->stop == stop &&
+    other.as<DzRange>()->step == step;
 }
 
 auto DzRange::repr() const -> std::string {

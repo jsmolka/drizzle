@@ -6,9 +6,8 @@ class DzBoundMethod : public DzObject {
 public:
   DzBoundMethod(DzObject* self, DzFunction* function);
 
-  operator bool() const;
-  auto operator==(const DzBoundMethod& other) const -> bool;
-  auto repr() const -> std::string;
+  virtual auto operator==(const DzObject& other) const -> bool override;
+  virtual auto repr() const -> std::string override;
 
   DzObject* self;
   DzFunction* function;

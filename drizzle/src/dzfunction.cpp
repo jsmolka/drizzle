@@ -9,10 +9,6 @@ DzFunction::DzFunction(DzString* identifier, const Arity& arity)
 DzFunction::DzFunction(DzString* identifier, const Arity& arity, const Native& native)
   : DzObject(Type::Function), identifier(identifier), arity(arity), body(native) {}
 
-DzFunction::operator bool() const {
-  return true;
-}
-
 auto DzFunction::repr() const -> std::string {
   return fmt::format("<function {}>", identifier->data);
 }

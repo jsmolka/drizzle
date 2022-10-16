@@ -9,14 +9,13 @@ class DzInstance : public DzObject {
 public:
   DzInstance(DzClass* class_);
 
-  operator bool() const;
-  auto repr() const -> std::string;
+  virtual auto repr() const -> std::string override;
 
   auto get(DzString* identifier) const -> std::optional<DzValue>;
   void set(DzString* identifier, const DzValue& value);
 
-  auto subscriptGet(Vm& vm, const DzValue& expr) -> DzValue;
-  void subscriptSet(Vm& vm, const DzValue& expr, const DzValue& value);
+  virtual auto subscriptGet(Vm& vm, const DzValue& expr) -> DzValue override;
+  virtual void subscriptSet(Vm& vm, const DzValue& expr, const DzValue& value) override;
 
   DzClass* class_;
   Map<DzValue> fields;

@@ -10,8 +10,7 @@ public:
 
   DzClass(DzString* identifier);
 
-  operator bool() const;
-  auto repr() const -> std::string;
+  virtual auto repr() const -> std::string override;
 
   auto get(DzString* identifier) -> DzFunction*;
   void set(DzString* identifier, DzFunction* function);

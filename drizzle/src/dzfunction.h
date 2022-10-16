@@ -17,8 +17,7 @@ public:
   DzFunction(DzString* identifier, const Arity& arity);
   DzFunction(DzString* identifier, const Arity& arity, const Native& native);
 
-  operator bool() const;
-  auto repr() const -> std::string;
+  virtual auto repr() const -> std::string override;
 
   auto isChunk() const -> bool;
   auto chunk() -> Chunk&;

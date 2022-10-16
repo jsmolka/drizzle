@@ -3,12 +3,10 @@
 DzBoundMethod::DzBoundMethod(DzObject* self, DzFunction* function)
   : DzObject(Type::BoundMethod), self(self), function(function) {}
 
-DzBoundMethod::operator bool() const {
-  return true;
-}
-
-auto DzBoundMethod::operator==(const DzBoundMethod& other) const -> bool {
-  return self == other.self && function == other.function;
+auto DzBoundMethod::operator==(const DzObject& other) const -> bool {
+  return other.type == Type::BoundMethod &&
+    other.as<DzBoundMethod>()->self &&
+    other.as<DzBoundMethod>()->function == function;
 }
 
 auto DzBoundMethod::repr() const -> std::string {

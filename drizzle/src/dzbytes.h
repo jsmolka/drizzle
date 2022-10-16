@@ -8,15 +8,15 @@ class DzBytes : public DzObject {
 public:
   DzBytes();
 
-  operator bool() const;
-  auto operator==(const DzBytes& other) const -> bool;
+  virtual operator bool() const override;
+  virtual auto operator==(const DzObject& other) const -> bool override;
   auto operator[](std::size_t index) -> u8&;
   auto operator[](std::size_t index) const -> const u8&;
-  auto repr() const -> std::string;
+  virtual auto repr() const -> std::string override;
   auto size() const -> std::size_t;
 
-  auto subscriptGet(Vm& vm, const DzValue& expr) -> DzValue;
-  void subscriptSet(Vm& vm, const DzValue& expr, const DzValue& value);
+  virtual auto subscriptGet(Vm& vm, const DzValue& expr) -> DzValue override;
+  virtual void subscriptSet(Vm& vm, const DzValue& expr, const DzValue& value) override;
 
   sh::vector<u8> data;
 };

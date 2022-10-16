@@ -11,10 +11,6 @@
 DzInstance::DzInstance(DzClass* class_)
   : DzObject(Type::Instance), class_(class_) {}
 
-DzInstance::operator bool() const {
-  return true;
-}
-
 auto DzInstance::repr() const -> std::string {
   return fmt::format("<{} instance at 0x{:016X}>", class_->identifier->data, sh::cast<sh::u64>(this));
 }

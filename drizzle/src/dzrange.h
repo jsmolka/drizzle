@@ -8,9 +8,8 @@ class DzRange : public DzObject {
 public:
   DzRange(dzint start, dzint stop, dzint step);
 
-  operator bool() const;
-  auto operator==(const DzRange& other) const -> bool;
-  auto repr() const -> std::string;
+  virtual auto operator==(const DzObject& other) const -> bool;
+  virtual auto repr() const -> std::string override;
 
   dzint start;
   dzint stop;
