@@ -19,6 +19,9 @@ public:
   virtual void subscriptSet(Vm& vm, const DzValue& expr, const DzValue& value) override;
 
   sh::vector<u8> data;
+
+private:
+  auto subscript(Vm& vm, const DzValue& expr) -> u8&;
 };
 
 class DzBytesIterator : public DzIterator {

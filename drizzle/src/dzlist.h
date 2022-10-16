@@ -20,6 +20,9 @@ public:
   virtual void subscriptSet(Vm& vm, const DzValue& expr, const DzValue& value) override;
 
   sh::vector<DzValue> values;
+
+private:
+  auto subscript(Vm& vm, const DzValue& expr) -> DzValue&;
 };
 
 class DzListIterator : public DzIterator {

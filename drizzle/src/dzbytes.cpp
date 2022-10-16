@@ -32,21 +32,16 @@ auto DzBytes::size() const -> std::size_t {
 }
 
 auto DzBytes::subscriptGet(Vm& vm, const DzValue& expr) -> DzValue {
-  vm.expect(expr, DzValue::Type::Int);
-  auto index = expr.i;
-  if (index < 0) {
-    index += size();
-  }
-  if (index < 0 || index >= size()) {
-    vm.raise("bytes index out of range");
-  }
-  return static_cast<dzint>(data[index]);
+  return static_cast<dzint>(subscript(vm, expr));
 }
 
 void DzBytes::subscriptSet(Vm& vm, const DzValue& expr, const DzValue& value) {
-  vm.expect(expr, DzValue::Type::Int);
   vm.expect(value, DzValue::Type::Int);
+  subscript(vm, expr) = static_cast<u8>(value.i);
+}
 
+auto DzBytes::subscript(Vm& vm, const DzValue& expr) -> u8& {
+  vm.expect(expr, DzValue::Type::Int);
   auto index = expr.i;
   if (index < 0) {
     index += size();
@@ -54,7 +49,7 @@ void DzBytes::subscriptSet(Vm& vm, const DzValue& expr, const DzValue& value) {
   if (index < 0 || index >= size()) {
     vm.raise("bytes index out of range");
   }
-  data[index] = value.i;
+  return data[index];
 }
 
 DzBytesIterator::DzBytesIterator(DzObject* iteree)

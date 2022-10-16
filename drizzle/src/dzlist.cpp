@@ -32,6 +32,14 @@ auto DzList::size() const -> std::size_t {
 }
 
 auto DzList::subscriptGet(Vm& vm, const DzValue& expr) -> DzValue {
+  return subscript(vm, expr);
+}
+
+void DzList::subscriptSet(Vm& vm, const DzValue& expr, const DzValue& value) {
+  subscript(vm, expr) = value;
+}
+
+auto DzList::subscript(Vm& vm, const DzValue& expr) -> DzValue& {
   vm.expect(expr, DzValue::Type::Int);
   auto index = expr.i;
   if (index < 0) {
@@ -41,18 +49,6 @@ auto DzList::subscriptGet(Vm& vm, const DzValue& expr) -> DzValue {
     vm.raise("list index out of range");
   }
   return values[index];
-}
-
-void DzList::subscriptSet(Vm& vm, const DzValue& expr, const DzValue& value) {
-  vm.expect(expr, DzValue::Type::Int);
-  auto index = expr.i;
-  if (index < 0) {
-    index += size();
-  }
-  if (index < 0 || index >= size()) {
-    vm.raise("list index out of range");
-  }
-  values[index] = value;
 }
 
 DzListIterator::DzListIterator(DzObject* iteree)
