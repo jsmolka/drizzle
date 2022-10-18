@@ -5,4 +5,4 @@
 #include "dzstring.h"
 
 template<typename T>
-using Map = tsl::robin_map<DzString*, T, DzString::Hash, DzString::Equal>;
+using Map = tsl::robin_map<const DzString*, T, DzString::Hash, DzString::Equal>;

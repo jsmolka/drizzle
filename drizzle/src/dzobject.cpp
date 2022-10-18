@@ -25,7 +25,7 @@ auto DzObject::size() const -> std::size_t {
 }
 
 auto DzObject::repr() const -> std::string {
-  return fmt::format("<{} at 0x{:016X}>", type, sh::cast<u64>(this));
+  return fmt::format("<{} at 0x{:016X}>", type, sh::cast<std::size_t>(this));
 }
 
 auto DzObject::kind() const -> std::string_view {
@@ -52,10 +52,18 @@ auto DzObject::getExpr(Vm& vm, const DzValue& expr) -> DzValue {
   throw NotSupportedException();
 }
 
+auto DzObject::getProp(Vm& vm, const DzValue& prop) -> DzValue {
+  throw NotSupportedException();
+}
+
 void DzObject::setItem(Vm& vm, std::size_t index, const DzValue& value) {
   throw NotSupportedException();
 }
 
 void DzObject::setExpr(Vm& vm, const DzValue& expr, const DzValue& value) {
+  throw NotSupportedException();
+}
+
+void DzObject::setProp(Vm& vm, const DzValue& prop, const DzValue& value) {
   throw NotSupportedException();
 }

@@ -725,11 +725,14 @@ void Vm::return_() {
 }
 
 void Vm::set() {
-  auto prop = stack.pop_value()->as<DzString>();
+  auto prop = stack.pop_value();
   auto self = stack.pop_value();
-  if (self.isObject() && self->is(DzObject::Type::Instance)) {
-    self->as<DzInstance>()->set(prop, stack.top());
-  } else {
+  try {
+    if (!self.isObject()) {
+      throw NotSupportedException();
+    }
+    self->setProp(*this, prop, stack.top());
+  } catch (const NotSupportedException&) {
     raise("'{}' object does not have properties", self.kind());
   }
 }

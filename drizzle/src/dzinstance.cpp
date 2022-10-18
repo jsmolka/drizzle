@@ -12,26 +12,30 @@ DzInstance::DzInstance(DzClass* class_)
   : DzObject(Type::Instance), class_(class_) {}
 
 auto DzInstance::repr() const -> std::string {
-  return fmt::format("<{} instance at 0x{:016X}>", class_->identifier->data, sh::cast<sh::u64>(this));
+  return fmt::format("<{} instance at 0x{:016X}>", class_->identifier->data, sh::cast<std::size_t>(this));
 }
 
-auto DzInstance::get(DzString* identifier) const -> std::optional<DzValue> {
+auto DzInstance::get(const DzString* identifier) const -> std::optional<DzValue> {
   const auto iter = fields.find(identifier);
   return iter != fields.end()
     ? iter->second
     : std::optional<DzValue>();
 }
 
-void DzInstance::set(DzString* name, const DzValue& value) {
+void DzInstance::set(const DzString* name, const DzValue& value) {
   fields.insert_or_assign(name, value);
 }
 
 auto DzInstance::getExpr(Vm& vm, const DzValue& expr) -> DzValue {
-  vm.expect(expr, DzObject::Type::String);
-  const auto prop = expr.o->as<DzString>();
-  if (const auto value = get(prop)) {
+  return getProp(vm, expr);
+}
+
+auto DzInstance::getProp(Vm& vm, const DzValue& prop) -> DzValue {
+  vm.expect(prop, DzObject::Type::String);
+  const auto property = prop->as<DzString>();
+  if (const auto value = get(property)) {
     return *value;
-  } else if (const auto function = class_->get(prop)) {
+  } else if (const auto function = class_->get(property)) {
     // Todo: ugly
     return vm.gc.construct<DzBoundMethod>(this, function);
   } else {
@@ -40,6 +44,10 @@ auto DzInstance::getExpr(Vm& vm, const DzValue& expr) -> DzValue {
 }
 
 void DzInstance::setExpr(Vm& vm, const DzValue& expr, const DzValue& value) {
-  vm.expect(expr, DzObject::Type::String);
-  set(expr.o->as<DzString>(), value);
+  setProp(vm, expr, value);
+}
+
+void DzInstance::setProp(Vm& vm, const DzValue& prop, const DzValue& value) {
+  vm.expect(prop, DzObject::Type::String);
+  set(prop.o->as<DzString>(), value);
 }

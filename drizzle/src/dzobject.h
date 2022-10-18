@@ -56,8 +56,10 @@ public:
   virtual auto makeReverseIterator(Vm& vm) -> DzValue;
   virtual auto getItem(Vm& vm, std::size_t index) -> DzValue;
   virtual auto getExpr(Vm& vm, const DzValue& expr) -> DzValue;
+  virtual auto getProp(Vm& vm, const DzValue& prop) -> DzValue;
   virtual void setItem(Vm& vm, std::size_t index, const DzValue& value);
   virtual void setExpr(Vm& vm, const DzValue& expr, const DzValue& value);
+  virtual void setProp(Vm& vm, const DzValue& prop, const DzValue& value);
 
   Type type;
   bool marked;

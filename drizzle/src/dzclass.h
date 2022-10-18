@@ -4,16 +4,16 @@
 #include "dzstring.h"
 #include "map.h"
 
-class DzClass : public DzObject {
+class DzClass final : public DzObject {
 public:
   static constexpr auto kInit = "init";
 
   DzClass(DzString* identifier);
 
-  virtual auto repr() const -> std::string override;
+  auto repr() const -> std::string override final;
 
-  auto get(DzString* identifier) -> DzFunction*;
-  void set(DzString* identifier, DzFunction* function);
+  auto get(const DzString* identifier) -> DzFunction*;
+  void set(const DzString* identifier, DzFunction* function);
 
   DzString* identifier;
   DzFunction* init = nullptr;
