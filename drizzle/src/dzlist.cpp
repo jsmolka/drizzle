@@ -31,11 +31,11 @@ auto DzList::repr() const -> std::string {
   return fmt::format("[{}]", fmt::join(values, ", "));
 }
 
-auto DzList::subscriptGet(Vm& vm, const DzValue& expr) -> DzValue {
+auto DzList::getExpr(Vm& vm, const DzValue& expr) -> DzValue {
   return subscript(vm, expr);
 }
 
-void DzList::subscriptSet(Vm& vm, const DzValue& expr, const DzValue& value) {
+void DzList::setExpr(Vm& vm, const DzValue& expr, const DzValue& value) {
   subscript(vm, expr) = value;
 }
 

@@ -51,10 +51,10 @@ void DzMap::set(const DzValue& key, const DzValue& value) {
   values.insert_or_assign(key, value);
 }
 
-auto DzMap::subscriptGet(Vm& vm, const DzValue& expr) -> DzValue {
+auto DzMap::getExpr(Vm& vm, const DzValue& expr) -> DzValue {
   return get(expr).value_or(&null);
 }
 
-void DzMap::subscriptSet(Vm& vm, const DzValue& expr, const DzValue& value) {
+void DzMap::setExpr(Vm& vm, const DzValue& expr, const DzValue& value) {
   set(expr, value);
 }

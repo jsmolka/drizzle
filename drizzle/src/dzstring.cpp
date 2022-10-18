@@ -41,7 +41,7 @@ auto DzString::repr() const -> std::string {
 }
 
 
-auto DzString::subscriptGet(Vm& vm, const DzValue& expr) -> DzValue {
+auto DzString::getExpr(Vm& vm, const DzValue& expr) -> DzValue {
   vm.expect(expr, DzValue::Type::Int);
   auto index = expr.i;
   if (index < 0) {

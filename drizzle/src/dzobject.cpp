@@ -41,10 +41,10 @@ auto DzObject::is(Type type) const -> bool {
   return this->type == type;
 }
 
-auto DzObject::subscriptGet(Vm& vm, const DzValue& expr) -> DzValue {
+auto DzObject::getExpr(Vm& vm, const DzValue& expr) -> DzValue {
   throw NotSupportedException();
 }
 
-void DzObject::subscriptSet(Vm& vm, const DzValue& expr, const DzValue& value) {
+void DzObject::setExpr(Vm& vm, const DzValue& expr, const DzValue& value) {
   throw NotSupportedException();
 }

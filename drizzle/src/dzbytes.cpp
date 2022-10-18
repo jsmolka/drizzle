@@ -31,11 +31,11 @@ auto DzBytes::repr() const -> std::string {
   return fmt::format("bytes({})", fmt::join(data, ", "));
 }
 
-auto DzBytes::subscriptGet(Vm& vm, const DzValue& expr) -> DzValue {
+auto DzBytes::getExpr(Vm& vm, const DzValue& expr) -> DzValue {
   return static_cast<dzint>(subscript(vm, expr));
 }
 
-void DzBytes::subscriptSet(Vm& vm, const DzValue& expr, const DzValue& value) {
+void DzBytes::setExpr(Vm& vm, const DzValue& expr, const DzValue& value) {
   vm.expect(value, DzValue::Type::Int);
   subscript(vm, expr) = static_cast<u8>(value.i);
 }

@@ -26,7 +26,7 @@ void DzInstance::set(DzString* name, const DzValue& value) {
   fields.insert_or_assign(name, value);
 }
 
-auto DzInstance::subscriptGet(Vm& vm, const DzValue& expr) -> DzValue {
+auto DzInstance::getExpr(Vm& vm, const DzValue& expr) -> DzValue {
   vm.expect(expr, DzObject::Type::String);
   const auto prop = expr.o->as<DzString>();
   if (const auto value = get(prop)) {
@@ -39,7 +39,7 @@ auto DzInstance::subscriptGet(Vm& vm, const DzValue& expr) -> DzValue {
   }
 }
 
-void DzInstance::subscriptSet(Vm& vm, const DzValue& expr, const DzValue& value) {
+void DzInstance::setExpr(Vm& vm, const DzValue& expr, const DzValue& value) {
   vm.expect(expr, DzObject::Type::String);
   set(expr.o->as<DzString>(), value);
 }

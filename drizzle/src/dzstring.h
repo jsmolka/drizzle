@@ -27,7 +27,7 @@ public:
   virtual auto size() const -> std::size_t override;
   virtual auto repr() const -> std::string override;
 
-  virtual auto subscriptGet(Vm& vm, const DzValue& expr) -> DzValue override;
+  virtual auto getExpr(Vm& vm, const DzValue& expr) -> DzValue override;
 
   std::string data;
   std::size_t data_hash;

@@ -15,8 +15,8 @@ public:
   virtual auto size() const -> std::size_t override;
   virtual auto repr() const -> std::string override;
 
-  virtual auto subscriptGet(Vm& vm, const DzValue& expr) -> DzValue override;
-  virtual void subscriptSet(Vm& vm, const DzValue& expr, const DzValue& value) override;
+  virtual auto getExpr(Vm& vm, const DzValue& expr) -> DzValue override;
+  virtual void setExpr(Vm& vm, const DzValue& expr, const DzValue& value) override;
 
   sh::vector<u8> data;
 
