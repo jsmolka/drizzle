@@ -633,11 +633,12 @@ void Vm::loadGlobal() {
 
 template<std::integral Integral>
 void Vm::map() {
-  auto map = gc.construct<DzMap>();
-  auto count = read<Integral>();
-  while (count--) {
-    auto v = stack.pop_value();
-    auto k = stack.pop_value();
+  const auto size = read<Integral>();
+  const auto map  = gc.construct<DzMap>();
+  map->values.reserve(size);
+  while (size--) {
+    const auto v = stack.pop_value();
+    const auto k = stack.pop_value();
     map->set(k, v);
   }
   stack.push(map);
