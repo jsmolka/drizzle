@@ -87,9 +87,6 @@
     <ClCompile Include="src\dzlistmembers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\dzstringmembers.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\dziterator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

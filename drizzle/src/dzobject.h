@@ -34,6 +34,7 @@ public:
   virtual operator bool() const;
   virtual auto operator==(const DzObject& other) const -> bool;
   virtual auto hash() const -> std::size_t;
+  virtual auto size() const -> std::size_t;
   virtual auto repr() const -> std::string = 0;
   auto kind() const -> std::string_view;
 

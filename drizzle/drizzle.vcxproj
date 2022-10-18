@@ -47,7 +47,6 @@
     <ClCompile Include="src\dzstring.cpp" />
     <ClCompile Include="src\astformatter.cpp" />
     <ClCompile Include="src\dzobject.cpp" />
-    <ClCompile Include="src\dzstringmembers.cpp" />
     <ClCompile Include="src\dzvalue.cpp" />
     <ClCompile Include="src\gc.cpp" />
     <ClCompile Include="src\natives.cpp" />

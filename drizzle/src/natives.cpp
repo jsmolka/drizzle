@@ -64,6 +64,17 @@ void Vm::defineNatives() {
       }
     ),
     gc.construct<DzFunction>(
+      gc.construct<DzString>("len"), Arity::greaterEqual(1), [](Vm& vm, std::size_t) -> DzValue {
+        auto object = vm.stack.pop_value();
+        vm.expect(object, DzValue::Type::Object);
+        try {
+          return static_cast<dzint>(object->size());
+        } catch (const NotSupportedException&) {
+          vm.raise("'{}' object has no len()", object.kind());
+        }
+      }
+    ),
+    gc.construct<DzFunction>(
       gc.construct<DzString>("forward"), Arity::equal(1), [](Vm& vm, std::size_t) {
         const auto iterator = vm.forward(vm.stack.top());
         vm.stack.pop();

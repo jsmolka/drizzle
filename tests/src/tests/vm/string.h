@@ -9,9 +9,9 @@ inline suite _ = [] {
     {
       constexpr const char* kSources[] = {
 R"(
-assert(" ".size() == 1)
-assert("  ".size() == 2)
-assert("   ".size() == 3)
+assert(len(" ") == 1)
+assert(len("  ") == 2)
+assert(len("   ") == 3)
 )",
 R"(
 assert("abc"[0] == "a")
@@ -33,7 +33,6 @@ assert(!("test" in "_est_"))
     }
     {
       constexpr const char* kSources[] = {
-        R"("".size(1))",
         R"(1 in "")",
       };
 

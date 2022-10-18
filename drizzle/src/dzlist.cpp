@@ -23,12 +23,12 @@ auto DzList::operator[](std::size_t index) const -> const DzValue& {
   return values[index];
 }
 
-auto DzList::repr() const -> std::string {
-  return fmt::format("[{}]", fmt::join(values, ", "));
-}
-
 auto DzList::size() const -> std::size_t {
   return values.size();
+}
+
+auto DzList::repr() const -> std::string {
+  return fmt::format("[{}]", fmt::join(values, ", "));
 }
 
 auto DzList::subscriptGet(Vm& vm, const DzValue& expr) -> DzValue {

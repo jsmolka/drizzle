@@ -13,8 +13,8 @@ public:
   virtual auto operator==(const DzObject& other) const -> bool override;
   auto operator[](std::size_t index) -> DzValue&;
   auto operator[](std::size_t index) const -> const DzValue&;
+  virtual auto size() const -> std::size_t override;
   virtual auto repr() const -> std::string override;
-  auto size() const -> std::size_t;
 
   virtual auto subscriptGet(Vm& vm, const DzValue& expr) -> DzValue override;
   virtual void subscriptSet(Vm& vm, const DzValue& expr, const DzValue& value) override;

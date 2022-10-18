@@ -10,20 +10,20 @@ inline suite _ = [] {
       constexpr const char* kSources[] = {
 R"(
 var x = []
-assert(x.size() == 0)
+assert(len(x) == 0)
 )",
 R"(
 var x = [1, 2, 3]
-assert(x.size() == 3)
+assert(len(x) == 3)
 assert(x[0] == 1)
 assert(x[1] == 2)
 assert(x[2] == 3)
 )",
 R"(
 var x = [1, 2, 3]
-assert(x.size() == 3)
+assert(len(x) == 3)
 x.clear()
-assert(x.size() == 0)
+assert(len(x) == 0)
 )",
 R"(
 var x = []
@@ -37,13 +37,13 @@ assert(x[5] == 6)
 R"(
 var x = []
 assert(x.insert(0, 1) == 1)
-assert(x.size() == 1)
+assert(len(x) == 1)
 assert(x[0] == 1)
 assert(x.insert(0, 2) == 2)
-assert(x.size() == 2)
+assert(len(x) == 2)
 assert(x[0] == 2)
 assert(x.insert(1, 3) == 3)
-assert(x.size() == 3)
+assert(len(x) == 3)
 assert(x[1] == 3)
 )",
 R"(
@@ -51,14 +51,14 @@ var x = [1, 2, 3]
 assert(x.pop() == 3)
 assert(x.pop() == 2)
 assert(x.pop() == 1)
-assert(x.size() == 0)
+assert(len(x) == 0)
 )",
 R"(
 var x = [1, 2, 3]
 assert(x.remove(1) == 2)
 assert(x.remove(0) == 1)
 assert(x.remove(0) == 3)
-assert(x.size() == 0)
+assert(len(x) == 0)
 )",
 R"(
 var x = [1, 2, 3, 1]
@@ -70,15 +70,15 @@ assert(x.index(4) == -1)
 R"(
 var x = []
 x.resize(8, 0)
-assert(x.size() == 8)
+assert(len(x) == 8)
 assert(x[0] == 0)
 assert(x[7] == 0)
 x.resize(4, 0)
-assert(x.size() == 4)
+assert(len(x) == 4)
 assert(x[0] == 0)
 assert(x[3] == 0)
 x.resize(8, 1)
-assert(x.size() == 8)
+assert(len(x) == 8)
 assert(x[0] == 0)
 assert(x[7] == 1)
 )",
@@ -101,11 +101,11 @@ assert(x.remove(-1) == 1)
 )",
 R"(
 var x = [] + []
-assert(x.size() == 0)
+assert(len(x) == 0)
 )",
 R"(
 var x = [1] + [2, 3]
-assert(x.size() == 3)
+assert(len(x) == 3)
 assert(x[0] == 1)
 assert(x[1] == 2)
 assert(x[2] == 3)

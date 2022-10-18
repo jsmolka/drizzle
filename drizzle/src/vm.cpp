@@ -29,7 +29,6 @@ void Vm::interpret(const Program& program) {
   defineListMembers();
   defineMapMembers();
   defineSdlWindowMembers();
-  defineStringMembers();
 
   gc.vm = this;
 
@@ -145,7 +144,7 @@ void Vm::expect(const DzValue& value, DzValue::Type type) {
 }
 
 void Vm::expect(const DzValue& value, DzObject::Type type) {
-  if (!(value.is(DzValue::Type::Object) && value.o->is(type))) {
+  if (!(value.isObject() && value->is(type))) {
     raise("expected type '{}' but got '{}'", type, value.kind());
   }
 }

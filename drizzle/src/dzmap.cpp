@@ -32,6 +32,10 @@ auto DzMap::operator==(const DzObject& other) const -> bool {
   return other.type == Type::Map && other.as<DzMap>()->values == values;
 }
 
+auto DzMap::size() const -> std::size_t {
+  return values.size();
+}
+
 auto DzMap::repr() const -> std::string {
   return fmt::format("{{{}}}", fmt::join(values, ", "));
 }

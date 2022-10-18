@@ -23,12 +23,12 @@ auto DzBytes::operator[](std::size_t index) const -> const u8& {
   return data[index];
 }
 
-auto DzBytes::repr() const -> std::string {
-  return fmt::format("bytes({})", fmt::join(data, ", "));
-}
-
 auto DzBytes::size() const -> std::size_t {
   return data.size();
+}
+
+auto DzBytes::repr() const -> std::string {
+  return fmt::format("bytes({})", fmt::join(data, ", "));
 }
 
 auto DzBytes::subscriptGet(Vm& vm, const DzValue& expr) -> DzValue {

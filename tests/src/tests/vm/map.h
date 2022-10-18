@@ -39,9 +39,9 @@ assert(m.has("test"))
 )",
 R"(
 var m = {"test1": 1, "test2": 2}
-assert(m.size() == 2)
+assert(len(m) == 2)
 m.clear()
-assert(m.size() == 0)
+assert(len(m) == 0)
 )",
 R"(
 var m = {1: 1}
@@ -52,7 +52,7 @@ assert(1 in m)
 )",
 R"(
 var m = {[]: 1}
-assert(m.size() == 1)
+assert(len(m) == 1)
 )",
 R"(
 var m = {null: 1}

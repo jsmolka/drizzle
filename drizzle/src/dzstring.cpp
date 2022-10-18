@@ -32,13 +32,14 @@ auto DzString::hash() const -> std::size_t {
   return data_hash;
 }
 
+auto DzString::size() const -> std::size_t {
+  return data.size();
+}
+
 auto DzString::repr() const -> std::string {
   return fmt::format(R"("{}")", data);
 }
 
-auto DzString::size() const -> std::size_t {
-  return data.size();
-}
 
 auto DzString::subscriptGet(Vm& vm, const DzValue& expr) -> DzValue {
   vm.expect(expr, DzValue::Type::Int);

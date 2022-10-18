@@ -9,11 +9,6 @@
 void Vm::defineListMembers() {
   const auto members = {
     gc.construct<DzFunction>(
-      gc.construct<DzString>("size"), Arity::equal(0), [](Vm& vm, std::size_t) -> dzint {
-        return vm.stack.top().o->as<DzList>()->size();
-      }
-    ),
-    gc.construct<DzFunction>(
       gc.construct<DzString>("clear"), Arity::equal(0), [](Vm& vm, std::size_t) {
         const auto list = vm.stack.top().o->as<DzList>();
         list->values.clear();

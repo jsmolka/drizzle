@@ -29,6 +29,10 @@ auto DzObject::hash() const -> std::size_t {
   return std::hash<const void*>{}(this);
 }
 
+auto DzObject::size() const -> std::size_t {
+  throw NotSupportedException();
+}
+
 auto DzObject::kind() const -> std::string_view {
   return fmt::formatter<Type>::repr(type);
 }
