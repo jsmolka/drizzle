@@ -39,7 +39,7 @@ auto DzList::makeReverseIterator(Vm& vm) -> DzValue {
   return vm.gc.construct<DzSequenceReverseIterator>(this);
 }
 
-auto DzList::getAt(Vm& vm, std::size_t index) -> DzValue {
+auto DzList::getItem(Vm& vm, std::size_t index) -> DzValue {
   return values[index];
 }
 

@@ -26,7 +26,7 @@ void DzSequenceIterator::advance() {
 }
 
 auto DzSequenceIterator::value(Vm& vm) const -> DzValue {
-  return iteree->getAt(vm, index);
+  return iteree->getItem(vm, index);
 }
 
 DzSequenceReverseIterator::DzSequenceReverseIterator(DzObject* iteree)
@@ -41,5 +41,5 @@ void DzSequenceReverseIterator::advance() {
 }
 
 auto DzSequenceReverseIterator::value(Vm& vm) const -> DzValue {
-  return iteree->getAt(vm, index);
+  return iteree->getItem(vm, index);
 }

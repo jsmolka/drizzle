@@ -48,7 +48,7 @@ auto DzString::makeReverseIterator(Vm& vm) -> DzValue {
   return vm.gc.construct<DzSequenceReverseIterator>(this);
 }
 
-auto DzString::getAt(Vm& vm, std::size_t index) -> DzValue {
+auto DzString::getItem(Vm& vm, std::size_t index) -> DzValue {
   return vm.gc.construct<DzString>((*this)[index]);
 }
 
