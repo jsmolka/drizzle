@@ -59,8 +59,8 @@ void Vm::interpret(const Program& program) {
       case Opcode::IterInit: iterInit(); break;
       case Opcode::IterAdvance: iterAdvance<u8>(); break;
       case Opcode::IterAdvanceExt: iterAdvance<u16>(); break;
-      case Opcode::IterCurrent: iterCurrent<u8>(); break;
-      case Opcode::IterCurrentExt: iterCurrent<u16>(); break;
+      case Opcode::IterValue: iterValue<u8>(); break;
+      case Opcode::IterValueExt: iterValue<u16>(); break;
       case Opcode::Jump: jump(); break;
       case Opcode::JumpFalse: jumpFalse(); break;
       case Opcode::JumpFalsePop: jumpFalsePop(); break;
@@ -149,44 +149,25 @@ void Vm::expect(const DzValue& value, DzObject::Type type) {
   }
 }
 
-auto Vm::forward(const DzValue& iteree) -> DzIterator* {
-  auto error = [this](const DzValue& iteree) {
-    raise("'{}' object is not iterable", iteree.kind());
-  };
-
-  if (!iteree.is(DzValue::Type::Object)) {
-    error(iteree);
-  }
-
-  switch (iteree.o->type) {
-    case DzObject::Type::Iterator: return iteree.o->as<DzIterator>();
-    case DzObject::Type::Bytes:    return gc.construct<DzBytesIterator>(iteree.o);
-    case DzObject::Type::List:     return gc.construct<DzListIterator>(iteree.o);
-    case DzObject::Type::Range:    return gc.construct<DzRangeIterator>(iteree.o);
-    case DzObject::Type::String:   return gc.construct<DzStringIterator>(iteree.o);
-    default:
-      error(iteree);
-      return nullptr;
+auto Vm::forward(DzValue& iteree) -> DzValue {
+  try {
+    if (!iteree.isObject()) {
+      throw NotSupportedException();
+    }
+    return iteree->makeIterator(*this);
+  } catch (const NotSupportedException&) {
+    raise("'{}' object is not reverse iterable", iteree.kind());
   }
 }
 
-auto Vm::reverse(const DzValue& iteree) -> DzIterator* {
-  auto error = [this](const DzValue& iteree) {
-    raise("'{}' object is not reverse iterable", iteree.kind());
-  };
-
-  if (!iteree.is(DzValue::Type::Object)) {
-    error(iteree);
-  }
-
-  switch (iteree.o->type) {
-    case DzObject::Type::Bytes:  return gc.construct<DzBytesReverseIterator>(iteree.o);
-    case DzObject::Type::List:   return gc.construct<DzListReverseIterator>(iteree.o);
-    case DzObject::Type::Range:  return gc.construct<DzRangeReverseIterator>(iteree.o);
-    case DzObject::Type::String: return gc.construct<DzStringReverseIterator>(iteree.o);
-    default:
-      error(iteree);
-      return nullptr;
+auto Vm::reverse(DzValue& iteree) -> DzValue {
+  try {
+    if (!iteree.isObject()) {
+      throw NotSupportedException();
+    }
+    return iteree->makeReverseIterator(*this);
+  } catch (const NotSupportedException&) {
+    raise("'{}' object is not iterable", iteree.kind());
   }
 }
 
@@ -559,13 +540,13 @@ void Vm::iterInit() {
 template<std::integral Integral>
 void Vm::iterAdvance() {
   const auto index = read<Integral>();
-  stack[frames.top().sp + index].o->template as<DzIterator>()->advance();
+  stack[frames.top().sp + index]->template as<DzIterator>()->advance();
 }
 
 template<std::integral Integral>
-void Vm::iterCurrent() {
+void Vm::iterValue() {
   const auto index = read<Integral>();
-  stack.push(stack[frames.top().sp + index].o->template as<DzIterator>()->current(gc));
+  stack.push(stack[frames.top().sp + index]->template as<DzIterator>()->value(*this));
 }
 
 void Vm::jump() {

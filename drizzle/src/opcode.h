@@ -30,8 +30,8 @@ enum class Opcode {
   IterInit,
   IterAdvance,
   IterAdvanceExt,
-  IterCurrent,
-  IterCurrentExt,
+  IterValue,
+  IterValueExt,
   Jump,
   JumpFalse,
   JumpFalsePop,
@@ -102,8 +102,8 @@ struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
       case Opcode::IterInit:          return "IterForward";
       case Opcode::IterAdvance:       return "IterAdvance";
       case Opcode::IterAdvanceExt:    return "IterAdvanceExt";
-      case Opcode::IterCurrent:       return "IterCurrent";
-      case Opcode::IterCurrentExt:    return "IterCurrentExt";
+      case Opcode::IterValue:       return "IterCurrent";
+      case Opcode::IterValueExt:    return "IterCurrentExt";
       case Opcode::Jump:              return "Jump";
       case Opcode::JumpFalse:         return "JumpFalse";
       case Opcode::JumpFalsePop:      return "JumpFalsePop";

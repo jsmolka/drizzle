@@ -36,6 +36,18 @@ auto DzObject::is(Type type) const -> bool {
   return this->type == type;
 }
 
+auto DzObject::makeIterator(Vm& vm) -> DzValue {
+  throw NotSupportedException();
+}
+
+auto DzObject::makeReverseIterator(Vm& vm) -> DzValue {
+  throw NotSupportedException();
+}
+
+auto DzObject::getAt(Vm& vm, std::size_t) -> DzValue {
+  throw NotSupportedException();
+}
+
 auto DzObject::getExpr(Vm& vm, const DzValue& expr) -> DzValue {
   throw NotSupportedException();
 }

@@ -3,21 +3,45 @@
 #include "dzobject.h"
 #include "dzvalue.h"
 
-class Gc;
-
 class DzIterator : public DzObject {
 public:
-  DzIterator(DzObject* iteree, std::string_view type);
+  DzIterator(DzObject* iteree);
 
   virtual operator bool() const override;
-  virtual auto repr() const -> std::string override;
 
   virtual auto done() const -> bool = 0;
   virtual void advance() = 0;
-  virtual auto current(Gc&) const -> DzValue = 0;
+  virtual auto value(Vm&) const -> DzValue = 0;
+
+  virtual auto makeIterator(Vm&) -> DzValue override;
 
   mutable DzObject* iteree;
 
 private:
-  std::string_view type;
+  std::size_t index;
 };
+
+class DzSequenceIterator : public DzIterator {
+public:
+  DzSequenceIterator(DzObject* iteree);
+
+  auto done() const -> bool override;
+  void advance() override;
+  auto value(Vm& vm) const -> DzValue override;
+
+private:
+  std::size_t index;
+};
+
+class DzSequenceReverseIterator : public DzIterator {
+public:
+  DzSequenceReverseIterator(DzObject* iteree);
+
+  auto done() const -> bool override;
+  void advance() override;
+  auto value(Vm& vm) const -> DzValue override;
+
+private:
+  std::size_t index;
+};
+

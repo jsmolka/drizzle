@@ -1,7 +1,7 @@
 #include "dzlist.h"
 
-#include <sh/fmt.h>
-
+#include "dziterator.h"
+#include "gc.h"
 #include "vm.h"
 
 DzList::DzList()
@@ -31,52 +31,34 @@ auto DzList::repr() const -> std::string {
   return fmt::format("[{}]", fmt::join(values, ", "));
 }
 
-auto DzList::getExpr(Vm& vm, const DzValue& expr) -> DzValue {
-  return subscript(vm, expr);
+auto DzList::makeIterator(Vm& vm) -> DzValue {
+  return vm.gc.construct<DzSequenceIterator>(this);
 }
 
-void DzList::setExpr(Vm& vm, const DzValue& expr, const DzValue& value) {
-  subscript(vm, expr) = value;
+auto DzList::makeReverseIterator(Vm& vm) -> DzValue {
+  return vm.gc.construct<DzSequenceReverseIterator>(this);
 }
 
-auto DzList::subscript(Vm& vm, const DzValue& expr) -> DzValue& {
-  vm.expect(expr, DzValue::Type::Int);
-  auto index = expr.i;
-  if (index < 0) {
-    index += size();
-  }
-  if (index < 0 || index >= size()) {
-    vm.raise("list index out of range");
-  }
+auto DzList::getAt(Vm& vm, std::size_t index) -> DzValue {
   return values[index];
 }
 
-DzListIterator::DzListIterator(DzObject* iteree)
-  : DzIterator(iteree, "list"), index(0) {}
-
-auto DzListIterator::done() const -> bool {
-  return index >= iteree->as<DzList>()->size();
+auto DzList::getExpr(Vm& vm, const DzValue& expr) -> DzValue {
+  return refExpr(vm, expr);
 }
 
-void DzListIterator::advance() {
-  index++;
+void DzList::setExpr(Vm& vm, const DzValue& expr, const DzValue& value) {
+  refExpr(vm, expr) = value;
 }
 
-auto DzListIterator::current(Gc&) const -> DzValue {
-  return (*iteree->as<DzList>())[index];
-}
-
-DzListReverseIterator::DzListReverseIterator(DzObject* iteree)
-  : DzIterator(iteree, "list reverse"), index(iteree->as<DzList>()->size() - 1) {}
-
-auto DzListReverseIterator::done() const -> bool {
-  return index >= iteree->as<DzList>()->size();
-}
-
-void DzListReverseIterator::advance() {
-  index--;
-}
-
-auto DzListReverseIterator::current(Gc&) const -> DzValue {
-  return (*iteree->as<DzList>())[index];
+auto DzList::refExpr(Vm& vm, const DzValue& expr) -> DzValue& {
+  vm.expect(expr, DzValue::Type::Int);
+  auto index = expr.i;
+  if (index < 0) {
+    index += values.size();
+  }
+  if (index < 0 || index >= values.size()) {
+    vm.raise("list index out of range");
+  }
+  return values[index];
 }

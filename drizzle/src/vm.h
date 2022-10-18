@@ -55,8 +55,8 @@ public:  // Todo: ugly
   template<template<typename> typename Promote = promote_t, typename Callback>
   void binary(std::string_view operation, Callback callback);
 
-  auto forward(const DzValue& iteree) -> DzIterator*;
-  auto reverse(const DzValue& iteree) -> DzIterator*;
+  auto forward(DzValue& iteree) -> DzValue;
+  auto reverse(DzValue& iteree) -> DzValue;
 
   void add();
   void bitwiseAnd();
@@ -84,7 +84,7 @@ public:  // Todo: ugly
   template<std::integral Integral>
   void iterAdvance();
   template<std::integral Integral>
-  void iterCurrent();
+  void iterValue();
   void jump();
   void jumpFalse();
   void jumpFalsePop();

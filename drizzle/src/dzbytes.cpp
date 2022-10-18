@@ -2,6 +2,8 @@
 
 #include <sh/fmt.h>
 
+#include "dziterator.h"
+#include "gc.h"
 #include "vm.h"
 
 DzBytes::DzBytes()
@@ -31,53 +33,35 @@ auto DzBytes::repr() const -> std::string {
   return fmt::format("bytes({})", fmt::join(data, ", "));
 }
 
+auto DzBytes::makeIterator(Vm& vm) -> DzValue {
+  return vm.gc.construct<DzSequenceIterator>(this);
+}
+
+auto DzBytes::makeReverseIterator(Vm& vm) -> DzValue {
+  return vm.gc.construct<DzSequenceReverseIterator>(this);
+}
+
+auto DzBytes::getAt(Vm& vm, std::size_t index) -> DzValue {
+  return static_cast<dzint>(data[index]);
+}
+
 auto DzBytes::getExpr(Vm& vm, const DzValue& expr) -> DzValue {
-  return static_cast<dzint>(subscript(vm, expr));
+  return static_cast<dzint>(refExpr(vm, expr));
 }
 
 void DzBytes::setExpr(Vm& vm, const DzValue& expr, const DzValue& value) {
   vm.expect(value, DzValue::Type::Int);
-  subscript(vm, expr) = static_cast<u8>(value.i);
+  refExpr(vm, expr) = static_cast<u8>(value.i);
 }
 
-auto DzBytes::subscript(Vm& vm, const DzValue& expr) -> u8& {
+auto DzBytes::refExpr(Vm& vm, const DzValue& expr) -> u8& {
   vm.expect(expr, DzValue::Type::Int);
   auto index = expr.i;
   if (index < 0) {
-    index += size();
+    index += data.size();
   }
-  if (index < 0 || index >= size()) {
+  if (index < 0 || index >= data.size()) {
     vm.raise("bytes index out of range");
   }
   return data[index];
-}
-
-DzBytesIterator::DzBytesIterator(DzObject* iteree)
-  : DzIterator(iteree, "bytes"), index(0) {}
-
-auto DzBytesIterator::done() const -> bool {
-  return index >= iteree->as<DzBytes>()->size();
-}
-
-void DzBytesIterator::advance() {
-  index++;
-}
-
-auto DzBytesIterator::current(Gc&) const -> DzValue {
-  return static_cast<dzint>((*iteree->as<DzBytes>())[index]);
-}
-
-DzBytesReverseIterator::DzBytesReverseIterator(DzObject* iteree)
-  : DzIterator(iteree, "bytes reverse"), index(iteree->as<DzBytes>()->size() - 1) {}
-
-auto DzBytesReverseIterator::done() const -> bool {
-  return index >= iteree->as<DzBytes>()->size();
-}
-
-void DzBytesReverseIterator::advance() {
-  index--;
-}
-
-auto DzBytesReverseIterator::current(Gc&) const -> DzValue {
-  return static_cast<dzint>((*iteree->as<DzBytes>())[index]);
 }

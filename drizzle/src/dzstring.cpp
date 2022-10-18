@@ -40,6 +40,17 @@ auto DzString::repr() const -> std::string {
   return fmt::format(R"("{}")", data);
 }
 
+auto DzString::makeIterator(Vm& vm) -> DzValue {
+  return vm.gc.construct<DzSequenceIterator>(this);
+}
+
+auto DzString::makeReverseIterator(Vm& vm) -> DzValue {
+  return vm.gc.construct<DzSequenceReverseIterator>(this);
+}
+
+auto DzString::getAt(Vm& vm, std::size_t index) -> DzValue {
+  return vm.gc.construct<DzString>((*this)[index]);
+}
 
 auto DzString::getExpr(Vm& vm, const DzValue& expr) -> DzValue {
   vm.expect(expr, DzValue::Type::Int);
@@ -51,34 +62,4 @@ auto DzString::getExpr(Vm& vm, const DzValue& expr) -> DzValue {
     vm.raise("string index out of range");
   }
   return vm.gc.construct<DzString>((*this)[index]);
-}
-
-DzStringIterator::DzStringIterator(DzObject* iteree)
-  : DzIterator(iteree, "string"), index(0) {}
-
-auto DzStringIterator::done() const -> bool {
-  return index >= iteree->as<DzString>()->size();
-}
-
-void DzStringIterator::advance() {
-  index++;
-}
-
-auto DzStringIterator::current(Gc& gc) const -> DzValue {
-  return gc.construct<DzString>((*iteree->as<DzString>())[index]);
-}
-
-DzStringReverseIterator::DzStringReverseIterator(DzObject* iteree)
-  : DzIterator(iteree, "string reverse"), index(iteree->as<DzString>()->size() - 1) {}
-
-auto DzStringReverseIterator::done() const -> bool {
-  return index >= iteree->as<DzString>()->size();
-}
-
-void DzStringReverseIterator::advance() {
-  index--;
-}
-
-auto DzStringReverseIterator::current(Gc& gc) const -> DzValue {
-  return gc.construct<DzString>((*iteree->as<DzString>())[index]);
 }

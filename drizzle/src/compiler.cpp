@@ -172,7 +172,7 @@ void Compiler::visit(Statement::For& for_) {
     exit = jump(Opcode::JumpFalsePop);
 
     increaseScope(Level::Type::Loop);
-    emitExt(Opcode::IterCurrent, iter);
+    emitExt(Opcode::IterValue, iter);
     define(for_.iterator);
     emitExt(Opcode::IterAdvance, iter);
   }

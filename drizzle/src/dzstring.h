@@ -27,32 +27,11 @@ public:
   virtual auto size() const -> std::size_t override;
   virtual auto repr() const -> std::string override;
 
+  virtual auto makeIterator(Vm& vm) -> DzValue override;
+  virtual auto makeReverseIterator(Vm& vm) -> DzValue override;
+  virtual auto getAt(Vm& vm, std::size_t index) -> DzValue override;
   virtual auto getExpr(Vm& vm, const DzValue& expr) -> DzValue override;
 
   std::string data;
   std::size_t data_hash;
-};
-
-class DzStringIterator : public DzIterator {
-public:
-  DzStringIterator(DzObject* iteree);
-
-  virtual auto done() const -> bool final;
-  virtual void advance() final;
-  virtual auto current(Gc& gc) const -> DzValue final;
-
-private:
-  std::size_t index;
-};
-
-class DzStringReverseIterator : public DzIterator {
-public:
-  DzStringReverseIterator(DzObject* iteree);
-
-  virtual auto done() const -> bool final;
-  virtual void advance() final;
-  virtual auto current(Gc& gc) const -> DzValue final;
-
-private:
-  std::size_t index;
 };

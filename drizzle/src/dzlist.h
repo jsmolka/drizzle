@@ -16,35 +16,14 @@ public:
   virtual auto size() const -> std::size_t override;
   virtual auto repr() const -> std::string override;
 
+  virtual auto makeIterator(Vm& vm) -> DzValue override;
+  virtual auto makeReverseIterator(Vm& vm) -> DzValue override;
+  virtual auto getAt(Vm& vm, std::size_t index) -> DzValue override;
   virtual auto getExpr(Vm& vm, const DzValue& expr) -> DzValue override;
   virtual void setExpr(Vm& vm, const DzValue& expr, const DzValue& value) override;
 
   sh::vector<DzValue> values;
 
 private:
-  auto subscript(Vm& vm, const DzValue& expr) -> DzValue&;
-};
-
-class DzListIterator : public DzIterator {
-public:
-  DzListIterator(DzObject* iteree);
-
-  virtual auto done() const -> bool final;
-  virtual void advance() final;
-  virtual auto current(Gc&) const -> DzValue final;
-
-private:
-  std::size_t index;
-};
-
-class DzListReverseIterator : public DzIterator {
-public:
-  DzListReverseIterator(DzObject* iteree);
-
-  virtual auto done() const -> bool final;
-  virtual void advance() final;
-  virtual auto current(Gc&) const -> DzValue final;
-
-private:
-  std::size_t index;
+  auto refExpr(Vm& vm, const DzValue& expr) -> DzValue&;
 };

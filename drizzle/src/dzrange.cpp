@@ -2,6 +2,9 @@
 
 #include <sh/fmt.h>
 
+#include "gc.h"
+#include "vm.h"
+
 DzRange::DzRange(dzint start, dzint stop, dzint step)
   : DzObject(Type::Range), start(start), stop(stop), step(step) {
   assert(step != 0);
@@ -18,8 +21,16 @@ auto DzRange::repr() const -> std::string {
   return fmt::format("range({}, {}, {})", start, stop, step);
 }
 
+auto DzRange::makeIterator(Vm& vm) -> DzValue {
+  return vm.gc.construct<DzRangeIterator>(this);
+}
+
+auto DzRange::makeReverseIterator(Vm& vm) -> DzValue {
+  return vm.gc.construct<DzRangeReverseIterator>(this);
+}
+
 DzRangeIterator::DzRangeIterator(DzObject* iteree)
-  : DzIterator(iteree, "range"), iter(iteree->as<DzRange>()->start) {}
+  : DzIterator(iteree), iter(iteree->as<DzRange>()->start) {}
 
 auto DzRangeIterator::done() const -> bool {
   const auto range = iteree->as<DzRange>();
@@ -32,12 +43,12 @@ void DzRangeIterator::advance() {
   iter += iteree->as<DzRange>()->step;
 }
 
-auto DzRangeIterator::current(Gc&) const -> DzValue {
+auto DzRangeIterator::value(Vm&) const -> DzValue {
   return iter;
 }
 
 DzRangeReverseIterator::DzRangeReverseIterator(DzObject* iteree)
-  : DzIterator(iteree, "range reverse") {
+  : DzIterator(iteree) {
   const auto range = iteree->as<DzRange>();
   step = -range->step;
   stop =  range->start + step;
@@ -54,6 +65,6 @@ void DzRangeReverseIterator::advance() {
   iter += step;
 }
 
-auto DzRangeReverseIterator::current(Gc&) const -> DzValue {
+auto DzRangeReverseIterator::value(Vm&) const -> DzValue {
   return iter;
 }

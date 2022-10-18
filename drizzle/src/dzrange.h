@@ -11,6 +11,9 @@ public:
   virtual auto operator==(const DzObject& other) const -> bool;
   virtual auto repr() const -> std::string override;
 
+  virtual auto makeIterator(Vm& vm) -> DzValue override;
+  virtual auto makeReverseIterator(Vm& vm) -> DzValue override;
+
   dzint start;
   dzint stop;
   dzint step;
@@ -22,7 +25,7 @@ public:
 
   virtual auto done() const -> bool final;
   virtual void advance() final;
-  virtual auto current(Gc&) const -> DzValue final;
+  virtual auto value(Vm&) const -> DzValue final;
 
 private:
   dzint iter;
@@ -34,10 +37,11 @@ public:
 
   virtual auto done() const -> bool final;
   virtual void advance() final;
-  virtual auto current(Gc&) const -> DzValue final;
+  virtual auto value(Vm&) const -> DzValue final;
 
 private:
   dzint iter;
+  // Todo: are these necessary?
   dzint step;
   dzint stop;
 };
