@@ -93,8 +93,8 @@ void Vm::interpret(const Program& program) {
       case Opcode::StoreExt: store<u16>(); break;
       case Opcode::StoreGlobal: storeGlobal<u8>(); break;
       case Opcode::StoreGlobalExt: storeGlobal<u16>(); break;
-      case Opcode::SubscriptGet: getExpr(); break;
-      case Opcode::SubscriptSet: setExpr(); break;
+      case Opcode::SubscriptGet: subscriptGet(); break;
+      case Opcode::SubscriptSet: subscriptSet(); break;
       case Opcode::Subtract: subtract(); break;
       case Opcode::True: true_(); break;
       default:
