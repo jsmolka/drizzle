@@ -23,8 +23,8 @@ public:
     Map,
     Null,
     Range,
-    SdlWindow,
     String,
+    Window,
     LastEnumValue
   };
 
@@ -35,7 +35,7 @@ public:
   virtual auto operator==(const DzObject& other) const -> bool;
   virtual auto hash() const -> std::size_t;
   virtual auto size() const -> std::size_t;
-  virtual auto repr() const -> std::string = 0;
+  virtual auto repr() const -> std::string;
   auto kind() const -> std::string_view;
 
   template<typename T>
@@ -80,8 +80,8 @@ struct fmt::formatter<DzObject::Type> : fmt::formatter<std::string_view> {
       case DzObject::Type::Map:         return "map";
       case DzObject::Type::Null:        return "null";
       case DzObject::Type::Range:       return "range";
-      case DzObject::Type::SdlWindow:   return "instance";
       case DzObject::Type::String:      return "string";
+      case DzObject::Type::Window:      return "window";
       default:
         SH_UNREACHABLE;
         return "unreachable";

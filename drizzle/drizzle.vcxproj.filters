@@ -105,10 +105,10 @@
     <ClCompile Include="src\dzbytesmembers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\dzsdlwindow.cpp">
+    <ClCompile Include="src\dzwindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\dzsdlwindowmembers.cpp">
+    <ClCompile Include="src\dzwindowmembers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -217,7 +217,7 @@
     <ClInclude Include="src\sdl2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\dzsdlwindow.h">
+    <ClInclude Include="src\dzwindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\program.h">

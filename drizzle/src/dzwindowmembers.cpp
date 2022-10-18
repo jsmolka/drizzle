@@ -1,7 +1,7 @@
 #include "vm.h"
 
 #include "dznull.h"
-#include "dzsdlwindow.h"
+#include "dzwindow.h"
 #include "gc.h"
 
 #if DZ_SDL
@@ -16,7 +16,7 @@ void Vm::defineSdlWindowMembers() {
         vm.expect(vm.stack.peek(0), DzObject::Type::String);
 
         const auto title  = vm.stack.pop_value().o->as<DzString>();
-        const auto window = vm.stack.top().o->as<DzSdlWindow>();
+        const auto window = vm.stack.top().o->as<DzWindow>();
 
         SDL_SetWindowTitle(window->window, title->data.c_str());
         return &null;
@@ -31,7 +31,7 @@ void Vm::defineSdlWindowMembers() {
         const auto color  = vm.stack.pop_value().i;
         const auto y      = vm.stack.pop_value().i;
         const auto x      = vm.stack.pop_value().i;
-        const auto window = vm.stack.top().o->as<DzSdlWindow>();
+        const auto window = vm.stack.top().o->as<DzWindow>();
 
         int w;
         int h;
@@ -46,7 +46,7 @@ void Vm::defineSdlWindowMembers() {
     ),
     gc.construct<DzFunction>(
       gc.construct<DzString>("width"), Arity::equal(0), [](Vm& vm, std::size_t) -> dzint {
-        const auto window = vm.stack.top().o->as<DzSdlWindow>();
+        const auto window = vm.stack.top().o->as<DzWindow>();
 
         int w;
         int h;
@@ -56,7 +56,7 @@ void Vm::defineSdlWindowMembers() {
     ),
     gc.construct<DzFunction>(
       gc.construct<DzString>("height"), Arity::equal(0), [](Vm& vm, std::size_t) -> dzint {
-        const auto window = vm.stack.top().o->as<DzSdlWindow>();
+        const auto window = vm.stack.top().o->as<DzWindow>();
 
         int w;
         int h;
@@ -69,14 +69,14 @@ void Vm::defineSdlWindowMembers() {
         vm.expect(vm.stack.peek(0), DzValue::Type::Int);
 
         const auto color  = vm.stack.pop_value().i;
-        const auto window = vm.stack.top().o->as<DzSdlWindow>();
+        const auto window = vm.stack.top().o->as<DzWindow>();
         std::fill(window->buffer.begin(), window->buffer.end(), static_cast<u32>(color));
         return &null;
       }
     ),
     gc.construct<DzFunction>(
       gc.construct<DzString>("render"), Arity::equal(0), [](Vm& vm, std::size_t) {
-        const auto window = vm.stack.top().o->as<DzSdlWindow>();
+        const auto window = vm.stack.top().o->as<DzWindow>();
 
         int w;
         int h;
@@ -90,7 +90,7 @@ void Vm::defineSdlWindowMembers() {
     ),
     gc.construct<DzFunction>(
       gc.construct<DzString>("dispose"), Arity::equal(0), [](Vm& vm, std::size_t) {
-        const auto window = vm.stack.top().o->as<DzSdlWindow>();
+        const auto window = vm.stack.top().o->as<DzWindow>();
         window->dispose();
         return &null;
       }
@@ -98,7 +98,7 @@ void Vm::defineSdlWindowMembers() {
   };
 
   for (const auto& member : members) {
-    this->members[int(DzObject::Type::SdlWindow)].insert_or_assign(member->identifier, member);
+    this->members[int(DzObject::Type::Window)].insert_or_assign(member->identifier, member);
   }
   #endif
 }

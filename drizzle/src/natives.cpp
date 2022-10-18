@@ -15,7 +15,7 @@
 #include "dzlist.h"
 #include "dznull.h"
 #include "dzrange.h"
-#include "dzsdlwindow.h"
+#include "dzwindow.h"
 #include "gc.h"
 
 namespace fs = sh::filesystem;
@@ -25,8 +25,8 @@ struct fmt::formatter<DzValue> : fmt::formatter<std::string> {
   template<typename FormatContext>
   auto format(const DzValue& value, FormatContext& ctx) const {
     return fmt::formatter<std::string>::format(
-      value.is(DzValue::Type::Object) && value.o->is(DzObject::Type::String)
-        ? value.o->as<DzString>()->data
+      value.isObject() && value->is(DzObject::Type::String)
+        ? value->as<DzString>()->data
         : value.repr(), ctx);
   }
 };
@@ -170,7 +170,7 @@ void Vm::defineNatives() {
         vm.expect(vm.stack.peek(1), DzValue::Type::Int);
         vm.expect(vm.stack.peek(0), DzValue::Type::Int);
 
-        const auto window = vm.gc.construct<DzSdlWindow>(
+        const auto window = vm.gc.construct<DzWindow>(
           vm.stack.peek(3).o->as<DzString>(),
           vm.stack.peek(2).i,
           vm.stack.peek(1).i,

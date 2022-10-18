@@ -105,10 +105,10 @@
     <ClCompile Include="..\drizzle\src\dzbytesmembers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\drizzle\src\dzsdlwindow.cpp">
+    <ClCompile Include="..\drizzle\src\dzwindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\drizzle\src\dzsdlwindowmembers.cpp">
+    <ClCompile Include="..\drizzle\src\dzwindowmembers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

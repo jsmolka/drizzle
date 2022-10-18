@@ -1,4 +1,4 @@
-#include "dzsdlwindow.h"
+#include "dzwindow.h"
 
 #include <sh/fmt.h>
 #include <sh/utility.h>
@@ -7,8 +7,8 @@
 #  include "sdl2.h"
 #endif
 
-DzSdlWindow::DzSdlWindow(DzString* title, dzint w, dzint h, dzint scale)
-  : DzObject(Type::SdlWindow) {
+DzWindow::DzWindow(DzString* title, dzint w, dzint h, dzint scale)
+  : DzObject(Type::Window) {
   #ifdef DZ_SDL
   if (!SDL_WasInit(SDL_INIT_VIDEO)) {
     if (SDL_InitSubSystem(SDL_INIT_VIDEO) < 0) {
@@ -52,19 +52,19 @@ DzSdlWindow::DzSdlWindow(DzString* title, dzint w, dzint h, dzint scale)
   #endif
 }
 
-DzSdlWindow::~DzSdlWindow() {
+DzWindow::~DzWindow() {
   dispose();
 }
 
-DzSdlWindow::operator bool() const {
+DzWindow::operator bool() const {
   return window && renderer && texture;
 }
 
-auto DzSdlWindow::repr() const -> std::string {
-  return fmt::format("<SDL window instance at 0x{:016X}>", sh::cast<sh::u64>(this));
+auto DzWindow::repr() const -> std::string {
+  return fmt::format("<Window instance at 0x{:016X}>", sh::cast<sh::u64>(this));
 }
 
-void DzSdlWindow::dispose() {
+void DzWindow::dispose() {
   #ifdef DZ_SDL
   if (texture) {
     SDL_DestroyTexture(texture);

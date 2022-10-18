@@ -1,17 +1,8 @@
 #include "dzobject.h"
 
-#include "dzboundmethod.h"
-#include "dzbytes.h"
-#include "dzclass.h"
-#include "dzfunction.h"
-#include "dzinstance.h"
-#include "dziterator.h"
-#include "dzlist.h"
-#include "dzmap.h"
-#include "dznull.h"
-#include "dzrange.h"
-#include "dzsdlwindow.h"
-#include "dzstring.h"
+#include <sh/fmt.h>
+#include <sh/utility.h>
+
 #include "vm.h"
 
 DzObject::DzObject(Type type)
@@ -31,6 +22,10 @@ auto DzObject::hash() const -> std::size_t {
 
 auto DzObject::size() const -> std::size_t {
   throw NotSupportedException();
+}
+
+auto DzObject::repr() const -> std::string {
+  return fmt::format("<{} at 0x{:016X}>", type, sh::cast<u64>(this));
 }
 
 auto DzObject::kind() const -> std::string_view {
