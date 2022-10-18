@@ -20,7 +20,7 @@ auto Parser::rule(Token::Type type) -> const Rule& {
       case Token::Type::And2:         return {nullptr,           &Parser::and_,      Precedence::And       };
       case Token::Type::Bang:         return {&Parser::unary,    nullptr,            Precedence::Term      };
       case Token::Type::BangEqual:    return {nullptr,           &Parser::binary,    Precedence::Equality  };
-      case Token::Type::BracketLeft:  return {&Parser::list,     &Parser::refExpr, Precedence::Call      };
+      case Token::Type::BracketLeft:  return {&Parser::list,     &Parser::subscript, Precedence::Call      };
       case Token::Type::BraceLeft:    return {&Parser::map,      nullptr,            Precedence::None      };
       case Token::Type::Caret:        return {nullptr,           &Parser::binary,    Precedence::BitXor    };
       case Token::Type::Dot:          return {nullptr,           &Parser::dot,       Precedence::Call      };
@@ -355,7 +355,7 @@ void Parser::range(bool) {
   }));
 }
 
-void Parser::refExpr(bool assign) {
+void Parser::subscript(bool assign) {
   auto self = expressions.pop_value();
   auto expr = expression();
   expectBracketRight();
