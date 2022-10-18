@@ -2,12 +2,12 @@
 
 #include "dzfunction.h"
 
-class DzBoundMethod : public DzObject {
+class DzBoundMethod final : public DzObject {
 public:
   DzBoundMethod(DzObject* self, DzFunction* function);
 
-  virtual auto operator==(const DzObject& other) const -> bool override;
-  virtual auto repr() const -> std::string override;
+  auto operator==(const DzObject& other) const -> bool override final;
+  auto repr() const -> std::string override final;
 
   DzObject* self;
   DzFunction* function;

@@ -17,14 +17,6 @@ auto DzBytes::operator==(const DzObject& other) const -> bool {
   return other.type == Type::Bytes && other.as<DzBytes>()->data == data;
 }
 
-auto DzBytes::operator[](std::size_t index) -> u8& {
-  return data[index];
-}
-
-auto DzBytes::operator[](std::size_t index) const -> const u8& {
-  return data[index];
-}
-
 auto DzBytes::size() const -> std::size_t {
   return data.size();
 }
@@ -46,22 +38,25 @@ auto DzBytes::getItem(Vm& vm, std::size_t index) -> DzValue {
 }
 
 auto DzBytes::getExpr(Vm& vm, const DzValue& expr) -> DzValue {
-  return static_cast<dzint>(refExpr(vm, expr));
+  return getItem(vm, toIndex(vm, expr));
+}
+
+void DzBytes::setItem(Vm& vm, std::size_t index, const DzValue& value) {
+  vm.expect(value, DzValue::Type::Int);
+  data[index] = static_cast<u8>(value.i);
 }
 
 void DzBytes::setExpr(Vm& vm, const DzValue& expr, const DzValue& value) {
-  vm.expect(value, DzValue::Type::Int);
-  refExpr(vm, expr) = static_cast<u8>(value.i);
+  setItem(vm, toIndex(vm, expr), value);
 }
 
-auto DzBytes::refExpr(Vm& vm, const DzValue& expr) -> u8& {
+auto DzBytes::toIndex(Vm& vm, const DzValue& expr) const -> std::size_t {
   vm.expect(expr, DzValue::Type::Int);
-  auto index = expr.i;
-  if (index < 0) {
-    index += data.size();
-  }
-  if (index < 0 || index >= data.size()) {
+  const auto index = expr.i < 0
+    ? expr.i + size()
+    : expr.i;
+  if (index < 0 || index >= size()) {
     vm.raise("bytes index out of range");
   }
-  return data[index];
+  return index;
 }
