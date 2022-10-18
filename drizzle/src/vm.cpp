@@ -601,8 +601,8 @@ void Vm::lessEqual() {
 
 template<std::integral Integral>
 void Vm::list() {
-  const auto size = read<Integral>();
-  const auto list = gc.construct<DzList>();
+  auto size = read<Integral>();
+  auto list = gc.construct<DzList>();
   list->values.reserve(size);
   for (const auto& value : sh::range(stack.end() - size, stack.end())) {
     list->values.push_back(value);
@@ -633,12 +633,12 @@ void Vm::loadGlobal() {
 
 template<std::integral Integral>
 void Vm::map() {
-  const auto size = read<Integral>();
-  const auto map  = gc.construct<DzMap>();
+  auto size = read<Integral>();
+  auto map  = gc.construct<DzMap>();
   map->values.reserve(size);
   while (size--) {
-    const auto v = stack.pop_value();
-    const auto k = stack.pop_value();
+    auto v = stack.pop_value();
+    auto k = stack.pop_value();
     map->set(k, v);
   }
   stack.push(map);
