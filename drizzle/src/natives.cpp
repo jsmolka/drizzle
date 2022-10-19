@@ -20,10 +20,12 @@
 
 namespace fs = sh::filesystem;
 
+struct DzValuePrint : DzValue {};
+
 template<>
-struct fmt::formatter<DzValue> : fmt::formatter<std::string> {
+struct fmt::formatter<DzValuePrint> : fmt::formatter<std::string> {
   template<typename FormatContext>
-  auto format(const DzValue& value, FormatContext& ctx) const {
+  auto format(const DzValuePrint& value, FormatContext& ctx) const {
     return fmt::formatter<std::string>::format(
       value.isObject() && value->is(DzObject::Type::String)
         ? value->as<DzString>()->data
@@ -84,8 +86,8 @@ void Vm::defineNatives() {
     gc.construct<DzFunction>(
       gc.construct<DzString>("print"), Arity::greaterEqual(1), [](Vm& vm, std::size_t argc) {
         fmt::print("{}\n", fmt::join(
-          vm.stack.end() - argc,
-          vm.stack.end(), " "));
+          static_cast<const DzValuePrint*>(vm.stack.end()) - argc,
+          static_cast<const DzValuePrint*>(vm.stack.end()), " "));
         vm.stack.pop(argc);
         return &null;
       }
