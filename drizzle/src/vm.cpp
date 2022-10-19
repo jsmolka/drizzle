@@ -179,33 +179,22 @@ void Vm::add() {
       if (a->type == b->type) {
         switch (a->type) {
           case DzObject::Type::Bytes: {
-            const auto bytes_a = a->template as<DzBytes>();
-            const auto bytes_b = b->template as<DzBytes>();
-            const auto bytes = gc.construct<DzBytes>();
-            bytes->data.reserve(bytes_a->size() + bytes_b->size());
-            for (const auto& data : {bytes_a->data, bytes_b->data}) {
-              for (const auto& value : data) {
-                bytes->data.push_back(value);
-              }
-            }
-            return bytes;
+            return gc.construct<DzBytes>(
+              a->template as<DzBytes>()->data +
+              b->template as<DzBytes>()->data
+            );
           }
           case DzObject::Type::List: {
-            const auto list_a = a->template as<DzList>();
-            const auto list_b = b->template as<DzList>();
-            const auto list = gc.construct<DzList>();
-            list->values.reserve(list_a->size() + list_b->size());
-            for (const auto& values : {list_a->values, list_b->values}) {
-              for (const auto& value : values) {
-                list->values.push_back(value);
-              }
-            }
-            return list;
+            return gc.construct<DzList>(
+              a->template as<DzList>()->values +
+              b->template as<DzList>()->values
+            );
           }
           case DzObject::Type::String: {
-            const auto string_a = a->template as<DzString>();
-            const auto string_b = b->template as<DzString>();
-            return gc.construct<DzString>(string_a->data + string_b->data);
+            return gc.construct<DzString>(
+              a->template as<DzString>()->data +
+              b->template as<DzString>()->data
+            );
           }
         }
       }

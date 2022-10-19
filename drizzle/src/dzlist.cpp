@@ -9,6 +9,9 @@
 DzList::DzList()
   : DzObject(Type::List) {}
 
+DzList::DzList(const sh::vector<DzValue>& values)
+  : DzObject(Type::List), values(values) {}
+
 DzList::operator bool() const {
   return size() > 0;
 }

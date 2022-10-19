@@ -7,6 +7,7 @@
 class DzBytes final : public DzObject {
 public:
   DzBytes();
+  DzBytes(const sh::vector<u8>& data);
 
   operator bool() const override final;
   auto operator==(const DzObject& other) const -> bool override final;

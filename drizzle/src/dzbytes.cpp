@@ -10,6 +10,9 @@
 DzBytes::DzBytes()
   : DzObject(Type::Bytes) {}
 
+DzBytes::DzBytes(const sh::vector<u8>& data)
+  : DzObject(Type::Bytes), data(data) {}
+
 DzBytes::operator bool() const {
   return size() > 0;
 }

@@ -8,6 +8,7 @@
 class DzList : public DzObject {
 public:
   DzList();
+  DzList(const sh::vector<DzValue>& values);
 
   virtual operator bool() const override;
   virtual auto operator==(const DzObject& other) const -> bool override;
