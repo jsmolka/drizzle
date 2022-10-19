@@ -15,7 +15,7 @@ public:
   void set(const DzString* identifier, const DzValue& value);
 
   auto getExpr(Vm& vm, const DzValue& expr) -> DzValue override final;
-  auto getProp(Vm& vm, const DzValue& prop) -> DzValue override final;
+  auto getProp(Vm& vm, const DzValue& prop, bool bind) -> DzValue override final;
   void setExpr(Vm& vm, const DzValue& expr, const DzValue& value) override final;
   void setProp(Vm& vm, const DzValue& prop, const DzValue& value) override final;
 

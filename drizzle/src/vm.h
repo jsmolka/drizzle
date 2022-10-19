@@ -11,6 +11,7 @@
 
 class Gc;
 
+class NotFoundException {};
 class NotSupportedException {};
 
 class Vm {

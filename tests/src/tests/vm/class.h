@@ -12,13 +12,6 @@ R"(
 class Point:
   noop
 var p = Point()
-assert(p.x == null)
-assert(p.y == null)
-)",
-R"(
-class Point:
-  noop
-var p = Point()
 p.x = 0
 p.y = 1
 assert(p.x == 0)
@@ -32,17 +25,6 @@ class Point:
 var p = Point(0, 1)
 assert(p.x == 0)
 assert(p.y == 1)
-)",
-R"(
-class Point:
-  def init(x, y):
-    this.x = x
-    if y == 1:
-      return
-    this.y = y
-var p = Point(0, 1)
-assert(p.x == 0)
-assert(p.y == null)
 )",
 R"(
 class Point:
@@ -162,6 +144,13 @@ assert(!("test2" in t))
     }
     {
       constexpr const char* kSources[] = {
+R"(
+class Point:
+  noop
+var p = Point()
+assert(p.x == null)
+assert(p.y == null)
+)",
 R"(
 class Point:
   noop

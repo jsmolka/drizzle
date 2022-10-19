@@ -27,20 +27,22 @@ void DzInstance::set(const DzString* name, const DzValue& value) {
 }
 
 auto DzInstance::getExpr(Vm& vm, const DzValue& expr) -> DzValue {
-  return getProp(vm, expr);
+  return getProp(vm, expr, true);
 }
 
-auto DzInstance::getProp(Vm& vm, const DzValue& prop) -> DzValue {
+auto DzInstance::getProp(Vm& vm, const DzValue& prop, bool bind) -> DzValue {
   vm.expect(prop, DzObject::Type::String);
   const auto property = prop->as<DzString>();
   if (const auto value = get(property)) {
     return *value;
   } else if (const auto function = class_->get(property)) {
-    // Todo: ugly
-    return vm.gc.construct<DzBoundMethod>(this, function);
-  } else {
-    return &null;
+    if (bind) {
+      return vm.gc.construct<DzBoundMethod>(this, function);
+    } else {
+      return function;
+    }
   }
+  throw NotFoundException();
 }
 
 void DzInstance::setExpr(Vm& vm, const DzValue& expr, const DzValue& value) {
@@ -49,5 +51,5 @@ void DzInstance::setExpr(Vm& vm, const DzValue& expr, const DzValue& value) {
 
 void DzInstance::setProp(Vm& vm, const DzValue& prop, const DzValue& value) {
   vm.expect(prop, DzObject::Type::String);
-  set(prop.o->as<DzString>(), value);
+  set(prop->as<DzString>(), value);
 }

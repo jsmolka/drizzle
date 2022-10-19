@@ -3,6 +3,8 @@
 #include <sh/fmt.h>
 #include <sh/utility.h>
 
+#include "dzboundmethod.h"
+#include "gc.h"
 #include "vm.h"
 
 DzObject::DzObject(Type type)
@@ -52,8 +54,20 @@ auto DzObject::getExpr(Vm& vm, const DzValue& expr) -> DzValue {
   throw NotSupportedException();
 }
 
-auto DzObject::getProp(Vm& vm, const DzValue& prop) -> DzValue {
-  throw NotSupportedException();
+auto DzObject::getProp(Vm& vm, const DzValue& prop, bool bind) -> DzValue {
+  vm.expect(prop, DzObject::Type::String);
+  const auto type = int(this->type);
+  const auto iter = vm.members[type].find(prop->as<DzString>());
+  if (iter != vm.members[type].end()) {
+    const auto& [identifier, function] = *iter;
+    if (bind) {
+      return vm.gc.construct<DzBoundMethod>(this, function);
+    } else {
+      return function;
+    }
+  } else {
+    throw NotFoundException();
+  }
 }
 
 void DzObject::setItem(Vm& vm, std::size_t index, const DzValue& value) {

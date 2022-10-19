@@ -383,41 +383,19 @@ void Vm::false_() {
 }
 
 void Vm::get() {
-  const auto value = [this]() -> DzValue {
-    auto error = [this](const DzValue& self, const DzString* prop) {
-      raise("'{}' object has no property '{}'", self.kind(), prop->data);
-    };
-
-    const auto& prop = stack.peek(0).o->as<DzString>();
-    const auto& self = stack.peek(1);
-
-    if (!self.is(DzValue::Type::Object)) {
-      error(self, prop);
+  auto& prop = stack.peek(0);
+  auto& self = stack.peek(1);
+  try {
+    if (!self.isObject()) {
+      throw NotSupportedException();
     }
-
-    if (self.o->is(DzObject::Type::Instance)) {
-      const auto instance = self.o->as<DzInstance>();
-      if (const auto value = instance->get(prop)) {
-        return *value;
-      } else if (const auto function = instance->class_->get(prop)) {
-        return gc.construct<DzBoundMethod>(instance, function);
-      } else {
-        return &null;
-      }
-    } else {
-      const auto type = int(self.o->type);
-      const auto iter = members[type].find(prop);
-      if (iter != members[type].end()) {
-        const auto& [identifier, function] = *iter;
-        return gc.construct<DzBoundMethod>(self.o, function);
-      } else {
-        error(self, prop);
-        return &null;
-      }
-    }
-  }();
-  stack.pop();
-  stack.top() = value;
+    self = self->getProp(*this, prop, true);
+    stack.pop();
+  } catch (const NotFoundException&) {
+    raise("'{}' object has no property '{}'", self.kind(), prop->as<DzString>()->data);
+  } catch (const NotSupportedException&) {
+    raise("'{}' object has no properties", self.kind());
+  }
 }
 
 void Vm::greater() {
@@ -499,38 +477,20 @@ void Vm::in() {
 }
 
 void Vm::invoke() {
-  auto error = [this](const DzValue& self, const DzString* prop) {
-    raise("'{}' object has no property '{}'", self.kind(), prop->data);
-  };
-
-  const auto argc = read<u8>();
-  const auto prop = stack.pop_value().o->as<DzString>();
-
+  auto  argc = read<u8>();
+  auto  prop = stack.pop_value();
   auto& self = stack.peek(argc);
-  if (!self.is(DzValue::Type::Object)) {
-    error(self, prop);
-  }
-
-  if (self.o->is(DzObject::Type::Instance)) {
-    const auto instance = self.o->as<DzInstance>();
-    if (const auto value = instance->get(prop)) {
-      self = *value;
-    } else if (const auto function = instance->class_->get(prop)) {
-      return call(function, argc);
-    } else {
-      self = &null;
+  try {
+    if (!self.isObject()) {
+      throw NotSupportedException();
     }
-  } else {
-    const auto type = int(self.o->type);
-    const auto iter = members[type].find(prop);
-    if (iter != members[type].end()) {
-      const auto& [identifier, function] = *iter;
-      return call(function, argc);
-    } else {
-      error(self, prop);
-    }
+    auto callee = self->getProp(*this, prop, false);
+    call(callee, argc);
+  } catch (const NotFoundException&) {
+    raise("'{}' object has no property '{}'", self.kind(), prop->as<DzString>()->data);
+  } catch (const NotSupportedException&) {
+    raise("'{}' object has no properties", self.kind());
   }
-  call(self, argc);
 }
 
 void Vm::iterInit() {
@@ -734,7 +694,7 @@ void Vm::set() {
     }
     self->setProp(*this, prop, stack.top());
   } catch (const NotSupportedException&) {
-    raise("'{}' object does not have properties", self.kind());
+    raise("'{}' object has no properties", self.kind());
   }
 }
 
