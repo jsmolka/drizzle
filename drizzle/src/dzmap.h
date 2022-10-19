@@ -28,6 +28,7 @@ public:
   auto get(const DzValue& key) const -> std::optional<DzValue>;
   void set(const DzValue& key, const DzValue& value);
 
+  virtual auto in(Vm& vm, const DzValue& value) -> bool;
   virtual auto getExpr(Vm& vm, const DzValue& expr) -> DzValue override;
   virtual void setExpr(Vm& vm, const DzValue& expr, const DzValue& value) override;
 

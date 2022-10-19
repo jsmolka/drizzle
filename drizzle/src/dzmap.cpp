@@ -51,6 +51,10 @@ void DzMap::set(const DzValue& key, const DzValue& value) {
   values.insert_or_assign(key, value);
 }
 
+auto DzMap::in(Vm& vm, const DzValue& value) -> bool {
+  return get(value).has_value();
+}
+
 auto DzMap::getExpr(Vm& vm, const DzValue& expr) -> DzValue {
   return get(expr).value_or(&null);
 }

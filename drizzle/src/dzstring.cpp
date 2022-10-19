@@ -48,6 +48,11 @@ auto DzString::makeReverseIterator(Vm& vm) -> DzValue {
   return vm.gc.construct<DzSequenceReverseIterator>(this);
 }
 
+auto DzString::in(Vm& vm, const DzValue& value) -> bool {
+  vm.expect(value, DzObject::Type::String);
+  return data.find(value->as<DzString>()->data) != std::string::npos;
+}
+
 auto DzString::getItem(Vm& vm, std::size_t index) -> DzValue {
   return vm.gc.construct<DzString>((*this)[index]);
 }

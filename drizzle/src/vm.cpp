@@ -417,62 +417,16 @@ void Vm::greaterEqual() {
 }
 
 void Vm::in() {
-  auto error = [this](const DzValue& self) {
+  auto& expr = stack.peek(0);
+  auto& self = stack.peek(1);
+  try {
+    if (!self.isObject()) {
+      throw NotSupportedException();
+    }
+    self = self->in(*this, expr);
+    stack.pop();
+  } catch (const NotSupportedException&) {
     raise("'{}' object does not support 'in'", self.kind());
-  };
-
-  const auto expr = stack.pop_value();
-  const auto self = stack.pop_value();
-  if (!self.is(DzValue::Type::Object)) {
-    error(self);
-  }
-
-  switch (self.o->type) {
-    case DzObject::Type::Bytes: {
-      expect(expr, DzValue::Type::Int);
-      const auto bytes = self.o->as<DzBytes>();
-      const auto value = expr.i;
-      stack.push(std::find(bytes->data.begin(), bytes->data.end(), value) != bytes->data.end());
-      break;
-    }
-    case DzObject::Type::Instance: {
-      expect(expr, DzObject::Type::String);
-      const auto inst = self.o->as<DzInstance>();
-      const auto prop = expr.o->as<DzString>();
-      stack.push(inst->get(prop) || inst->class_->get(prop));
-      break;
-    }
-    case DzObject::Type::List: {
-      const auto list = self.o->as<DzList>();
-      stack.push(std::find(list->values.begin(), list->values.end(), expr) != list->values.end());
-      break;
-    }
-    case DzObject::Type::Range: {
-      expect(expr, DzValue::Type::Int);
-      const auto range = self.o->as<DzRange>();
-      const auto value = expr.i;
-      stack.push(range->step > 0
-        ? value >= range->start && value < range->stop && (value - range->start) % range->step == 0
-        : value <= range->start && value > range->stop && (value - range->start) % range->step == 0
-      );
-      break;
-    }
-    case DzObject::Type::Map: {
-      const auto map = self.o->as<DzMap>();
-      stack.push(map->get(expr).has_value());
-      break;
-    }
-    case DzObject::Type::String: {
-      expect(expr, DzObject::Type::String);
-      const auto string = self.o->as<DzString>();
-      const auto substring = expr.o->as<DzString>();
-      stack.push(string->data.find(substring->data) != std::string::npos);
-      break;
-    }
-    default: {
-      error(self);
-      break;
-    }
   }
 }
 

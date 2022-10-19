@@ -1,5 +1,7 @@
 #include "dzlist.h"
 
+#include <sh/ranges.h>
+
 #include "dziterator.h"
 #include "gc.h"
 #include "vm.h"
@@ -37,6 +39,10 @@ auto DzList::makeIterator(Vm& vm) -> DzValue {
 
 auto DzList::makeReverseIterator(Vm& vm) -> DzValue {
   return vm.gc.construct<DzSequenceReverseIterator>(this);
+}
+
+auto DzList::in(Vm& vm, const DzValue& value) -> bool {
+  return sh::contains(values, value);
 }
 
 auto DzList::getItem(Vm& vm, std::size_t index) -> DzValue {

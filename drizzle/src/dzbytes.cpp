@@ -1,6 +1,7 @@
 #include "dzbytes.h"
 
 #include <sh/fmt.h>
+#include <sh/ranges.h>
 
 #include "dziterator.h"
 #include "gc.h"
@@ -31,6 +32,11 @@ auto DzBytes::makeIterator(Vm& vm) -> DzValue {
 
 auto DzBytes::makeReverseIterator(Vm& vm) -> DzValue {
   return vm.gc.construct<DzSequenceReverseIterator>(this);
+}
+
+auto DzBytes::in(Vm& vm, const DzValue& value) -> bool {
+  vm.expect(value, DzValue::Type::Int);
+  return sh::contains(data, value.i);
 }
 
 auto DzBytes::getItem(Vm& vm, std::size_t index) -> DzValue {

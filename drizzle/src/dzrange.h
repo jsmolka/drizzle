@@ -13,6 +13,7 @@ public:
 
   virtual auto makeIterator(Vm& vm) -> DzValue override;
   virtual auto makeReverseIterator(Vm& vm) -> DzValue override;
+  virtual auto in(Vm& vm, const DzValue& value) -> bool override;
 
   dzint start;
   dzint stop;

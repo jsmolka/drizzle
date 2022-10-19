@@ -54,6 +54,7 @@ public:
 
   virtual auto makeIterator(Vm& vm) -> DzValue;
   virtual auto makeReverseIterator(Vm& vm) -> DzValue;
+  virtual auto in(Vm& vm, const DzValue& value) -> bool;
   virtual auto getItem(Vm& vm, std::size_t index) -> DzValue;
   virtual auto getExpr(Vm& vm, const DzValue& expr) -> DzValue;
   virtual auto getProp(Vm& vm, const DzValue& prop, bool bind) -> DzValue;

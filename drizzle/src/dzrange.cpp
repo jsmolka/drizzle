@@ -29,6 +29,13 @@ auto DzRange::makeReverseIterator(Vm& vm) -> DzValue {
   return vm.gc.construct<DzRangeReverseIterator>(this);
 }
 
+auto DzRange::in(Vm& vm, const DzValue& value) -> bool {
+  vm.expect(value, DzValue::Type::Int);
+  return step > 0
+    ? value.i >= start && value.i < stop && (value.i - start) % step == 0
+    : value.i <= start && value.i > stop && (value.i - start) % step == 0;
+}
+
 DzRangeIterator::DzRangeIterator(DzObject* iteree)
   : DzIterator(iteree), iter(iteree->as<DzRange>()->start) {}
 

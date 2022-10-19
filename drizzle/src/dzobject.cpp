@@ -46,6 +46,10 @@ auto DzObject::makeReverseIterator(Vm& vm) -> DzValue {
   throw NotSupportedException();
 }
 
+auto DzObject::in(Vm& vm, const DzValue& value) -> bool {
+  throw NotSupportedException();
+}
+
 auto DzObject::getItem(Vm& vm, std::size_t) -> DzValue {
   throw NotSupportedException();
 }

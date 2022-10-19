@@ -26,6 +26,11 @@ void DzInstance::set(const DzString* name, const DzValue& value) {
   fields.insert_or_assign(name, value);
 }
 
+auto DzInstance::in(Vm& vm, const DzValue& value) -> bool {
+  vm.expect(value, DzObject::Type::String);
+  return get(value->as<DzString>()) || class_->get(value->as<DzString>());
+}
+
 auto DzInstance::getExpr(Vm& vm, const DzValue& expr) -> DzValue {
   return getProp(vm, expr, true);
 }

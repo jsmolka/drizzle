@@ -29,6 +29,7 @@ public:
 
   virtual auto makeIterator(Vm& vm) -> DzValue override;
   virtual auto makeReverseIterator(Vm& vm) -> DzValue override;
+  virtual auto in(Vm& vm, const DzValue& value) -> bool override;
   virtual auto getItem(Vm& vm, std::size_t index) -> DzValue override;
   virtual auto getExpr(Vm& vm, const DzValue& expr) -> DzValue override;
 
