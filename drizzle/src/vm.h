@@ -34,9 +34,8 @@ public:  // Todo: ugly
 
   void defineNatives();
   void defineBytesMembers();
-  void defineListMembers();
   void defineMapMembers();
-  void defineSdlWindowMembers();
+  void defineWindowMembers();
   void defineStringMembers();
 
   template<std::integral Integral>

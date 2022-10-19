@@ -26,9 +26,8 @@ void Vm::interpret(const Program& program) {
 
   defineNatives();
   defineBytesMembers();
-  defineListMembers();
   defineMapMembers();
-  defineSdlWindowMembers();
+  defineWindowMembers();
 
   gc.vm = this;
 

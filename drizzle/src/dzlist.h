@@ -2,30 +2,32 @@
 
 #include <sh/vector.h>
 
-#include "dziterator.h"
-#include "dzvalue.h"
+#include "dzobject.h"
 
-class DzList : public DzObject {
+class DzList final : public DzObject {
 public:
   DzList();
   DzList(const sh::vector<DzValue>& values);
 
-  virtual operator bool() const override;
-  virtual auto operator==(const DzObject& other) const -> bool override;
-  auto operator[](std::size_t index) -> DzValue&;
-  auto operator[](std::size_t index) const -> const DzValue&;
-  virtual auto size() const -> std::size_t override;
-  virtual auto repr() const -> std::string override;
+  operator bool() const override final;
+  auto operator==(const DzObject& other) const -> bool override final;
+  auto size() const -> std::size_t override final;
+  auto repr() const -> std::string override final;
 
-  virtual auto makeIterator(Vm& vm) -> DzValue override;
-  virtual auto makeReverseIterator(Vm& vm) -> DzValue override;
-  virtual auto in(Vm& vm, const DzValue& value) -> bool override;
-  virtual auto getItem(Vm& vm, std::size_t index) -> DzValue override;
-  virtual auto getExpr(Vm& vm, const DzValue& expr) -> DzValue override;
-  virtual void setExpr(Vm& vm, const DzValue& expr, const DzValue& value) override;
+  auto makeIterator(Vm& vm) -> DzValue override final;
+  auto makeReverseIterator(Vm& vm) -> DzValue override final;
+  auto in(Vm& vm, const DzValue& value) -> bool override final;
+  auto getItem(Vm& vm, std::size_t index) -> DzValue override final;
+  auto getExpr(Vm& vm, const DzValue& expr) -> DzValue override final;
+  auto getProp(Vm& vm, const DzValue& prop, bool bind) -> DzValue override final;
+  void setItem(Vm& vm, std::size_t index, const DzValue& value) override final;
+  void setExpr(Vm& vm, const DzValue& expr, const DzValue& value) override final;
 
   sh::vector<DzValue> values;
 
 private:
-  auto refExpr(Vm& vm, const DzValue& expr) -> DzValue&;
+  static void members(Vm& vm);
+
+  auto toIndex(Vm& vm, const DzValue& expr) const -> std::size_t;
+  auto toInsertIndex(Vm& vm, const DzValue& expr) const -> std::size_t;
 };

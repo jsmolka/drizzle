@@ -8,7 +8,7 @@
 #  include "sdl2.h"
 #endif
 
-void Vm::defineSdlWindowMembers() {
+void Vm::defineWindowMembers() {
   #if DZ_SDL
   const auto members = {
     gc.construct<DzFunction>(
