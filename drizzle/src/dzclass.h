@@ -12,7 +12,7 @@ public:
 
   auto repr() const -> std::string override final;
 
-  auto get(const DzString* identifier) -> DzFunction*;
+  auto get(const DzString* identifier) const -> DzFunction*;
   void set(const DzString* identifier, DzFunction* function);
 
   DzString* identifier;

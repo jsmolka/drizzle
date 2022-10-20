@@ -7,9 +7,7 @@
 #include "chunk.h"
 #include "dzstring.h"
 
-class Vm;
-
-class DzFunction : public DzObject {
+class DzFunction final : public DzObject {
 public:
   using Native = std::function<DzValue(Vm&, std::size_t)>;
 
@@ -17,7 +15,7 @@ public:
   DzFunction(DzString* identifier, const Arity& arity);
   DzFunction(DzString* identifier, const Arity& arity, const Native& native);
 
-  virtual auto repr() const -> std::string override;
+  auto repr() const -> std::string override final;
 
   auto isChunk() const -> bool;
   auto chunk() -> Chunk&;

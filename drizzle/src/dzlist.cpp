@@ -78,14 +78,14 @@ void DzList::members(Vm& vm) {
     ),
     vm.gc.constructNoCollect<DzFunction>(
       vm.gc.constructNoCollect<DzString>("resize"), Arity::equal(2), [](Vm& vm, std::size_t) {
-        vm.expect(vm.stack.peek(1), DzValue::Type::Int);
         const auto init = vm.stack.pop_value();
-        const auto size = vm.stack.pop_value().i;
+        const auto size = vm.stack.pop_value();
         const auto self = vm.stack.top()->as<DzList>();
-        if (size < 0) {
+        vm.expect(size, DzValue::Type::Int);
+        if (size.i < 0) {
           vm.raise("negative resize size");
         }
-        self->values.resize(size, init);
+        self->values.resize(size.i, init);
         return &null;
       }
     ),

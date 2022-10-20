@@ -1,45 +1,41 @@
 #pragma once
 
 #include "dzobject.h"
-#include "dzvalue.h"
 
 class DzIterator : public DzObject {
 public:
   DzIterator(DzObject* iteree);
 
-  virtual explicit operator bool() const override;
+  explicit operator bool() const override final;
+
+  auto makeIterator(Vm&) -> DzValue override final;
 
   virtual auto done() const -> bool = 0;
   virtual void advance() = 0;
   virtual auto value(Vm&) const -> DzValue = 0;
 
-  virtual auto makeIterator(Vm&) -> DzValue override;
-
   mutable DzObject* iteree;
-
-private:
-  std::size_t index;
 };
 
-class DzSequenceIterator : public DzIterator {
+class DzSequenceIterator final : public DzIterator {
 public:
   DzSequenceIterator(DzObject* iteree);
 
-  auto done() const -> bool override;
-  void advance() override;
-  auto value(Vm& vm) const -> DzValue override;
+  auto done() const -> bool override final;
+  void advance() override final;
+  auto value(Vm& vm) const -> DzValue override final;
 
 private:
   std::size_t index;
 };
 
-class DzSequenceReverseIterator : public DzIterator {
+class DzSequenceReverseIterator final : public DzIterator {
 public:
   DzSequenceReverseIterator(DzObject* iteree);
 
-  auto done() const -> bool override;
-  void advance() override;
-  auto value(Vm& vm) const -> DzValue override;
+  auto done() const -> bool override final;
+  void advance() override final;
+  auto value(Vm& vm) const -> DzValue override final;
 
 private:
   std::size_t index;

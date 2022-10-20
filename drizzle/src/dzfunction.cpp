@@ -1,5 +1,7 @@
 #include "dzfunction.h"
 
+#include <sh/utility.h>
+
 DzFunction::DzFunction()
   : DzFunction(nullptr, Arity::equal(0)) {}
 
@@ -10,7 +12,7 @@ DzFunction::DzFunction(DzString* identifier, const Arity& arity, const Native& n
   : DzObject(Type::Function), identifier(identifier), arity(arity), body(native) {}
 
 auto DzFunction::repr() const -> std::string {
-  return fmt::format("<function {}>", identifier->data);
+  return fmt::format("<function {} at 0x{:016X}>", identifier->data, sh::cast<std::size_t>(this));
 }
 
 auto DzFunction::isChunk() const -> bool {
