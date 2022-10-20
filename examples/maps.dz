@@ -1,6 +1,5 @@
 # Member functions
 var map = {}
-map.size()
 map.clear()
 map.get("key")
 map.set("key", "value")

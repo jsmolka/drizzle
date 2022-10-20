@@ -1,11 +1,10 @@
 # Member functions
 var list = []
-list.size()
 list.clear()
 list.resize(10, 0)
 list.push(1)
-list.push(2, 3, 4)
-list.insert(0, 5)
+list.push(3)
+list.insert(1, 2)
 list.pop()
 list.remove(0)
 list.index(0)

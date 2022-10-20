@@ -1,7 +1,7 @@
 # Strings are interned for performance reasons
 var string = "string"
 assert(type(string) == "string")
-assert(string.size() == 6)
+assert(len(string) == 6)
 
 # Strings support positive and negative subscripts
 assert(string[0] == "s")

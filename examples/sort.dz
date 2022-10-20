@@ -1,7 +1,7 @@
 def selection_sort(array):
-  for i in 0 .. array.size():
+  for i in 0 .. len(array):
     var minimum = i
-    for j in i + 1 .. array.size():
+    for j in i + 1 .. len(array):
       if array[j] < array[minimum]:
         minimum = j
     var temp = array[i]
@@ -10,7 +10,7 @@ def selection_sort(array):
   return array
 
 def insertion_sort(array):
-  for i in 1 .. array.size():
+  for i in 1 .. len(array):
     var item = array[i]
     var j = i - 1
     while j >= 0 && array[j] > item:
@@ -39,7 +39,7 @@ def quicksort(array):
       qsort(array, begin, pivot - 1)
       qsort(array, pivot + 1, end)
     return array
-  return qsort(array, 0, array.size() - 1)
+  return qsort(array, 0, len(array) - 1)
 
 for sort in [selection_sort, insertion_sort, quicksort]:
   assert(sort([3, 2, 1]) == [1, 2, 3])

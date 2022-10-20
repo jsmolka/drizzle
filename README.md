@@ -30,7 +30,7 @@ class Point:
 # Stokes' theorem
 def area(polygon):
   var s = 0
-  for i in 0 .. polygon.size():
+  for i in 0 .. len(polygon):
     s = s + polygon[i - 1].cross(polygon[i])
   return s / 2
 
