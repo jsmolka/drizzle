@@ -123,12 +123,6 @@ assert(t1.test == t1.test)
 assert(t1.test != t2.test)
 )",
 R"(
-var f = [].push
-assert(f(1) == 1)
-assert(f(1) == 2)
-assert(f(1) == 3)
-)",
-R"(
 class Test:
   def test():
     noop

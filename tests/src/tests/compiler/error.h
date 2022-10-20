@@ -5,7 +5,7 @@
 namespace tests_compiler_error {
 
 inline suite _ = [] {
-  "tests_compiler_error"_test = [] {
+  "compiler_error"_test = [] {
     {
       constexpr const char* kSources[] = {
 R"(

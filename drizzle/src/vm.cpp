@@ -14,7 +14,9 @@
 #include "opcode.h"
 
 Vm::Vm(Gc& gc)
-  : gc(gc) {}
+  : gc(gc) {
+  gc.vm = this;
+}
 
 void Vm::interpret(const Program& program) {
   static_assert(int(Opcode::LastEnumValue) == 62);
@@ -28,8 +30,6 @@ void Vm::interpret(const Program& program) {
   defineBytesMembers();
   defineMapMembers();
   defineWindowMembers();
-
-  gc.vm = this;
 
   while (true) {
     opcode_pc = frames.top().pc;

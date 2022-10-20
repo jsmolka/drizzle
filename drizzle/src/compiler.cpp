@@ -8,7 +8,7 @@
 #include "gc.h"
 
 Compiler::Compiler(Gc& gc)
-  : Compiler(gc, Type::Main, gc.construct<DzFunction>(), nullptr) {}
+  : Compiler(gc, Type::Main, gc.constructNoCollect<DzFunction>(), nullptr) {}
 
 Compiler::Compiler(Gc& gc, Type type, DzFunction* function, Compiler* parent)
   : gc(gc), type(type), function(function), parent(parent) {}
@@ -72,13 +72,13 @@ void Compiler::visit(Statement::Break& break_) {
 }
 
 void Compiler::visit(Statement::Class& class_) {
-  auto object = gc.construct<DzClass>(gc.construct<DzString>(class_.identifier));
+  auto object = gc.constructNoCollect<DzClass>(gc.constructNoCollect<DzString>(class_.identifier));
   for (const auto& method : class_.methods) {
     auto& def = method->def;
 
     const auto type = def.identifier == DzClass::kInit ? Type::Init : Type::Function;
-    const auto identifier = gc.construct<DzString>(def.identifier);
-    const auto function = gc.construct<DzFunction>(identifier, Arity::equal(def.parameters.size()));
+    const auto identifier = gc.constructNoCollect<DzString>(def.identifier);
+    const auto function = gc.constructNoCollect<DzFunction>(identifier, Arity::equal(def.parameters.size()));
     Compiler compiler(gc, type, function, this);
 
     compiler.define("this");
@@ -114,8 +114,8 @@ void Compiler::visit(Statement::Continue& continue_) {
 }
 
 void Compiler::visit(Statement::Def& def) {
-  const auto identifier = gc.construct<DzString>(def.identifier);
-  const auto function = gc.construct<DzFunction>(identifier, Arity::equal(def.parameters.size()));
+  const auto identifier = gc.constructNoCollect<DzString>(def.identifier);
+  const auto function = gc.constructNoCollect<DzFunction>(identifier, Arity::equal(def.parameters.size()));
   Compiler compiler(gc, Type::Function, function, this);
 
   compiler.define(def.identifier);
@@ -359,7 +359,7 @@ void Compiler::visit(Expression::Call& call) {
 
 void Compiler::visit(Expression::Get& get) {
   visit(get.self);
-  emitConstant(gc.construct<DzString>(get.identifier));
+  emitConstant(gc.constructNoCollect<DzString>(get.identifier));
   emit(Opcode::Get);
 }
 
@@ -376,7 +376,7 @@ void Compiler::visit(Expression::Invoke& invoke) {
   }
   visit(invoke.self);
   visit(invoke.arguments);
-  emitConstant(gc.construct<DzString>(invoke.identifier));
+  emitConstant(gc.constructNoCollect<DzString>(invoke.identifier));
   emit(Opcode::Invoke, arguments);
 }
 
@@ -388,7 +388,7 @@ void Compiler::visit(Expression::Literal& literal) {
     case Expression::Literal::Type::Boolean: emit(std::get<dzbool>(literal.value) ? Opcode::True : Opcode::False); break; 
     case Expression::Literal::Type::Integer: emitConstant(std::get<dzint>(literal.value)); break;
     case Expression::Literal::Type::Float:   emitConstant(std::get<dzfloat>(literal.value)); break;
-    case Expression::Literal::Type::String:  emitConstant(gc.construct<DzString>(std::get<std::string>(literal.value))); break;
+    case Expression::Literal::Type::String:  emitConstant(gc.constructNoCollect<DzString>(std::get<std::string>(literal.value))); break;
     default:
       SH_UNREACHABLE;
       break;
@@ -417,7 +417,7 @@ void Compiler::visit(Expression::Range& range) {
 void Compiler::visit(Expression::Set& set) {
   visit(set.value);
   visit(set.self);
-  emitConstant(gc.construct<DzString>(set.identifier));
+  emitConstant(gc.constructNoCollect<DzString>(set.identifier));
   emit(Opcode::Set);
 }
 

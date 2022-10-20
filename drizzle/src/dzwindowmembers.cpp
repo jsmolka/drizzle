@@ -11,8 +11,8 @@
 void Vm::defineWindowMembers() {
   #if DZ_SDL
   const auto members = {
-    gc.construct<DzFunction>(
-      gc.construct<DzString>("set_title"), Arity::equal(1), [](Vm& vm, std::size_t) {
+    gc.constructNoCollect<DzFunction>(
+      gc.constructNoCollect<DzString>("set_title"), Arity::equal(1), [](Vm& vm, std::size_t) {
         vm.expect(vm.stack.peek(0), DzObject::Type::String);
 
         const auto title  = vm.stack.pop_value().o->as<DzString>();
@@ -22,8 +22,8 @@ void Vm::defineWindowMembers() {
         return &null;
       }
     ),
-    gc.construct<DzFunction>(
-      gc.construct<DzString>("set_pixel"), Arity::equal(3), [](Vm& vm, std::size_t) {
+    gc.constructNoCollect<DzFunction>(
+      gc.constructNoCollect<DzString>("set_pixel"), Arity::equal(3), [](Vm& vm, std::size_t) {
         vm.expect(vm.stack.peek(0), DzValue::Type::Int);
         vm.expect(vm.stack.peek(1), DzValue::Type::Int);
         vm.expect(vm.stack.peek(2), DzValue::Type::Int);
@@ -44,8 +44,8 @@ void Vm::defineWindowMembers() {
         return &null;
       }
     ),
-    gc.construct<DzFunction>(
-      gc.construct<DzString>("width"), Arity::equal(0), [](Vm& vm, std::size_t) -> dzint {
+    gc.constructNoCollect<DzFunction>(
+      gc.constructNoCollect<DzString>("width"), Arity::equal(0), [](Vm& vm, std::size_t) -> dzint {
         const auto window = vm.stack.top().o->as<DzWindow>();
 
         int w;
@@ -54,8 +54,8 @@ void Vm::defineWindowMembers() {
         return w;
       }
     ),
-    gc.construct<DzFunction>(
-      gc.construct<DzString>("height"), Arity::equal(0), [](Vm& vm, std::size_t) -> dzint {
+    gc.constructNoCollect<DzFunction>(
+      gc.constructNoCollect<DzString>("height"), Arity::equal(0), [](Vm& vm, std::size_t) -> dzint {
         const auto window = vm.stack.top().o->as<DzWindow>();
 
         int w;
@@ -64,8 +64,8 @@ void Vm::defineWindowMembers() {
         return h;
       }
     ),
-    gc.construct<DzFunction>(
-      gc.construct<DzString>("clear"), Arity::equal(1), [](Vm& vm, std::size_t) {
+    gc.constructNoCollect<DzFunction>(
+      gc.constructNoCollect<DzString>("clear"), Arity::equal(1), [](Vm& vm, std::size_t) {
         vm.expect(vm.stack.peek(0), DzValue::Type::Int);
 
         const auto color  = vm.stack.pop_value().i;
@@ -74,8 +74,8 @@ void Vm::defineWindowMembers() {
         return &null;
       }
     ),
-    gc.construct<DzFunction>(
-      gc.construct<DzString>("render"), Arity::equal(0), [](Vm& vm, std::size_t) {
+    gc.constructNoCollect<DzFunction>(
+      gc.constructNoCollect<DzString>("render"), Arity::equal(0), [](Vm& vm, std::size_t) {
         const auto window = vm.stack.top().o->as<DzWindow>();
 
         int w;
@@ -88,8 +88,8 @@ void Vm::defineWindowMembers() {
         return &null;
       }
     ),
-    gc.construct<DzFunction>(
-      gc.construct<DzString>("dispose"), Arity::equal(0), [](Vm& vm, std::size_t) {
+    gc.constructNoCollect<DzFunction>(
+      gc.constructNoCollect<DzString>("dispose"), Arity::equal(0), [](Vm& vm, std::size_t) {
         const auto window = vm.stack.top().o->as<DzWindow>();
         window->dispose();
         return &null;

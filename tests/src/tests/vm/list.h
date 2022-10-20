@@ -119,6 +119,12 @@ R"(
 assert(1 in [1])
 assert(!(1 in [2]))
 )",
+R"(
+var f = [].push
+assert(f(1) == 1)
+assert(f(1) == 2)
+assert(f(1) == 3)
+)",
       };
 
       for (const auto& source : kSources) {

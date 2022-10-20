@@ -5,7 +5,7 @@
 namespace tests_parser_error {
 
 inline suite _ = [] {
-  "tests_parser_error"_test = [] {
+  "parser_error"_test = [] {
     constexpr const char* kSources[] = {
       "&0",
       "&&0",

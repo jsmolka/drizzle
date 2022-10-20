@@ -6,22 +6,22 @@
 
 void Vm::defineMapMembers() {
   const auto members = {
-    gc.construct<DzFunction>(
-      gc.construct<DzString>("clear"), Arity::equal(0), [](Vm& vm, std::size_t) {
+    gc.constructNoCollect<DzFunction>(
+      gc.constructNoCollect<DzString>("clear"), Arity::equal(0), [](Vm& vm, std::size_t) {
         const auto map = vm.stack.top().o->as<DzMap>();
         map->values.clear();
         return &null;
       }
     ),
-    gc.construct<DzFunction>(
-      gc.construct<DzString>("get"), Arity::equal(1), [](Vm& vm, std::size_t) {
+    gc.constructNoCollect<DzFunction>(
+      gc.constructNoCollect<DzString>("get"), Arity::equal(1), [](Vm& vm, std::size_t) {
         const auto key = vm.stack.pop_value();
         const auto map = vm.stack.top().o->as<DzMap>();
         return map->get(key).value_or(&null);
       }
     ),
-    gc.construct<DzFunction>(
-      gc.construct<DzString>("set"), Arity::equal(2), [](Vm& vm, std::size_t) {
+    gc.constructNoCollect<DzFunction>(
+      gc.constructNoCollect<DzString>("set"), Arity::equal(2), [](Vm& vm, std::size_t) {
         const auto value = vm.stack.pop_value();
         const auto key = vm.stack.pop_value();
         const auto map = vm.stack.top().o->as<DzMap>();
@@ -29,8 +29,8 @@ void Vm::defineMapMembers() {
         return &null;
       }
     ),
-    gc.construct<DzFunction>(
-      gc.construct<DzString>("has"), Arity::equal(1), [](Vm& vm, std::size_t) {
+    gc.constructNoCollect<DzFunction>(
+      gc.constructNoCollect<DzString>("has"), Arity::equal(1), [](Vm& vm, std::size_t) {
         const auto key = vm.stack.pop_value();
         const auto map = vm.stack.top().o->as<DzMap>();
         return map->get(key).has_value();
