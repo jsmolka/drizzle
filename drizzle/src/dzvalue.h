@@ -91,7 +91,6 @@ public:
   auto repr() const -> std::string;
   auto kind() const -> std::string_view;
 
-  auto is(Type type) const -> bool;
   auto isObject() const -> bool;
   auto isUndefined() const -> bool;
 

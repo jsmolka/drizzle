@@ -1,10 +1,7 @@
 #pragma once
 
-#include <optional>
 #include <string>
 #include <string_view>
-#include <sh/fmt.h>
-#include <sh/utility.h>
 
 #include "dzvalue.h"
 
@@ -38,6 +35,16 @@ public:
   virtual auto repr() const -> std::string;
   auto kind() const -> std::string_view;
 
+  virtual auto makeIterator(Vm& vm) -> DzValue;
+  virtual auto makeReverseIterator(Vm& vm) -> DzValue;
+  virtual auto in(Vm& vm, const DzValue& value) -> bool;
+  virtual auto getItem(Vm& vm, std::size_t index) -> DzValue;
+  virtual auto getExpr(Vm& vm, const DzValue& expr) -> DzValue;
+  virtual auto getProp(Vm& vm, const DzValue& prop, bool bind) -> DzValue;
+  virtual void setItem(Vm& vm, std::size_t index, const DzValue& value);
+  virtual void setExpr(Vm& vm, const DzValue& expr, const DzValue& value);
+  virtual void setProp(Vm& vm, const DzValue& prop, const DzValue& value);
+
   template<typename T>
     requires std::is_base_of_v<DzObject, T>
   auto as() -> T* {
@@ -50,17 +57,6 @@ public:
     assert(this);
     return static_cast<const T*>(this);
   }
-  auto is(Type type) const -> bool;
-
-  virtual auto makeIterator(Vm& vm) -> DzValue;
-  virtual auto makeReverseIterator(Vm& vm) -> DzValue;
-  virtual auto in(Vm& vm, const DzValue& value) -> bool;
-  virtual auto getItem(Vm& vm, std::size_t index) -> DzValue;
-  virtual auto getExpr(Vm& vm, const DzValue& expr) -> DzValue;
-  virtual auto getProp(Vm& vm, const DzValue& prop, bool bind) -> DzValue;
-  virtual void setItem(Vm& vm, std::size_t index, const DzValue& value);
-  virtual void setExpr(Vm& vm, const DzValue& expr, const DzValue& value);
-  virtual void setProp(Vm& vm, const DzValue& prop, const DzValue& value);
 
   Type type;
   bool marked;

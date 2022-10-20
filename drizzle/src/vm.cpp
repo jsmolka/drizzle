@@ -135,13 +135,13 @@ void Vm::binary(std::string_view operation, Callback callback) {
 }
 
 void Vm::expect(const DzValue& value, DzValue::Type type) {
-  if (!value.is(type)) {
+  if (value.type != type) {
     raise("expected type '{}' but got '{}'", type, value.kind());
   }
 }
 
 void Vm::expect(const DzValue& value, DzObject::Type type) {
-  if (!(value.isObject() && value->is(type))) {
+  if (!(value.isObject() && value->type == type)) {
     raise("expected type '{}' but got '{}'", type, value.kind());
   }
 }
@@ -279,7 +279,7 @@ void Vm::call(DzValue& callee, std::size_t argc) {
     raise("'{}' object is not callable", callee.kind());
   };
 
-  if (!callee.is(DzValue::Type::Object)) {
+  if (!callee.isObject()) {
     error(callee);
   }
 

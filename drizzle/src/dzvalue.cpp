@@ -121,10 +121,6 @@ auto DzValue::kind() const -> std::string_view {
   }
 }
 
-auto DzValue::is(Type type) const -> bool {
-  return this->type == type;
-}
-
 auto DzValue::isObject() const -> bool {
   return type == Type::Object;
 }

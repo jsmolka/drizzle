@@ -1,8 +1,5 @@
 #include "dzobject.h"
 
-#include <sh/fmt.h>
-#include <sh/utility.h>
-
 #include "dzboundmethod.h"
 #include "gc.h"
 #include "vm.h"
@@ -34,10 +31,6 @@ auto DzObject::kind() const -> std::string_view {
   return fmt::formatter<Type>::repr(type);
 }
 
-auto DzObject::is(Type type) const -> bool {
-  return this->type == type;
-}
-
 auto DzObject::makeIterator(Vm& vm) -> DzValue {
   throw NotSupportedException();
 }
@@ -60,9 +53,9 @@ auto DzObject::getExpr(Vm& vm, const DzValue& expr) -> DzValue {
 
 auto DzObject::getProp(Vm& vm, const DzValue& prop, bool bind) -> DzValue {
   vm.expect(prop, DzObject::Type::String);
-  const auto type = int(this->type);
-  const auto iter = vm.members[type].find(prop->as<DzString>());
-  if (iter != vm.members[type].end()) {
+  const auto slot = int(type);
+  const auto iter = vm.members[slot].find(prop->as<DzString>());
+  if (iter != vm.members[slot].end()) {
     const auto& [identifier, function] = *iter;
     if (bind) {
       return vm.gc.construct<DzBoundMethod>(this, function);
