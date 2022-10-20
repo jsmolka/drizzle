@@ -39,7 +39,7 @@ auto DzBytes::makeReverseIterator(Vm& vm) -> DzValue {
 
 auto DzBytes::in(Vm& vm, const DzValue& value) -> bool {
   vm.expect(value, DzValue::Type::Int);
-  return sh::contains(data, value.i);
+  return sh::contains(data, static_cast<u8>(value.i));
 }
 
 auto DzBytes::getItem(Vm& vm, std::size_t index) -> DzValue {
@@ -80,34 +80,34 @@ void DzBytes::members(Vm& vm) {
     ),
     vm.gc.constructNoCollect<DzFunction>(
       vm.gc.constructNoCollect<DzString>("resize"), Arity::equal(2), [](Vm& vm, std::size_t) {
-        vm.expect(vm.stack.peek(0), DzValue::Type::Int);
-        vm.expect(vm.stack.peek(1), DzValue::Type::Int);
-        const auto init = vm.stack.pop_value().i;
-        const auto size = vm.stack.pop_value().i;
+        const auto init = vm.stack.pop_value();
+        const auto size = vm.stack.pop_value();
         const auto self = vm.stack.top()->as<DzBytes>();
-        if (size < 0) {
+        vm.expect(init, DzValue::Type::Int);
+        vm.expect(size, DzValue::Type::Int);
+        if (size.i < 0) {
           vm.raise("negative resize size");
         }
-        self->data.resize(size, init);
+        self->data.resize(size.i, static_cast<u8>(init.i));
         return &null;
       }
     ),
     vm.gc.constructNoCollect<DzFunction>(
       vm.gc.constructNoCollect<DzString>("push"), Arity::equal(1), [](Vm& vm, std::size_t) -> dzint {
-        vm.expect(vm.stack.peek(0), DzValue::Type::Int);
-        const auto value = vm.stack.pop_value().i;
+        const auto value = vm.stack.pop_value();
         const auto self  = vm.stack.top()->as<DzBytes>();
-        self->data.push_back(value);
+        vm.expect(value, DzValue::Type::Int);
+        self->data.push_back(static_cast<u8>(value.i));
         return self->size();
       }
     ),
     vm.gc.constructNoCollect<DzFunction>(
       vm.gc.constructNoCollect<DzString>("insert"), Arity::equal(2), [](Vm& vm, std::size_t) -> dzint {
-        vm.expect(vm.stack.peek(0), DzValue::Type::Int);
-        const auto value = vm.stack.pop_value().i;
+        const auto value = vm.stack.pop_value();
         const auto index = vm.stack.pop_value();
         const auto self  = vm.stack.top()->as<DzBytes>();
-        self->data.insert(self->data.begin() + self->toInsertIndex(vm, index), value);
+        vm.expect(value, DzValue::Type::Int);
+        self->data.insert(self->data.begin() + self->toInsertIndex(vm, index), static_cast<u8>(value.i));
         return self->size();
       }
     ),
@@ -131,11 +131,11 @@ void DzBytes::members(Vm& vm) {
     ),
     vm.gc.constructNoCollect<DzFunction>(
       vm.gc.constructNoCollect<DzString>("index"), Arity::equal(1), [](Vm& vm, std::size_t) -> dzint {
-        vm.expect(vm.stack.peek(0), DzValue::Type::Int);
-        const auto find = vm.stack.pop_value().i;
+        const auto find = vm.stack.pop_value();
         const auto self = vm.stack.top()->as<DzBytes>();
+        vm.expect(find, DzValue::Type::Int);
         for (const auto [index, value] : sh::enumerate(self->data)) {
-          if (value == find) {
+          if (value == static_cast<u8>(find.i)) {
             return index;
           }
         }
