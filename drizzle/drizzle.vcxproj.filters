@@ -99,9 +99,6 @@
     <ClCompile Include="src\dzbytes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\dzbytesmembers.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\dzwindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

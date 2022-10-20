@@ -31,7 +31,6 @@
     <ClCompile Include="src\compiler.cpp" />
     <ClCompile Include="src\dzboundmethod.cpp" />
     <ClCompile Include="src\dzbytes.cpp" />
-    <ClCompile Include="src\dzbytesmembers.cpp" />
     <ClCompile Include="src\dzclass.cpp" />
     <ClCompile Include="src\dzfunction.cpp" />
     <ClCompile Include="src\dzinstance.cpp" />

@@ -19,11 +19,15 @@ public:
   auto in(Vm& vm, const DzValue& value) -> bool override final;
   auto getItem(Vm& vm, std::size_t index) -> DzValue override final;
   auto getExpr(Vm& vm, const DzValue& expr) -> DzValue override final;
+  auto getProp(Vm& vm, const DzValue& prop, bool bind) -> DzValue override final;
   void setItem(Vm& vm, std::size_t index, const DzValue& value) override final;
   void setExpr(Vm& vm, const DzValue& expr, const DzValue& value) override final;
 
   sh::vector<u8> data;
 
 private:
+  static void members(Vm& vm);
+
   auto toIndex(Vm& vm, const DzValue& expr) const -> std::size_t;
+  auto toInsertIndex(Vm& vm, const DzValue& expr) const -> std::size_t;
 };

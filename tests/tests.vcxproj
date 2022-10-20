@@ -29,7 +29,6 @@
     <ClCompile Include="..\drizzle\src\compiler.cpp" />
     <ClCompile Include="..\drizzle\src\dzboundmethod.cpp" />
     <ClCompile Include="..\drizzle\src\dzbytes.cpp" />
-    <ClCompile Include="..\drizzle\src\dzbytesmembers.cpp" />
     <ClCompile Include="..\drizzle\src\dzclass.cpp" />
     <ClCompile Include="..\drizzle\src\dzfunction.cpp" />
     <ClCompile Include="..\drizzle\src\dzinstance.cpp" />

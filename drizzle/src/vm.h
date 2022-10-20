@@ -33,10 +33,8 @@ public:  // Todo: ugly
   };
 
   void defineNatives();
-  void defineBytesMembers();
   void defineMapMembers();
   void defineWindowMembers();
-  void defineStringMembers();
 
   template<std::integral Integral>
   auto read() -> Integral;
