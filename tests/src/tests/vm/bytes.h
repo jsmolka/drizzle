@@ -30,9 +30,6 @@ var x = bytes()
 assert(x.push(1) == 1)
 assert(x.push(2) == 2)
 assert(x.push(3) == 3)
-assert(x.push(4, 5, 6) == 6)
-assert(x[0] == 1)
-assert(x[5] == 6)
 )",
 R"(
 var x = bytes()

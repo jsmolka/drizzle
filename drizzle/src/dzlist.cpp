@@ -90,10 +90,10 @@ void DzList::members(Vm& vm) {
       }
     ),
     vm.gc.constructNoCollect<DzFunction>(
-      vm.gc.constructNoCollect<DzString>("push"), Arity::greaterEqual(1), [](Vm& vm, std::size_t argc) -> dzint {
-        const auto self = vm.stack.peek(argc)->as<DzList>();
-        self->values.insert(self->values.end(), vm.stack.end() - argc, vm.stack.end());
-        vm.stack.pop(argc);
+      vm.gc.constructNoCollect<DzString>("push"), Arity::equal(1), [](Vm& vm, std::size_t) -> dzint {
+        const auto value = vm.stack.pop_value();
+        const auto self  = vm.stack.top()->as<DzList>();
+        self->values.push_back(value);
         return self->size();
       }
     ),

@@ -93,13 +93,11 @@ void DzBytes::members(Vm& vm) {
       }
     ),
     vm.gc.constructNoCollect<DzFunction>(
-      vm.gc.constructNoCollect<DzString>("push"), Arity::greaterEqual(1), [](Vm& vm, std::size_t argc) -> dzint {
-        const auto self = vm.stack.peek(argc)->as<DzBytes>();
-        for (const auto& byte : sh::range(vm.stack.end() - argc, vm.stack.end())) {
-          vm.expect(byte, DzValue::Type::Int);
-          self->data.push_back(byte.i);
-        }
-        vm.stack.pop(argc);
+      vm.gc.constructNoCollect<DzString>("push"), Arity::equal(1), [](Vm& vm, std::size_t) -> dzint {
+        vm.expect(vm.stack.peek(0), DzValue::Type::Int);
+        const auto value = vm.stack.pop_value().i;
+        const auto self  = vm.stack.top()->as<DzBytes>();
+        self->data.push_back(value);
         return self->size();
       }
     ),
