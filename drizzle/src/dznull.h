@@ -6,7 +6,7 @@ class DzNull : public DzObject {
 public:
   DzNull();
 
-  virtual operator bool() const override;
+  virtual explicit operator bool() const override;
   virtual auto repr() const -> std::string override;
 };
 

@@ -53,7 +53,7 @@ DzValue::operator bool() const {
     case Type::Bool:   return b;
     case Type::Int:    return i;
     case Type::Float:  return f;
-    case Type::Object: return *o;
+    case Type::Object: return static_cast<bool>(*o);
     default:
       SH_UNREACHABLE;
       return false;

@@ -31,7 +31,7 @@ public:
   DzObject(Type type);
   virtual ~DzObject() = default;
 
-  virtual operator bool() const;
+  virtual explicit operator bool() const;
   virtual auto operator==(const DzObject& other) const -> bool;
   virtual auto hash() const -> std::size_t;
   virtual auto size() const -> std::size_t;

@@ -21,7 +21,7 @@ public:
   DzString(std::string_view data);
   DzString(const std::string& data);
 
-  virtual operator bool() const override;
+  virtual explicit operator bool() const override;
   auto operator[](std::size_t index) const -> std::string_view;
   virtual auto hash() const -> std::size_t override;
   virtual auto size() const -> std::size_t override;

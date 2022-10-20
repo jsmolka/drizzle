@@ -82,7 +82,7 @@ public:
     };
   }
 
-  operator bool() const;
+  explicit operator bool() const;
   auto operator->() -> DzObject*;
   auto operator->() const -> const DzObject*;
   auto operator==(const DzValue& other) const -> bool;

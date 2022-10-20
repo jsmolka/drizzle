@@ -20,7 +20,7 @@ public:
 
   DzMap();
 
-  virtual operator bool() const override;
+  virtual explicit operator bool() const override;
   virtual auto operator==(const DzObject& other) const -> bool override;
   virtual auto size() const -> std::size_t override;
   virtual auto repr() const -> std::string override;

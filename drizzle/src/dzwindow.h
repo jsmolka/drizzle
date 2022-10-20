@@ -28,7 +28,7 @@ public:
   DzWindow(DzString* title, dzint w, dzint h, dzint scale);
   ~DzWindow();
 
-  virtual operator bool() const override;
+  virtual explicit operator bool() const override;
   virtual auto repr() const -> std::string override;
 
   void dispose();

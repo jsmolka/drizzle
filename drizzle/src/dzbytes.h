@@ -9,7 +9,7 @@ public:
   DzBytes();
   DzBytes(const sh::vector<u8>& data);
 
-  operator bool() const override final;
+  explicit operator bool() const override final;
   auto operator==(const DzObject& other) const -> bool override final;
   auto size() const -> std::size_t override final;
   auto repr() const -> std::string override final;
