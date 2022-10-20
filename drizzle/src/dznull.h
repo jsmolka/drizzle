@@ -2,12 +2,12 @@
 
 #include "dzobject.h"
 
-class DzNull : public DzObject {
+class DzNull final : public DzObject {
 public:
   DzNull();
 
-  virtual explicit operator bool() const override;
-  virtual auto repr() const -> std::string override;
+  explicit operator bool() const override final;
+  auto repr() const -> std::string override final;
 };
 
 inline DzNull null;

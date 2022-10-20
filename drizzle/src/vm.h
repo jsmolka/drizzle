@@ -33,7 +33,6 @@ public:  // Todo: ugly
   };
 
   void defineNatives();
-  void defineMapMembers();
   void defineWindowMembers();
 
   template<std::integral Integral>

@@ -93,9 +93,6 @@
     <ClCompile Include="..\drizzle\src\dzmap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\drizzle\src\dzmapmembers.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\drizzle\src\dzbytes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

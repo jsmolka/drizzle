@@ -5,32 +5,29 @@
 
 #include "dzobject.h"
 
-class DzMap : public DzObject {
+class DzMap final : public DzObject {
 public:
   struct Equal {
-    auto operator()(const DzValue& a, const DzValue& b) const -> bool {
-      return DzValue::binary(a, b, []<typename A, typename B>(const A& a, const B& b) {
-        if constexpr (dz_primitive<A, B> || dz_object<A, B>) {
-          return a == b;
-        }
-        return false;
-      });
-    }
+    auto operator()(const DzValue& a, const DzValue& b) const -> bool;
   };
 
   DzMap();
 
-  virtual explicit operator bool() const override;
-  virtual auto operator==(const DzObject& other) const -> bool override;
-  virtual auto size() const -> std::size_t override;
-  virtual auto repr() const -> std::string override;
+  explicit operator bool() const override final;
+  auto operator==(const DzObject& other) const -> bool override final;
+  auto size() const -> std::size_t override final;
+  auto repr() const -> std::string override final;
+
+  auto in(Vm& vm, const DzValue& value) -> bool override final;
+  auto getExpr(Vm& vm, const DzValue& expr) -> DzValue override final;
+  auto getProp(Vm& vm, const DzValue& prop, bool bind) -> DzValue override final;
+  void setExpr(Vm& vm, const DzValue& expr, const DzValue& value) override final;
 
   auto get(const DzValue& key) const -> std::optional<DzValue>;
   void set(const DzValue& key, const DzValue& value);
 
-  virtual auto in(Vm& vm, const DzValue& value) -> bool;
-  virtual auto getExpr(Vm& vm, const DzValue& expr) -> DzValue override;
-  virtual void setExpr(Vm& vm, const DzValue& expr, const DzValue& value) override;
-
   tsl::robin_map<DzValue, DzValue, std::hash<DzValue>, Equal> values;
+
+private:
+  void members(Vm& vm);
 };
