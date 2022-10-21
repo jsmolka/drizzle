@@ -67,12 +67,14 @@ void Vm::defineNatives() {
     ),
     gc.constructNoCollect<DzFunction>(
       gc.constructNoCollect<DzString>("len"), 1, [](Vm& vm, std::size_t) -> DzValue {
-        auto object = vm.stack.pop_value();
-        vm.expect(object, DzValue::Type::Object);
+        auto value = vm.stack.pop_value();
         try {
-          return static_cast<dzint>(object->size());
+          if (!value.isObject()) {
+            throw NotSupportedException();
+          }
+          return static_cast<dzint>(value->size());
         } catch (const NotSupportedException&) {
-          vm.raise("'{}' object has no len()", object.kind());
+          vm.raise("'{}' object has no len()", value.kind());
         }
       }
     ),
@@ -109,7 +111,7 @@ void Vm::defineNatives() {
     gc.constructNoCollect<DzFunction>(
       gc.constructNoCollect<DzString>("read_bin"), 1, [](Vm& vm, std::size_t) -> DzValue {
         vm.expect(vm.stack.peek(0), DzObject::Type::String);
-        const auto path = vm.stack.pop_value().o->as<DzString>();
+        const auto path = vm.stack.pop_value()->as<DzString>();
         const auto dest = vm.gc.construct<DzBytes>();
         if (fs::read(path->data, dest->data) != fs::status::ok) {
           return &null;
@@ -120,7 +122,7 @@ void Vm::defineNatives() {
     gc.constructNoCollect<DzFunction>(
       gc.constructNoCollect<DzString>("read_str"), 1, [](Vm& vm, std::size_t) -> DzValue {
         vm.expect(vm.stack.peek(0), DzObject::Type::String);
-        const auto path = vm.stack.pop_value().o->as<DzString>();
+        const auto path = vm.stack.pop_value()->as<DzString>();
         const auto dest = vm.gc.construct<DzString>();
         if (fs::read(path->data, dest->data) != fs::status::ok) {
           return &null;
@@ -173,14 +175,14 @@ void Vm::defineNatives() {
         vm.expect(vm.stack.peek(0), DzValue::Type::Int);
 
         const auto window = vm.gc.construct<DzWindow>(
-          vm.stack.peek(3).o->as<DzString>(),
+          vm.stack.peek(3)->as<DzString>(),
           vm.stack.peek(2).i,
           vm.stack.peek(1).i,
           vm.stack.peek(0).i
         );
 
         vm.stack.pop(4);
-        if (!(*window)) {
+        if (!static_cast<bool>(*window)) {
           return &null;
         }
         return window;
@@ -190,9 +192,8 @@ void Vm::defineNatives() {
     gc.constructNoCollect<DzFunction>(
       gc.constructNoCollect<DzString>("sleep"), 1, [](Vm& vm, std::size_t) {
         vm.expect(vm.stack.peek(0), DzValue::Type::Int);
-
-        const auto milliseconds = vm.stack.pop_value().i;
-        std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
+        const auto millis = vm.stack.pop_value().i;
+        std::this_thread::sleep_for(std::chrono::milliseconds(millis));
         return &null;
       }
     ),
@@ -211,8 +212,8 @@ void Vm::defineNatives() {
       gc.constructNoCollect<DzString>("write_bin"), 2, [](Vm& vm, std::size_t) {
         vm.expect(vm.stack.peek(0), DzObject::Type::Bytes);
         vm.expect(vm.stack.peek(1), DzObject::Type::String);
-        const auto data = vm.stack.pop_value().o->as<DzBytes>();
-        const auto path = vm.stack.pop_value().o->as<DzString>();
+        const auto data = vm.stack.pop_value()->as<DzBytes>();
+        const auto path = vm.stack.pop_value()->as<DzString>();
         return fs::write(path->data, data->data) == fs::status::ok;
       }
     ),
@@ -220,8 +221,8 @@ void Vm::defineNatives() {
       gc.constructNoCollect<DzString>("write_str"), 2, [](Vm& vm, std::size_t) {
         vm.expect(vm.stack.peek(0), DzObject::Type::String);
         vm.expect(vm.stack.peek(1), DzObject::Type::String);
-        const auto data = vm.stack.pop_value().o->as<DzString>();
-        const auto path = vm.stack.pop_value().o->as<DzString>();
+        const auto data = vm.stack.pop_value()->as<DzString>();
+        const auto path = vm.stack.pop_value()->as<DzString>();
         return fs::write(path->data, data->data) == fs::status::ok;
       }
     ),

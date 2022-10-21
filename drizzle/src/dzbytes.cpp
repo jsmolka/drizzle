@@ -80,34 +80,34 @@ void DzBytes::defineMembers(Vm& vm) {
     ),
     vm.gc.constructNoCollect<DzFunction>(
       vm.gc.constructNoCollect<DzString>("resize"), 2, [](Vm& vm, std::size_t) {
-        const auto init = vm.stack.pop_value();
-        const auto size = vm.stack.pop_value();
+        vm.expect(vm.stack.peek(0), DzValue::Type::Int);
+        vm.expect(vm.stack.peek(1), DzValue::Type::Int);
+        const auto init = vm.stack.pop_value().i;
+        const auto size = vm.stack.pop_value().i;
         const auto self = vm.stack.top()->as<DzBytes>();
-        vm.expect(init, DzValue::Type::Int);
-        vm.expect(size, DzValue::Type::Int);
-        if (size.i < 0) {
+        if (size < 0) {
           vm.raise("negative resize size");
         }
-        self->data.resize(size.i, static_cast<u8>(init.i));
+        self->data.resize(size, static_cast<u8>(init));
         return &null;
       }
     ),
     vm.gc.constructNoCollect<DzFunction>(
       vm.gc.constructNoCollect<DzString>("push"), 1, [](Vm& vm, std::size_t) -> dzint {
-        const auto value = vm.stack.pop_value();
+        vm.expect(vm.stack.peek(0), DzValue::Type::Int);
+        const auto value = vm.stack.pop_value().i;
         const auto self  = vm.stack.top()->as<DzBytes>();
-        vm.expect(value, DzValue::Type::Int);
-        self->data.push_back(static_cast<u8>(value.i));
+        self->data.push_back(static_cast<u8>(value));
         return self->size();
       }
     ),
     vm.gc.constructNoCollect<DzFunction>(
       vm.gc.constructNoCollect<DzString>("insert"), 2, [](Vm& vm, std::size_t) -> dzint {
-        const auto value = vm.stack.pop_value();
+        vm.expect(vm.stack.peek(0), DzValue::Type::Int);
+        const auto value = vm.stack.pop_value().i;
         const auto index = vm.stack.pop_value();
         const auto self  = vm.stack.top()->as<DzBytes>();
-        vm.expect(value, DzValue::Type::Int);
-        self->data.insert(self->data.begin() + self->toInsertIndex(vm, index), static_cast<u8>(value.i));
+        self->data.insert(self->data.begin() + self->toInsertIndex(vm, index), static_cast<u8>(value));
         return self->size();
       }
     ),
@@ -131,11 +131,11 @@ void DzBytes::defineMembers(Vm& vm) {
     ),
     vm.gc.constructNoCollect<DzFunction>(
       vm.gc.constructNoCollect<DzString>("index"), 1, [](Vm& vm, std::size_t) -> dzint {
-        const auto find = vm.stack.pop_value();
+        vm.expect(vm.stack.peek(0), DzValue::Type::Int);
+        const auto find = vm.stack.pop_value().i;
         const auto self = vm.stack.top()->as<DzBytes>();
-        vm.expect(find, DzValue::Type::Int);
         for (const auto [index, value] : sh::enumerate(self->data)) {
-          if (value == static_cast<u8>(find.i)) {
+          if (value == static_cast<u8>(find)) {
             return index;
           }
         }

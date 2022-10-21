@@ -79,32 +79,31 @@ void DzWindow::defineMembers(Vm& vm) {
   const auto members = {
     vm.gc.constructNoCollect<DzFunction>(
       vm.gc.constructNoCollect<DzString>("title"), 1, [](Vm& vm, std::size_t) {
-        const auto title  = vm.stack.pop_value();
+        vm.expect(vm.stack.peek(0), DzObject::Type::String);
+        const auto title  = vm.stack.pop_value()->as<DzString>();
         const auto window = vm.stack.top()->as<DzWindow>();
-        vm.expect(title, DzObject::Type::String);
-        SDL_SetWindowTitle(window->window, title->as<DzString>()->data.c_str());
+        SDL_SetWindowTitle(window->window, title->data.c_str());
         return &null;
       }
     ),
     vm.gc.constructNoCollect<DzFunction>(
       vm.gc.constructNoCollect<DzString>("pixel"), 3, [](Vm& vm, std::size_t) {
-        const auto color  = vm.stack.pop_value();
-        const auto y      = vm.stack.pop_value();
-        const auto x      = vm.stack.pop_value();
+        vm.expect(vm.stack.peek(0), DzValue::Type::Int);
+        vm.expect(vm.stack.peek(0), DzValue::Type::Int);
+        vm.expect(vm.stack.peek(0), DzValue::Type::Int);
+        const auto color  = vm.stack.pop_value().i;
+        const auto y      = vm.stack.pop_value().i;
+        const auto x      = vm.stack.pop_value().i;
         const auto window = vm.stack.top()->as<DzWindow>();
-
-        vm.expect(color, DzValue::Type::Int);
-        vm.expect(x,     DzValue::Type::Int);
-        vm.expect(y,     DzValue::Type::Int);
 
         int w;
         int h;
         SDL_RenderGetLogicalSize(window->renderer, &w, &h);
 
-        if (x.i < 0 || x.i >= w || y.i < 0 || y.i >= h) {
+        if (x < 0 || x >= w || y < 0 || y >= h) {
           vm.raise("pixel index out of range");
         }
-        window->buffer[w * y.i + x.i] = static_cast<u32>(color.i);
+        window->buffer[w * y + x] = static_cast<u32>(color);
         return &null;
       }
     ),
@@ -130,10 +129,10 @@ void DzWindow::defineMembers(Vm& vm) {
     ),
     vm.gc.constructNoCollect<DzFunction>(
       vm.gc.constructNoCollect<DzString>("clear"), 1, [](Vm& vm, std::size_t) {
-        const auto color  = vm.stack.pop_value();
+        vm.expect(vm.stack.peek(0), DzValue::Type::Int);
+        const auto color  = vm.stack.pop_value().i;
         const auto window = vm.stack.top()->as<DzWindow>();
-        vm.expect(color, DzValue::Type::Int);
-        std::fill(window->buffer.begin(), window->buffer.end(), static_cast<u32>(color.i));
+        std::fill(window->buffer.begin(), window->buffer.end(), static_cast<u32>(color));
         return &null;
       }
     ),
