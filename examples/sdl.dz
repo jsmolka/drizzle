@@ -13,7 +13,7 @@ while sdl_events():
       if y == window.height():
         y = 0
     
-  window.set_pixel(x, y, 0xFF0000FF)
+  window.pixel(x, y, 0xFF0000FF)
   window.render()
 
   sleep(16)

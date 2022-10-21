@@ -99,9 +99,6 @@
     <ClCompile Include="..\drizzle\src\dzwindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\drizzle\src\dzwindowmembers.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\scanner.inl">

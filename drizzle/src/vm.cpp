@@ -27,7 +27,6 @@ void Vm::interpret(const Program& program) {
   frames.emplace(program.main->chunk().code.data(), 0, program.main);
 
   defineNatives();
-  defineWindowMembers();
 
   while (true) {
     opcode_pc = frames.top().pc;

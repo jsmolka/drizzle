@@ -23,13 +23,17 @@ struct SDL_Texture
 #endif
 ;
 
-class DzWindow : public DzObject {
+class DzWindow final : public DzObject {
 public:
-  DzWindow(DzString* title, dzint w, dzint h, dzint scale);
+  DzWindow(const DzString* title, dzint w, dzint h, dzint scale);
   ~DzWindow();
 
-  virtual explicit operator bool() const override;
-  virtual auto repr() const -> std::string override;
+  explicit operator bool() const override final;
+
+  auto getProp(Vm& vm, const DzValue& prop, bool bind) -> DzValue override final;
+
+private:
+  static void members(Vm& vm);
 
   void dispose();
 

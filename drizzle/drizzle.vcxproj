@@ -40,7 +40,6 @@
     <ClCompile Include="src\dznull.cpp" />
     <ClCompile Include="src\dzrange.cpp" />
     <ClCompile Include="src\dzwindow.cpp" />
-    <ClCompile Include="src\dzwindowmembers.cpp" />
     <ClCompile Include="src\dzstring.cpp" />
     <ClCompile Include="src\astformatter.cpp" />
     <ClCompile Include="src\dzobject.cpp" />

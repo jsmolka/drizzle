@@ -184,7 +184,7 @@ var window = sdl_window("drizzle", 18, 18, 20)
 for pixel in pixels:
   var x = (pixel >> 28) & 0x0F
   var y = (pixel >> 24) & 0x0F
-  window.set_pixel(x + 1, y + 1, 0xFF000000 | pixel)
+  window.pixel(x + 1, y + 1, 0xFF000000 | pixel)
 window.render()
 
 while sdl_events():
