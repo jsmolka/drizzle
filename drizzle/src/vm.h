@@ -45,6 +45,7 @@ public:  // Todo: ugly
 
   void expect(const DzValue& value, DzValue::Type type);
   void expect(const DzValue& value, DzObject::Type type);
+  void expectArity(DzFunction::Arity expected, std::size_t got);
 
   template<template<typename> typename Promote = promote_t, typename Callback>
   void unary(std::string_view operation, Callback callback);

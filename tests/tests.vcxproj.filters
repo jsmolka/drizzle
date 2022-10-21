@@ -81,9 +81,6 @@
     <ClCompile Include="..\drizzle\src\dzlist.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\drizzle\src\arity.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\drizzle\src\dziterator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

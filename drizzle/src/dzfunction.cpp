@@ -3,7 +3,7 @@
 #include <sh/utility.h>
 
 DzFunction::DzFunction()
-  : DzFunction(nullptr, Arity::equal(0)) {}
+  : DzFunction(nullptr, std::nullopt) {}
 
 DzFunction::DzFunction(DzString* identifier, const Arity& arity)
   : DzObject(Type::Function), identifier(identifier), arity(arity), body(Chunk{}) {}

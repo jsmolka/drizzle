@@ -25,7 +25,6 @@
     <ResourceCompile Include="drizzle.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\arity.cpp" />
     <ClCompile Include="src\astvisiter.cpp" />
     <ClCompile Include="src\chunk.cpp" />
     <ClCompile Include="src\compiler.cpp" />
@@ -54,7 +53,6 @@
     <ClCompile Include="src\vm.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\arity.h" />
     <ClInclude Include="src\astformatter.h" />
     <ClInclude Include="src\astvisiter.h" />
     <ClInclude Include="src\chunk.h" />

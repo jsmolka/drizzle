@@ -22,7 +22,6 @@
     <Text Include="CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\drizzle\src\arity.cpp" />
     <ClCompile Include="..\drizzle\src\astformatter.cpp" />
     <ClCompile Include="..\drizzle\src\astvisiter.cpp" />
     <ClCompile Include="..\drizzle\src\chunk.cpp" />

@@ -70,14 +70,14 @@ void DzList::members(Vm& vm) {
 
   const auto members = {
     vm.gc.constructNoCollect<DzFunction>(
-      vm.gc.constructNoCollect<DzString>("clear"), Arity::equal(0), [](Vm& vm, std::size_t) {
+      vm.gc.constructNoCollect<DzString>("clear"), 0, [](Vm& vm, std::size_t) {
         const auto self = vm.stack.top()->as<DzList>();
         self->values.clear();
         return &null;
       }
     ),
     vm.gc.constructNoCollect<DzFunction>(
-      vm.gc.constructNoCollect<DzString>("resize"), Arity::equal(2), [](Vm& vm, std::size_t) {
+      vm.gc.constructNoCollect<DzString>("resize"), 2, [](Vm& vm, std::size_t) {
         const auto init = vm.stack.pop_value();
         const auto size = vm.stack.pop_value();
         const auto self = vm.stack.top()->as<DzList>();
@@ -90,7 +90,7 @@ void DzList::members(Vm& vm) {
       }
     ),
     vm.gc.constructNoCollect<DzFunction>(
-      vm.gc.constructNoCollect<DzString>("push"), Arity::equal(1), [](Vm& vm, std::size_t) -> dzint {
+      vm.gc.constructNoCollect<DzString>("push"), 1, [](Vm& vm, std::size_t) -> dzint {
         const auto value = vm.stack.pop_value();
         const auto self  = vm.stack.top()->as<DzList>();
         self->values.push_back(value);
@@ -98,7 +98,7 @@ void DzList::members(Vm& vm) {
       }
     ),
     vm.gc.constructNoCollect<DzFunction>(
-      vm.gc.constructNoCollect<DzString>("insert"), Arity::equal(2), [](Vm& vm, std::size_t) -> dzint {
+      vm.gc.constructNoCollect<DzString>("insert"), 2, [](Vm& vm, std::size_t) -> dzint {
         const auto value = vm.stack.pop_value();
         const auto index = vm.stack.pop_value();
         const auto self  = vm.stack.top()->as<DzList>();
@@ -107,7 +107,7 @@ void DzList::members(Vm& vm) {
       }
     ),
     vm.gc.constructNoCollect<DzFunction>(
-      vm.gc.constructNoCollect<DzString>("pop"), Arity::equal(0), [](Vm& vm, std::size_t) {
+      vm.gc.constructNoCollect<DzString>("pop"), 0, [](Vm& vm, std::size_t) {
         const auto self = vm.stack.top()->as<DzList>();
         if (self->size() == 0) {
           vm.raise("pop from empty list");
@@ -116,7 +116,7 @@ void DzList::members(Vm& vm) {
       }
     ),
     vm.gc.constructNoCollect<DzFunction>(
-      vm.gc.constructNoCollect<DzString>("remove"), Arity::equal(1), [](Vm& vm, std::size_t) {
+      vm.gc.constructNoCollect<DzString>("remove"), 1, [](Vm& vm, std::size_t) {
         const auto self  = vm.stack.peek(1)->as<DzList>();
         const auto index = self->toIndex(vm, vm.stack.pop_value());
         const auto value = self->values[index];
@@ -125,7 +125,7 @@ void DzList::members(Vm& vm) {
       }
     ),
     vm.gc.constructNoCollect<DzFunction>(
-      vm.gc.constructNoCollect<DzString>("index"), Arity::equal(1), [](Vm& vm, std::size_t) -> dzint {
+      vm.gc.constructNoCollect<DzString>("index"), 1, [](Vm& vm, std::size_t) -> dzint {
         const auto find = vm.stack.pop_value();
         const auto self = vm.stack.top()->as<DzList>();
         for (const auto [index, value] : sh::enumerate(self->values)) {

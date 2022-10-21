@@ -36,7 +36,7 @@ struct fmt::formatter<DzValuePrint> : fmt::formatter<std::string> {
 void Vm::defineNatives() {
   const auto natives = {
     gc.constructNoCollect<DzFunction>(
-      gc.constructNoCollect<DzString>("arguments"), Arity::equal(0), [](Vm& vm, std::size_t) {
+      gc.constructNoCollect<DzString>("arguments"), 0, [](Vm& vm, std::size_t) {
         const auto list = vm.gc.construct<DzList>();
         list->values.reserve(sh::args.size());
         for (const auto& argument : sh::args) {
@@ -46,7 +46,7 @@ void Vm::defineNatives() {
       }
     ),
     gc.constructNoCollect<DzFunction>(
-      gc.constructNoCollect<DzString>("assert"), Arity::equal(1), [](Vm& vm, std::size_t) {
+      gc.constructNoCollect<DzString>("assert"), 1, [](Vm& vm, std::size_t) {
         if (!vm.stack.pop_value()) {
           vm.raise("assertion failed");
         }
@@ -54,7 +54,7 @@ void Vm::defineNatives() {
       }
     ),
     gc.constructNoCollect<DzFunction>(
-      gc.constructNoCollect<DzString>("bytes"), Arity::greaterEqual(0), [](Vm& vm, std::size_t argc) {
+      gc.constructNoCollect<DzString>("bytes"), std::nullopt, [](Vm& vm, std::size_t argc) {
         const auto bytes = vm.gc.construct<DzBytes>();
         bytes->data.reserve(argc);
         for (const auto& value : sh::range(vm.stack.end() - argc, vm.stack.end())) {
@@ -66,7 +66,7 @@ void Vm::defineNatives() {
       }
     ),
     gc.constructNoCollect<DzFunction>(
-      gc.constructNoCollect<DzString>("len"), Arity::greaterEqual(1), [](Vm& vm, std::size_t) -> DzValue {
+      gc.constructNoCollect<DzString>("len"), 1, [](Vm& vm, std::size_t) -> DzValue {
         auto object = vm.stack.pop_value();
         vm.expect(object, DzValue::Type::Object);
         try {
@@ -77,14 +77,14 @@ void Vm::defineNatives() {
       }
     ),
     gc.constructNoCollect<DzFunction>(
-      gc.constructNoCollect<DzString>("forward"), Arity::equal(1), [](Vm& vm, std::size_t) {
+      gc.constructNoCollect<DzString>("forward"), 1, [](Vm& vm, std::size_t) {
         const auto iterator = vm.forward(vm.stack.top());
         vm.stack.pop();
         return iterator;
       }
     ),
     gc.constructNoCollect<DzFunction>(
-      gc.constructNoCollect<DzString>("print"), Arity::greaterEqual(1), [](Vm& vm, std::size_t argc) {
+      gc.constructNoCollect<DzString>("print"), std::nullopt, [](Vm& vm, std::size_t argc) {
         fmt::print("{}\n", fmt::join(
           static_cast<const DzValuePrint*>(vm.stack.end()) - argc,
           static_cast<const DzValuePrint*>(vm.stack.end()), " "));
@@ -93,7 +93,7 @@ void Vm::defineNatives() {
       }
     ),
     gc.constructNoCollect<DzFunction>(
-      gc.constructNoCollect<DzString>("range"), Arity::equal(3), [](Vm& vm, std::size_t) {
+      gc.constructNoCollect<DzString>("range"), 3, [](Vm& vm, std::size_t) {
         vm.expect(vm.stack.peek(0), DzValue::Type::Int);
         vm.expect(vm.stack.peek(1), DzValue::Type::Int);
         vm.expect(vm.stack.peek(2), DzValue::Type::Int);
@@ -107,7 +107,7 @@ void Vm::defineNatives() {
       }
     ),
     gc.constructNoCollect<DzFunction>(
-      gc.constructNoCollect<DzString>("read_bin"), Arity::equal(1), [](Vm& vm, std::size_t) -> DzValue {
+      gc.constructNoCollect<DzString>("read_bin"), 1, [](Vm& vm, std::size_t) -> DzValue {
         vm.expect(vm.stack.peek(0), DzObject::Type::String);
         const auto path = vm.stack.pop_value().o->as<DzString>();
         const auto dest = vm.gc.construct<DzBytes>();
@@ -118,7 +118,7 @@ void Vm::defineNatives() {
       }
     ),
     gc.constructNoCollect<DzFunction>(
-      gc.constructNoCollect<DzString>("read_str"), Arity::equal(1), [](Vm& vm, std::size_t) -> DzValue {
+      gc.constructNoCollect<DzString>("read_str"), 1, [](Vm& vm, std::size_t) -> DzValue {
         vm.expect(vm.stack.peek(0), DzObject::Type::String);
         const auto path = vm.stack.pop_value().o->as<DzString>();
         const auto dest = vm.gc.construct<DzString>();
@@ -129,14 +129,14 @@ void Vm::defineNatives() {
       }
     ),
     gc.constructNoCollect<DzFunction>(
-      gc.constructNoCollect<DzString>("repr"), Arity::equal(1), [](Vm& vm, std::size_t) {
+      gc.constructNoCollect<DzString>("repr"), 1, [](Vm& vm, std::size_t) {
         const auto string = vm.gc.construct<DzString>(vm.stack.top().repr());
         vm.stack.pop();
         return string;
       }
     ),
     gc.constructNoCollect<DzFunction>(
-      gc.constructNoCollect<DzString>("reverse"), Arity::equal(1), [](Vm& vm, std::size_t) {
+      gc.constructNoCollect<DzString>("reverse"), 1, [](Vm& vm, std::size_t) {
         const auto iterator = vm.reverse(vm.stack.top());
         vm.stack.pop();
         return iterator;
@@ -144,7 +144,7 @@ void Vm::defineNatives() {
     ),
     #ifdef DZ_SDL
     gc.constructNoCollect<DzFunction>(
-      gc.constructNoCollect<DzString>("sdl_events"), Arity::equal(0), [](Vm& vm, std::size_t) {
+      gc.constructNoCollect<DzString>("sdl_events"), 0, [](Vm& vm, std::size_t) {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
           if (event.type == SDL_QUIT) {
@@ -155,7 +155,7 @@ void Vm::defineNatives() {
       }
     ),
     gc.constructNoCollect<DzFunction>(
-      gc.constructNoCollect<DzString>("sdl_keystate"), Arity::equal(1), [](Vm& vm, std::size_t) -> dzbool {
+      gc.constructNoCollect<DzString>("sdl_keystate"), 1, [](Vm& vm, std::size_t) -> dzbool {
         vm.expect(vm.stack.peek(0), DzValue::Type::Int);
         const auto key = vm.stack.pop_value().i;
         if (key >= 0 && key < SDL_NUM_SCANCODES) {
@@ -166,7 +166,7 @@ void Vm::defineNatives() {
       }
     ),
     gc.constructNoCollect<DzFunction>(
-      gc.constructNoCollect<DzString>("sdl_window"), Arity::equal(4), [](Vm& vm, std::size_t) -> DzValue {
+      gc.constructNoCollect<DzString>("sdl_window"), 4, [](Vm& vm, std::size_t) -> DzValue {
         vm.expect(vm.stack.peek(3), DzObject::Type::String);
         vm.expect(vm.stack.peek(2), DzValue::Type::Int);
         vm.expect(vm.stack.peek(1), DzValue::Type::Int);
@@ -188,7 +188,7 @@ void Vm::defineNatives() {
     ),
     #endif
     gc.constructNoCollect<DzFunction>(
-      gc.constructNoCollect<DzString>("sleep"), Arity::equal(1), [](Vm& vm, std::size_t) {
+      gc.constructNoCollect<DzString>("sleep"), 1, [](Vm& vm, std::size_t) {
         vm.expect(vm.stack.peek(0), DzValue::Type::Int);
 
         const auto milliseconds = vm.stack.pop_value().i;
@@ -197,18 +197,18 @@ void Vm::defineNatives() {
       }
     ),
     gc.constructNoCollect<DzFunction>(
-      gc.constructNoCollect<DzString>("time"), Arity::equal(0), [](Vm& vm, std::size_t) {
+      gc.constructNoCollect<DzString>("time"), 0, [](Vm& vm, std::size_t) {
         using namespace std::chrono;
         return duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count();
       }
     ),
     gc.constructNoCollect<DzFunction>(
-      gc.constructNoCollect<DzString>("type"), Arity::equal(1), [](Vm& vm, std::size_t) {
+      gc.constructNoCollect<DzString>("type"), 1, [](Vm& vm, std::size_t) {
         return vm.gc.construct<DzString>(vm.stack.pop_value().kind());
       }
     ),
     gc.constructNoCollect<DzFunction>(
-      gc.constructNoCollect<DzString>("write_bin"), Arity::equal(2), [](Vm& vm, std::size_t) {
+      gc.constructNoCollect<DzString>("write_bin"), 2, [](Vm& vm, std::size_t) {
         vm.expect(vm.stack.peek(0), DzObject::Type::Bytes);
         vm.expect(vm.stack.peek(1), DzObject::Type::String);
         const auto data = vm.stack.pop_value().o->as<DzBytes>();
@@ -217,7 +217,7 @@ void Vm::defineNatives() {
       }
     ),
     gc.constructNoCollect<DzFunction>(
-      gc.constructNoCollect<DzString>("write_str"), Arity::equal(2), [](Vm& vm, std::size_t) {
+      gc.constructNoCollect<DzString>("write_str"), 2, [](Vm& vm, std::size_t) {
         vm.expect(vm.stack.peek(0), DzObject::Type::String);
         vm.expect(vm.stack.peek(1), DzObject::Type::String);
         const auto data = vm.stack.pop_value().o->as<DzString>();

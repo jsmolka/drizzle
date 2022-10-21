@@ -1,14 +1,15 @@
 #pragma once
 
+#include <optional>
 #include <functional>
 #include <variant>
 
-#include "arity.h"
 #include "chunk.h"
 #include "dzstring.h"
 
 class DzFunction final : public DzObject {
 public:
+  using Arity  = std::optional<std::size_t>;
   using Native = std::function<DzValue(Vm&, std::size_t)>;
 
   DzFunction();

@@ -84,21 +84,21 @@ void DzMap::members(Vm& vm) {
 
   const auto members = {
     vm.gc.constructNoCollect<DzFunction>(
-      vm.gc.constructNoCollect<DzString>("clear"), Arity::equal(0), [](Vm& vm, std::size_t) {
+      vm.gc.constructNoCollect<DzString>("clear"), 0, [](Vm& vm, std::size_t) {
         const auto self = vm.stack.top()->as<DzMap>();
         self->values.clear();
         return &null;
       }
     ),
     vm.gc.constructNoCollect<DzFunction>(
-      vm.gc.constructNoCollect<DzString>("get"), Arity::equal(1), [](Vm& vm, std::size_t) {
+      vm.gc.constructNoCollect<DzString>("get"), 1, [](Vm& vm, std::size_t) {
         const auto key  = vm.stack.pop_value();
         const auto self = vm.stack.top()->as<DzMap>();
         return self->get(key).value_or(&null);
       }
     ),
     vm.gc.constructNoCollect<DzFunction>(
-      vm.gc.constructNoCollect<DzString>("set"), Arity::equal(2), [](Vm& vm, std::size_t) {
+      vm.gc.constructNoCollect<DzString>("set"), 2, [](Vm& vm, std::size_t) {
         const auto value = vm.stack.pop_value();
         const auto key   = vm.stack.pop_value();
         const auto self  = vm.stack.top()->as<DzMap>();
@@ -107,7 +107,7 @@ void DzMap::members(Vm& vm) {
       }
     ),
     vm.gc.constructNoCollect<DzFunction>(
-      vm.gc.constructNoCollect<DzString>("has"), Arity::equal(1), [](Vm& vm, std::size_t) {
+      vm.gc.constructNoCollect<DzString>("has"), 1, [](Vm& vm, std::size_t) {
         const auto key  = vm.stack.pop_value();
         const auto self = vm.stack.top()->as<DzMap>();
         return self->get(key).has_value();

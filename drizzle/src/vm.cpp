@@ -145,6 +145,15 @@ void Vm::expect(const DzValue& value, DzObject::Type type) {
   }
 }
 
+void Vm::expectArity(DzFunction::Arity expected, std::size_t got) {
+  if (expected && *expected != got) {
+    const char* format = *expected != 1
+      ? "expected {} arguments but got {}"
+      : "expected {} argument but got {}";
+    raise(format, *expected, got);
+  }
+}
+
 auto Vm::forward(DzValue& iteree) -> DzValue {
   try {
     if (!iteree.isObject()) {
@@ -288,8 +297,8 @@ void Vm::call(DzValue& callee, std::size_t argc) {
       callee = gc.construct<DzInstance>(class_);
       if (class_->init) {
         call(class_->init, argc);
-      } else if (argc > 0) {
-        raise(Arity::equal(0).message(argc));
+      } else {
+        expectArity(0, argc);
       }
       break;
     }
@@ -314,9 +323,7 @@ void Vm::call(DzFunction* function, std::size_t argc) {
   if (frames.size() == kMaximumRecursionDepth) {
     raise("maximum recursion depth exceeded");
   }
-  if (!function->arity.matches(argc)) {
-    raise(function->arity.message(argc));
-  }
+  expectArity(function->arity, argc);
   if (function->isChunk()) {
     frames.emplace(function->chunk().code.data(), stack.size() - argc - 1, function);
   } else {
