@@ -17,6 +17,7 @@ public:
   DzFunction(DzString* identifier, const Arity& arity, const Native& native);
 
   auto repr() const -> std::string override final;
+  void mark(Gc& gc) override final;
 
   auto isChunk() const -> bool;
   auto chunk() -> Chunk&;

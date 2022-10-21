@@ -27,6 +27,10 @@ auto DzObject::repr() const -> std::string {
   return fmt::format("<{} at 0x{:016X}>", type, sh::cast<std::size_t>(this));
 }
 
+void DzObject::mark(Gc& gc) {
+  marked = true;
+}
+
 auto DzObject::kind() const -> std::string_view {
   return fmt::formatter<Type>::repr(type);
 }

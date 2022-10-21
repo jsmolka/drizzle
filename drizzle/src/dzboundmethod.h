@@ -8,6 +8,7 @@ public:
 
   auto operator==(const DzObject& other) const -> bool override final;
   auto repr() const -> std::string override final;
+  void mark(Gc& gc) override final;
 
   DzObject* self;
   DzFunction* function;

@@ -1,13 +1,5 @@
 #include "gc.h"
 
-#include <sh/utility.h>
-
-#include "dzboundmethod.h"
-#include "dzfunction.h"
-#include "dzinstance.h"
-#include "dziterator.h"
-#include "dzlist.h"
-#include "dzmap.h"
 #include "vm.h"
 
 Gc::~Gc() {
@@ -20,17 +12,16 @@ Gc::~Gc() {
 }
 
 void Gc::collect() {
-  if (vm) {
-    #ifndef DZ_FORCE_GC
-    if (allocated > threshold) {
-    #endif
-      mark();
-      sweep();
-    #ifndef DZ_FORCE_GC
-      threshold *= kGrowthFactor;
-    }
-    #endif
+  #ifdef DZ_FORCE_GC
+  mark();
+  sweep();
+  #else
+  if (allocated > threshold) {
+    mark();
+    sweep();
+    threshold *= kGrowthFactor;
   }
+  #endif
 }
 
 void Gc::mark() {
@@ -52,73 +43,14 @@ void Gc::mark() {
 }
 
 void Gc::mark(const DzValue& value) {
-  if (value.type == DzValue::Type::Object) {
+  if (value.isObject()) {
     mark(value.o);
   }
 }
 
 void Gc::mark(DzObject* object) {
-  static_assert(int(DzObject::Type::LastEnumValue) == 12);
-  if (!object || object->marked) {
-    return;
-  }
-
-  object->marked = true;
-  switch (object->type) {
-    case DzObject::Type::BoundMethod: {
-      const auto method = object->as<DzBoundMethod>();
-      mark(method->self);
-      mark(method->function);
-      break;
-    }
-    case DzObject::Type::Class: {
-      const auto class_ = object->as<DzClass>();
-      mark(class_->identifier);
-      for (const auto& [key, value] : class_->functions) {
-        mark(key);
-        mark(value);
-      }
-      break;
-    };
-    case DzObject::Type::Function: {
-      const auto function = object->as<DzFunction>();
-      mark(function->identifier);
-      if (function->isChunk()) {
-        for (const auto& constant : function->chunk().constants) {
-          mark(constant);
-        }
-      }
-      break;
-    }
-    case DzObject::Type::Instance: {
-      const auto instance = object->as<DzInstance>();
-      mark(instance->class_);
-      for (const auto& [key, value] : instance->fields) {
-        mark(key);
-        mark(value);
-      }
-      break;
-    }
-    case DzObject::Type::Iterator: {
-      const auto iterator = object->as<DzIterator>();
-      mark(iterator->iteree);
-      break;
-    }
-    case DzObject::Type::List: {
-      const auto list = object->as<DzList>();
-      for (const auto& value : list->values) {
-        mark(value);
-      }
-      break;
-    }
-    case DzObject::Type::Map: {
-      const auto map = object->as<DzMap>();
-      for (const auto& [key, value] : map->values) {
-        mark(key);
-        mark(value);
-      }
-      break;
-    }
+  if (object && !object->marked) {
+    object->mark(*this);
   }
 }
 

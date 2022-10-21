@@ -1,6 +1,6 @@
 #include "dzfunction.h"
 
-#include <sh/utility.h>
+#include "gc.h"
 
 DzFunction::DzFunction()
   : DzFunction(nullptr, std::nullopt) {}
@@ -13,6 +13,16 @@ DzFunction::DzFunction(DzString* identifier, const Arity& arity, const Native& n
 
 auto DzFunction::repr() const -> std::string {
   return fmt::format("<function {} at 0x{:016X}>", identifier->data, sh::cast<std::size_t>(this));
+}
+
+void DzFunction::mark(Gc& gc) {
+  DzObject::mark(gc);
+  gc.mark(identifier);
+  if (isChunk()) {
+    for (const auto& constant : chunk().constants) {
+      gc.mark(constant);
+    }
+  }
 }
 
 auto DzFunction::isChunk() const -> bool {

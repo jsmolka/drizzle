@@ -5,6 +5,7 @@
 
 #include "dzvalue.h"
 
+class Gc;
 class Vm;
 
 class DzObject {
@@ -33,6 +34,7 @@ public:
   virtual auto hash() const -> std::size_t;
   virtual auto size() const -> std::size_t;
   virtual auto repr() const -> std::string;
+  virtual void mark(Gc& gc);
   auto kind() const -> std::string_view;
 
   virtual auto makeIterator(Vm& vm) -> DzValue;

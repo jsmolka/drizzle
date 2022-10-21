@@ -13,6 +13,7 @@ public:
   auto operator==(const DzObject& other) const -> bool override final;
   auto size() const -> std::size_t override final;
   auto repr() const -> std::string override final;
+  void mark(Gc& gc) override final;
 
   auto makeIterator(Vm& vm) -> DzValue override final;
   auto makeReverseIterator(Vm& vm) -> DzValue override final;

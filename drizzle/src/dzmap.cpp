@@ -48,6 +48,14 @@ auto DzMap::repr() const -> std::string {
   return fmt::format("{{{}}}", fmt::join(values, ", "));
 }
 
+void DzMap::mark(Gc& gc) {
+  DzObject::mark(gc);
+  for (const auto& [key, value] : values) {
+    gc.mark(key);
+    gc.mark(value);
+  }
+}
+
 auto DzMap::in(Vm& vm, const DzValue& value) -> bool {
   return values.contains(value);
 }

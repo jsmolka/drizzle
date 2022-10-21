@@ -17,6 +17,7 @@ public:
   auto operator==(const DzObject& other) const -> bool override final;
   auto size() const -> std::size_t override final;
   auto repr() const -> std::string override final;
+  void mark(Gc& gc) override final;
 
   auto in(Vm& vm, const DzValue& value) -> bool override final;
   auto getExpr(Vm& vm, const DzValue& expr) -> DzValue override final;

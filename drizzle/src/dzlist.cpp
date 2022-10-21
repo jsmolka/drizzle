@@ -29,6 +29,13 @@ auto DzList::repr() const -> std::string {
   return fmt::format("[{}]", fmt::join(values, ", "));
 }
 
+void DzList::mark(Gc& gc) {
+  DzObject::mark(gc);
+  for (const auto& value : values) {
+    gc.mark(value);
+  }
+}
+
 auto DzList::makeIterator(Vm& vm) -> DzValue {
   return vm.gc.construct<DzSequenceIterator>(this);
 }

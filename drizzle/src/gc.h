@@ -12,6 +12,13 @@ public:
   ~Gc();
 
   template<typename T, typename... Args>
+  auto construct(Args&&... args) -> T* {
+    collect();
+    return constructNoCollect<T>(std::forward<Args>(args)...);
+  }
+
+
+  template<typename T, typename... Args>
   auto constructNoCollect(Args&&... args) -> T* {
     if constexpr (std::same_as<T, DzString>) {
       T stack(std::forward<Args>(args)...);
@@ -28,11 +35,8 @@ public:
     }
   }
 
-  template<typename T, typename... Args>
-  auto construct(Args&&... args) -> T* {
-    collect();
-    return constructNoCollect<T>(std::forward<Args>(args)...);
-  }
+  void mark(const DzValue& value);
+  void mark(DzObject* object);
 
   Vm* vm = nullptr;
 
@@ -54,8 +58,6 @@ private:
 
   void collect();
   void mark();
-  void mark(const DzValue& value);
-  void mark(DzObject* object);
   void sweep();
 
   DzObject* objects = nullptr;

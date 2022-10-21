@@ -10,6 +10,7 @@ public:
   DzInstance(DzClass* class_);
 
   auto repr() const -> std::string override final;
+  void mark(Gc& gc) override final;
 
   auto in(Vm& vm, const DzValue& value) -> bool;
   auto getExpr(Vm& vm, const DzValue& expr) -> DzValue override final;

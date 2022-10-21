@@ -11,6 +11,7 @@ public:
   DzClass(DzString* identifier);
 
   auto repr() const -> std::string override final;
+  void mark(Gc& gc) override final;
 
   auto get(const DzString* identifier) const -> DzFunction*;
   void set(const DzString* identifier, DzFunction* function);

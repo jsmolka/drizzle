@@ -14,6 +14,15 @@ auto DzInstance::repr() const -> std::string {
   return fmt::format("<{} instance at 0x{:016X}>", class_->identifier->data, sh::cast<std::size_t>(this));
 }
 
+void DzInstance::mark(Gc& gc) {
+  DzObject::mark(gc);
+  gc.mark(class_);
+  for (const auto& [key, value] : fields) {
+    gc.mark(key);
+    gc.mark(value);
+  }
+}
+
 auto DzInstance::in(Vm& vm, const DzValue& value) -> bool {
   vm.expect(value, DzObject::Type::String);
   return fields.contains(value->as<DzString>()) || class_->functions.contains(value->as<DzString>());

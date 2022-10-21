@@ -7,6 +7,7 @@ public:
   DzIterator(DzObject* iteree);
 
   explicit operator bool() const override final;
+  void mark(Gc& gc) override final;
 
   auto makeIterator(Vm&) -> DzValue override final;
 

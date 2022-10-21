@@ -1,5 +1,7 @@
 #include "dziterator.h"
 
+#include "gc.h"
+
 DzIterator::DzIterator(DzObject* iteree)
   : DzObject(Type::Iterator), iteree(iteree) {}
 
@@ -8,6 +10,11 @@ DzIterator::operator bool() const {
     iteree = nullptr;
   }
   return iteree;
+}
+
+void DzIterator::mark(Gc& gc) {
+  DzObject::mark(gc);
+  gc.mark(iteree);
 }
 
 auto DzIterator::makeIterator(Vm&) -> DzValue {
