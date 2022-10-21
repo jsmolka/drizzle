@@ -1,9 +1,9 @@
 #pragma once
 
 #include <optional>
-#include <tsl/robin_map.h>
 
 #include "dzobject.h"
+#include "map.h"
 
 class DzMap final : public DzObject {
 public:
@@ -23,10 +23,7 @@ public:
   auto getProp(Vm& vm, const DzValue& prop, bool bind) -> DzValue override final;
   void setExpr(Vm& vm, const DzValue& expr, const DzValue& value) override final;
 
-  auto get(const DzValue& key) const -> std::optional<DzValue>;
-  void set(const DzValue& key, const DzValue& value);
-
-  tsl::robin_map<DzValue, DzValue, std::hash<DzValue>, Equal> values;
+  Map<DzValue, DzValue, std::hash<DzValue>, Equal> values;
 
 private:
   static void members(Vm& vm);

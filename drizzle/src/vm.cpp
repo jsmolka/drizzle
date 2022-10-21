@@ -545,7 +545,7 @@ void Vm::map() {
   while (size--) {
     auto v = stack.pop_value();
     auto k = stack.pop_value();
-    map->set(k, v);
+    map->values.set(k, v);
   }
   stack.push(map);
 }

@@ -16,7 +16,7 @@ auto DzInstance::repr() const -> std::string {
 
 auto DzInstance::in(Vm& vm, const DzValue& value) -> bool {
   vm.expect(value, DzObject::Type::String);
-  return get(value->as<DzString>()) || class_->get(value->as<DzString>());
+  return fields.contains(value->as<DzString>()) || class_->functions.contains(value->as<DzString>());
 }
 
 auto DzInstance::getExpr(Vm& vm, const DzValue& expr) -> DzValue {
@@ -25,7 +25,7 @@ auto DzInstance::getExpr(Vm& vm, const DzValue& expr) -> DzValue {
 
 auto DzInstance::getProp(Vm& vm, const DzValue& prop, bool bind) -> DzValue {
   vm.expect(prop, DzObject::Type::String);
-  if (const auto value = get(prop->as<DzString>())) {
+  if (const auto value = fields.get(prop->as<DzString>())) {
     return *value;
   } else if (const auto function = class_->get(prop->as<DzString>())) {
     if (bind) {
@@ -43,13 +43,5 @@ void DzInstance::setExpr(Vm& vm, const DzValue& expr, const DzValue& value) {
 
 void DzInstance::setProp(Vm& vm, const DzValue& prop, const DzValue& value) {
   vm.expect(prop, DzObject::Type::String);
-  set(prop->as<DzString>(), value);
-}
-
-auto DzInstance::get(const DzString* identifier) const -> std::optional<DzValue> {
-  return fields.get(identifier);
-}
-
-void DzInstance::set(const DzString* identifier, const DzValue& value) {
-  fields.set(identifier, value);
+  fields.set(prop->as<DzString>(), value);
 }

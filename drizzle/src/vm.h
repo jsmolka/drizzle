@@ -125,5 +125,5 @@ public:  // Todo: ugly
   sh::stack<Frame, 32> frames;
   sh::stack<DzValue, 512> stack;
   sh::vector<DzValue, 256> globals;
-  Map<DzFunction*> members[int(DzObject::Type::LastEnumValue)];
+  StringMap<DzFunction*> members[int(DzObject::Type::LastEnumValue)];
 };

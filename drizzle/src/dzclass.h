@@ -17,5 +17,5 @@ public:
 
   DzString* identifier;
   DzFunction* init = nullptr;
-  Map<DzFunction*> functions;
+  StringMap<DzFunction*> functions;
 };

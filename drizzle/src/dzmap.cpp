@@ -49,11 +49,11 @@ auto DzMap::repr() const -> std::string {
 }
 
 auto DzMap::in(Vm& vm, const DzValue& value) -> bool {
-  return get(value).has_value();
+  return values.contains(value);
 }
 
 auto DzMap::getExpr(Vm& vm, const DzValue& expr) -> DzValue {
-  return get(expr).value_or(&null);
+  return values.get(expr).value_or(&null);
 }
 
 auto DzMap::getProp(Vm& vm, const DzValue& prop, bool bind) -> DzValue {
@@ -62,18 +62,7 @@ auto DzMap::getProp(Vm& vm, const DzValue& prop, bool bind) -> DzValue {
 }
 
 void DzMap::setExpr(Vm& vm, const DzValue& expr, const DzValue& value) {
-  set(expr, value);
-}
-
-auto DzMap::get(const DzValue& key) const -> std::optional<DzValue> {
-  const auto iter = values.find(key);
-  return iter != values.end()
-    ? iter->second
-    : std::optional<DzValue>();
-}
-
-void DzMap::set(const DzValue& key, const DzValue& value) {
-  values.insert_or_assign(key, value);
+  values.set(expr, value);
 }
 
 void DzMap::members(Vm& vm) {
@@ -94,7 +83,7 @@ void DzMap::members(Vm& vm) {
       vm.gc.constructNoCollect<DzString>("get"), 1, [](Vm& vm, std::size_t) {
         const auto key  = vm.stack.pop_value();
         const auto self = vm.stack.top()->as<DzMap>();
-        return self->get(key).value_or(&null);
+        return self->values.get(key).value_or(&null);
       }
     ),
     vm.gc.constructNoCollect<DzFunction>(
@@ -102,7 +91,7 @@ void DzMap::members(Vm& vm) {
         const auto value = vm.stack.pop_value();
         const auto key   = vm.stack.pop_value();
         const auto self  = vm.stack.top()->as<DzMap>();
-        self->set(key, value);
+        self->values.set(key, value);
         return &null;
       }
     ),
@@ -110,7 +99,7 @@ void DzMap::members(Vm& vm) {
       vm.gc.constructNoCollect<DzString>("has"), 1, [](Vm& vm, std::size_t) {
         const auto key  = vm.stack.pop_value();
         const auto self = vm.stack.top()->as<DzMap>();
-        return self->get(key).has_value();
+        return self->values.contains(key);
       }
     ),
   };
