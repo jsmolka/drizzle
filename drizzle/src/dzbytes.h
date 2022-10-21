@@ -26,7 +26,7 @@ public:
   sh::vector<u8> data;
 
 private:
-  static void members(Vm& vm);
+  static void defineMembers(Vm& vm);
 
   auto toIndex(Vm& vm, const DzValue& expr) const -> std::size_t;
   auto toInsertIndex(Vm& vm, const DzValue& expr) const -> std::size_t;

@@ -65,11 +65,11 @@ DzWindow::operator bool() const {
 }
 
 auto DzWindow::getProp(Vm& vm, const DzValue& prop, bool bind) -> DzValue {
-  members(vm);
+  defineMembers(vm);
   return DzObject::getProp(vm, prop, bind);
 }
 
-void DzWindow::members(Vm& vm) {
+void DzWindow::defineMembers(Vm& vm) {
   #if DZ_SDL
   constexpr auto kSlot = int(Type::Window);
   if (vm.members[kSlot].size() > 0) {

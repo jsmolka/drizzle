@@ -33,7 +33,7 @@ public:
   auto getProp(Vm& vm, const DzValue& prop, bool bind) -> DzValue override final;
 
 private:
-  static void members(Vm& vm);
+  static void defineMembers(Vm& vm);
 
   void dispose();
 

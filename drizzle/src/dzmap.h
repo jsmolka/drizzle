@@ -27,5 +27,5 @@ public:
   Map<DzValue, DzValue, std::hash<DzValue>, Equal> values;
 
 private:
-  static void members(Vm& vm);
+  static void defineMembers(Vm& vm);
 };

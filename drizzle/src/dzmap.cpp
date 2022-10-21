@@ -65,7 +65,7 @@ auto DzMap::getExpr(Vm& vm, const DzValue& expr) -> DzValue {
 }
 
 auto DzMap::getProp(Vm& vm, const DzValue& prop, bool bind) -> DzValue {
-  members(vm);
+  defineMembers(vm);
   return DzObject::getProp(vm, prop, bind);
 }
 
@@ -73,7 +73,7 @@ void DzMap::setExpr(Vm& vm, const DzValue& expr, const DzValue& value) {
   values.set(expr, value);
 }
 
-void DzMap::members(Vm& vm) {
+void DzMap::defineMembers(Vm& vm) {
   constexpr auto kSlot = int(Type::Map);
   if (vm.members[kSlot].size() > 0) {
     return;

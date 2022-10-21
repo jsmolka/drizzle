@@ -57,7 +57,7 @@ auto DzList::getExpr(Vm& vm, const DzValue& expr) -> DzValue {
 }
 
 auto DzList::getProp(Vm& vm, const DzValue& prop, bool bind) -> DzValue {
-  members(vm);
+  defineMembers(vm);
   return DzObject::getProp(vm, prop, bind);
 }
 
@@ -69,7 +69,7 @@ void DzList::setExpr(Vm& vm, const DzValue& expr, const DzValue& value) {
   setItem(vm, toIndex(vm, expr), value);
 }
 
-void DzList::members(Vm& vm) {
+void DzList::defineMembers(Vm& vm) {
   constexpr auto kSlot = int(Type::List);
   if (vm.members[kSlot].size() > 0) {
     return;
