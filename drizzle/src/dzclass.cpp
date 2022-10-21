@@ -8,15 +8,12 @@ auto DzClass::repr() const -> std::string {
 }
 
 auto DzClass::get(const DzString* identifier) const -> DzFunction* {
-  const auto iter = functions.find(identifier);
-  return iter != functions.end()
-    ? iter->second
-    : nullptr;
+  return functions.get(identifier).value_or(nullptr);
 }
 
 void DzClass::set(const DzString* identifier, DzFunction* function) {
   if (identifier->data == kInit) {
     init = function;
   }
-  functions.insert_or_assign(identifier, function);
+  functions.set(identifier, function);
 }

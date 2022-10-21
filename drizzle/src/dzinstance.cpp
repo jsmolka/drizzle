@@ -47,12 +47,9 @@ void DzInstance::setProp(Vm& vm, const DzValue& prop, const DzValue& value) {
 }
 
 auto DzInstance::get(const DzString* identifier) const -> std::optional<DzValue> {
-  const auto iter = fields.find(identifier);
-  return iter != fields.end()
-    ? iter->second
-    : std::optional<DzValue>();
+  return fields.get(identifier);
 }
 
-void DzInstance::set(const DzString* name, const DzValue& value) {
-  fields.insert_or_assign(name, value);
+void DzInstance::set(const DzString* identifier, const DzValue& value) {
+  fields.set(identifier, value);
 }
