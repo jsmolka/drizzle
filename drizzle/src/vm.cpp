@@ -4,7 +4,6 @@
 
 #include "dzboundmethod.h"
 #include "dzbytes.h"
-#include "dzclass.h"
 #include "dzinstance.h"
 #include "dzlist.h"
 #include "dzmap.h"
@@ -29,7 +28,7 @@ void Vm::interpret(const Program& program) {
   defineNatives();
 
   while (true) {
-    opcode_pc = frames.top().pc;
+    pc = frames.top().pc;
     switch (static_cast<Opcode>(read<u8>())) {
       case Opcode::Add: add(); break;
       case Opcode::BitwiseAnd: bitwiseAnd(); break;
@@ -103,6 +102,27 @@ exit:
   assert(stack.empty());
 }
 
+void Vm::expect(const DzValue& value, DzValue::Type type) {
+  if (value.type != type) {
+    raise("expected type '{}' but got '{}'", type, value.kind());
+  }
+}
+
+void Vm::expect(const DzValue& value, DzObject::Type type) {
+  if (!(value.isObject() && value->type == type)) {
+    raise("expected type '{}' but got '{}'", type, value.kind());
+  }
+}
+
+void Vm::expectArity(DzFunction::Arity expected, std::size_t got) {
+  if (expected && *expected != got) {
+    const char* format = *expected != 1
+      ? "expected {} arguments but got {}"
+      : "expected {} argument but got {}";
+    raise(format, *expected, got);
+  }
+}
+
 template<std::integral Integral>
 auto Vm::read() -> Integral {
   auto& frame = frames.top();
@@ -130,27 +150,6 @@ void Vm::binary(std::string_view operation, Callback callback) {
     stack.pop();
   } catch (const NotSupportedException&) {
     raise("unsupported operand types for '{}': '{}' and '{}'", operation, a.kind(), b.kind());
-  }
-}
-
-void Vm::expect(const DzValue& value, DzValue::Type type) {
-  if (value.type != type) {
-    raise("expected type '{}' but got '{}'", type, value.kind());
-  }
-}
-
-void Vm::expect(const DzValue& value, DzObject::Type type) {
-  if (!(value.isObject() && value->type == type)) {
-    raise("expected type '{}' but got '{}'", type, value.kind());
-  }
-}
-
-void Vm::expectArity(DzFunction::Arity expected, std::size_t got) {
-  if (expected && *expected != got) {
-    const char* format = *expected != 1
-      ? "expected {} arguments but got {}"
-      : "expected {} argument but got {}";
-    raise(format, *expected, got);
   }
 }
 
@@ -283,39 +282,37 @@ void Vm::call() {
 }
 
 void Vm::call(DzValue& callee, std::size_t argc) {
-  auto error = [this](const DzValue& callee) {
-    raise("'{}' object is not callable", callee.kind());
-  };
-
-  if (!callee.isObject()) {
-    error(callee);
-  }
-
-  switch (callee.o->type) {
-    case DzObject::Type::Class: {
-      const auto class_ = callee.o->as<DzClass>();
-      callee = gc.construct<DzInstance>(class_);
-      if (class_->init) {
-        call(class_->init, argc);
-      } else {
-        expectArity(0, argc);
+  try {
+    if (!callee.isObject()) {
+      throw NotSupportedException();
+    }
+    switch (callee->type) {
+      case DzObject::Type::Class: {
+        const auto class_ = callee->as<DzClass>();
+        callee = gc.construct<DzInstance>(class_);
+        if (class_->init) {
+          call(class_->init, argc);
+        } else {
+          expectArity(0, argc);
+        }
+        break;
       }
-      break;
+      case DzObject::Type::Function: {
+        call(callee->as<DzFunction>(), argc);
+        break;
+      }
+      case DzObject::Type::BoundMethod: {
+        const auto method = callee->as<DzBoundMethod>();
+        callee = method->self;
+        call(method->function, argc);
+        break;
+      }
+      default: {
+        throw NotSupportedException();
+      }
     }
-    case DzObject::Type::Function: {
-      call(callee.o->as<DzFunction>(), argc);
-      break;
-    }
-    case DzObject::Type::BoundMethod: {
-      const auto method = callee.o->as<DzBoundMethod>();
-      callee = method->self;
-      call(method->function, argc);
-      break;
-    }
-    default: {
-      error(callee);
-      break;
-    }
+  } catch (const NotSupportedException&) {
+    raise("'{}' object is not callable", callee.kind());
   }
 }
 
@@ -525,7 +522,7 @@ void Vm::load() {
 
 template<std::integral Integral>
 void Vm::loadGlobal() {
-  const auto index = read<Integral>();
+  const auto  index = read<Integral>();
   const auto& value = globals[index];
   if (value.isUndefined()) {
     if (index < program.globals.size()) {

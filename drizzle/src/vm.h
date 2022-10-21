@@ -16,36 +16,39 @@ class NotSupportedException {};
 
 class Vm {
 public:
-  friend class DzFunction;
-  friend class Gc;
-
-  Vm(Gc& gc);
-
-  void interpret(const Program& program);
-
-public:  // Todo: ugly
-  static constexpr auto kMaximumRecursionDepth = 1000;
-
   struct Frame {
     u8* pc;
     std::size_t sp;
     DzFunction* function;
   };
 
-  void defineNatives();
+  Vm(Gc& gc);
 
-  template<std::integral Integral>
-  auto read() -> Integral;
+  void interpret(const Program& program);
 
   template<typename... Args>
   void raise(Args&&... args) {
-    const auto line = frames.top().function->chunk().line(opcode_pc);
+    const auto line = frames.top().function->chunk().line(pc);
     throw RuntimeError(Location{line}, std::forward<Args>(args)...);
   }
 
   void expect(const DzValue& value, DzValue::Type type);
   void expect(const DzValue& value, DzObject::Type type);
   void expectArity(DzFunction::Arity expected, std::size_t got);
+
+  Gc& gc;
+  sh::stack<Frame> frames;
+  sh::stack<DzValue> stack;
+  sh::vector<DzValue> globals;
+  StringMap<DzFunction*> members[int(DzObject::Type::LastEnumValue)];
+
+private:
+  static constexpr auto kMaximumRecursionDepth = 1000;
+
+  void defineNatives();
+
+  template<std::integral Integral>
+  auto read() -> Integral;
 
   template<template<typename> typename Promote = promote_t, typename Callback>
   void unary(std::string_view operation, Callback callback);
@@ -119,11 +122,6 @@ public:  // Todo: ugly
   void subtract();
   void true_();
 
-  Gc& gc;
   Program program;
-  u8* opcode_pc = nullptr;
-  sh::stack<Frame, 32> frames;
-  sh::stack<DzValue, 512> stack;
-  sh::vector<DzValue, 256> globals;
-  StringMap<DzFunction*> members[int(DzObject::Type::LastEnumValue)];
+  u8* pc = nullptr;
 };
