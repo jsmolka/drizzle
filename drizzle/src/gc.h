@@ -61,5 +61,5 @@ private:
   DzObject* objects = nullptr;
   std::size_t allocated = 0;
   std::size_t threshold = 1024 * 1024;
-  tsl::robin_set<DzString*, DzString::Hash, DzString::Equal> pool;
+  tsl::robin_set<DzString*, DzString::Hash, DzString::EqualData> pool;
 };

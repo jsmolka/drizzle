@@ -1,9 +1,6 @@
 #include "dzvalue.h"
 
-#include <sh/utility.h>
-
-#include "dzstring.h"
-#include "vm.h"
+#include "dzobject.h"
 
 inline auto whole(dzfloat value) -> bool {
   return std::fmod(value, 1.0) == 0.0;

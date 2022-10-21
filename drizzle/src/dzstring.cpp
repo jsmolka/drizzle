@@ -1,9 +1,20 @@
 #include "dzstring.h"
 
-#include <sh/fmt.h>
-
+#include "dziterator.h"
 #include "gc.h"
 #include "vm.h"
+
+auto DzString::Hash::operator()(const DzString* string) const -> std::size_t {
+  return string->data_hash;
+}
+
+auto DzString::Equal::operator()(const DzString* a, const DzString* b) const -> bool {
+  return a == b;
+}
+
+auto DzString::EqualData::operator()(const DzString* a, const DzString* b) const -> bool {
+  return a->data == b->data;
+}
 
 DzString::DzString()
   : DzString(std::string{}) {}
@@ -19,13 +30,6 @@ DzString::DzString(const std::string& data)
 
 DzString::operator bool() const {
   return size() > 0;
-}
-
-auto DzString::operator[](std::size_t index) const -> std::string_view {
-  return std::string_view(
-    data.begin() + index,
-    data.begin() + index + 1
-  );
 }
 
 auto DzString::hash() const -> std::size_t {
@@ -54,17 +58,23 @@ auto DzString::in(Vm& vm, const DzValue& value) -> bool {
 }
 
 auto DzString::getItem(Vm& vm, std::size_t index) -> DzValue {
-  return vm.gc.construct<DzString>((*this)[index]);
+  return vm.gc.construct<DzString>(std::string_view(
+    data.begin() + index,
+    data.begin() + index + 1
+  ));
 }
 
 auto DzString::getExpr(Vm& vm, const DzValue& expr) -> DzValue {
+  return getItem(vm, toIndex(vm, expr));
+}
+
+auto DzString::toIndex(Vm& vm, const DzValue& expr) const -> std::size_t {
   vm.expect(expr, DzValue::Type::Int);
-  auto index = expr.i;
-  if (index < 0) {
-    index += size();
-  }
+  const auto index = expr.i < 0
+    ? expr.i + size()
+    : expr.i;
   if (index < 0 || index >= size()) {
     vm.raise("string index out of range");
   }
-  return vm.gc.construct<DzString>((*this)[index]);
+  return index;
 }
