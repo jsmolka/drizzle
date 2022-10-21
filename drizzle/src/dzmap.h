@@ -29,5 +29,5 @@ public:
   tsl::robin_map<DzValue, DzValue, std::hash<DzValue>, Equal> values;
 
 private:
-  void members(Vm& vm);
+  static void members(Vm& vm);
 };
