@@ -15,29 +15,29 @@ public:
   Location location;
 };
 
-class SyntaxError : public Error {
+class SyntaxError final : public Error {
 public:
   using Error::Error;
 
-  auto name() const -> std::string_view final {
+  auto name() const -> std::string_view override final {
     return "SyntaxError";
   }
 };
 
-class CompilerError : public Error {
+class CompilerError final : public Error {
 public:
   using Error::Error;
 
-  auto name() const -> std::string_view final {
+  auto name() const -> std::string_view override final {
     return "CompilerError";
   }
 };
 
-class RuntimeError : public Error {
+class RuntimeError final : public Error {
 public:
   using Error::Error;
 
-  auto name() const -> std::string_view final {
+  auto name() const -> std::string_view override final {
     return "RuntimeError";
   }
 };

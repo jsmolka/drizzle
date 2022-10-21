@@ -1,10 +1,10 @@
 #pragma once
 
 #include <sh/stack.h>
-#include <tsl/robin_map.h>
 
 #include "astvisiter.h"
 #include "dzfunction.h"
+#include "map.h"
 #include "opcode.h"
 #include "program.h"
 
@@ -103,6 +103,5 @@ private:
   sh::stack<Level> scope;
   sh::stack<Variable> variables;
   sh::stack<Location> locations;
-  // Todo: why not just std::string_view here?
-  tsl::robin_map<Identifier, Global> globals;
+  Map<Identifier, Global> globals;
 };
