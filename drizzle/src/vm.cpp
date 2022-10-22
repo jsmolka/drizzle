@@ -23,12 +23,13 @@ void Vm::interpret(const Program& program) {
   this->program = program;
 
   globals.resize(program.globals.size());
-  frames.emplace(program.main->chunk().code.data(), 0, program.main);
+
+  pushFrame(program.main, 0);
 
   defineNatives();
 
   while (true) {
-    pc = frames.top().pc;
+    pc_opcode = pc;
     switch (static_cast<Opcode>(read<u8>())) {
       case Opcode::Add: add(); break;
       case Opcode::BitwiseAnd: bitwiseAnd(); break;
@@ -123,11 +124,21 @@ void Vm::expectArity(DzFunction::Arity expected, std::size_t got) {
   }
 }
 
+void Vm::pushFrame(DzFunction* function, std::size_t sp) {
+  frames.emplace(function, sp);
+  pcs.push(pc);
+  pc = function->chunk().code.data();
+}
+
+void Vm::popFrame() {
+  frames.pop();
+  pc = pcs.pop_value();
+}
+
 template<std::integral Integral>
 auto Vm::read() -> Integral {
-  auto& frame = frames.top();
-  const auto value = sh::cast<Integral>(*frame.pc);
-  frame.pc += sizeof(Integral);
+  const auto value = sh::cast<Integral>(*pc);
+  pc += sizeof(Integral);
   return value;
 }
 
@@ -322,7 +333,7 @@ void Vm::call(DzFunction* function, std::size_t argc) {
   }
   expectArity(function->arity, argc);
   if (function->isChunk()) {
-    frames.emplace(function->chunk().code.data(), stack.size() - argc - 1, function);
+    pushFrame(function, stack.size() - argc - 1);
   } else {
     stack.top() = function->native()(*this, argc);
   }
@@ -453,34 +464,34 @@ void Vm::iterValue() {
 }
 
 void Vm::jump() {
-  frames.top().pc += read<s16>();
+  pc += read<s16>();
 }
 
 void Vm::jumpFalse() {
   const auto offset = read<s16>();
   if (!stack.top()) {
-    frames.top().pc += offset;
+    pc += offset;
   }
 }
 
 void Vm::jumpFalsePop() {
   const auto offset = read<s16>();
   if (!stack.pop_value()) {
-    frames.top().pc += offset;
+    pc += offset;
   }
 }
 
 void Vm::jumpTrue() {
   const auto offset = read<s16>();
   if (stack.top()) {
-    frames.top().pc += offset;
+    pc += offset;
   }
 }
 
 void Vm::jumpTruePop() {
   const auto offset = read<s16>();
   if (stack.pop_value()) {
-    frames.top().pc += offset;
+    pc += offset;
   }
 }
 
@@ -622,10 +633,10 @@ void Vm::range() {
 }
 
 void Vm::return_() {
-  const auto result = stack.pop_value();
+  const auto ret = stack.pop_value();
   stack.pop(stack.size() - frames.top().sp);
-  stack.push(result);
-  frames.pop();
+  stack.push(ret);
+  popFrame();
 }
 
 void Vm::set() {

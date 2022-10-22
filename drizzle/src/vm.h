@@ -17,9 +17,8 @@ class NotSupportedException {};
 class Vm {
 public:
   struct Frame {
-    u8* pc;
-    std::size_t sp;
     DzFunction* function;
+    std::size_t sp;
   };
 
   Vm(Gc& gc);
@@ -28,7 +27,7 @@ public:
 
   template<typename... Args>
   [[noreturn]] void raise(Args&&... args) {
-    const auto line = frames.top().function->chunk().line(pc);
+    const auto line = frames.top().function->chunk().line(pc_opcode);
     throw RuntimeError(Location{line}, std::forward<Args>(args)...);
   }
 
@@ -46,6 +45,9 @@ private:
   static constexpr auto kMaximumRecursionDepth = 1000;
 
   void defineNatives();
+
+  void pushFrame(DzFunction* function, std::size_t sp);
+  void popFrame();
 
   template<std::integral Integral>
   auto read() -> Integral;
@@ -124,4 +126,6 @@ private:
 
   Program program;
   u8* pc = nullptr;
+  u8* pc_opcode = nullptr;
+  sh::stack<u8*> pcs;
 };
