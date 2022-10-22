@@ -27,7 +27,7 @@ public:
   void interpret(const Program& program);
 
   template<typename... Args>
-  void raise(Args&&... args) {
+  [[noreturn]] void raise(Args&&... args) {
     const auto line = frames.top().function->chunk().line(pc);
     throw RuntimeError(Location{line}, std::forward<Args>(args)...);
   }
@@ -38,7 +38,7 @@ public:
 
   Gc& gc;
   sh::stack<Frame> frames;
-  sh::stack<DzValue> stack;
+  sh::stack<DzValue, 256> stack;
   sh::vector<DzValue> globals;
   StringMap<DzFunction*> members[int(DzObject::Type::LastEnumValue)];
 
