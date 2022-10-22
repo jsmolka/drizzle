@@ -28,6 +28,7 @@ void Gc::mark() {
   for (const auto& value : vm->stack) {
     mark(value);
   }
+  mark(vm->frame.function);
   for (const auto& frame : vm->frames) {
     mark(frame.function);
   }

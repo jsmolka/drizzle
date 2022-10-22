@@ -17,8 +17,9 @@ class NotSupportedException {};
 class Vm {
 public:
   struct Frame {
-    DzFunction* function;
+    u8* pc;
     std::size_t sp;
+    DzFunction* function;
   };
 
   Vm(Gc& gc);
@@ -36,6 +37,7 @@ public:
   void expectArity(DzFunction::Arity expected, std::size_t got);
 
   Gc& gc;
+  Frame frame;
   sh::stack<Frame> frames;
   sh::stack<DzValue, 256> stack;
   sh::vector<DzValue> globals;
@@ -45,9 +47,6 @@ private:
   static constexpr auto kMaximumRecursionDepth = 1000;
 
   void defineNatives();
-
-  void pushFrame(DzFunction* function, std::size_t sp);
-  void popFrame();
 
   template<std::integral Integral>
   auto read() -> Integral;
@@ -125,7 +124,5 @@ private:
   void true_();
 
   Program program;
-  u8* pc = nullptr;
   u8* pc_opcode = nullptr;
-  sh::stack<u8*> pcs;
 };

@@ -24,12 +24,14 @@ void Vm::interpret(const Program& program) {
 
   globals.resize(program.globals.size());
 
-  pushFrame(program.main, 0);
+  frame.pc = program.main->chunk().code.data();
+  frame.sp = 0;
+  frame.function = program.main;
 
   defineNatives();
 
   while (true) {
-    pc_opcode = pc;
+    pc_opcode = frame.pc;
     switch (static_cast<Opcode>(read<u8>())) {
       case Opcode::Add: add(); break;
       case Opcode::BitwiseAnd: bitwiseAnd(); break;
@@ -124,21 +126,10 @@ void Vm::expectArity(DzFunction::Arity expected, std::size_t got) {
   }
 }
 
-void Vm::pushFrame(DzFunction* function, std::size_t sp) {
-  frames.emplace(function, sp);
-  pcs.push(pc);
-  pc = function->chunk().code.data();
-}
-
-void Vm::popFrame() {
-  frames.pop();
-  pc = pcs.pop_value();
-}
-
 template<std::integral Integral>
 auto Vm::read() -> Integral {
-  const auto value = sh::cast<Integral>(*pc);
-  pc += sizeof(Integral);
+  const auto value = sh::cast<Integral>(*frame.pc);
+  frame.pc += sizeof(Integral);
   return value;
 }
 
@@ -333,7 +324,10 @@ void Vm::call(DzFunction* function, std::size_t argc) {
   }
   expectArity(function->arity, argc);
   if (function->isChunk()) {
-    pushFrame(function, stack.size() - argc - 1);
+    frames.push(frame);
+    frame.pc = function->chunk().code.data();
+    frame.sp = stack.size() - argc - 1;
+    frame.function = function;
   } else {
     stack.top() = function->native()(*this, argc);
   }
@@ -342,7 +336,7 @@ void Vm::call(DzFunction* function, std::size_t argc) {
 template<std::integral Integral>
 void Vm::constant() {
   const auto index = read<Integral>();
-  stack.push(frames.top().function->chunk().constants[index]);
+  stack.push(frame.function->chunk().constants[index]);
 }
 
 void Vm::divide() {
@@ -454,44 +448,44 @@ void Vm::iterInit() {
 template<std::integral Integral>
 void Vm::iterAdvance() {
   const auto index = read<Integral>();
-  stack[frames.top().sp + index]->template as<DzIterator>()->advance();
+  stack[frame.sp + index]->template as<DzIterator>()->advance();
 }
 
 template<std::integral Integral>
 void Vm::iterValue() {
   const auto index = read<Integral>();
-  stack.push(stack[frames.top().sp + index]->template as<DzIterator>()->value(*this));
+  stack.push(stack[frame.sp + index]->template as<DzIterator>()->value(*this));
 }
 
 void Vm::jump() {
-  pc += read<s16>();
+  frame.pc += read<s16>();
 }
 
 void Vm::jumpFalse() {
   const auto offset = read<s16>();
   if (!stack.top()) {
-    pc += offset;
+    frame.pc += offset;
   }
 }
 
 void Vm::jumpFalsePop() {
   const auto offset = read<s16>();
   if (!stack.pop_value()) {
-    pc += offset;
+    frame.pc += offset;
   }
 }
 
 void Vm::jumpTrue() {
   const auto offset = read<s16>();
   if (stack.top()) {
-    pc += offset;
+    frame.pc += offset;
   }
 }
 
 void Vm::jumpTruePop() {
   const auto offset = read<s16>();
   if (stack.pop_value()) {
-    pc += offset;
+    frame.pc += offset;
   }
 }
 
@@ -528,7 +522,7 @@ void Vm::list() {
 template<std::integral Integral>
 void Vm::load() {
   const auto index = read<Integral>();
-  stack.push(stack[frames.top().sp + index]);
+  stack.push(stack[frame.sp + index]);
 }
 
 template<std::integral Integral>
@@ -634,9 +628,9 @@ void Vm::range() {
 
 void Vm::return_() {
   const auto ret = stack.pop_value();
-  stack.pop(stack.size() - frames.top().sp);
+  stack.pop(stack.size() - frame.sp);
   stack.push(ret);
-  popFrame();
+  frame = frames.pop_value();
 }
 
 void Vm::set() {
@@ -655,7 +649,7 @@ void Vm::set() {
 template<std::integral Integral>
 void Vm::store() {
   const auto index = read<Integral>();
-  stack[frames.top().sp + index] = stack.top();
+  stack[frame.sp + index] = stack.top();
 }
 
 template<std::integral Integral>
