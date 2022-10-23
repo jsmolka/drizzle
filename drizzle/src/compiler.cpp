@@ -186,15 +186,19 @@ void Compiler::visit(Statement::For& for_) {
 }
 
 void Compiler::visit(Statement::If& if_) {
+  const auto singleIf = if_.branches.size() == 1 && !if_.else_;
+
   std::vector<std::size_t> exits;
   for (auto& branch : if_.branches) {
     visit(branch.condition);
-    const auto next = jump(Opcode::JumpFalsePop);
+    const auto skip = jump(Opcode::JumpFalsePop);
     increaseScope(Level::Type::Branch);
     visit(branch.statements);
     decreaseScope();
-    exits.push_back(jump(Opcode::Jump));
-    patch(next);
+    if (!singleIf) {
+      exits.push_back(jump(Opcode::Jump));
+    }
+    patch(skip);
   }
 
   if (if_.else_) {
