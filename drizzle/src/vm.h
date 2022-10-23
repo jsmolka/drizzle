@@ -28,7 +28,7 @@ public:
 
   template<typename... Args>
   [[noreturn]] void raise(Args&&... args) {
-    const auto line = frames.top().function->chunk().line(pc_opcode);
+    const auto line = frame.function->chunk().line(pc_opcode);
     throw RuntimeError(Location{line}, std::forward<Args>(args)...);
   }
 
