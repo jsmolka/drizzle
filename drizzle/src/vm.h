@@ -28,7 +28,7 @@ public:
 
   template<typename... Args>
   [[noreturn]] void raise(Args&&... args) {
-    const auto line = frame.function->chunk().line(pc_opcode);
+    const auto line = frame.function->chunk().line(opcode_pc);
     throw RuntimeError(Location{line}, std::forward<Args>(args)...);
   }
 
@@ -125,5 +125,5 @@ private:
   void true_();
 
   Program program;
-  u8* pc_opcode = nullptr;
+  u8* opcode_pc = nullptr;
 };

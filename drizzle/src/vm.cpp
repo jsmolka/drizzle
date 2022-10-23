@@ -31,7 +31,7 @@ void Vm::interpret(const Program& program) {
   defineNatives();
 
   while (true) {
-    pc_opcode = frame.pc;
+    opcode_pc = frame.pc;
     switch (static_cast<Opcode>(read<u8>())) {
       case Opcode::Add: add(); break;
       case Opcode::BitwiseAnd: bitwiseAnd(); break;
