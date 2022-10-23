@@ -229,16 +229,13 @@ void Compiler::visit(Statement::Switch& switch_) {
   increaseScope(Level::Type::Block);
 
   visit(switch_.value);
-  const auto switch_value = defineLocal("$value");
 
   std::vector<std::size_t> exits;
   for (auto& case_ : switch_.cases) {
     std::vector<std::size_t> entries;
     for (auto& value : case_.values) {
-      emitExt(Opcode::Load, switch_value);
       visit(value);
-      emit(Opcode::Equal);
-      entries.push_back(jump(Opcode::JumpTruePop));
+      entries.push_back(jump(Opcode::SwitchCase));
     }
 
     const auto skip = jump(Opcode::Jump);
@@ -249,6 +246,8 @@ void Compiler::visit(Statement::Switch& switch_) {
     exits.push_back(jump(Opcode::Jump));
     patch(skip);
   }
+
+  emit(Opcode::Pop);
 
   if (switch_.default_) {
     increaseScope(Level::Type::Branch);

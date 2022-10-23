@@ -121,6 +121,7 @@ private:
   void subscriptGet();
   void subscriptSet();
   void subtract();
+  void switchCase();
   void true_();
 
   Program program;

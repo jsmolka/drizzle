@@ -18,7 +18,7 @@ Vm::Vm(Gc& gc)
 }
 
 void Vm::interpret(const Program& program) {
-  static_assert(int(Opcode::LastEnumValue) == 62);
+  static_assert(int(Opcode::LastEnumValue) == 63);
 
   this->program = program;
 
@@ -37,8 +37,8 @@ void Vm::interpret(const Program& program) {
       case Opcode::BitwiseAnd: bitwiseAnd(); break;
       case Opcode::BitwiseAsr: bitwiseAsr(); break;
       case Opcode::BitwiseComplement: bitwiseComplement(); break;
-      case Opcode::BitwiseLsr: bitwiseLsr(); break;
       case Opcode::BitwiseLsl: bitwiseLsl(); break;
+      case Opcode::BitwiseLsr: bitwiseLsr(); break;
       case Opcode::BitwiseOr: bitwiseOr(); break;
       case Opcode::BitwiseXor: bitwiseXor(); break;
       case Opcode::Call: call(); break;
@@ -94,6 +94,7 @@ void Vm::interpret(const Program& program) {
       case Opcode::SubscriptGet: subscriptGet(); break;
       case Opcode::SubscriptSet: subscriptSet(); break;
       case Opcode::Subtract: subtract(); break;
+      case Opcode::SwitchCase: switchCase(); break;
       case Opcode::True: true_(); break;
       default:
         SH_UNREACHABLE;
@@ -692,6 +693,15 @@ void Vm::subtract() {
     }
     throw NotSupportedException();
   });
+}
+
+void Vm::switchCase() {
+  const auto offset  = read<s16>();
+  const auto compare = stack.pop_value();
+  if (stack.top() == compare) {
+    stack.pop();
+    frame.pc += offset;
+  }
 }
 
 void Vm::true_() {
