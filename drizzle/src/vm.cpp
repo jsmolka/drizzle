@@ -463,31 +463,19 @@ void Vm::jump() {
 }
 
 void Vm::jumpFalse() {
-  const auto offset = read<s16>();
-  if (!stack.top()) {
-    frame.pc += offset;
-  }
+  frame.pc += stack.top() ? 2 : read<s16>();
 }
 
 void Vm::jumpFalsePop() {
-  const auto offset = read<s16>();
-  if (!stack.pop_value()) {
-    frame.pc += offset;
-  }
+  frame.pc += stack.pop_value() ? 2 : read<s16>();
 }
 
 void Vm::jumpTrue() {
-  const auto offset = read<s16>();
-  if (stack.top()) {
-    frame.pc += offset;
-  }
+  frame.pc += stack.top() ? read<s16>() : 2;
 }
 
 void Vm::jumpTruePop() {
-  const auto offset = read<s16>();
-  if (stack.pop_value()) {
-    frame.pc += offset;
-  }
+  frame.pc += stack.pop_value() ? read<s16>() : 2;
 }
 
 void Vm::less() {
@@ -696,11 +684,12 @@ void Vm::subtract() {
 }
 
 void Vm::switchCase() {
-  const auto offset  = read<s16>();
-  const auto compare = stack.pop_value();
-  if (stack.top() == compare) {
+  const auto value = stack.pop_value();
+  if (stack.top() == value) {
     stack.pop();
-    frame.pc += offset;
+    frame.pc += read<s16>();
+  } else {
+    frame.pc += 2;
   }
 }
 
