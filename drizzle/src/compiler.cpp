@@ -471,9 +471,14 @@ void Compiler::emitExt(Opcode opcode, std::size_t value) {
 }
 
 void Compiler::emitConstant(const DzValue& value) {
-  auto& chunk = function->chunk();
-  emitExt(Opcode::Constant, chunk.constants.size());
-  chunk.constants.push_back(value);
+  auto& constants = function->chunk().constants;
+  const auto iter = std::find(constants.begin(), constants.end(), value);
+  if (iter != constants.end()) {
+    emitExt(Opcode::Constant, std::distance(constants.begin(), iter));
+  } else {
+    emitExt(Opcode::Constant, constants.size());
+    constants.push_back(value);
+  }
 }
 
 auto Compiler::jump(Opcode opcode, std::optional<std::size_t> label) -> std::size_t {
