@@ -374,7 +374,7 @@ void Vm::equal() {
 }
 
 void Vm::false_() {
-  stack.push(false);
+  stack.emplace(false);
 }
 
 void Vm::get() {
@@ -505,7 +505,7 @@ void Vm::list() {
     list->values.push_back(value);
   }
   stack.pop(size);
-  stack.push(list);
+  stack.emplace(list);
 }
 
 template<std::integral Integral>
@@ -538,7 +538,7 @@ void Vm::map() {
     auto k = stack.pop_value();
     map->values.set(k, v);
   }
-  stack.push(map);
+  stack.emplace(map);
 }
 
 void Vm::modulo() {
@@ -585,7 +585,7 @@ void Vm::notEqual() {
 }
 
 void Vm::null_() {
-  stack.push(&null);
+  stack.emplace(&null);
 }
 
 void Vm::pop() {
@@ -694,5 +694,5 @@ void Vm::switchCase() {
 }
 
 void Vm::true_() {
-  stack.push(true);
+  stack.emplace(true);
 }
