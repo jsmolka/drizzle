@@ -17,7 +17,6 @@ public:
     return constructNoCollect<T>(std::forward<Args>(args)...);
   }
 
-
   template<typename T, typename... Args>
   auto constructNoCollect(Args&&... args) -> T* {
     if constexpr (std::same_as<T, DzString>) {
