@@ -179,7 +179,7 @@ auto Vm::reverse(DzValue& iteree) -> DzValue {
 }
 
 void Vm::add() {
-  binary("+", [this]<typename A, typename B>(const A& a, const B& b) -> DzValue {
+  binary("+", [this]<typename A, typename B>(const A& a, const B& b) SH_INLINE_LAMBDA -> DzValue {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       return a + b;
     } else if constexpr (dz_object<A, B>) {
@@ -211,7 +211,7 @@ void Vm::add() {
 }
 
 void Vm::bitwiseAnd() {
-  binary<promote_lax_t>("&", []<typename A, typename B>(const A& a, const B& b) -> DzValue {
+  binary<promote_lax_t>("&", []<typename A, typename B>(const A& a, const B& b) SH_INLINE_LAMBDA -> DzValue {
     if constexpr (dz_bool<A, B>) {
       return static_cast<dzbool>(a & b);
     } else if constexpr (dz_int<A, B>) {
@@ -222,7 +222,7 @@ void Vm::bitwiseAnd() {
 }
 
 void Vm::bitwiseAsr() {
-  binary(">>", []<typename A, typename B>(const A& a, const B& b) -> DzValue {
+  binary(">>", []<typename A, typename B>(const A& a, const B& b) SH_INLINE_LAMBDA -> DzValue {
     if constexpr (dz_int<A, B>) {
       return a >> b;
     }
@@ -231,7 +231,7 @@ void Vm::bitwiseAsr() {
 }
 
 void Vm::bitwiseComplement() {
-  unary("~", []<typename A>(const A& a) -> DzValue {
+  unary("~", []<typename A>(const A& a) SH_INLINE_LAMBDA -> DzValue {
     if constexpr (dz_int<A>) {
       return ~a;
     }
@@ -240,7 +240,7 @@ void Vm::bitwiseComplement() {
 }
 
 void Vm::bitwiseLsl() {
-  binary("<<", []<typename A, typename B>(const A& a, const B& b) -> DzValue {
+  binary("<<", []<typename A, typename B>(const A& a, const B& b) SH_INLINE_LAMBDA -> DzValue {
     if constexpr (dz_int<A, B>) {
       return a << b;
     }
@@ -249,7 +249,7 @@ void Vm::bitwiseLsl() {
 }
 
 void Vm::bitwiseLsr() {
-  binary(">>>", []<typename A, typename B>(const A& a, const B& b) -> DzValue {
+  binary(">>>", []<typename A, typename B>(const A& a, const B& b) SH_INLINE_LAMBDA -> DzValue {
     if constexpr (dz_int<A, B>) {
       return static_cast<dzint>(static_cast<std::make_unsigned_t<dzint>>(a) >> b);
     }
@@ -258,7 +258,7 @@ void Vm::bitwiseLsr() {
 }
 
 void Vm::bitwiseOr() {
-  binary<promote_lax_t>("|", []<typename A, typename B>(const A& a, const B& b) -> DzValue {
+  binary<promote_lax_t>("|", []<typename A, typename B>(const A& a, const B& b) SH_INLINE_LAMBDA -> DzValue {
     if constexpr (dz_bool<A, B>) {
       return static_cast<dzbool>(a | b);
     } else if constexpr (dz_int<A, B>) {
@@ -269,7 +269,7 @@ void Vm::bitwiseOr() {
 }
 
 void Vm::bitwiseXor() {
-  binary<promote_lax_t>("^", []<typename A, typename B>(const A& a, const B& b) -> DzValue {
+  binary<promote_lax_t>("^", []<typename A, typename B>(const A& a, const B& b) SH_INLINE_LAMBDA -> DzValue {
     if constexpr (dz_bool<A, B>) {
       return static_cast<dzbool>(a ^ b);
     } else if constexpr (dz_int<A, B>) {
@@ -341,7 +341,7 @@ void Vm::constant() {
 }
 
 void Vm::divide() {
-  binary("/", [this]<typename A, typename B>(const A& a, const B& b) -> DzValue {
+  binary("/", [this]<typename A, typename B>(const A& a, const B& b) SH_INLINE_LAMBDA -> DzValue {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       if (b == static_cast<B>(0)) {
         raise("division by zero");
@@ -353,7 +353,7 @@ void Vm::divide() {
 }
 
 void Vm::divideInt() {
-  binary("//", [this]<typename A, typename B>(const A& a, const B& b) -> DzValue {
+  binary("//", [this]<typename A, typename B>(const A& a, const B& b) SH_INLINE_LAMBDA -> DzValue {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       if (b == static_cast<B>(0)) {
         raise("integer division by zero");
@@ -394,7 +394,7 @@ void Vm::get() {
 }
 
 void Vm::greater() {
-  binary(">", []<typename A, typename B>(const A& a, const B& b) -> DzValue {
+  binary(">", []<typename A, typename B>(const A& a, const B& b) SH_INLINE_LAMBDA -> DzValue {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       return a > b;
     }
@@ -403,7 +403,7 @@ void Vm::greater() {
 }
 
 void Vm::greaterEqual() {
-  binary(">=", []<typename A, typename B>(const A& a, const B& b) -> DzValue {
+  binary(">=", []<typename A, typename B>(const A& a, const B& b) SH_INLINE_LAMBDA -> DzValue {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       return a >= b;
     }
@@ -479,7 +479,7 @@ void Vm::jumpTruePop() {
 }
 
 void Vm::less() {
-  binary("<", []<typename A, typename B>(const A& a, const B& b) -> DzValue {
+  binary("<", []<typename A, typename B>(const A& a, const B& b) SH_INLINE_LAMBDA -> DzValue {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       return a < b;
     }
@@ -488,7 +488,7 @@ void Vm::less() {
 }
 
 void Vm::lessEqual() {
-  binary("<=", []<typename A, typename B>(const A& a, const B& b) -> DzValue {
+  binary("<=", []<typename A, typename B>(const A& a, const B& b) SH_INLINE_LAMBDA -> DzValue {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       return a <= b;
     }
@@ -542,7 +542,7 @@ void Vm::map() {
 }
 
 void Vm::modulo() {
-  binary("%", [this]<typename A, typename B>(const A& a, const B& b) -> DzValue {
+  binary("%", [this]<typename A, typename B>(const A& a, const B& b) SH_INLINE_LAMBDA -> DzValue {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       if (b == static_cast<B>(0)) {
         raise("modulo by zero");
@@ -558,7 +558,7 @@ void Vm::modulo() {
 }
 
 void Vm::multiply() {
-  binary("*", []<typename A, typename B>(const A& a, const B& b) -> DzValue {
+  binary("*", []<typename A, typename B>(const A& a, const B& b) SH_INLINE_LAMBDA -> DzValue {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       return a * b;
     }
@@ -567,7 +567,7 @@ void Vm::multiply() {
 }
 
 void Vm::negate() {
-  unary("-", []<typename A>(const A& a) -> DzValue {
+  unary("-", []<typename A>(const A& a) SH_INLINE_LAMBDA -> DzValue {
     if constexpr (dz_int<A> || dz_float<A>) {
       return -a;
     }
@@ -599,7 +599,7 @@ void Vm::popMultiple() {
 }
 
 void Vm::power() {
-  binary("**", []<typename A, typename B>(const A& a, const B& b) -> DzValue {
+  binary("**", []<typename A, typename B>(const A& a, const B& b) SH_INLINE_LAMBDA -> DzValue {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       return std::pow(a, b);
     }
@@ -675,7 +675,7 @@ void Vm::subscriptSet() {
 }
 
 void Vm::subtract() {
-  binary("-", []<typename A, typename B>(const A& a, const B& b) -> DzValue {
+  binary("-", []<typename A, typename B>(const A& a, const B& b) SH_INLINE_LAMBDA -> DzValue {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       return a - b;
     }

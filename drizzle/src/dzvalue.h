@@ -29,10 +29,10 @@ public:
   auto operator=(DzObject* value) -> DzValue&;
 
   template<template<typename> typename Promote = promote_t, typename Callback>
-  static auto unary(const DzValue& a, Callback callback) {
+  SH_INLINE static auto unary(const DzValue& a, Callback callback) {
     static_assert(int(Type::LastEnumValue) == 4);
 
-    auto eval = [callback]<typename A>(const A& a) {
+    auto eval = [callback]<typename A>(const A& a) SH_INLINE_LAMBDA {
       return callback(unary_t<A, Promote>(a));
     };
 
@@ -48,10 +48,10 @@ public:
   }
 
   template<template<typename, typename> typename Promote = promote_t, typename Callback>
-  static auto binary(const DzValue& a, const DzValue& b, Callback callback) {
+  SH_INLINE static auto binary(const DzValue& a, const DzValue& b, Callback callback) {
     static_assert(int(Type::LastEnumValue) == 4);
 
-    auto eval = [callback]<typename A, typename B>(const A& a, const B& b) {
+    auto eval = [callback]<typename A, typename B>(const A& a, const B& b) SH_INLINE_LAMBDA {
       return callback(
         binary_t<A, B, Promote>(a),
         binary_t<B, A, Promote>(b)

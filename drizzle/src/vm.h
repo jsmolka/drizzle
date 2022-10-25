@@ -52,77 +52,77 @@ private:
   auto read() -> Integral;
 
   template<template<typename> typename Promote = promote_t, typename Callback>
-  void unary(std::string_view operation, Callback callback);
+  SH_INLINE void unary(std::string_view operation, Callback callback);
   template<template<typename> typename Promote = promote_t, typename Callback>
-  void binary(std::string_view operation, Callback callback);
+  SH_INLINE void binary(std::string_view operation, Callback callback);
 
   auto forward(DzValue& iteree) -> DzValue;
   auto reverse(DzValue& iteree) -> DzValue;
 
-  void add();
-  void bitwiseAnd();
-  void bitwiseAsr();
-  void bitwiseComplement();
-  void bitwiseLsl();
-  void bitwiseLsr();
-  void bitwiseOr();
-  void bitwiseXor();
-  void call();
-  void call(DzValue& callee, std::size_t argc);
-  void call(DzFunction* function, std::size_t argc);
+  SH_INLINE void add();
+  SH_INLINE void bitwiseAnd();
+  SH_INLINE void bitwiseAsr();
+  SH_INLINE void bitwiseComplement();
+  SH_INLINE void bitwiseLsl();
+  SH_INLINE void bitwiseLsr();
+  SH_INLINE void bitwiseOr();
+  SH_INLINE void bitwiseXor();
+  SH_INLINE void call();
+  SH_INLINE void call(DzValue& callee, std::size_t argc);
+  SH_INLINE void call(DzFunction* function, std::size_t argc);
   template<std::integral Integral>
-  void constant();
-  void divide();
-  void divideInt();
-  void equal();
-  void false_();
-  void get();
-  void greater();
-  void greaterEqual();
-  void in();
-  void invoke();
-  void iterInit();
+  SH_INLINE void constant();
+  SH_INLINE void divide();
+  SH_INLINE void divideInt();
+  SH_INLINE void equal();
+  SH_INLINE void false_();
+  SH_INLINE void get();
+  SH_INLINE void greater();
+  SH_INLINE void greaterEqual();
+  SH_INLINE void in();
+  SH_INLINE void invoke();
+  SH_INLINE void iterInit();
   template<std::integral Integral>
-  void iterAdvance();
+  SH_INLINE void iterAdvance();
   template<std::integral Integral>
-  void iterValue();
-  void jump();
-  void jumpFalse();
-  void jumpFalsePop();
-  void jumpTrue();
-  void jumpTruePop();
-  void less();
-  void lessEqual();
+  SH_INLINE void iterValue();
+  SH_INLINE void jump();
+  SH_INLINE void jumpFalse();
+  SH_INLINE void jumpFalsePop();
+  SH_INLINE void jumpTrue();
+  SH_INLINE void jumpTruePop();
+  SH_INLINE void less();
+  SH_INLINE void lessEqual();
   template<std::integral Integral>
-  void list();
+  SH_INLINE void list();
   template<std::integral Integral>
-  void load();
+  SH_INLINE void load();
   template<std::integral Integral>
-  void loadGlobal();
+  SH_INLINE void loadGlobal();
   template<std::integral Integral>
-  void map();
-  void modulo();
-  void multiply();
-  void negate();
-  void not_();
-  void notEqual();
-  void null_();
-  void pop();
+  SH_INLINE void map();
+  SH_INLINE void modulo();
+  SH_INLINE void multiply();
+  SH_INLINE void negate();
+  SH_INLINE void not_();
+  SH_INLINE void notEqual();
+  SH_INLINE void null_();
+  SH_INLINE void pop();
   template<std::integral Integral>
-  void popMultiple();
-  void power();
-  void range();
-  void return_();
-  void set();
+  SH_INLINE void popMultiple();
+  SH_INLINE void power();
+  SH_INLINE void range();
+  SH_INLINE void return_();
+  SH_INLINE void set();
   template<std::integral Integral>
-  void store();
+  SH_INLINE void store();
   template<std::integral Integral>
-  void storeGlobal();
-  void subscriptGet();
-  void subscriptSet();
-  void subtract();
-  void switchCase();
-  void true_();
+  SH_INLINE void storeGlobal();
+  SH_INLINE void subscriptGet();
+  SH_INLINE void subscriptSet();
+  SH_INLINE void subtract();
+  SH_INLINE void switchCase();
+  SH_INLINE void true_();
 
   Program program;
   u8* opcode_pc = nullptr;

@@ -68,7 +68,7 @@ auto DzValue::operator->() const -> const DzObject* {
 }
 
 auto DzValue::operator==(const DzValue& other) const -> bool {
-  return binary(*this, other, []<typename A, typename B>(const A& a, const B& b) {
+  return binary(*this, other, []<typename A, typename B>(const A& a, const B& b) SH_INLINE_LAMBDA {
     if constexpr (dz_primitive<A, B>) {
       return a == b;
     } else if constexpr (dz_object<A, B>) {
