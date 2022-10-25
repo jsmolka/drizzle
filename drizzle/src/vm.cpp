@@ -10,7 +10,6 @@
 #include "dznull.h"
 #include "dzrange.h"
 #include "gc.h"
-#include "opcode.h"
 
 Vm::Vm(Gc& gc)
   : gc(gc) {
@@ -18,7 +17,7 @@ Vm::Vm(Gc& gc)
 }
 
 void Vm::interpret(const Program& program) {
-  static_assert(int(Opcode::LastEnumValue) == 63);
+  static_assert(int(Opcode::LastEnumValue) == 68);
 
   this->program = program;
 
@@ -34,7 +33,12 @@ void Vm::interpret(const Program& program) {
     opcode_pc = frame.pc;
     switch (static_cast<Opcode>(read<u8>())) {
       case Opcode::Add: add(); break;
+      case Opcode::AddGeneric: addGeneric(); break;
+      case Opcode::AddInt: addInt(); break;
+      case Opcode::AddFloat: addFloat(); break;
       case Opcode::BitwiseAnd: bitwiseAnd(); break;
+      case Opcode::BitwiseAndGeneric: bitwiseAndGeneric(); break;
+      case Opcode::BitwiseAndInt: bitwiseAndInt(); break;
       case Opcode::BitwiseAsr: bitwiseAsr(); break;
       case Opcode::BitwiseComplement: bitwiseComplement(); break;
       case Opcode::BitwiseLsl: bitwiseLsl(); break;
@@ -134,6 +138,11 @@ auto Vm::read() -> Integral {
   return value;
 }
 
+void Vm::patch(Opcode opcode, std::size_t unread) {
+  frame.pc -= unread;
+  *frame.pc = static_cast<u8>(opcode);
+}
+
 template<template<typename> typename Promote, typename Callback>
 void Vm::unary(std::string_view operation, Callback callback) {
   auto& a = stack.top();
@@ -179,6 +188,24 @@ auto Vm::reverse(DzValue& iteree) -> DzValue {
 }
 
 void Vm::add() {
+  const auto& a = stack.peek(0);
+  const auto& b = stack.peek(1);
+
+  auto opcode = Opcode::AddGeneric;
+  if (a.type == b.type) {
+    switch (a.type) {
+      case DzValue::Type::Int:
+        opcode = Opcode::AddInt;
+        break;
+      case DzValue::Type::Float:
+        opcode = Opcode::AddFloat;
+        break;
+    }
+  }
+  patch(opcode);
+}
+
+void Vm::addGeneric() {
   binary("+", [this]<typename A, typename B>(const A& a, const B& b) SH_INLINE_LAMBDA -> DzValue {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       return a + b;
@@ -210,7 +237,44 @@ void Vm::add() {
   });
 }
 
+void Vm::addInt() {
+  auto& a = stack.peek(1);
+  auto& b = stack.peek(0);
+  if (a.type == DzValue::Type::Int && b.type == DzValue::Type::Int) {
+    a.i += b.i;
+    stack.pop();
+  } else {
+    patch(Opcode::AddGeneric);
+  }
+}
+
+void Vm::addFloat() {
+  auto& a = stack.peek(1);
+  auto& b = stack.peek(0);
+  if (a.type == DzValue::Type::Float && b.type == DzValue::Type::Float) {
+    a.f += b.f;
+    stack.pop();
+  } else {
+    patch(Opcode::AddGeneric);
+  }
+}
+
 void Vm::bitwiseAnd() {
+  const auto& a = stack.peek(0);
+  const auto& b = stack.peek(1);
+
+  auto opcode = Opcode::BitwiseAndGeneric;
+  if (a.type == b.type) {
+    switch (a.type) {
+      case DzValue::Type::Int:
+        opcode = Opcode::BitwiseAndInt;
+        break;
+    }
+  }
+  patch(opcode);
+}
+
+void Vm::bitwiseAndGeneric() {
   binary<promote_lax_t>("&", []<typename A, typename B>(const A& a, const B& b) SH_INLINE_LAMBDA -> DzValue {
     if constexpr (dz_bool<A, B>) {
       return static_cast<dzbool>(a & b);
@@ -219,6 +283,17 @@ void Vm::bitwiseAnd() {
     }
     throw NotSupportedException();
   });
+}
+
+void Vm::bitwiseAndInt() {
+  auto& a = stack.peek(1);
+  auto& b = stack.peek(0);
+  if (a.type == DzValue::Type::Int && b.type == DzValue::Type::Int) {
+    a.i &= b.i;
+    stack.pop();
+  } else {
+    patch(Opcode::BitwiseAndGeneric);
+  }
 }
 
 void Vm::bitwiseAsr() {

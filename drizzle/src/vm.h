@@ -6,6 +6,7 @@
 #include "dzstring.h"
 #include "error.h"
 #include "map.h"
+#include "opcode.h"
 #include "program.h"
 #include "token.h"
 
@@ -50,6 +51,7 @@ private:
 
   template<std::integral Integral>
   auto read() -> Integral;
+  void patch(Opcode opcode, std::size_t unread = 1);
 
   template<template<typename> typename Promote = promote_t, typename Callback>
   SH_INLINE void unary(std::string_view operation, Callback callback);
@@ -60,7 +62,12 @@ private:
   auto reverse(DzValue& iteree) -> DzValue;
 
   SH_INLINE void add();
+  SH_INLINE void addGeneric();
+  SH_INLINE void addInt();
+  SH_INLINE void addFloat();
   SH_INLINE void bitwiseAnd();
+  SH_INLINE void bitwiseAndGeneric();
+  SH_INLINE void bitwiseAndInt();
   SH_INLINE void bitwiseAsr();
   SH_INLINE void bitwiseComplement();
   SH_INLINE void bitwiseLsl();

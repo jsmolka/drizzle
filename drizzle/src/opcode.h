@@ -7,7 +7,12 @@
 
 enum class Opcode {
   Add,
+  AddGeneric,
+  AddInt,
+  AddFloat,
   BitwiseAnd,
+  BitwiseAndGeneric,
+  BitwiseAndInt,
   BitwiseAsr,
   BitwiseComplement,
   BitwiseLsl,
@@ -77,10 +82,15 @@ static_assert(int(Opcode::LastEnumValue) <= std::numeric_limits<u8>::max());
 template<>
 struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
   static auto repr(const Opcode& opcode) -> std::string_view {
-    static_assert(int(Opcode::LastEnumValue) == 63);
+    static_assert(int(Opcode::LastEnumValue) == 68);
     switch (opcode) {
       case Opcode::Add:               return "Add";
+      case Opcode::AddGeneric:        return "AddGeneric";
+      case Opcode::AddInt:            return "AddInt";
+      case Opcode::AddFloat:          return "AddFloat";
       case Opcode::BitwiseAnd:        return "BitwiseAnd";
+      case Opcode::BitwiseAndGeneric: return "BitwiseAndGeneric";
+      case Opcode::BitwiseAndInt:     return "BitwiseAndInt";
       case Opcode::BitwiseAsr:        return "BitwiseAsr";
       case Opcode::BitwiseComplement: return "BitwiseComplement";
       case Opcode::BitwiseLsl:        return "BitwiseLsl";
