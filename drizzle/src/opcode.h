@@ -14,11 +14,23 @@ enum class Opcode {
   BitwiseAndGeneric,
   BitwiseAndInt,
   BitwiseAsr,
+  BitwiseAsrGeneric,
+  BitwiseAsrInt,
   BitwiseComplement,
+  BitwiseComplementGeneric,
+  BitwiseComplementInt,
   BitwiseLsl,
+  BitwiseLslGeneric,
+  BitwiseLslInt,
   BitwiseLsr,
+  BitwiseLsrGeneric,
+  BitwiseLsrInt,
   BitwiseOr,
+  BitwiseOrGeneric,
+  BitwiseOrInt,
   BitwiseXor,
+  BitwiseXorGeneric,
+  BitwiseXorInt,
   Call,
   Constant,
   ConstantExt,
@@ -82,76 +94,88 @@ static_assert(int(Opcode::LastEnumValue) <= std::numeric_limits<u8>::max());
 template<>
 struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
   static auto repr(const Opcode& opcode) -> std::string_view {
-    static_assert(int(Opcode::LastEnumValue) == 68);
+    static_assert(int(Opcode::LastEnumValue) == 80);
     switch (opcode) {
-      case Opcode::Add:               return "Add";
-      case Opcode::AddGeneric:        return "AddGeneric";
-      case Opcode::AddInt:            return "AddInt";
-      case Opcode::AddFloat:          return "AddFloat";
-      case Opcode::BitwiseAnd:        return "BitwiseAnd";
-      case Opcode::BitwiseAndGeneric: return "BitwiseAndGeneric";
-      case Opcode::BitwiseAndInt:     return "BitwiseAndInt";
-      case Opcode::BitwiseAsr:        return "BitwiseAsr";
-      case Opcode::BitwiseComplement: return "BitwiseComplement";
-      case Opcode::BitwiseLsl:        return "BitwiseLsl";
-      case Opcode::BitwiseLsr:        return "BitwiseLsr";
-      case Opcode::BitwiseOr:         return "BitwiseOr";
-      case Opcode::BitwiseXor:        return "BitwiseXor";
-      case Opcode::Call:              return "Call";
-      case Opcode::Constant:          return "Constant";
-      case Opcode::ConstantExt:       return "ConstantExt";
-      case Opcode::Divide:            return "Divide";
-      case Opcode::DivideInt:         return "DivideInt";
-      case Opcode::Equal:             return "Equal";
-      case Opcode::Exit:              return "Exit";
-      case Opcode::False:             return "False";
-      case Opcode::Get:               return "Get";
-      case Opcode::Greater:           return "Greater";
-      case Opcode::GreaterEqual:      return "GreaterEqual";
-      case Opcode::In:                return "In";
-      case Opcode::Invoke:            return "Invoke";
-      case Opcode::IterInit:          return "IterForward";
-      case Opcode::IterAdvance:       return "IterAdvance";
-      case Opcode::IterAdvanceExt:    return "IterAdvanceExt";
-      case Opcode::IterValue:         return "IterValue";
-      case Opcode::IterValueExt:      return "IterValueExt";
-      case Opcode::Jump:              return "Jump";
-      case Opcode::JumpFalse:         return "JumpFalse";
-      case Opcode::JumpFalsePop:      return "JumpFalsePop";
-      case Opcode::JumpTrue:          return "JumpTrue";
-      case Opcode::JumpTruePop:       return "JumpTruePop";
-      case Opcode::Less:              return "Less";
-      case Opcode::LessEqual:         return "LessEqual";
-      case Opcode::List:              return "List";
-      case Opcode::ListExt:           return "ListExt";
-      case Opcode::Load:              return "Load";
-      case Opcode::LoadExt:           return "LoadExt";
-      case Opcode::LoadGlobal:        return "LoadGlobal";
-      case Opcode::LoadGlobalExt:     return "LoadGlobalExt";
-      case Opcode::Map:               return "Map";
-      case Opcode::MapExt:            return "MapExt";
-      case Opcode::Modulo:            return "Modulo";
-      case Opcode::Multiply:          return "Multiply";
-      case Opcode::Negate:            return "Negate";
-      case Opcode::Not:               return "Not";
-      case Opcode::NotEqual:          return "NotEqual";
-      case Opcode::Null:              return "Null";
-      case Opcode::Pop:               return "Pop";
-      case Opcode::PopMultiple:       return "PopMultiple";
-      case Opcode::PopMultipleExt:    return "PopMultipleExt";
-      case Opcode::Power:             return "Power";
-      case Opcode::Range:             return "Range";
-      case Opcode::Return:            return "Return";
-      case Opcode::Set:               return "Set";
-      case Opcode::Store:             return "Store";
-      case Opcode::StoreExt:          return "StoreExt";
-      case Opcode::StoreGlobal:       return "StoreGlobal";
-      case Opcode::StoreGlobalExt:    return "StoreGlobalExt";
-      case Opcode::SubscriptGet:      return "SubscriptGet";
-      case Opcode::SubscriptSet:      return "SubscriptSet";
-      case Opcode::Subtract:          return "Subtract";
-      case Opcode::SwitchCase:        return "SwitchCase";
-      case Opcode::True:              return "True";
+      case Opcode::Add:                      return "Add";
+      case Opcode::AddGeneric:               return "AddGeneric";
+      case Opcode::AddInt:                   return "AddInt";
+      case Opcode::AddFloat:                 return "AddFloat";
+      case Opcode::BitwiseAnd:               return "BitwiseAnd";
+      case Opcode::BitwiseAndGeneric:        return "BitwiseAndGeneric";
+      case Opcode::BitwiseAndInt:            return "BitwiseAndInt";
+      case Opcode::BitwiseAsr:               return "BitwiseAsr";
+      case Opcode::BitwiseAsrGeneric:        return "BitwiseAsr";
+      case Opcode::BitwiseAsrInt:            return "BitwiseAsr";
+      case Opcode::BitwiseComplement:        return "BitwiseComplement";
+      case Opcode::BitwiseComplementGeneric: return "BitwiseComplement";
+      case Opcode::BitwiseComplementInt:     return "BitwiseComplement";
+      case Opcode::BitwiseLsl:               return "BitwiseLsl";
+      case Opcode::BitwiseLslGeneric:        return "BitwiseLsl";
+      case Opcode::BitwiseLslInt:            return "BitwiseLsl";
+      case Opcode::BitwiseLsr:               return "BitwiseLsr";
+      case Opcode::BitwiseLsrGeneric:        return "BitwiseLsr";
+      case Opcode::BitwiseLsrInt:            return "BitwiseLsr";
+      case Opcode::BitwiseOr:                return "BitwiseOr";
+      case Opcode::BitwiseOrGeneric:         return "BitwiseOr";
+      case Opcode::BitwiseOrInt:             return "BitwiseOr";
+      case Opcode::BitwiseXor:               return "BitwiseXor";
+      case Opcode::BitwiseXorGeneric:        return "BitwiseXor";
+      case Opcode::BitwiseXorInt:            return "BitwiseXor";
+      case Opcode::Call:                     return "Call";
+      case Opcode::Constant:                 return "Constant";
+      case Opcode::ConstantExt:              return "ConstantExt";
+      case Opcode::Divide:                   return "Divide";
+      case Opcode::DivideInt:                return "DivideInt";
+      case Opcode::Equal:                    return "Equal";
+      case Opcode::Exit:                     return "Exit";
+      case Opcode::False:                    return "False";
+      case Opcode::Get:                      return "Get";
+      case Opcode::Greater:                  return "Greater";
+      case Opcode::GreaterEqual:             return "GreaterEqual";
+      case Opcode::In:                       return "In";
+      case Opcode::Invoke:                   return "Invoke";
+      case Opcode::IterInit:                 return "IterForward";
+      case Opcode::IterAdvance:              return "IterAdvance";
+      case Opcode::IterAdvanceExt:           return "IterAdvanceExt";
+      case Opcode::IterValue:                return "IterValue";
+      case Opcode::IterValueExt:             return "IterValueExt";
+      case Opcode::Jump:                     return "Jump";
+      case Opcode::JumpFalse:                return "JumpFalse";
+      case Opcode::JumpFalsePop:             return "JumpFalsePop";
+      case Opcode::JumpTrue:                 return "JumpTrue";
+      case Opcode::JumpTruePop:              return "JumpTruePop";
+      case Opcode::Less:                     return "Less";
+      case Opcode::LessEqual:                return "LessEqual";
+      case Opcode::List:                     return "List";
+      case Opcode::ListExt:                  return "ListExt";
+      case Opcode::Load:                     return "Load";
+      case Opcode::LoadExt:                  return "LoadExt";
+      case Opcode::LoadGlobal:               return "LoadGlobal";
+      case Opcode::LoadGlobalExt:            return "LoadGlobalExt";
+      case Opcode::Map:                      return "Map";
+      case Opcode::MapExt:                   return "MapExt";
+      case Opcode::Modulo:                   return "Modulo";
+      case Opcode::Multiply:                 return "Multiply";
+      case Opcode::Negate:                   return "Negate";
+      case Opcode::Not:                      return "Not";
+      case Opcode::NotEqual:                 return "NotEqual";
+      case Opcode::Null:                     return "Null";
+      case Opcode::Pop:                      return "Pop";
+      case Opcode::PopMultiple:              return "PopMultiple";
+      case Opcode::PopMultipleExt:           return "PopMultipleExt";
+      case Opcode::Power:                    return "Power";
+      case Opcode::Range:                    return "Range";
+      case Opcode::Return:                   return "Return";
+      case Opcode::Set:                      return "Set";
+      case Opcode::Store:                    return "Store";
+      case Opcode::StoreExt:                 return "StoreExt";
+      case Opcode::StoreGlobal:              return "StoreGlobal";
+      case Opcode::StoreGlobalExt:           return "StoreGlobalExt";
+      case Opcode::SubscriptGet:             return "SubscriptGet";
+      case Opcode::SubscriptSet:             return "SubscriptSet";
+      case Opcode::Subtract:                 return "Subtract";
+      case Opcode::SwitchCase:               return "SwitchCase";
+      case Opcode::True:                     return "True";
       default:
         SH_UNREACHABLE;
         return "unreachable";

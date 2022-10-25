@@ -17,7 +17,7 @@ Vm::Vm(Gc& gc)
 }
 
 void Vm::interpret(const Program& program) {
-  static_assert(int(Opcode::LastEnumValue) == 68);
+  static_assert(int(Opcode::LastEnumValue) == 80);
 
   this->program = program;
 
@@ -40,11 +40,23 @@ void Vm::interpret(const Program& program) {
       case Opcode::BitwiseAndGeneric: bitwiseAndGeneric(); break;
       case Opcode::BitwiseAndInt: bitwiseAndInt(); break;
       case Opcode::BitwiseAsr: bitwiseAsr(); break;
+      case Opcode::BitwiseAsrGeneric: bitwiseAsrGeneric(); break;
+      case Opcode::BitwiseAsrInt: bitwiseAsrInt(); break;
       case Opcode::BitwiseComplement: bitwiseComplement(); break;
+      case Opcode::BitwiseComplementGeneric: bitwiseComplementGeneric(); break;
+      case Opcode::BitwiseComplementInt: bitwiseComplementInt(); break;
       case Opcode::BitwiseLsl: bitwiseLsl(); break;
+      case Opcode::BitwiseLslGeneric: bitwiseLslGeneric(); break;
+      case Opcode::BitwiseLslInt: bitwiseLslInt(); break;
       case Opcode::BitwiseLsr: bitwiseLsr(); break;
+      case Opcode::BitwiseLsrGeneric: bitwiseLsrGeneric(); break;
+      case Opcode::BitwiseLsrInt: bitwiseLsrInt(); break;
       case Opcode::BitwiseOr: bitwiseOr(); break;
+      case Opcode::BitwiseOrGeneric: bitwiseOrGeneric(); break;
+      case Opcode::BitwiseOrInt: bitwiseOrInt(); break;
       case Opcode::BitwiseXor: bitwiseXor(); break;
+      case Opcode::BitwiseXorGeneric: bitwiseXorGeneric(); break;
+      case Opcode::BitwiseXorInt: bitwiseXorInt(); break;
       case Opcode::Call: call(); break;
       case Opcode::Constant: constant<u8>(); break;
       case Opcode::ConstantExt: constant<u16>(); break;
@@ -297,6 +309,21 @@ void Vm::bitwiseAndInt() {
 }
 
 void Vm::bitwiseAsr() {
+  const auto& a = stack.peek(0);
+  const auto& b = stack.peek(1);
+
+  auto opcode = Opcode::BitwiseAsrGeneric;
+  if (a.type == b.type) {
+    switch (a.type) {
+      case DzValue::Type::Int:
+        opcode = Opcode::BitwiseAsrInt;
+        break;
+    }
+  }
+  patch(opcode);
+}
+
+void Vm::bitwiseAsrGeneric() {
   binary(">>", []<typename A, typename B>(const A& a, const B& b) SH_INLINE_LAMBDA -> DzValue {
     if constexpr (dz_int<A, B>) {
       return a >> b;
@@ -305,7 +332,30 @@ void Vm::bitwiseAsr() {
   });
 }
 
+void Vm::bitwiseAsrInt() {
+  auto& a = stack.peek(1);
+  auto& b = stack.peek(0);
+  if (a.type == DzValue::Type::Int && b.type == DzValue::Type::Int) {
+    a.i >>= b.i;
+    stack.pop();
+  } else {
+    patch(Opcode::BitwiseAsrGeneric);
+  }
+}
+
 void Vm::bitwiseComplement() {
+  const auto& a = stack.top();
+
+  auto opcode = Opcode::BitwiseComplementGeneric;
+  switch (a.type) {
+    case DzValue::Type::Int:
+      opcode = Opcode::BitwiseComplementInt;
+      break;
+  }
+  patch(opcode);
+}
+
+void Vm::bitwiseComplementGeneric() {
   unary("~", []<typename A>(const A& a) SH_INLINE_LAMBDA -> DzValue {
     if constexpr (dz_int<A>) {
       return ~a;
@@ -314,7 +364,31 @@ void Vm::bitwiseComplement() {
   });
 }
 
+void Vm::bitwiseComplementInt() {
+  auto& a = stack.top();
+  if (a.type == DzValue::Type::Int) {
+    a.i = ~a.i;
+  } else {
+    patch(Opcode::BitwiseComplementGeneric);
+  }
+}
+
 void Vm::bitwiseLsl() {
+  const auto& a = stack.peek(0);
+  const auto& b = stack.peek(1);
+
+  auto opcode = Opcode::BitwiseLslGeneric;
+  if (a.type == b.type) {
+    switch (a.type) {
+      case DzValue::Type::Int:
+        opcode = Opcode::BitwiseLslInt;
+        break;
+    }
+  }
+  patch(opcode);
+}
+
+void Vm::bitwiseLslGeneric() {
   binary("<<", []<typename A, typename B>(const A& a, const B& b) SH_INLINE_LAMBDA -> DzValue {
     if constexpr (dz_int<A, B>) {
       return a << b;
@@ -323,7 +397,33 @@ void Vm::bitwiseLsl() {
   });
 }
 
+void Vm::bitwiseLslInt() {
+  auto& a = stack.peek(1);
+  auto& b = stack.peek(0);
+  if (a.type == DzValue::Type::Int && b.type == DzValue::Type::Int) {
+    a.i <<= b.i;
+    stack.pop();
+  } else {
+    patch(Opcode::BitwiseLslGeneric);
+  }
+}
+
 void Vm::bitwiseLsr() {
+  const auto& a = stack.peek(0);
+  const auto& b = stack.peek(1);
+
+  auto opcode = Opcode::BitwiseLsrGeneric;
+  if (a.type == b.type) {
+    switch (a.type) {
+      case DzValue::Type::Int:
+        opcode = Opcode::BitwiseLsrInt;
+        break;
+    }
+  }
+  patch(opcode);
+}
+
+void Vm::bitwiseLsrGeneric() {
   binary(">>>", []<typename A, typename B>(const A& a, const B& b) SH_INLINE_LAMBDA -> DzValue {
     if constexpr (dz_int<A, B>) {
       return static_cast<dzint>(static_cast<std::make_unsigned_t<dzint>>(a) >> b);
@@ -332,7 +432,33 @@ void Vm::bitwiseLsr() {
   });
 }
 
+void Vm::bitwiseLsrInt() {
+  auto& a = stack.peek(1);
+  auto& b = stack.peek(0);
+  if (a.type == DzValue::Type::Int && b.type == DzValue::Type::Int) {
+    a.i = static_cast<dzint>(static_cast<std::make_unsigned_t<dzint>>(a.i) >> b.i);
+    stack.pop();
+  } else {
+    patch(Opcode::BitwiseLsrGeneric);
+  }
+}
+
 void Vm::bitwiseOr() {
+  const auto& a = stack.peek(0);
+  const auto& b = stack.peek(1);
+
+  auto opcode = Opcode::BitwiseOrGeneric;
+  if (a.type == b.type) {
+    switch (a.type) {
+      case DzValue::Type::Int:
+        opcode = Opcode::BitwiseOrInt;
+        break;
+    }
+  }
+  patch(opcode);
+}
+
+void Vm::bitwiseOrGeneric() {
   binary<promote_lax_t>("|", []<typename A, typename B>(const A& a, const B& b) SH_INLINE_LAMBDA -> DzValue {
     if constexpr (dz_bool<A, B>) {
       return static_cast<dzbool>(a | b);
@@ -343,7 +469,33 @@ void Vm::bitwiseOr() {
   });
 }
 
+void Vm::bitwiseOrInt() {
+  auto& a = stack.peek(1);
+  auto& b = stack.peek(0);
+  if (a.type == DzValue::Type::Int && b.type == DzValue::Type::Int) {
+    a.i |= b.i;
+    stack.pop();
+  } else {
+    patch(Opcode::BitwiseOrGeneric);
+  }
+}
+
 void Vm::bitwiseXor() {
+  const auto& a = stack.peek(0);
+  const auto& b = stack.peek(1);
+
+  auto opcode = Opcode::BitwiseXorGeneric;
+  if (a.type == b.type) {
+    switch (a.type) {
+      case DzValue::Type::Int:
+        opcode = Opcode::BitwiseXorInt;
+        break;
+    }
+  }
+  patch(opcode);
+}
+
+void Vm::bitwiseXorGeneric() {
   binary<promote_lax_t>("^", []<typename A, typename B>(const A& a, const B& b) SH_INLINE_LAMBDA -> DzValue {
     if constexpr (dz_bool<A, B>) {
       return static_cast<dzbool>(a ^ b);
@@ -352,6 +504,17 @@ void Vm::bitwiseXor() {
     }
     throw NotSupportedException();
   });
+}
+
+void Vm::bitwiseXorInt() {
+  auto& a = stack.peek(1);
+  auto& b = stack.peek(0);
+  if (a.type == DzValue::Type::Int && b.type == DzValue::Type::Int) {
+    a.i ^= b.i;
+    stack.pop();
+  } else {
+    patch(Opcode::BitwiseXorGeneric);
+  }
 }
 
 void Vm::call() {
