@@ -149,7 +149,7 @@ void Vm::binary(std::string_view operation, Callback callback) {
   auto& a = stack.peek(1);
   auto& b = stack.peek(0);
   try {
-    a = a.binary<Promote>(a, b, callback);
+    a = DzValue::binary<Promote>(a, b, callback);
     stack.pop();
   } catch (const NotSupportedException&) {
     raise("unsupported operand types for '{}': '{}' and '{}'", operation, a.kind(), b.kind());
