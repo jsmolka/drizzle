@@ -80,8 +80,8 @@ void Vm::interpret(const Program& program) {
       case Opcode::GreaterFloat: greaterFloat(); break;
       case Opcode::GreaterEqual: greaterEqual(); break;
       case Opcode::GreaterEqualGeneric: greaterEqualGeneric(); break;
-      case Opcode::GreaterEqualInt: greaterEqualFloat(); break;
-      case Opcode::GreaterEqualFloat: greaterEqualInt(); break;
+      case Opcode::GreaterEqualInt: greaterEqualInt(); break;
+      case Opcode::GreaterEqualFloat: greaterEqualFloat(); break;
       case Opcode::In: in(); break;
       case Opcode::Invoke: invoke(); break;
       case Opcode::IterInit: iterInit(); break;
