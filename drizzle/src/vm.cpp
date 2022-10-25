@@ -17,7 +17,7 @@ Vm::Vm(Gc& gc)
 }
 
 void Vm::interpret(const Program& program) {
-  static_assert(int(Opcode::LastEnumValue) == 80);
+  static_assert(int(Opcode::LastEnumValue) == 85);
 
   this->program = program;
 
@@ -61,7 +61,12 @@ void Vm::interpret(const Program& program) {
       case Opcode::Constant: constant<u8>(); break;
       case Opcode::ConstantExt: constant<u16>(); break;
       case Opcode::Divide: divide(); break;
-      case Opcode::DivideInt: divideInt(); break;
+      case Opcode::DivideGeneric: divideGeneric(); break;
+      case Opcode::DivideFloat: divideFloat(); break;
+      case Opcode::DivideInteger: divideInteger(); break;
+      case Opcode::DivideIntegerGeneric: divideIntegerGeneric(); break;
+      case Opcode::DivideIntegerInt: divideIntegerInt(); break;
+      case Opcode::DivideIntegerFloat: divideIntegerFloat(); break;
       case Opcode::Equal: equal(); break;
       case Opcode::Exit: goto exit;
       case Opcode::False: false_(); break;
@@ -579,6 +584,21 @@ void Vm::constant() {
 }
 
 void Vm::divide() {
+  const auto& a = stack.peek(0);
+  const auto& b = stack.peek(1);
+
+  auto opcode = Opcode::DivideGeneric;
+  if (a.type == b.type) {
+    switch (a.type) {
+      case DzValue::Type::Float:
+        opcode = Opcode::DivideFloat;
+        break;
+    }
+  }
+  patch(opcode);
+}
+
+void Vm::divideGeneric() {
   binary("/", [this]<typename A, typename B>(const A& a, const B& b) SH_INLINE_LAMBDA -> DzValue {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       if (b == static_cast<B>(0)) {
@@ -590,7 +610,39 @@ void Vm::divide() {
   });
 }
 
-void Vm::divideInt() {
+void Vm::divideFloat() {
+  auto& a = stack.peek(1);
+  auto& b = stack.peek(0);
+  if (a.type == DzValue::Type::Float && b.type == DzValue::Type::Float) {
+    if (b.f == 0.0) {
+      raise("division by zero");
+    }
+    a.f /= b.f;
+    stack.pop();
+  } else {
+    patch(Opcode::DivideGeneric);
+  }
+}
+
+void Vm::divideInteger() {
+  const auto& a = stack.peek(0);
+  const auto& b = stack.peek(1);
+
+  auto opcode = Opcode::DivideIntegerGeneric;
+  if (a.type == b.type) {
+    switch (a.type) {
+      case DzValue::Type::Int:
+        opcode = Opcode::DivideIntegerInt;
+        break;
+      case DzValue::Type::Float:
+        opcode = Opcode::DivideIntegerFloat;
+        break;
+    }
+  }
+  patch(opcode);
+}
+
+void Vm::divideIntegerGeneric() {
   binary("//", [this]<typename A, typename B>(const A& a, const B& b) SH_INLINE_LAMBDA -> DzValue {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       if (b == static_cast<B>(0)) {
@@ -604,6 +656,34 @@ void Vm::divideInt() {
     }
     throw NotSupportedException();
   });
+}
+
+void Vm::divideIntegerInt() {
+  auto& a = stack.peek(1);
+  auto& b = stack.peek(0);
+  if (a.type == DzValue::Type::Int && b.type == DzValue::Type::Int) {
+    if (b.i == 0) {
+      raise("integer division by zero");
+    }
+    a.i /= b.i;
+    stack.pop();
+  } else {
+    patch(Opcode::DivideGeneric);
+  }
+}
+
+void Vm::divideIntegerFloat() {
+  auto& a = stack.peek(1);
+  auto& b = stack.peek(0);
+  if (a.type == DzValue::Type::Float && b.type == DzValue::Type::Float) {
+    if (b.f == 0.0) {
+      raise("integer division by zero");
+    }
+    a.f = std::floor(a.f / b.f);
+    stack.pop();
+  } else {
+    patch(Opcode::DivideGeneric);
+  }
 }
 
 void Vm::equal() {

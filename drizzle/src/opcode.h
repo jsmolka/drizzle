@@ -35,7 +35,12 @@ enum class Opcode {
   Constant,
   ConstantExt,
   Divide,
-  DivideInt,
+  DivideGeneric,
+  DivideFloat,
+  DivideInteger,
+  DivideIntegerGeneric,
+  DivideIntegerInt,
+  DivideIntegerFloat,
   Equal,
   Exit,
   False,
@@ -94,7 +99,7 @@ static_assert(int(Opcode::LastEnumValue) <= std::numeric_limits<u8>::max());
 template<>
 struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
   static auto repr(const Opcode& opcode) -> std::string_view {
-    static_assert(int(Opcode::LastEnumValue) == 80);
+    static_assert(int(Opcode::LastEnumValue) == 85);
     switch (opcode) {
       case Opcode::Add:                      return "Add";
       case Opcode::AddGeneric:               return "AddGeneric";
@@ -104,28 +109,33 @@ struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
       case Opcode::BitwiseAndGeneric:        return "BitwiseAndGeneric";
       case Opcode::BitwiseAndInt:            return "BitwiseAndInt";
       case Opcode::BitwiseAsr:               return "BitwiseAsr";
-      case Opcode::BitwiseAsrGeneric:        return "BitwiseAsr";
-      case Opcode::BitwiseAsrInt:            return "BitwiseAsr";
+      case Opcode::BitwiseAsrGeneric:        return "BitwiseAsrGeneric";
+      case Opcode::BitwiseAsrInt:            return "BitwiseAsrInt";
       case Opcode::BitwiseComplement:        return "BitwiseComplement";
-      case Opcode::BitwiseComplementGeneric: return "BitwiseComplement";
-      case Opcode::BitwiseComplementInt:     return "BitwiseComplement";
+      case Opcode::BitwiseComplementGeneric: return "BitwiseComplementGeneric";
+      case Opcode::BitwiseComplementInt:     return "BitwiseComplementInt";
       case Opcode::BitwiseLsl:               return "BitwiseLsl";
-      case Opcode::BitwiseLslGeneric:        return "BitwiseLsl";
-      case Opcode::BitwiseLslInt:            return "BitwiseLsl";
+      case Opcode::BitwiseLslGeneric:        return "BitwiseLslGeneric";
+      case Opcode::BitwiseLslInt:            return "BitwiseLslInt";
       case Opcode::BitwiseLsr:               return "BitwiseLsr";
-      case Opcode::BitwiseLsrGeneric:        return "BitwiseLsr";
-      case Opcode::BitwiseLsrInt:            return "BitwiseLsr";
+      case Opcode::BitwiseLsrGeneric:        return "BitwiseLsrGeneric";
+      case Opcode::BitwiseLsrInt:            return "BitwiseLsrInt";
       case Opcode::BitwiseOr:                return "BitwiseOr";
-      case Opcode::BitwiseOrGeneric:         return "BitwiseOr";
-      case Opcode::BitwiseOrInt:             return "BitwiseOr";
+      case Opcode::BitwiseOrGeneric:         return "BitwiseOrGeneric";
+      case Opcode::BitwiseOrInt:             return "BitwiseOrInt";
       case Opcode::BitwiseXor:               return "BitwiseXor";
-      case Opcode::BitwiseXorGeneric:        return "BitwiseXor";
-      case Opcode::BitwiseXorInt:            return "BitwiseXor";
+      case Opcode::BitwiseXorGeneric:        return "BitwiseXorGeneric";
+      case Opcode::BitwiseXorInt:            return "BitwiseXorInt";
       case Opcode::Call:                     return "Call";
       case Opcode::Constant:                 return "Constant";
       case Opcode::ConstantExt:              return "ConstantExt";
       case Opcode::Divide:                   return "Divide";
-      case Opcode::DivideInt:                return "DivideInt";
+      case Opcode::DivideGeneric:            return "DivideGeneric";
+      case Opcode::DivideFloat:              return "DivideFloat";
+      case Opcode::DivideInteger:            return "DivideInteger";
+      case Opcode::DivideIntegerGeneric:     return "DivideIntegerGeneric";
+      case Opcode::DivideIntegerInt:         return "DivideIntegerInt";
+      case Opcode::DivideIntegerFloat:       return "DivideIntegerFloat";
       case Opcode::Equal:                    return "Equal";
       case Opcode::Exit:                     return "Exit";
       case Opcode::False:                    return "False";

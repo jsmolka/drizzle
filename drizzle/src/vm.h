@@ -92,7 +92,13 @@ private:
   template<std::integral Integral>
   SH_INLINE void constant();
   SH_INLINE void divide();
+  SH_INLINE void divideGeneric();
   SH_INLINE void divideInt();
+  SH_INLINE void divideFloat();
+  SH_INLINE void divideInteger();
+  SH_INLINE void divideIntegerGeneric();
+  SH_INLINE void divideIntegerInt();
+  SH_INLINE void divideIntegerFloat();
   SH_INLINE void equal();
   SH_INLINE void false_();
   SH_INLINE void get();

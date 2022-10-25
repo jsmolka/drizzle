@@ -334,7 +334,7 @@ void Compiler::visit(Expression::Binary& binary) {
     case Expression::Binary::Type::Equal:           emit(Opcode::Equal); break;
     case Expression::Binary::Type::Greater:         emit(Opcode::Greater); break;
     case Expression::Binary::Type::GreaterEqual:    emit(Opcode::GreaterEqual); break;
-    case Expression::Binary::Type::IntegerDivision: emit(Opcode::DivideInt); break;
+    case Expression::Binary::Type::IntegerDivision: emit(Opcode::DivideInteger); break;
     case Expression::Binary::Type::Less:            emit(Opcode::Less); break;
     case Expression::Binary::Type::LessEqual:       emit(Opcode::LessEqual); break;
     case Expression::Binary::Type::Modulo:          emit(Opcode::Modulo); break;
