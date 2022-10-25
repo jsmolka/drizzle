@@ -17,7 +17,7 @@ Vm::Vm(Gc& gc)
 }
 
 void Vm::interpret(const Program& program) {
-  static_assert(int(Opcode::LastEnumValue) == 85);
+  static_assert(int(Opcode::LastEnumValue) == 103);
 
   this->program = program;
 
@@ -68,11 +68,20 @@ void Vm::interpret(const Program& program) {
       case Opcode::DivideIntegerInt: divideIntegerInt(); break;
       case Opcode::DivideIntegerFloat: divideIntegerFloat(); break;
       case Opcode::Equal: equal(); break;
+      case Opcode::EqualGeneric: equalGeneric(); break;
+      case Opcode::EqualInt: equalInt(); break;
+      case Opcode::EqualFloat: equalFloat(); break;
       case Opcode::Exit: goto exit;
       case Opcode::False: false_(); break;
       case Opcode::Get: get(); break;
       case Opcode::Greater: greater(); break;
+      case Opcode::GreaterGeneric: greaterGeneric(); break;
+      case Opcode::GreaterInt: greaterInt(); break;
+      case Opcode::GreaterFloat: greaterFloat(); break;
       case Opcode::GreaterEqual: greaterEqual(); break;
+      case Opcode::GreaterEqualGeneric: greaterEqualGeneric(); break;
+      case Opcode::GreaterEqualInt: greaterEqualFloat(); break;
+      case Opcode::GreaterEqualFloat: greaterEqualInt(); break;
       case Opcode::In: in(); break;
       case Opcode::Invoke: invoke(); break;
       case Opcode::IterInit: iterInit(); break;
@@ -86,7 +95,13 @@ void Vm::interpret(const Program& program) {
       case Opcode::JumpTrue: jumpTrue(); break;
       case Opcode::JumpTruePop: jumpTruePop(); break;
       case Opcode::Less: less(); break;
+      case Opcode::LessGeneric: lessGeneric(); break;
+      case Opcode::LessInt: lessInt(); break;
+      case Opcode::LessFloat: lessFloat(); break;
       case Opcode::LessEqual: lessEqual(); break;
+      case Opcode::LessEqualGeneric: lessEqualGeneric(); break;
+      case Opcode::LessEqualInt: lessEqualInt(); break;
+      case Opcode::LessEqualFloat: lessEqualFloat(); break;
       case Opcode::List: list<u8>(); break;
       case Opcode::ListExt: list<u16>(); break;
       case Opcode::Load: load<u8>(); break;
@@ -100,6 +115,9 @@ void Vm::interpret(const Program& program) {
       case Opcode::Negate: negate(); break;
       case Opcode::Not: not_(); break;
       case Opcode::NotEqual: notEqual(); break;
+      case Opcode::NotEqualGeneric: notEqualGeneric(); break;
+      case Opcode::NotEqualInt: notEqualInt(); break;
+      case Opcode::NotEqualFloat: notEqualFloat(); break;
       case Opcode::Null: null_(); break;
       case Opcode::Pop: pop(); break;
       case Opcode::PopMultiple: popMultiple<u8>(); break;
@@ -687,8 +705,48 @@ void Vm::divideIntegerFloat() {
 }
 
 void Vm::equal() {
+  const auto& a = stack.peek(0);
+  const auto& b = stack.peek(1);
+
+  auto opcode = Opcode::EqualGeneric;
+  if (a.type == b.type) {
+    switch (a.type) {
+      case DzValue::Type::Int:
+        opcode = Opcode::EqualInt;
+        break;
+      case DzValue::Type::Float:
+        opcode = Opcode::EqualFloat;
+        break;
+    }
+  }
+  patch(opcode);
+}
+
+void Vm::equalGeneric() {
   const auto other = stack.pop_value();
   stack.top() = stack.top() == other;
+}
+
+void Vm::equalInt() {
+  auto& a = stack.peek(1);
+  auto& b = stack.peek(0);
+  if (a.type == DzValue::Type::Int && b.type == DzValue::Type::Int) {
+    a = a.i == b.i;
+    stack.pop();
+  } else {
+    patch(Opcode::EqualGeneric);
+  }
+}
+
+void Vm::equalFloat() {
+  auto& a = stack.peek(1);
+  auto& b = stack.peek(0);
+  if (a.type == DzValue::Type::Float && b.type == DzValue::Type::Float) {
+    a = a.f == b.f;
+    stack.pop();
+  } else {
+    patch(Opcode::EqualGeneric);
+  }
 }
 
 void Vm::false_() {
@@ -712,6 +770,24 @@ void Vm::get() {
 }
 
 void Vm::greater() {
+  const auto& a = stack.peek(0);
+  const auto& b = stack.peek(1);
+
+  auto opcode = Opcode::GreaterGeneric;
+  if (a.type == b.type) {
+    switch (a.type) {
+      case DzValue::Type::Int:
+        opcode = Opcode::GreaterInt;
+        break;
+      case DzValue::Type::Float:
+        opcode = Opcode::GreaterFloat;
+        break;
+    }
+  }
+  patch(opcode);
+}
+
+void Vm::greaterGeneric() {
   binary(">", []<typename A, typename B>(const A& a, const B& b) SH_INLINE_LAMBDA -> DzValue {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       return a > b;
@@ -720,13 +796,75 @@ void Vm::greater() {
   });
 }
 
+void Vm::greaterInt() {
+  auto& a = stack.peek(1);
+  auto& b = stack.peek(0);
+  if (a.type == DzValue::Type::Int && b.type == DzValue::Type::Int) {
+    a = a.i > b.i;
+    stack.pop();
+  } else {
+    patch(Opcode::GreaterGeneric);
+  }
+}
+
+void Vm::greaterFloat() {
+  auto& a = stack.peek(1);
+  auto& b = stack.peek(0);
+  if (a.type == DzValue::Type::Float && b.type == DzValue::Type::Float) {
+    a = a.f > b.f;
+    stack.pop();
+  } else {
+    patch(Opcode::GreaterGeneric);
+  }
+}
+
 void Vm::greaterEqual() {
+  const auto& a = stack.peek(0);
+  const auto& b = stack.peek(1);
+
+  auto opcode = Opcode::GreaterEqualGeneric;
+  if (a.type == b.type) {
+    switch (a.type) {
+      case DzValue::Type::Int:
+        opcode = Opcode::GreaterEqualInt;
+        break;
+      case DzValue::Type::Float:
+        opcode = Opcode::GreaterEqualFloat;
+        break;
+    }
+  }
+  patch(opcode);
+}
+
+void Vm::greaterEqualGeneric() {
   binary(">=", []<typename A, typename B>(const A& a, const B& b) SH_INLINE_LAMBDA -> DzValue {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       return a >= b;
     }
     throw NotSupportedException();
   });
+}
+
+void Vm::greaterEqualInt() {
+  auto& a = stack.peek(1);
+  auto& b = stack.peek(0);
+  if (a.type == DzValue::Type::Int && b.type == DzValue::Type::Int) {
+    a = a.i >= b.i;
+    stack.pop();
+  } else {
+    patch(Opcode::GreaterEqualGeneric);
+  }
+}
+
+void Vm::greaterEqualFloat() {
+  auto& a = stack.peek(1);
+  auto& b = stack.peek(0);
+  if (a.type == DzValue::Type::Float && b.type == DzValue::Type::Float) {
+    a = a.f >= b.f;
+    stack.pop();
+  } else {
+    patch(Opcode::GreaterEqualGeneric);
+  }
 }
 
 void Vm::in() {
@@ -797,6 +935,24 @@ void Vm::jumpTruePop() {
 }
 
 void Vm::less() {
+  const auto& a = stack.peek(0);
+  const auto& b = stack.peek(1);
+
+  auto opcode = Opcode::LessGeneric;
+  if (a.type == b.type) {
+    switch (a.type) {
+      case DzValue::Type::Int:
+        opcode = Opcode::LessInt;
+        break;
+      case DzValue::Type::Float:
+        opcode = Opcode::LessFloat;
+        break;
+    }
+  }
+  patch(opcode);
+}
+
+void Vm::lessGeneric() {
   binary("<", []<typename A, typename B>(const A& a, const B& b) SH_INLINE_LAMBDA -> DzValue {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       return a < b;
@@ -805,13 +961,75 @@ void Vm::less() {
   });
 }
 
+void Vm::lessInt() {
+  auto& a = stack.peek(1);
+  auto& b = stack.peek(0);
+  if (a.type == DzValue::Type::Int && b.type == DzValue::Type::Int) {
+    a = a.i < b.i;
+    stack.pop();
+  } else {
+    patch(Opcode::LessGeneric);
+  }
+}
+
+void Vm::lessFloat() {
+  auto& a = stack.peek(1);
+  auto& b = stack.peek(0);
+  if (a.type == DzValue::Type::Float && b.type == DzValue::Type::Float) {
+    a = a.f < b.f;
+    stack.pop();
+  } else {
+    patch(Opcode::LessGeneric);
+  }
+}
+
 void Vm::lessEqual() {
+  const auto& a = stack.peek(0);
+  const auto& b = stack.peek(1);
+
+  auto opcode = Opcode::LessEqualGeneric;
+  if (a.type == b.type) {
+    switch (a.type) {
+      case DzValue::Type::Int:
+        opcode = Opcode::LessEqualInt;
+        break;
+      case DzValue::Type::Float:
+        opcode = Opcode::LessEqualFloat;
+        break;
+    }
+  }
+  patch(opcode);
+}
+
+void Vm::lessEqualGeneric() {
   binary("<=", []<typename A, typename B>(const A& a, const B& b) SH_INLINE_LAMBDA -> DzValue {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       return a <= b;
     }
     throw NotSupportedException();
   });
+}
+
+void Vm::lessEqualInt() {
+  auto& a = stack.peek(1);
+  auto& b = stack.peek(0);
+  if (a.type == DzValue::Type::Int && b.type == DzValue::Type::Int) {
+    a = a.i <= b.i;
+    stack.pop();
+  } else {
+    patch(Opcode::LessEqualGeneric);
+  }
+}
+
+void Vm::lessEqualFloat() {
+  auto& a = stack.peek(1);
+  auto& b = stack.peek(0);
+  if (a.type == DzValue::Type::Float && b.type == DzValue::Type::Float) {
+    a = a.f <= b.f;
+    stack.pop();
+  } else {
+    patch(Opcode::LessEqualGeneric);
+  }
 }
 
 template<std::integral Integral>
@@ -898,8 +1116,48 @@ void Vm::not_() {
 }
 
 void Vm::notEqual() {
+  const auto& a = stack.peek(0);
+  const auto& b = stack.peek(1);
+
+  auto opcode = Opcode::NotEqualGeneric;
+  if (a.type == b.type) {
+    switch (a.type) {
+      case DzValue::Type::Int:
+        opcode = Opcode::NotEqualInt;
+        break;
+      case DzValue::Type::Float:
+        opcode = Opcode::NotEqualFloat;
+        break;
+    }
+  }
+  patch(opcode);
+}
+
+void Vm::notEqualGeneric() {
   const auto other = stack.pop_value();
   stack.top() = stack.top() != other;
+}
+
+void Vm::notEqualInt() {
+  auto& a = stack.peek(1);
+  auto& b = stack.peek(0);
+  if (a.type == DzValue::Type::Int && b.type == DzValue::Type::Int) {
+    a = a.i != b.i;
+    stack.pop();
+  } else {
+    patch(Opcode::NotEqualGeneric);
+  }
+}
+
+void Vm::notEqualFloat() {
+  auto& a = stack.peek(1);
+  auto& b = stack.peek(0);
+  if (a.type == DzValue::Type::Float && b.type == DzValue::Type::Float) {
+    a = a.f != b.f;
+    stack.pop();
+  } else {
+    patch(Opcode::NotEqualGeneric);
+  }
 }
 
 void Vm::null_() {

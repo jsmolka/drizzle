@@ -42,11 +42,20 @@ enum class Opcode {
   DivideIntegerInt,
   DivideIntegerFloat,
   Equal,
+  EqualGeneric,
+  EqualInt,
+  EqualFloat,
   Exit,
   False,
   Get,
   Greater,
+  GreaterGeneric,
+  GreaterInt,
+  GreaterFloat,
   GreaterEqual,
+  GreaterEqualGeneric,
+  GreaterEqualInt,
+  GreaterEqualFloat,
   In,
   Invoke,
   IterInit,
@@ -60,7 +69,13 @@ enum class Opcode {
   JumpTrue,
   JumpTruePop,
   Less,
+  LessGeneric,
+  LessInt,
+  LessFloat,
   LessEqual,
+  LessEqualGeneric,
+  LessEqualInt,
+  LessEqualFloat,
   List,
   ListExt,
   Load,
@@ -74,6 +89,9 @@ enum class Opcode {
   Negate,
   Not,
   NotEqual,
+  NotEqualGeneric,
+  NotEqualInt,
+  NotEqualFloat,
   Null,
   Pop,
   PopMultiple,
@@ -99,7 +117,7 @@ static_assert(int(Opcode::LastEnumValue) <= std::numeric_limits<u8>::max());
 template<>
 struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
   static auto repr(const Opcode& opcode) -> std::string_view {
-    static_assert(int(Opcode::LastEnumValue) == 85);
+    static_assert(int(Opcode::LastEnumValue) == 103);
     switch (opcode) {
       case Opcode::Add:                      return "Add";
       case Opcode::AddGeneric:               return "AddGeneric";
@@ -137,11 +155,20 @@ struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
       case Opcode::DivideIntegerInt:         return "DivideIntegerInt";
       case Opcode::DivideIntegerFloat:       return "DivideIntegerFloat";
       case Opcode::Equal:                    return "Equal";
+      case Opcode::EqualGeneric:             return "EqualGeneric";
+      case Opcode::EqualInt:                 return "EqualInt";
+      case Opcode::EqualFloat:               return "EqualFloat";
       case Opcode::Exit:                     return "Exit";
       case Opcode::False:                    return "False";
       case Opcode::Get:                      return "Get";
       case Opcode::Greater:                  return "Greater";
+      case Opcode::GreaterGeneric:           return "GreaterGeneric";
+      case Opcode::GreaterInt:               return "GreaterInt";
+      case Opcode::GreaterFloat:             return "GreaterFloat";
       case Opcode::GreaterEqual:             return "GreaterEqual";
+      case Opcode::GreaterEqualGeneric:      return "GreaterEqualGeneric";
+      case Opcode::GreaterEqualInt:          return "GreaterEqualInt";
+      case Opcode::GreaterEqualFloat:        return "GreaterEqualFloat";
       case Opcode::In:                       return "In";
       case Opcode::Invoke:                   return "Invoke";
       case Opcode::IterInit:                 return "IterForward";
@@ -155,7 +182,13 @@ struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
       case Opcode::JumpTrue:                 return "JumpTrue";
       case Opcode::JumpTruePop:              return "JumpTruePop";
       case Opcode::Less:                     return "Less";
+      case Opcode::LessGeneric:              return "LessGeneric";
+      case Opcode::LessInt:                  return "LessInt";
+      case Opcode::LessFloat:                return "LessFloat";
       case Opcode::LessEqual:                return "LessEqual";
+      case Opcode::LessEqualGeneric:         return "LessEqualGeneric";
+      case Opcode::LessEqualInt:             return "LessEqualInt";
+      case Opcode::LessEqualFloat:           return "LessEqualFloat";
       case Opcode::List:                     return "List";
       case Opcode::ListExt:                  return "ListExt";
       case Opcode::Load:                     return "Load";
@@ -169,6 +202,9 @@ struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
       case Opcode::Negate:                   return "Negate";
       case Opcode::Not:                      return "Not";
       case Opcode::NotEqual:                 return "NotEqual";
+      case Opcode::NotEqualGeneric:          return "NotEqualGeneric";
+      case Opcode::NotEqualInt:              return "NotEqualInt";
+      case Opcode::NotEqualFloat:            return "NotEqualFloat";
       case Opcode::Null:                     return "Null";
       case Opcode::Pop:                      return "Pop";
       case Opcode::PopMultiple:              return "PopMultiple";

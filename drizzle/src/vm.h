@@ -100,10 +100,19 @@ private:
   SH_INLINE void divideIntegerInt();
   SH_INLINE void divideIntegerFloat();
   SH_INLINE void equal();
+  SH_INLINE void equalGeneric();
+  SH_INLINE void equalInt();
+  SH_INLINE void equalFloat();
   SH_INLINE void false_();
   SH_INLINE void get();
   SH_INLINE void greater();
+  SH_INLINE void greaterGeneric();
+  SH_INLINE void greaterInt();
+  SH_INLINE void greaterFloat();
   SH_INLINE void greaterEqual();
+  SH_INLINE void greaterEqualGeneric();
+  SH_INLINE void greaterEqualInt();
+  SH_INLINE void greaterEqualFloat();
   SH_INLINE void in();
   SH_INLINE void invoke();
   SH_INLINE void iterInit();
@@ -117,7 +126,13 @@ private:
   SH_INLINE void jumpTrue();
   SH_INLINE void jumpTruePop();
   SH_INLINE void less();
+  SH_INLINE void lessGeneric();
+  SH_INLINE void lessInt();
+  SH_INLINE void lessFloat();
   SH_INLINE void lessEqual();
+  SH_INLINE void lessEqualGeneric();
+  SH_INLINE void lessEqualInt();
+  SH_INLINE void lessEqualFloat();
   template<std::integral Integral>
   SH_INLINE void list();
   template<std::integral Integral>
@@ -131,6 +146,9 @@ private:
   SH_INLINE void negate();
   SH_INLINE void not_();
   SH_INLINE void notEqual();
+  SH_INLINE void notEqualGeneric();
+  SH_INLINE void notEqualInt();
+  SH_INLINE void notEqualFloat();
   SH_INLINE void null_();
   SH_INLINE void pop();
   template<std::integral Integral>
