@@ -203,6 +203,10 @@ auto Vm::checkType(const DzValue& a, const DzValue& b, DzValue::Type type) -> bo
   return (int(a.type) & int(b.type)) == int(type);
 }
 
+auto Vm::peekBinary() -> std::tuple<DzValue&, DzValue&> {
+  return std::forward_as_tuple(stack.peek(1), stack.peek(0));
+}
+
 template<template<typename> typename Promote, typename Callback>
 void Vm::unary(std::string_view operation, Callback callback) {
   auto& a = stack.top();
@@ -222,10 +226,6 @@ void Vm::binary(std::string_view operation, Callback callback) {
   } catch (const NotSupportedException&) {
     raise("unsupported operand types for '{}': '{}' and '{}'", operation, a.kind(), b.kind());
   }
-}
-
-auto Vm::peekBinary() -> std::tuple<DzValue&, DzValue&> {
-  return std::forward_as_tuple(stack.peek(1), stack.peek(0));
 }
 
 auto Vm::forward(DzValue& iteree) -> DzValue {
