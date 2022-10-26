@@ -136,6 +136,10 @@ jobs:
         with:
           submodules: recursive
 
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: <14
+
       - name: Setup
         run: |
           mkdir drizzle/build
@@ -143,7 +147,7 @@ jobs:
       - name: Build
         run: |
           cd drizzle/build
-          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++-10 ..
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++-11 ..
           make -j 4
 
       - name: Collect
@@ -165,6 +169,10 @@ jobs:
         with:
           submodules: recursive
 
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: <14
+
       - name: Dependencies
         run: brew install sdl2
 
@@ -175,7 +183,7 @@ jobs:
       - name: Build
         run: |
           cd drizzle/build
-          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++-10 -DENABLE_SDL2=ON ..
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++-11 -DENABLE_SDL2=ON ..
           make -j 4
 
       - name: Collect
