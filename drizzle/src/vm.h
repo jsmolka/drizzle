@@ -183,6 +183,8 @@ private:
   SH_INLINE void subtractInt();
   SH_INLINE void subtractFloat();
   SH_INLINE void switchCase();
+  SH_INLINE void switchCaseGeneric();
+  SH_INLINE void switchCaseInt();
   SH_INLINE void true_();
 
   Program program;

@@ -17,7 +17,7 @@ Vm::Vm(Gc& gc)
 }
 
 void Vm::interpret(const Program& program) {
-  static_assert(int(Opcode::LastEnumValue) == 119);
+  static_assert(int(Opcode::LastEnumValue) == 121);
 
   this->program = program;
 
@@ -150,6 +150,8 @@ void Vm::interpret(const Program& program) {
       case Opcode::SubtractInt: subtractInt(); break;
       case Opcode::SubtractFloat: subtractFloat(); break;
       case Opcode::SwitchCase: switchCase(); break;
+      case Opcode::SwitchCaseGeneric: switchCaseGeneric(); break;
+      case Opcode::SwitchCaseInt: switchCaseInt(); break;
       case Opcode::True: true_(); break;
       default:
         SH_UNREACHABLE;
@@ -1430,12 +1432,41 @@ void Vm::subtractFloat() {
 }
 
 void Vm::switchCase() {
-  const auto value = stack.pop_value();
-  if (stack.top() == value) {
-    stack.pop();
+  auto [a, b] = peekBinary();
+  auto opcode = Opcode::SwitchCaseGeneric;
+  if (a.type == b.type) {
+    switch (a.type) {
+      case DzValue::Type::Int:
+        opcode = Opcode::SwitchCaseInt;
+        break;
+    }
+  }
+  patch(opcode);
+}
+
+void Vm::switchCaseGeneric() {
+  auto [a, b] = peekBinary();
+  if (a == b) {
+    stack.pop(2);
     frame.pc += read<s16>();
   } else {
+    stack.pop();
     frame.pc += 2;
+  }
+}
+
+void Vm::switchCaseInt() {
+  auto [a, b] = peekBinary();
+  if (checkType(a, b, DzValue::Type::Int)) {
+    if (a.i == b.i) {
+      stack.pop(2);
+      frame.pc += read<s16>();
+    } else {
+      stack.pop();
+      frame.pc += 2;
+    }
+  } else {
+    patch(Opcode::SwitchCaseGeneric);
   }
 }
 

@@ -124,6 +124,8 @@ enum class Opcode {
   SubtractInt,
   SubtractFloat,
   SwitchCase,
+  SwitchCaseGeneric,
+  SwitchCaseInt,
   True,
   LastEnumValue,
 };
@@ -133,7 +135,7 @@ static_assert(int(Opcode::LastEnumValue) <= std::numeric_limits<u8>::max());
 template<>
 struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
   static auto repr(const Opcode& opcode) -> std::string_view {
-    static_assert(int(Opcode::LastEnumValue) == 119);
+    static_assert(int(Opcode::LastEnumValue) == 121);
     switch (opcode) {
       case Opcode::Add:                      return "Add";
       case Opcode::AddGeneric:               return "AddGeneric";
@@ -253,6 +255,8 @@ struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
       case Opcode::SubtractInt:              return "SubtractInt";
       case Opcode::SubtractFloat:            return "SubtractFloat";
       case Opcode::SwitchCase:               return "SwitchCase";
+      case Opcode::SwitchCaseGeneric:        return "SwitchCaseGeneric";
+      case Opcode::SwitchCaseInt:            return "SwitchCaseInt";
       case Opcode::True:                     return "True";
       default:
         SH_UNREACHABLE;
