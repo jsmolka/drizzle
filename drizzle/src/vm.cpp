@@ -17,7 +17,7 @@ Vm::Vm(Gc& gc)
 }
 
 void Vm::interpret(const Program& program) {
-  static_assert(int(Opcode::LastEnumValue) == 123);
+  static_assert(int(Opcode::LastEnumValue) == 119);
 
   this->program = program;
 
@@ -62,6 +62,7 @@ void Vm::interpret(const Program& program) {
       case Opcode::ConstantExt: constant<u16>(); break;
       case Opcode::Divide: divide(); break;
       case Opcode::DivideGeneric: divideGeneric(); break;
+      case Opcode::DivideInt: divideInt(); break;
       case Opcode::DivideFloat: divideFloat(); break;
       case Opcode::DivideInteger: divideInteger(); break;
       case Opcode::DivideIntegerGeneric: divideIntegerGeneric(); break;
@@ -123,11 +124,6 @@ void Vm::interpret(const Program& program) {
       case Opcode::NegateInt: negateInt(); break;
       case Opcode::NegateFloat: negateFloat(); break;
       case Opcode::Not: not_(); break;
-      case Opcode::NotGeneric: notGeneric(); break;
-      case Opcode::NotBool: notBool(); break;
-      case Opcode::NotInt: notInt(); break;
-      case Opcode::NotFloat: notFloat(); break;
-      case Opcode::NotObject: notObject(); break;
       case Opcode::NotEqual: notEqual(); break;
       case Opcode::NotEqualGeneric: notEqualGeneric(); break;
       case Opcode::NotEqualInt: notEqualInt(); break;
@@ -613,6 +609,9 @@ void Vm::divide() {
   auto opcode = Opcode::DivideGeneric;
   if (a.type == b.type) {
     switch (a.type) {
+      case DzValue::Type::Int:
+        opcode = Opcode::DivideInt;
+        break;
       case DzValue::Type::Float:
         opcode = Opcode::DivideFloat;
         break;
@@ -631,6 +630,19 @@ void Vm::divideGeneric() {
     }
     throw NotSupportedException();
   });
+}
+
+void Vm::divideInt() {
+  auto [a, b] = peekBinary();
+  if (checkType(a, b, DzValue::Type::Int)) {
+    if (b.i == 0) {
+      raise("division by zero");
+    }
+    a = static_cast<dzfloat>(a.i) / static_cast<dzfloat>(b.i);
+    stack.pop();
+  } else {
+    patch(Opcode::DivideGeneric);
+  }
 }
 
 void Vm::divideFloat() {
@@ -1202,63 +1214,7 @@ void Vm::negateFloat() {
 }
 
 void Vm::not_() {
-  auto& a = stack.top();
-  auto opcode = Opcode::NotGeneric;
-  switch (a.type) {
-    case DzValue::Type::Bool:
-      opcode = Opcode::NotBool;
-      break;
-    case DzValue::Type::Int:
-      opcode = Opcode::NotInt;
-      break;
-    case DzValue::Type::Float:
-      opcode = Opcode::NotFloat;
-      break;
-    case DzValue::Type::Object:
-      opcode = Opcode::NotObject;
-      break;
-  }
-  patch(opcode);
-}
-
-void Vm::notGeneric() {
   stack.top() = !stack.top();
-}
-
-void Vm::notBool() {
-  auto& a = stack.top();
-  if (checkType(a, DzValue::Type::Bool)) {
-    a = !a.b;
-  } else {
-    patch(Opcode::NotGeneric);
-  }
-}
-
-void Vm::notInt() {
-  auto& a = stack.top();
-  if (checkType(a, DzValue::Type::Int)) {
-    a = !a.i;
-  } else {
-    patch(Opcode::NotGeneric);
-  }
-}
-
-void Vm::notFloat() {
-  auto& a = stack.top();
-  if (checkType(a, DzValue::Type::Float)) {
-    a = !a.f;
-  } else {
-    patch(Opcode::NotGeneric);
-  }
-}
-
-void Vm::notObject() {
-  auto& a = stack.top();
-  if (checkType(a, DzValue::Type::Object)) {
-    a = !static_cast<bool>(*a.o);
-  } else {
-    patch(Opcode::NotGeneric);
-  }
 }
 
 void Vm::notEqual() {

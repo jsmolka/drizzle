@@ -36,6 +36,7 @@ enum class Opcode {
   ConstantExt,
   Divide,
   DivideGeneric,
+  DivideInt,
   DivideFloat,
   DivideInteger,
   DivideIntegerGeneric,
@@ -97,11 +98,6 @@ enum class Opcode {
   NegateInt,
   NegateFloat,
   Not,
-  NotGeneric,
-  NotBool,
-  NotInt,
-  NotFloat,
-  NotObject,
   NotEqual,
   NotEqualGeneric,
   NotEqualInt,
@@ -137,7 +133,7 @@ static_assert(int(Opcode::LastEnumValue) <= std::numeric_limits<u8>::max());
 template<>
 struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
   static auto repr(const Opcode& opcode) -> std::string_view {
-    static_assert(int(Opcode::LastEnumValue) == 123);
+    static_assert(int(Opcode::LastEnumValue) == 119);
     switch (opcode) {
       case Opcode::Add:                      return "Add";
       case Opcode::AddGeneric:               return "AddGeneric";
@@ -169,6 +165,7 @@ struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
       case Opcode::ConstantExt:              return "ConstantExt";
       case Opcode::Divide:                   return "Divide";
       case Opcode::DivideGeneric:            return "DivideGeneric";
+      case Opcode::DivideInt:                return "DivideInt";
       case Opcode::DivideFloat:              return "DivideFloat";
       case Opcode::DivideInteger:            return "DivideInteger";
       case Opcode::DivideIntegerGeneric:     return "DivideIntegerGeneric";
@@ -230,11 +227,6 @@ struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
       case Opcode::NegateInt:                return "NegateInt";
       case Opcode::NegateFloat:              return "NegateFloat";
       case Opcode::Not:                      return "Not";
-      case Opcode::NotGeneric:               return "NotGeneric";
-      case Opcode::NotBool:                  return "NotBool";
-      case Opcode::NotInt:                   return "NotInt";
-      case Opcode::NotFloat:                 return "NotFloat";
-      case Opcode::NotObject:                return "NotObject";
       case Opcode::NotEqual:                 return "NotEqual";
       case Opcode::NotEqualGeneric:          return "NotEqualGeneric";
       case Opcode::NotEqualInt:              return "NotEqualInt";

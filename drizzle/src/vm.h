@@ -96,6 +96,7 @@ private:
   SH_INLINE void constant();
   SH_INLINE void divide();
   SH_INLINE void divideGeneric();
+  SH_INLINE void divideInt();
   SH_INLINE void divideFloat();
   SH_INLINE void divideInteger();
   SH_INLINE void divideIntegerGeneric();
@@ -156,11 +157,6 @@ private:
   SH_INLINE void negateInt();
   SH_INLINE void negateFloat();
   SH_INLINE void not_();
-  SH_INLINE void notGeneric();
-  SH_INLINE void notBool();
-  SH_INLINE void notInt();
-  SH_INLINE void notFloat();
-  SH_INLINE void notObject();
   SH_INLINE void notEqual();
   SH_INLINE void notEqualGeneric();
   SH_INLINE void notEqualInt();
