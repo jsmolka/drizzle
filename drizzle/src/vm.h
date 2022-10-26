@@ -93,7 +93,6 @@ private:
   SH_INLINE void constant();
   SH_INLINE void divide();
   SH_INLINE void divideGeneric();
-  SH_INLINE void divideInt();
   SH_INLINE void divideFloat();
   SH_INLINE void divideInteger();
   SH_INLINE void divideIntegerGeneric();
@@ -142,9 +141,23 @@ private:
   template<std::integral Integral>
   SH_INLINE void map();
   SH_INLINE void modulo();
+  SH_INLINE void moduloGeneric();
+  SH_INLINE void moduloInt();
+  SH_INLINE void moduloFloat();
   SH_INLINE void multiply();
+  SH_INLINE void multiplyGeneric();
+  SH_INLINE void multiplyInt();
+  SH_INLINE void multiplyFloat();
   SH_INLINE void negate();
+  SH_INLINE void negateGeneric();
+  SH_INLINE void negateInt();
+  SH_INLINE void negateFloat();
   SH_INLINE void not_();
+  SH_INLINE void notGeneric();
+  SH_INLINE void notBool();
+  SH_INLINE void notInt();
+  SH_INLINE void notFloat();
+  SH_INLINE void notObject();
   SH_INLINE void notEqual();
   SH_INLINE void notEqualGeneric();
   SH_INLINE void notEqualInt();
@@ -154,6 +167,9 @@ private:
   template<std::integral Integral>
   SH_INLINE void popMultiple();
   SH_INLINE void power();
+  SH_INLINE void powerGeneric();
+  SH_INLINE void powerInt();
+  SH_INLINE void powerFloat();
   SH_INLINE void range();
   SH_INLINE void return_();
   SH_INLINE void set();
@@ -164,6 +180,9 @@ private:
   SH_INLINE void subscriptGet();
   SH_INLINE void subscriptSet();
   SH_INLINE void subtract();
+  SH_INLINE void subtractGeneric();
+  SH_INLINE void subtractInt();
+  SH_INLINE void subtractFloat();
   SH_INLINE void switchCase();
   SH_INLINE void true_();
 

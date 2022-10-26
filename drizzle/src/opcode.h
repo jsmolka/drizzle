@@ -85,9 +85,23 @@ enum class Opcode {
   Map,
   MapExt,
   Modulo,
+  ModuloGeneric,
+  ModuloInt,
+  ModuloFloat,
   Multiply,
+  MultiplyGeneric,
+  MultiplyInt,
+  MultiplyFloat,
   Negate,
+  NegateGeneric,
+  NegateInt,
+  NegateFloat,
   Not,
+  NotGeneric,
+  NotBool,
+  NotInt,
+  NotFloat,
+  NotObject,
   NotEqual,
   NotEqualGeneric,
   NotEqualInt,
@@ -97,6 +111,9 @@ enum class Opcode {
   PopMultiple,
   PopMultipleExt,
   Power,
+  PowerGeneric,
+  PowerInt,
+  PowerFloat,
   Range,
   Return,
   Set,
@@ -107,6 +124,9 @@ enum class Opcode {
   SubscriptGet,
   SubscriptSet,
   Subtract,
+  SubtractGeneric,
+  SubtractInt,
+  SubtractFloat,
   SwitchCase,
   True,
   LastEnumValue,
@@ -117,7 +137,7 @@ static_assert(int(Opcode::LastEnumValue) <= std::numeric_limits<u8>::max());
 template<>
 struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
   static auto repr(const Opcode& opcode) -> std::string_view {
-    static_assert(int(Opcode::LastEnumValue) == 103);
+    static_assert(int(Opcode::LastEnumValue) == 123);
     switch (opcode) {
       case Opcode::Add:                      return "Add";
       case Opcode::AddGeneric:               return "AddGeneric";
@@ -198,9 +218,23 @@ struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
       case Opcode::Map:                      return "Map";
       case Opcode::MapExt:                   return "MapExt";
       case Opcode::Modulo:                   return "Modulo";
+      case Opcode::ModuloGeneric:            return "ModuloGeneric";
+      case Opcode::ModuloInt:                return "ModuloInt";
+      case Opcode::ModuloFloat:              return "ModuloFloat";
       case Opcode::Multiply:                 return "Multiply";
+      case Opcode::MultiplyGeneric:          return "MultiplyGeneric";
+      case Opcode::MultiplyInt:              return "MultiplyInt";
+      case Opcode::MultiplyFloat:            return "MultiplyFloat";
       case Opcode::Negate:                   return "Negate";
+      case Opcode::NegateGeneric:            return "NegateGeneric";
+      case Opcode::NegateInt:                return "NegateInt";
+      case Opcode::NegateFloat:              return "NegateFloat";
       case Opcode::Not:                      return "Not";
+      case Opcode::NotGeneric:               return "NotGeneric";
+      case Opcode::NotBool:                  return "NotBool";
+      case Opcode::NotInt:                   return "NotInt";
+      case Opcode::NotFloat:                 return "NotFloat";
+      case Opcode::NotObject:                return "NotObject";
       case Opcode::NotEqual:                 return "NotEqual";
       case Opcode::NotEqualGeneric:          return "NotEqualGeneric";
       case Opcode::NotEqualInt:              return "NotEqualInt";
@@ -210,6 +244,9 @@ struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
       case Opcode::PopMultiple:              return "PopMultiple";
       case Opcode::PopMultipleExt:           return "PopMultipleExt";
       case Opcode::Power:                    return "Power";
+      case Opcode::PowerGeneric:             return "PowerGeneric";
+      case Opcode::PowerInt:                 return "PowerInt";
+      case Opcode::PowerFloat:               return "PowerFloat";
       case Opcode::Range:                    return "Range";
       case Opcode::Return:                   return "Return";
       case Opcode::Set:                      return "Set";
@@ -220,6 +257,9 @@ struct fmt::formatter<Opcode> : fmt::formatter<std::string_view> {
       case Opcode::SubscriptGet:             return "SubscriptGet";
       case Opcode::SubscriptSet:             return "SubscriptSet";
       case Opcode::Subtract:                 return "Subtract";
+      case Opcode::SubtractGeneric:          return "SubtractGeneric";
+      case Opcode::SubtractInt:              return "SubtractInt";
+      case Opcode::SubtractFloat:            return "SubtractFloat";
       case Opcode::SwitchCase:               return "SwitchCase";
       case Opcode::True:                     return "True";
       default:

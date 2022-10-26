@@ -17,7 +17,7 @@ Vm::Vm(Gc& gc)
 }
 
 void Vm::interpret(const Program& program) {
-  static_assert(int(Opcode::LastEnumValue) == 103);
+  static_assert(int(Opcode::LastEnumValue) == 123);
 
   this->program = program;
 
@@ -111,9 +111,23 @@ void Vm::interpret(const Program& program) {
       case Opcode::Map: map<u8>(); break;
       case Opcode::MapExt: map<u16>(); break;
       case Opcode::Modulo: modulo(); break;
+      case Opcode::ModuloGeneric: moduloGeneric(); break;
+      case Opcode::ModuloInt: moduloInt(); break;
+      case Opcode::ModuloFloat: moduloFloat(); break;
       case Opcode::Multiply: multiply(); break;
+      case Opcode::MultiplyGeneric: multiplyGeneric(); break;
+      case Opcode::MultiplyInt: multiplyInt(); break;
+      case Opcode::MultiplyFloat: multiplyFloat(); break;
       case Opcode::Negate: negate(); break;
+      case Opcode::NegateGeneric: negateGeneric(); break;
+      case Opcode::NegateInt: negateInt(); break;
+      case Opcode::NegateFloat: negateFloat(); break;
       case Opcode::Not: not_(); break;
+      case Opcode::NotGeneric: notGeneric(); break;
+      case Opcode::NotBool: notBool(); break;
+      case Opcode::NotInt: notInt(); break;
+      case Opcode::NotFloat: notFloat(); break;
+      case Opcode::NotObject: notObject(); break;
       case Opcode::NotEqual: notEqual(); break;
       case Opcode::NotEqualGeneric: notEqualGeneric(); break;
       case Opcode::NotEqualInt: notEqualInt(); break;
@@ -123,6 +137,9 @@ void Vm::interpret(const Program& program) {
       case Opcode::PopMultiple: popMultiple<u8>(); break;
       case Opcode::PopMultipleExt: popMultiple<u16>(); break;
       case Opcode::Power: power(); break;
+      case Opcode::PowerGeneric: powerGeneric(); break;
+      case Opcode::PowerInt: powerInt(); break;
+      case Opcode::PowerFloat: powerFloat(); break;
       case Opcode::Range: range(); break;
       case Opcode::Return: return_(); break;
       case Opcode::Set: set(); break;
@@ -133,6 +150,9 @@ void Vm::interpret(const Program& program) {
       case Opcode::SubscriptGet: subscriptGet(); break;
       case Opcode::SubscriptSet: subscriptSet(); break;
       case Opcode::Subtract: subtract(); break;
+      case Opcode::SubtractGeneric: subtractGeneric(); break;
+      case Opcode::SubtractInt: subtractInt(); break;
+      case Opcode::SubtractFloat: subtractFloat(); break;
       case Opcode::SwitchCase: switchCase(); break;
       case Opcode::True: true_(); break;
       default:
@@ -1078,6 +1098,24 @@ void Vm::map() {
 }
 
 void Vm::modulo() {
+  const auto& a = stack.peek(0);
+  const auto& b = stack.peek(1);
+
+  auto opcode = Opcode::ModuloGeneric;
+  if (a.type == b.type) {
+    switch (a.type) {
+      case DzValue::Type::Int:
+        opcode = Opcode::ModuloInt;
+        break;
+      case DzValue::Type::Float:
+        opcode = Opcode::ModuloFloat;
+        break;
+    }
+  }
+  patch(opcode);
+}
+
+void Vm::moduloGeneric() {
   binary("%", [this]<typename A, typename B>(const A& a, const B& b) SH_INLINE_LAMBDA -> DzValue {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       if (b == static_cast<B>(0)) {
@@ -1093,7 +1131,53 @@ void Vm::modulo() {
   });
 }
 
+void Vm::moduloInt() {
+  auto& a = stack.peek(1);
+  auto& b = stack.peek(0);
+  if (a.type == DzValue::Type::Int && b.type == DzValue::Type::Int) {
+    if (b.i == 0) {
+      raise("modulo by zero");
+    }
+    a.i %= b.i;
+    stack.pop();
+  } else {
+    patch(Opcode::ModuloGeneric);
+  }
+}
+
+void Vm::moduloFloat() {
+  auto& a = stack.peek(1);
+  auto& b = stack.peek(0);
+  if (a.type == DzValue::Type::Float && b.type == DzValue::Type::Float) {
+    if (b.f == 0.0) {
+      raise("modulo by zero");
+    }
+    a.f = std::fmod(a.f, b.f);
+    stack.pop();
+  } else {
+    patch(Opcode::ModuloGeneric);
+  }
+}
+
 void Vm::multiply() {
+  const auto& a = stack.peek(0);
+  const auto& b = stack.peek(1);
+
+  auto opcode = Opcode::MultiplyGeneric;
+  if (a.type == b.type) {
+    switch (a.type) {
+      case DzValue::Type::Int:
+        opcode = Opcode::MultiplyInt;
+        break;
+      case DzValue::Type::Float:
+        opcode = Opcode::MultiplyFloat;
+        break;
+    }
+  }
+  patch(opcode);
+}
+
+void Vm::multiplyGeneric() {
   binary("*", []<typename A, typename B>(const A& a, const B& b) SH_INLINE_LAMBDA -> DzValue {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       return a * b;
@@ -1102,7 +1186,44 @@ void Vm::multiply() {
   });
 }
 
+void Vm::multiplyInt() {
+  auto& a = stack.peek(1);
+  auto& b = stack.peek(0);
+  if (a.type == DzValue::Type::Int && b.type == DzValue::Type::Int) {
+    a.i *= b.i;
+    stack.pop();
+  } else {
+    patch(Opcode::MultiplyGeneric);
+  }
+}
+
+void Vm::multiplyFloat() {
+  auto& a = stack.peek(1);
+  auto& b = stack.peek(0);
+  if (a.type == DzValue::Type::Float && b.type == DzValue::Type::Float) {
+    a.f *= b.f;
+    stack.pop();
+  } else {
+    patch(Opcode::MultiplyGeneric);
+  }
+}
+
 void Vm::negate() {
+  const auto& a = stack.top();
+
+  auto opcode = Opcode::NegateGeneric;
+  switch (a.type) {
+    case DzValue::Type::Int:
+      opcode = Opcode::NegateInt;
+      break;
+    case DzValue::Type::Float:
+      opcode = Opcode::NegateFloat;
+      break;
+  }
+  patch(opcode);
+}
+
+void Vm::negateGeneric() {
   unary("-", []<typename A>(const A& a) SH_INLINE_LAMBDA -> DzValue {
     if constexpr (dz_int<A> || dz_float<A>) {
       return -a;
@@ -1111,8 +1232,83 @@ void Vm::negate() {
   });
 }
 
+void Vm::negateInt() {
+  auto& a = stack.top();
+  if (a.type == DzValue::Type::Int) {
+    a = -a.i;
+  } else {
+    patch(Opcode::NegateGeneric);
+  }
+}
+
+void Vm::negateFloat() {
+  auto& a = stack.top();
+  if (a.type == DzValue::Type::Float) {
+    a = -a.f;
+  } else {
+    patch(Opcode::NegateGeneric);
+  }
+}
+
 void Vm::not_() {
+  const auto& a = stack.top();
+
+  auto opcode = Opcode::NotGeneric;
+  switch (a.type) {
+    case DzValue::Type::Bool:
+      opcode = Opcode::NotBool;
+      break;
+    case DzValue::Type::Int:
+      opcode = Opcode::NotInt;
+      break;
+    case DzValue::Type::Float:
+      opcode = Opcode::NotFloat;
+      break;
+    case DzValue::Type::Object:
+      opcode = Opcode::NotObject;
+      break;
+  }
+  patch(opcode);
+}
+
+void Vm::notGeneric() {
   stack.top() = !stack.top();
+}
+
+void Vm::notBool() {
+  auto& a = stack.top();
+  if (a.type == DzValue::Type::Bool) {
+    a = !a.b;
+  } else {
+    patch(Opcode::NotGeneric);
+  }
+}
+
+void Vm::notInt() {
+  auto& a = stack.top();
+  if (a.type == DzValue::Type::Bool) {
+    a = !a.b;
+  } else {
+    patch(Opcode::NotGeneric);
+  }
+}
+
+void Vm::notFloat() {
+  auto& a = stack.top();
+  if (a.type == DzValue::Type::Float) {
+    a = !a.f;
+  } else {
+    patch(Opcode::NotGeneric);
+  }
+}
+
+void Vm::notObject() {
+  auto& a = stack.top();
+  if (a.type == DzValue::Type::Object) {
+    a = !static_cast<bool>(*a.o);
+  } else {
+    patch(Opcode::NotGeneric);
+  }
 }
 
 void Vm::notEqual() {
@@ -1175,12 +1371,52 @@ void Vm::popMultiple() {
 }
 
 void Vm::power() {
+  const auto& a = stack.peek(0);
+  const auto& b = stack.peek(1);
+
+  auto opcode = Opcode::PowerGeneric;
+  if (a.type == b.type) {
+    switch (a.type) {
+      case DzValue::Type::Int:
+        opcode = Opcode::PowerInt;
+        break;
+      case DzValue::Type::Float:
+        opcode = Opcode::PowerFloat;
+        break;
+    }
+  }
+  patch(opcode);
+}
+
+void Vm::powerGeneric() {
   binary("**", []<typename A, typename B>(const A& a, const B& b) SH_INLINE_LAMBDA -> DzValue {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       return std::pow(a, b);
     }
     throw NotSupportedException();
   });
+}
+
+void Vm::powerInt() {
+  auto& a = stack.peek(1);
+  auto& b = stack.peek(0);
+  if (a.type == DzValue::Type::Int && b.type == DzValue::Type::Int) {
+    a.i = std::pow(a.i, b.i);
+    stack.pop();
+  } else {
+    patch(Opcode::PowerGeneric);
+  }
+}
+
+void Vm::powerFloat() {
+  auto& a = stack.peek(1);
+  auto& b = stack.peek(0);
+  if (a.type == DzValue::Type::Float && b.type == DzValue::Type::Float) {
+    a.f = std::pow(a.f, b.f);
+    stack.pop();
+  } else {
+    patch(Opcode::PowerGeneric);
+  }
 }
 
 void Vm::range() {
@@ -1251,12 +1487,52 @@ void Vm::subscriptSet() {
 }
 
 void Vm::subtract() {
+  const auto& a = stack.peek(0);
+  const auto& b = stack.peek(1);
+
+  auto opcode = Opcode::SubtractGeneric;
+  if (a.type == b.type) {
+    switch (a.type) {
+      case DzValue::Type::Int:
+        opcode = Opcode::SubtractInt;
+        break;
+      case DzValue::Type::Float:
+        opcode = Opcode::SubtractFloat;
+        break;
+    }
+  }
+  patch(opcode);
+}
+
+void Vm::subtractGeneric() {
   binary("-", []<typename A, typename B>(const A& a, const B& b) SH_INLINE_LAMBDA -> DzValue {
     if constexpr (dz_int<A, B> || dz_float<A, B>) {
       return a - b;
     }
     throw NotSupportedException();
   });
+}
+
+void Vm::subtractInt() {
+  auto& a = stack.peek(1);
+  auto& b = stack.peek(0);
+  if (a.type == DzValue::Type::Int && b.type == DzValue::Type::Int) {
+    a.i -= b.i;
+    stack.pop();
+  } else {
+    patch(Opcode::SubtractGeneric);
+  }
+}
+
+void Vm::subtractFloat() {
+  auto& a = stack.peek(1);
+  auto& b = stack.peek(0);
+  if (a.type == DzValue::Type::Float && b.type == DzValue::Type::Float) {
+    a.f -= b.f;
+    stack.pop();
+  } else {
+    patch(Opcode::SubtractGeneric);
+  }
 }
 
 void Vm::switchCase() {
