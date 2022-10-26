@@ -50,8 +50,11 @@ private:
   void defineNatives();
 
   template<std::integral Integral>
-  auto read() -> Integral;
-  void patch(Opcode opcode, std::size_t unread = 1);
+  SH_INLINE auto read() -> Integral;
+  SH_INLINE void patch(Opcode opcode);
+
+  SH_INLINE auto checkType(const DzValue& a, DzValue::Type type) -> bool;
+  SH_INLINE auto checkType(const DzValue& a, const DzValue& b, DzValue::Type type) -> bool;
 
   template<template<typename> typename Promote = promote_t, typename Callback>
   SH_INLINE void unary(std::string_view operation, Callback callback);
