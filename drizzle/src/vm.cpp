@@ -295,7 +295,7 @@ void Vm::addGeneric() {
 void Vm::addInt() {
   auto& a = stack.peek(1);
   auto& b = stack.peek(0);
-  if (a.type == DzValue::Type::Int && b.type == DzValue::Type::Int) {
+  if ((int(a.type) & int(b.type)) == int(DzValue::Type::Int)) {
     a.i += b.i;
     stack.pop();
   } else {
@@ -306,7 +306,7 @@ void Vm::addInt() {
 void Vm::addFloat() {
   auto& a = stack.peek(1);
   auto& b = stack.peek(0);
-  if (a.type == DzValue::Type::Float && b.type == DzValue::Type::Float) {
+  if ((int(a.type) & int(b.type)) == int(DzValue::Type::Float)) {
     a.f += b.f;
     stack.pop();
   } else {
@@ -343,7 +343,7 @@ void Vm::bitwiseAndGeneric() {
 void Vm::bitwiseAndInt() {
   auto& a = stack.peek(1);
   auto& b = stack.peek(0);
-  if (a.type == DzValue::Type::Int && b.type == DzValue::Type::Int) {
+  if ((int(a.type) & int(b.type)) == int(DzValue::Type::Int)) {
     a.i &= b.i;
     stack.pop();
   } else {
@@ -378,7 +378,7 @@ void Vm::bitwiseAsrGeneric() {
 void Vm::bitwiseAsrInt() {
   auto& a = stack.peek(1);
   auto& b = stack.peek(0);
-  if (a.type == DzValue::Type::Int && b.type == DzValue::Type::Int) {
+  if ((int(a.type) & int(b.type)) == int(DzValue::Type::Int)) {
     a.i >>= b.i;
     stack.pop();
   } else {
@@ -443,7 +443,7 @@ void Vm::bitwiseLslGeneric() {
 void Vm::bitwiseLslInt() {
   auto& a = stack.peek(1);
   auto& b = stack.peek(0);
-  if (a.type == DzValue::Type::Int && b.type == DzValue::Type::Int) {
+  if ((int(a.type) & int(b.type)) == int(DzValue::Type::Int)) {
     a.i <<= b.i;
     stack.pop();
   } else {
@@ -478,7 +478,7 @@ void Vm::bitwiseLsrGeneric() {
 void Vm::bitwiseLsrInt() {
   auto& a = stack.peek(1);
   auto& b = stack.peek(0);
-  if (a.type == DzValue::Type::Int && b.type == DzValue::Type::Int) {
+  if ((int(a.type) & int(b.type)) == int(DzValue::Type::Int)) {
     a.i = static_cast<dzint>(static_cast<std::make_unsigned_t<dzint>>(a.i) >> b.i);
     stack.pop();
   } else {
@@ -515,7 +515,7 @@ void Vm::bitwiseOrGeneric() {
 void Vm::bitwiseOrInt() {
   auto& a = stack.peek(1);
   auto& b = stack.peek(0);
-  if (a.type == DzValue::Type::Int && b.type == DzValue::Type::Int) {
+  if ((int(a.type) & int(b.type)) == int(DzValue::Type::Int)) {
     a.i |= b.i;
     stack.pop();
   } else {
@@ -552,7 +552,7 @@ void Vm::bitwiseXorGeneric() {
 void Vm::bitwiseXorInt() {
   auto& a = stack.peek(1);
   auto& b = stack.peek(0);
-  if (a.type == DzValue::Type::Int && b.type == DzValue::Type::Int) {
+  if ((int(a.type) & int(b.type)) == int(DzValue::Type::Int)) {
     a.i ^= b.i;
     stack.pop();
   } else {
@@ -651,7 +651,7 @@ void Vm::divideGeneric() {
 void Vm::divideFloat() {
   auto& a = stack.peek(1);
   auto& b = stack.peek(0);
-  if (a.type == DzValue::Type::Float && b.type == DzValue::Type::Float) {
+  if ((int(a.type) & int(b.type)) == int(DzValue::Type::Float)) {
     if (b.f == 0.0) {
       raise("division by zero");
     }
@@ -699,7 +699,7 @@ void Vm::divideIntegerGeneric() {
 void Vm::divideIntegerInt() {
   auto& a = stack.peek(1);
   auto& b = stack.peek(0);
-  if (a.type == DzValue::Type::Int && b.type == DzValue::Type::Int) {
+  if ((int(a.type) & int(b.type)) == int(DzValue::Type::Int)) {
     if (b.i == 0) {
       raise("integer division by zero");
     }
@@ -713,7 +713,7 @@ void Vm::divideIntegerInt() {
 void Vm::divideIntegerFloat() {
   auto& a = stack.peek(1);
   auto& b = stack.peek(0);
-  if (a.type == DzValue::Type::Float && b.type == DzValue::Type::Float) {
+  if ((int(a.type) & int(b.type)) == int(DzValue::Type::Float)) {
     if (b.f == 0.0) {
       raise("integer division by zero");
     }
@@ -750,7 +750,7 @@ void Vm::equalGeneric() {
 void Vm::equalInt() {
   auto& a = stack.peek(1);
   auto& b = stack.peek(0);
-  if (a.type == DzValue::Type::Int && b.type == DzValue::Type::Int) {
+  if ((int(a.type) & int(b.type)) == int(DzValue::Type::Int)) {
     a = a.i == b.i;
     stack.pop();
   } else {
@@ -761,7 +761,7 @@ void Vm::equalInt() {
 void Vm::equalFloat() {
   auto& a = stack.peek(1);
   auto& b = stack.peek(0);
-  if (a.type == DzValue::Type::Float && b.type == DzValue::Type::Float) {
+  if ((int(a.type) & int(b.type)) == int(DzValue::Type::Float)) {
     a = a.f == b.f;
     stack.pop();
   } else {
@@ -819,7 +819,7 @@ void Vm::greaterGeneric() {
 void Vm::greaterInt() {
   auto& a = stack.peek(1);
   auto& b = stack.peek(0);
-  if (a.type == DzValue::Type::Int && b.type == DzValue::Type::Int) {
+  if ((int(a.type) & int(b.type)) == int(DzValue::Type::Int)) {
     a = a.i > b.i;
     stack.pop();
   } else {
@@ -830,7 +830,7 @@ void Vm::greaterInt() {
 void Vm::greaterFloat() {
   auto& a = stack.peek(1);
   auto& b = stack.peek(0);
-  if (a.type == DzValue::Type::Float && b.type == DzValue::Type::Float) {
+  if ((int(a.type) & int(b.type)) == int(DzValue::Type::Float)) {
     a = a.f > b.f;
     stack.pop();
   } else {
@@ -868,7 +868,7 @@ void Vm::greaterEqualGeneric() {
 void Vm::greaterEqualInt() {
   auto& a = stack.peek(1);
   auto& b = stack.peek(0);
-  if (a.type == DzValue::Type::Int && b.type == DzValue::Type::Int) {
+  if ((int(a.type) & int(b.type)) == int(DzValue::Type::Int)) {
     a = a.i >= b.i;
     stack.pop();
   } else {
@@ -879,7 +879,7 @@ void Vm::greaterEqualInt() {
 void Vm::greaterEqualFloat() {
   auto& a = stack.peek(1);
   auto& b = stack.peek(0);
-  if (a.type == DzValue::Type::Float && b.type == DzValue::Type::Float) {
+  if ((int(a.type) & int(b.type)) == int(DzValue::Type::Float)) {
     a = a.f >= b.f;
     stack.pop();
   } else {
@@ -984,7 +984,7 @@ void Vm::lessGeneric() {
 void Vm::lessInt() {
   auto& a = stack.peek(1);
   auto& b = stack.peek(0);
-  if (a.type == DzValue::Type::Int && b.type == DzValue::Type::Int) {
+  if ((int(a.type) & int(b.type)) == int(DzValue::Type::Int)) {
     a = a.i < b.i;
     stack.pop();
   } else {
@@ -995,7 +995,7 @@ void Vm::lessInt() {
 void Vm::lessFloat() {
   auto& a = stack.peek(1);
   auto& b = stack.peek(0);
-  if (a.type == DzValue::Type::Float && b.type == DzValue::Type::Float) {
+  if ((int(a.type) & int(b.type)) == int(DzValue::Type::Float)) {
     a = a.f < b.f;
     stack.pop();
   } else {
@@ -1033,7 +1033,7 @@ void Vm::lessEqualGeneric() {
 void Vm::lessEqualInt() {
   auto& a = stack.peek(1);
   auto& b = stack.peek(0);
-  if (a.type == DzValue::Type::Int && b.type == DzValue::Type::Int) {
+  if ((int(a.type) & int(b.type)) == int(DzValue::Type::Int)) {
     a = a.i <= b.i;
     stack.pop();
   } else {
@@ -1044,7 +1044,7 @@ void Vm::lessEqualInt() {
 void Vm::lessEqualFloat() {
   auto& a = stack.peek(1);
   auto& b = stack.peek(0);
-  if (a.type == DzValue::Type::Float && b.type == DzValue::Type::Float) {
+  if ((int(a.type) & int(b.type)) == int(DzValue::Type::Float)) {
     a = a.f <= b.f;
     stack.pop();
   } else {
@@ -1134,7 +1134,7 @@ void Vm::moduloGeneric() {
 void Vm::moduloInt() {
   auto& a = stack.peek(1);
   auto& b = stack.peek(0);
-  if (a.type == DzValue::Type::Int && b.type == DzValue::Type::Int) {
+  if ((int(a.type) & int(b.type)) == int(DzValue::Type::Int)) {
     if (b.i == 0) {
       raise("modulo by zero");
     }
@@ -1148,7 +1148,7 @@ void Vm::moduloInt() {
 void Vm::moduloFloat() {
   auto& a = stack.peek(1);
   auto& b = stack.peek(0);
-  if (a.type == DzValue::Type::Float && b.type == DzValue::Type::Float) {
+  if ((int(a.type) & int(b.type)) == int(DzValue::Type::Float)) {
     if (b.f == 0.0) {
       raise("modulo by zero");
     }
@@ -1189,7 +1189,7 @@ void Vm::multiplyGeneric() {
 void Vm::multiplyInt() {
   auto& a = stack.peek(1);
   auto& b = stack.peek(0);
-  if (a.type == DzValue::Type::Int && b.type == DzValue::Type::Int) {
+  if ((int(a.type) & int(b.type)) == int(DzValue::Type::Int)) {
     a.i *= b.i;
     stack.pop();
   } else {
@@ -1200,7 +1200,7 @@ void Vm::multiplyInt() {
 void Vm::multiplyFloat() {
   auto& a = stack.peek(1);
   auto& b = stack.peek(0);
-  if (a.type == DzValue::Type::Float && b.type == DzValue::Type::Float) {
+  if ((int(a.type) & int(b.type)) == int(DzValue::Type::Float)) {
     a.f *= b.f;
     stack.pop();
   } else {
@@ -1337,7 +1337,7 @@ void Vm::notEqualGeneric() {
 void Vm::notEqualInt() {
   auto& a = stack.peek(1);
   auto& b = stack.peek(0);
-  if (a.type == DzValue::Type::Int && b.type == DzValue::Type::Int) {
+  if ((int(a.type) & int(b.type)) == int(DzValue::Type::Int)) {
     a = a.i != b.i;
     stack.pop();
   } else {
@@ -1348,7 +1348,7 @@ void Vm::notEqualInt() {
 void Vm::notEqualFloat() {
   auto& a = stack.peek(1);
   auto& b = stack.peek(0);
-  if (a.type == DzValue::Type::Float && b.type == DzValue::Type::Float) {
+  if ((int(a.type) & int(b.type)) == int(DzValue::Type::Float)) {
     a = a.f != b.f;
     stack.pop();
   } else {
@@ -1400,7 +1400,7 @@ void Vm::powerGeneric() {
 void Vm::powerInt() {
   auto& a = stack.peek(1);
   auto& b = stack.peek(0);
-  if (a.type == DzValue::Type::Int && b.type == DzValue::Type::Int) {
+  if ((int(a.type) & int(b.type)) == int(DzValue::Type::Int)) {
     a.i = std::pow(a.i, b.i);
     stack.pop();
   } else {
@@ -1411,7 +1411,7 @@ void Vm::powerInt() {
 void Vm::powerFloat() {
   auto& a = stack.peek(1);
   auto& b = stack.peek(0);
-  if (a.type == DzValue::Type::Float && b.type == DzValue::Type::Float) {
+  if ((int(a.type) & int(b.type)) == int(DzValue::Type::Float)) {
     a.f = std::pow(a.f, b.f);
     stack.pop();
   } else {
@@ -1516,7 +1516,7 @@ void Vm::subtractGeneric() {
 void Vm::subtractInt() {
   auto& a = stack.peek(1);
   auto& b = stack.peek(0);
-  if (a.type == DzValue::Type::Int && b.type == DzValue::Type::Int) {
+  if ((int(a.type) & int(b.type)) == int(DzValue::Type::Int)) {
     a.i -= b.i;
     stack.pop();
   } else {
@@ -1527,7 +1527,7 @@ void Vm::subtractInt() {
 void Vm::subtractFloat() {
   auto& a = stack.peek(1);
   auto& b = stack.peek(0);
-  if (a.type == DzValue::Type::Float && b.type == DzValue::Type::Float) {
+  if ((int(a.type) & int(b.type)) == int(DzValue::Type::Float)) {
     a.f -= b.f;
     stack.pop();
   } else {
