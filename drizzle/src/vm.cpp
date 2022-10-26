@@ -217,14 +217,17 @@ void Vm::unary(std::string_view operation, Callback callback) {
 
 template<template<typename> typename Promote, typename Callback>
 void Vm::binary(std::string_view operation, Callback callback) {
-  auto& a = stack.peek(1);
-  auto& b = stack.peek(0);
+  auto [a, b] = peekBinary();
   try {
     a = DzValue::binary<Promote>(a, b, callback);
     stack.pop();
   } catch (const NotSupportedException&) {
     raise("unsupported operand types for '{}': '{}' and '{}'", operation, a.kind(), b.kind());
   }
+}
+
+auto Vm::peekBinary() -> std::tuple<DzValue&, DzValue&> {
+  return std::forward_as_tuple(stack.peek(1), stack.peek(0));
 }
 
 auto Vm::forward(DzValue& iteree) -> DzValue {
@@ -250,9 +253,7 @@ auto Vm::reverse(DzValue& iteree) -> DzValue {
 }
 
 void Vm::add() {
-  const auto& a = stack.peek(0);
-  const auto& b = stack.peek(1);
-
+  auto [a, b] = peekBinary();
   auto opcode = Opcode::AddGeneric;
   if (a.type == b.type) {
     switch (a.type) {
@@ -300,8 +301,7 @@ void Vm::addGeneric() {
 }
 
 void Vm::addInt() {
-  auto& a = stack.peek(1);
-  auto& b = stack.peek(0);
+  auto [a, b] = peekBinary();
   if (checkType(a, b, DzValue::Type::Int)) {
     a.i += b.i;
     stack.pop();
@@ -311,8 +311,7 @@ void Vm::addInt() {
 }
 
 void Vm::addFloat() {
-  auto& a = stack.peek(1);
-  auto& b = stack.peek(0);
+  auto [a, b] = peekBinary();
   if (checkType(a, b, DzValue::Type::Float)) {
     a.f += b.f;
     stack.pop();
@@ -322,9 +321,7 @@ void Vm::addFloat() {
 }
 
 void Vm::bitwiseAnd() {
-  const auto& a = stack.peek(0);
-  const auto& b = stack.peek(1);
-
+  auto [a, b] = peekBinary();
   auto opcode = Opcode::BitwiseAndGeneric;
   if (a.type == b.type) {
     switch (a.type) {
@@ -348,8 +345,7 @@ void Vm::bitwiseAndGeneric() {
 }
 
 void Vm::bitwiseAndInt() {
-  auto& a = stack.peek(1);
-  auto& b = stack.peek(0);
+  auto [a, b] = peekBinary();
   if (checkType(a, b, DzValue::Type::Int)) {
     a.i &= b.i;
     stack.pop();
@@ -359,9 +355,7 @@ void Vm::bitwiseAndInt() {
 }
 
 void Vm::bitwiseAsr() {
-  const auto& a = stack.peek(0);
-  const auto& b = stack.peek(1);
-
+  auto [a, b] = peekBinary();
   auto opcode = Opcode::BitwiseAsrGeneric;
   if (a.type == b.type) {
     switch (a.type) {
@@ -383,8 +377,7 @@ void Vm::bitwiseAsrGeneric() {
 }
 
 void Vm::bitwiseAsrInt() {
-  auto& a = stack.peek(1);
-  auto& b = stack.peek(0);
+  auto [a, b] = peekBinary();
   if (checkType(a, b, DzValue::Type::Int)) {
     a.i >>= b.i;
     stack.pop();
@@ -394,8 +387,7 @@ void Vm::bitwiseAsrInt() {
 }
 
 void Vm::bitwiseComplement() {
-  const auto& a = stack.top();
-
+  auto& a = stack.top();
   auto opcode = Opcode::BitwiseComplementGeneric;
   switch (a.type) {
     case DzValue::Type::Int:
@@ -424,9 +416,7 @@ void Vm::bitwiseComplementInt() {
 }
 
 void Vm::bitwiseLsl() {
-  const auto& a = stack.peek(0);
-  const auto& b = stack.peek(1);
-
+  auto [a, b] = peekBinary();
   auto opcode = Opcode::BitwiseLslGeneric;
   if (a.type == b.type) {
     switch (a.type) {
@@ -448,8 +438,7 @@ void Vm::bitwiseLslGeneric() {
 }
 
 void Vm::bitwiseLslInt() {
-  auto& a = stack.peek(1);
-  auto& b = stack.peek(0);
+  auto [a, b] = peekBinary();
   if (checkType(a, b, DzValue::Type::Int)) {
     a.i <<= b.i;
     stack.pop();
@@ -459,9 +448,7 @@ void Vm::bitwiseLslInt() {
 }
 
 void Vm::bitwiseLsr() {
-  const auto& a = stack.peek(0);
-  const auto& b = stack.peek(1);
-
+  auto [a, b] = peekBinary();
   auto opcode = Opcode::BitwiseLsrGeneric;
   if (a.type == b.type) {
     switch (a.type) {
@@ -483,8 +470,7 @@ void Vm::bitwiseLsrGeneric() {
 }
 
 void Vm::bitwiseLsrInt() {
-  auto& a = stack.peek(1);
-  auto& b = stack.peek(0);
+  auto [a, b] = peekBinary();
   if (checkType(a, b, DzValue::Type::Int)) {
     a.i = static_cast<dzint>(static_cast<std::make_unsigned_t<dzint>>(a.i) >> b.i);
     stack.pop();
@@ -494,9 +480,7 @@ void Vm::bitwiseLsrInt() {
 }
 
 void Vm::bitwiseOr() {
-  const auto& a = stack.peek(0);
-  const auto& b = stack.peek(1);
-
+  auto [a, b] = peekBinary();
   auto opcode = Opcode::BitwiseOrGeneric;
   if (a.type == b.type) {
     switch (a.type) {
@@ -520,8 +504,7 @@ void Vm::bitwiseOrGeneric() {
 }
 
 void Vm::bitwiseOrInt() {
-  auto& a = stack.peek(1);
-  auto& b = stack.peek(0);
+  auto [a, b] = peekBinary();
   if (checkType(a, b, DzValue::Type::Int)) {
     a.i |= b.i;
     stack.pop();
@@ -531,9 +514,7 @@ void Vm::bitwiseOrInt() {
 }
 
 void Vm::bitwiseXor() {
-  const auto& a = stack.peek(0);
-  const auto& b = stack.peek(1);
-
+  auto [a, b] = peekBinary();
   auto opcode = Opcode::BitwiseXorGeneric;
   if (a.type == b.type) {
     switch (a.type) {
@@ -557,8 +538,7 @@ void Vm::bitwiseXorGeneric() {
 }
 
 void Vm::bitwiseXorInt() {
-  auto& a = stack.peek(1);
-  auto& b = stack.peek(0);
+  auto [a, b] = peekBinary();
   if (checkType(a, b, DzValue::Type::Int)) {
     a.i ^= b.i;
     stack.pop();
@@ -629,9 +609,7 @@ void Vm::constant() {
 }
 
 void Vm::divide() {
-  const auto& a = stack.peek(0);
-  const auto& b = stack.peek(1);
-
+  auto [a, b] = peekBinary();
   auto opcode = Opcode::DivideGeneric;
   if (a.type == b.type) {
     switch (a.type) {
@@ -656,8 +634,7 @@ void Vm::divideGeneric() {
 }
 
 void Vm::divideFloat() {
-  auto& a = stack.peek(1);
-  auto& b = stack.peek(0);
+  auto [a, b] = peekBinary();
   if (checkType(a, b, DzValue::Type::Float)) {
     if (b.f == 0.0) {
       raise("division by zero");
@@ -670,9 +647,7 @@ void Vm::divideFloat() {
 }
 
 void Vm::divideInteger() {
-  const auto& a = stack.peek(0);
-  const auto& b = stack.peek(1);
-
+  auto [a, b] = peekBinary();
   auto opcode = Opcode::DivideIntegerGeneric;
   if (a.type == b.type) {
     switch (a.type) {
@@ -704,8 +679,7 @@ void Vm::divideIntegerGeneric() {
 }
 
 void Vm::divideIntegerInt() {
-  auto& a = stack.peek(1);
-  auto& b = stack.peek(0);
+  auto [a, b] = peekBinary();
   if (checkType(a, b, DzValue::Type::Int)) {
     if (b.i == 0) {
       raise("integer division by zero");
@@ -718,8 +692,7 @@ void Vm::divideIntegerInt() {
 }
 
 void Vm::divideIntegerFloat() {
-  auto& a = stack.peek(1);
-  auto& b = stack.peek(0);
+  auto [a, b] = peekBinary();
   if (checkType(a, b, DzValue::Type::Float)) {
     if (b.f == 0.0) {
       raise("integer division by zero");
@@ -732,9 +705,7 @@ void Vm::divideIntegerFloat() {
 }
 
 void Vm::equal() {
-  const auto& a = stack.peek(0);
-  const auto& b = stack.peek(1);
-
+  auto [a, b] = peekBinary();
   auto opcode = Opcode::EqualGeneric;
   if (a.type == b.type) {
     switch (a.type) {
@@ -755,8 +726,7 @@ void Vm::equalGeneric() {
 }
 
 void Vm::equalInt() {
-  auto& a = stack.peek(1);
-  auto& b = stack.peek(0);
+  auto [a, b] = peekBinary();
   if (checkType(a, b, DzValue::Type::Int)) {
     a = a.i == b.i;
     stack.pop();
@@ -766,8 +736,7 @@ void Vm::equalInt() {
 }
 
 void Vm::equalFloat() {
-  auto& a = stack.peek(1);
-  auto& b = stack.peek(0);
+  auto [a, b] = peekBinary();
   if (checkType(a, b, DzValue::Type::Float)) {
     a = a.f == b.f;
     stack.pop();
@@ -797,9 +766,7 @@ void Vm::get() {
 }
 
 void Vm::greater() {
-  const auto& a = stack.peek(0);
-  const auto& b = stack.peek(1);
-
+  auto [a, b] = peekBinary();
   auto opcode = Opcode::GreaterGeneric;
   if (a.type == b.type) {
     switch (a.type) {
@@ -824,8 +791,7 @@ void Vm::greaterGeneric() {
 }
 
 void Vm::greaterInt() {
-  auto& a = stack.peek(1);
-  auto& b = stack.peek(0);
+  auto [a, b] = peekBinary();
   if (checkType(a, b, DzValue::Type::Int)) {
     a = a.i > b.i;
     stack.pop();
@@ -835,8 +801,7 @@ void Vm::greaterInt() {
 }
 
 void Vm::greaterFloat() {
-  auto& a = stack.peek(1);
-  auto& b = stack.peek(0);
+  auto [a, b] = peekBinary();
   if (checkType(a, b, DzValue::Type::Float)) {
     a = a.f > b.f;
     stack.pop();
@@ -846,9 +811,7 @@ void Vm::greaterFloat() {
 }
 
 void Vm::greaterEqual() {
-  const auto& a = stack.peek(0);
-  const auto& b = stack.peek(1);
-
+  auto [a, b] = peekBinary();
   auto opcode = Opcode::GreaterEqualGeneric;
   if (a.type == b.type) {
     switch (a.type) {
@@ -873,8 +836,7 @@ void Vm::greaterEqualGeneric() {
 }
 
 void Vm::greaterEqualInt() {
-  auto& a = stack.peek(1);
-  auto& b = stack.peek(0);
+  auto [a, b] = peekBinary();
   if (checkType(a, b, DzValue::Type::Int)) {
     a = a.i >= b.i;
     stack.pop();
@@ -884,8 +846,7 @@ void Vm::greaterEqualInt() {
 }
 
 void Vm::greaterEqualFloat() {
-  auto& a = stack.peek(1);
-  auto& b = stack.peek(0);
+  auto [a, b] = peekBinary();
   if (checkType(a, b, DzValue::Type::Float)) {
     a = a.f >= b.f;
     stack.pop();
@@ -962,9 +923,7 @@ void Vm::jumpTruePop() {
 }
 
 void Vm::less() {
-  const auto& a = stack.peek(0);
-  const auto& b = stack.peek(1);
-
+  auto [a, b] = peekBinary();
   auto opcode = Opcode::LessGeneric;
   if (a.type == b.type) {
     switch (a.type) {
@@ -989,8 +948,7 @@ void Vm::lessGeneric() {
 }
 
 void Vm::lessInt() {
-  auto& a = stack.peek(1);
-  auto& b = stack.peek(0);
+  auto [a, b] = peekBinary();
   if (checkType(a, b, DzValue::Type::Int)) {
     a = a.i < b.i;
     stack.pop();
@@ -1000,8 +958,7 @@ void Vm::lessInt() {
 }
 
 void Vm::lessFloat() {
-  auto& a = stack.peek(1);
-  auto& b = stack.peek(0);
+  auto [a, b] = peekBinary();
   if (checkType(a, b, DzValue::Type::Float)) {
     a = a.f < b.f;
     stack.pop();
@@ -1011,9 +968,7 @@ void Vm::lessFloat() {
 }
 
 void Vm::lessEqual() {
-  const auto& a = stack.peek(0);
-  const auto& b = stack.peek(1);
-
+  auto [a, b] = peekBinary();
   auto opcode = Opcode::LessEqualGeneric;
   if (a.type == b.type) {
     switch (a.type) {
@@ -1038,8 +993,7 @@ void Vm::lessEqualGeneric() {
 }
 
 void Vm::lessEqualInt() {
-  auto& a = stack.peek(1);
-  auto& b = stack.peek(0);
+  auto [a, b] = peekBinary();
   if (checkType(a, b, DzValue::Type::Int)) {
     a = a.i <= b.i;
     stack.pop();
@@ -1049,8 +1003,7 @@ void Vm::lessEqualInt() {
 }
 
 void Vm::lessEqualFloat() {
-  auto& a = stack.peek(1);
-  auto& b = stack.peek(0);
+  auto [a, b] = peekBinary();
   if (checkType(a, b, DzValue::Type::Float)) {
     a = a.f <= b.f;
     stack.pop();
@@ -1105,9 +1058,7 @@ void Vm::map() {
 }
 
 void Vm::modulo() {
-  const auto& a = stack.peek(0);
-  const auto& b = stack.peek(1);
-
+  auto [a, b] = peekBinary();
   auto opcode = Opcode::ModuloGeneric;
   if (a.type == b.type) {
     switch (a.type) {
@@ -1139,8 +1090,7 @@ void Vm::moduloGeneric() {
 }
 
 void Vm::moduloInt() {
-  auto& a = stack.peek(1);
-  auto& b = stack.peek(0);
+  auto [a, b] = peekBinary();
   if (checkType(a, b, DzValue::Type::Int)) {
     if (b.i == 0) {
       raise("modulo by zero");
@@ -1153,8 +1103,7 @@ void Vm::moduloInt() {
 }
 
 void Vm::moduloFloat() {
-  auto& a = stack.peek(1);
-  auto& b = stack.peek(0);
+  auto [a, b] = peekBinary();
   if (checkType(a, b, DzValue::Type::Float)) {
     if (b.f == 0.0) {
       raise("modulo by zero");
@@ -1167,9 +1116,7 @@ void Vm::moduloFloat() {
 }
 
 void Vm::multiply() {
-  const auto& a = stack.peek(0);
-  const auto& b = stack.peek(1);
-
+  auto [a, b] = peekBinary();
   auto opcode = Opcode::MultiplyGeneric;
   if (a.type == b.type) {
     switch (a.type) {
@@ -1194,8 +1141,7 @@ void Vm::multiplyGeneric() {
 }
 
 void Vm::multiplyInt() {
-  auto& a = stack.peek(1);
-  auto& b = stack.peek(0);
+  auto [a, b] = peekBinary();
   if (checkType(a, b, DzValue::Type::Int)) {
     a.i *= b.i;
     stack.pop();
@@ -1205,8 +1151,7 @@ void Vm::multiplyInt() {
 }
 
 void Vm::multiplyFloat() {
-  auto& a = stack.peek(1);
-  auto& b = stack.peek(0);
+  auto [a, b] = peekBinary();
   if (checkType(a, b, DzValue::Type::Float)) {
     a.f *= b.f;
     stack.pop();
@@ -1216,8 +1161,7 @@ void Vm::multiplyFloat() {
 }
 
 void Vm::negate() {
-  const auto& a = stack.top();
-
+  auto& a = stack.top();
   auto opcode = Opcode::NegateGeneric;
   switch (a.type) {
     case DzValue::Type::Int:
@@ -1258,8 +1202,7 @@ void Vm::negateFloat() {
 }
 
 void Vm::not_() {
-  const auto& a = stack.top();
-
+  auto& a = stack.top();
   auto opcode = Opcode::NotGeneric;
   switch (a.type) {
     case DzValue::Type::Bool:
@@ -1319,9 +1262,7 @@ void Vm::notObject() {
 }
 
 void Vm::notEqual() {
-  const auto& a = stack.peek(0);
-  const auto& b = stack.peek(1);
-
+  auto [a, b] = peekBinary();
   auto opcode = Opcode::NotEqualGeneric;
   if (a.type == b.type) {
     switch (a.type) {
@@ -1342,8 +1283,7 @@ void Vm::notEqualGeneric() {
 }
 
 void Vm::notEqualInt() {
-  auto& a = stack.peek(1);
-  auto& b = stack.peek(0);
+  auto [a, b] = peekBinary();
   if (checkType(a, b, DzValue::Type::Int)) {
     a = a.i != b.i;
     stack.pop();
@@ -1353,8 +1293,7 @@ void Vm::notEqualInt() {
 }
 
 void Vm::notEqualFloat() {
-  auto& a = stack.peek(1);
-  auto& b = stack.peek(0);
+  auto [a, b] = peekBinary();
   if (checkType(a, b, DzValue::Type::Float)) {
     a = a.f != b.f;
     stack.pop();
@@ -1378,9 +1317,7 @@ void Vm::popMultiple() {
 }
 
 void Vm::power() {
-  const auto& a = stack.peek(0);
-  const auto& b = stack.peek(1);
-
+  auto [a, b] = peekBinary();
   auto opcode = Opcode::PowerGeneric;
   if (a.type == b.type) {
     switch (a.type) {
@@ -1405,8 +1342,7 @@ void Vm::powerGeneric() {
 }
 
 void Vm::powerInt() {
-  auto& a = stack.peek(1);
-  auto& b = stack.peek(0);
+  auto [a, b] = peekBinary();
   if (checkType(a, b, DzValue::Type::Int)) {
     a.i = std::pow(a.i, b.i);
     stack.pop();
@@ -1416,8 +1352,7 @@ void Vm::powerInt() {
 }
 
 void Vm::powerFloat() {
-  auto& a = stack.peek(1);
-  auto& b = stack.peek(0);
+  auto [a, b] = peekBinary();
   if (checkType(a, b, DzValue::Type::Float)) {
     a.f = std::pow(a.f, b.f);
     stack.pop();
@@ -1494,9 +1429,7 @@ void Vm::subscriptSet() {
 }
 
 void Vm::subtract() {
-  const auto& a = stack.peek(0);
-  const auto& b = stack.peek(1);
-
+  auto [a, b] = peekBinary();
   auto opcode = Opcode::SubtractGeneric;
   if (a.type == b.type) {
     switch (a.type) {
@@ -1521,8 +1454,7 @@ void Vm::subtractGeneric() {
 }
 
 void Vm::subtractInt() {
-  auto& a = stack.peek(1);
-  auto& b = stack.peek(0);
+  auto [a, b] = peekBinary();
   if (checkType(a, b, DzValue::Type::Int)) {
     a.i -= b.i;
     stack.pop();
@@ -1532,8 +1464,7 @@ void Vm::subtractInt() {
 }
 
 void Vm::subtractFloat() {
-  auto& a = stack.peek(1);
-  auto& b = stack.peek(0);
+  auto [a, b] = peekBinary();
   if (checkType(a, b, DzValue::Type::Float)) {
     a.f -= b.f;
     stack.pop();

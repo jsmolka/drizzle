@@ -47,6 +47,8 @@ public:
 private:
   static constexpr auto kMaximumRecursionDepth = 1000;
 
+  auto forward(DzValue& iteree) -> DzValue;
+  auto reverse(DzValue& iteree) -> DzValue;
   void defineNatives();
 
   template<std::integral Integral>
@@ -55,14 +57,12 @@ private:
 
   SH_INLINE auto checkType(const DzValue& a, DzValue::Type type) -> bool;
   SH_INLINE auto checkType(const DzValue& a, const DzValue& b, DzValue::Type type) -> bool;
+  SH_INLINE auto peekBinary() -> std::tuple<DzValue&, DzValue&>;
 
   template<template<typename> typename Promote = promote_t, typename Callback>
   SH_INLINE void unary(std::string_view operation, Callback callback);
   template<template<typename> typename Promote = promote_t, typename Callback>
   SH_INLINE void binary(std::string_view operation, Callback callback);
-
-  auto forward(DzValue& iteree) -> DzValue;
-  auto reverse(DzValue& iteree) -> DzValue;
 
   SH_INLINE void add();
   SH_INLINE void addGeneric();
